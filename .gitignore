@@ -1,8 +1,12 @@
-*.class
+# idea project settings #
+*.iml
 
 # Package Files #
 *.jar
 *.war
 *.ear
 
+
+# root of compiled classes #
 target/**/*
+*.class
