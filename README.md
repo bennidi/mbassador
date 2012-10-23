@@ -7,6 +7,8 @@ features like weak references and ended up being even faster but offering more f
 
 + Delivers everything: Messages must not implement any interface and can be of any type (-> message bus is typed using generics with upper
 bound being Object.class)
++ Follows type hierarchy: Class hierarchy of messages are considered during message delivery. This means that listeners will also receive
+subtypes of the message type they are listening for, e.g. a listener for Object.class receives everything.
 + Annotation driven: To define and customize a message handler simply mark it with @Listener annotation
 + Synchronous and asynchronous message delivery: A handler can be invoked to handle a message either synchronously or
 asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method
