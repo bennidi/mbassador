@@ -3,7 +3,7 @@ Mbassador
 
 Mbassador is a very light-weight message bus implementation following the publish subscribe pattern. It is designed
 for ease of use and aims to be resource efficient and very fast. It was inspired by google guava's event bus which lacked some
-features like weak references and ended up being even faster but offering more features. At its core it offers the following:
+features like weak references at that time. At its core it offers the following:
 
 + Delivers everything: Messages must not implement any interface and can be of any type (-> message bus is typed using generics with upper
 bound being Object.class)
