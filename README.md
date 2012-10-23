@@ -17,7 +17,7 @@ in certain environments where objects are created by frameworks, i.e. spring, gu
 ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
 + Filtering: Mbassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to
 a single message handler
-+ Error handling: Errors during message delivery are sent to an error handler of which you might provide a custom implementation.
++ Error handling: Errors during message delivery are sent to an error handler of which a custom implementation can easily be plugged-in.
 + Ease of Use: Using Mbassador in your project is very easy. Create as many instances of Mbassador as you like (usually a singleton will do),
 mark and configure your message handlers with @Listener annotations and finally register the listeners at any Mbassador instance. Start
 sending messages to your listeners using one of Mbassador's publication methods (sync or async). Done!
