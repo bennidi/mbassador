@@ -1,6 +1,5 @@
 package org.mbassy.common;
 
-import com.google.common.base.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,7 @@ public class ReflectionUtils {
 		return methods;
 	}
 
-	public static List<Field> getFields(Predicate<Field> condition, Class<?> target) {
+	public static List<Field> getFields(IPredicate<Field> condition, Class<?> target) {
 		List<Field> methods = new LinkedList<Field>();
 		try {
 			for (Field method : target.getDeclaredFields()) {
