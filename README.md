@@ -22,3 +22,11 @@ a single message handler
 mark and configure your message handlers with @Listener annotations and finally register the listeners at any Mbassador instance. Start
 sending messages to your listeners using one of Mbassador's publication methods (sync or async). Done!
 
+Planned features:
+
++ Maven dependency: Add Mbassador to your project using maven. Coming soon!
++ Message handler priority: Message handlers can specify priority to influence order of message delivery
+
+
+
+
