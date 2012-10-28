@@ -28,4 +28,13 @@ public interface MessageFilter {
 		}
 	}
 
+    public static final class None implements MessageFilter {
+
+        @Override
+        public boolean accepts(Object event, Object listener) {
+            return false;
+        }
+    }
+
+
 }

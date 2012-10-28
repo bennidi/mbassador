@@ -2,6 +2,8 @@ package org.mbassy;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mbassy.filter.Filter;
+import org.mbassy.filter.MessageFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,16 +151,25 @@ public class MBassadorTest {
 
 	public class EventingTestBean {
 
-
+        // every event of type TestEvent or any subtype will be delivered
+        // to this listener
 		@Listener
 		public void handleTestEvent(TestEvent event) {
 			event.counter.incrementAndGet();
 		}
 
+        // this handler will be invoked asynchronously
 		@Listener(mode = Listener.Dispatch.Asynchronous)
 		public void handleSubTestEvent(SubTestEvent event) {
             event.counter.incrementAndGet();
 		}
+
+        // this handler will receive events of type SubTestEvent
+        // or any subtabe and that passes the given filter
+        @Listener({@Filter(MessageFilter.None.class),@Filter(MessageFilter.All.class)})
+        public void handleFiltered(SubTestEvent event) {
+            event.counter.incrementAndGet();
+        }
 
 
 	}

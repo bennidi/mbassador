@@ -24,6 +24,52 @@ a single message handler
 mark and configure your message handlers with @Listener annotations and finally register the listeners at any Mbassador instance. Start
 sending messages to your listeners using one of Mbassador's publication methods (sync or async). Done!
 
+
+---------------------------------------
+
+Usage:
+
+Listener Definition (in any Bean):
+
+        // every event of type TestEvent or any subtype will be delivered
+        // to this handler
+        @Listener
+		public void handleTestEvent(TestEvent event) {
+			// do something
+		}
+
+        // this handler will be invoked asynchronously
+		@Listener(mode = Listener.Dispatch.Asynchronous)
+		public void handleSubTestEvent(SubTestEvent event) {
+            // do something more expensive here
+		}
+
+		// this handler will receive events of type SubTestEvent
+        // or any subtabe and that passes the given filter(s)
+        @Listener({@Filter(value = SpecialEventsOnly.class),@Filter(value = SpecialEventsOnly.class)})
+        public void handleFiltered(SubTestEvent event) {
+           //do something special here
+        }
+
+Creation of message bus and registration of listeners:
+
+        // create as many instances as necessary
+        // bind it to any upper bound
+        MBassador<TestEvent> bus = new MBassador<TestEvent();
+        ListeningBean listener = new ListeningBean();
+        bus.subscribe(listener)
+
+Message puclication:
+
+        TestEvent event = new TestEvent();
+        TestEvent subEvent = new SubTestEvent();
+
+        bus.publishAsync(event); //returns immediately, publication will continue asynchronously
+        bus.publish(subEvent);   // will return after each handler has been invoked
+
+---------------------------------------
+
+
 Planned features:
 
 + Maven dependency: Add Mbassador to your project using maven. Coming soon!
