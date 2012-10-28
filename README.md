@@ -27,9 +27,11 @@ sending messages to your listeners using one of Mbassador's publication methods 
 
 ---------------------------------------
 
-Usage:
+ <h2>Usage</h2>
 
-Listener Definition (in any Bean):
+---------------------------------------
+
+Listener definition (in any bean):
 
         // every event of type TestEvent or any subtype will be delivered
         // to this handler
@@ -57,7 +59,11 @@ Creation of message bus and registration of listeners:
         // bind it to any upper bound
         MBassador<TestEvent> bus = new MBassador<TestEvent();
         ListeningBean listener = new ListeningBean();
-        bus.subscribe(listener)
+        // the listener will be registered using a weak-reference
+        bus.subscribe(listener);
+        // objects without handlers will be ignored
+        bus.subscribe(new ClassWithoutAnyDefinedHandlers());
+
 
 Message puclication:
 
