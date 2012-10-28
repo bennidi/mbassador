@@ -29,8 +29,6 @@ sending messages to your listeners using one of Mbassador's publication methods 
 
  <h2>Usage</h2>
 
----------------------------------------
-
 Listener definition (in any bean):
 
         // every event of type TestEvent or any subtype will be delivered
@@ -76,7 +74,7 @@ Message puclication:
 ---------------------------------------
 
 
-Planned features:
+<h2>Planned features</h2>
 
 + Maven dependency: Add Mbassador to your project using maven. Coming soon!
 + Message handler priority: Message handlers can specify priority to influence order of message delivery
