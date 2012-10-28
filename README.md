@@ -5,9 +5,9 @@ Mbassador is a very light-weight message bus implementation following the publis
 for ease of use and aims to be resource efficient and very fast. It was inspired by google guava's event bus which lacked some
 features like weak references at that time. At its core it offers the following:
 
-+ <em><strong>Annotation driven</em></strong>: </br>To define and customize a message handler simply mark it with @Listener annotation
++ <em><strong>Annotation driven</em></strong>: To define and customize a message handler simply mark it with @Listener annotation
 + <em><strong>Delivers everything</em></strong>: Messages must not implement any interface and can be of any type (-> message bus is typed using generics with upper
-bound being Object.class).Class hierarchy of messages are considered during message delivery. This means that listeners will also receive
+bound being Object.class). The class hierarchy of a message is considered during message delivery. This means that listeners will also receive
 subtypes of the message type they are listening for, e.g. a listener for Object.class receives everything.
 + <em><strong>Synchronous and asynchronous message delivery</em></strong>: A handler can be invoked to handle a message either synchronously or
 asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method
