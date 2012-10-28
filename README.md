@@ -25,7 +25,7 @@ mark and configure your message handlers with @Listener annotations and finally 
 sending messages to your listeners using one of Mbassador's publication methods (sync or async). Done!
 
 
----------------------------------------
+
  <h2>Usage</h2>
 
 Listener definition (in any bean):
@@ -70,7 +70,7 @@ Message puclication:
         bus.publishAsync(event); //returns immediately, publication will continue asynchronously
         bus.publish(subEvent);   // will return after each handler has been invoked
 
----------------------------------------
+
 <h2>Planned features</h2>
 
 + Maven dependency: Add Mbassador to your project using maven. Coming soon!
