@@ -45,7 +45,7 @@ Listener definition (in any bean):
 
 		// this handler will receive events of type SubTestEvent
         // or any subtabe and that passes the given filter(s)
-        @Listener({@Filter(SpecialEventsOnly.class),@Filter(SpecialEventsOnly.class)})
+        @Listener({@Filter(SpecialEventsOnly.class),@Filter(AnotherFilter.class)})
         public void handleFiltered(SubTestEvent event) {
            //do something special here
         }
