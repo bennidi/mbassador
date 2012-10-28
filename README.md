@@ -5,21 +5,21 @@ Mbassador is a very light-weight message bus implementation following the publis
 for ease of use and aims to be resource efficient and very fast. It was inspired by google guava's event bus which lacked some
 features like weak references at that time. At its core it offers the following:
 
-+ <em>Annotation driven</em>: To define and customize a message handler simply mark it with @Listener annotation
-+ <em>Delivers everything</em>: Messages must not implement any interface and can be of any type (-> message bus is typed using generics with upper
++ <em><strong>Annotation driven</em></strong>: </br>To define and customize a message handler simply mark it with @Listener annotation
++ <em><strong>Delivers everything</em></strong>: Messages must not implement any interface and can be of any type (-> message bus is typed using generics with upper
 bound being Object.class).Class hierarchy of messages are considered during message delivery. This means that listeners will also receive
 subtypes of the message type they are listening for, e.g. a listener for Object.class receives everything.
-+ <em>Synchronous and asynchronous message delivery</em>: A handler can be invoked to handle a message either synchronously or
++ <em><strong>Synchronous and asynchronous message delivery</em></strong>: A handler can be invoked to handle a message either synchronously or
 asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method
 blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch
-+ <em>Weak references</em>: Mbassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister
++ <em><strong>Weak references</em></strong>: Mbassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister
 listeners that are not used anymore (of course it is also possible to explicitly unregister a listener if needed). This is very comfortable
 in certain environments where objects are created by frameworks, i.e. spring, guice etc. Just stuff everything into the message bus, it will
 ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
-+ <em>Filtering</em>: Mbassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to
++ <em><strong>Filtering</em></strong>: Mbassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to
 a single message handler
-+ <em>Error handling</em>: Errors during message delivery are sent to an error handler of which a custom implementation can easily be plugged-in.
-+ <em>Ease of Use</em>: Using Mbassador in your project is very easy. Create as many instances of Mbassador as you like (usually a singleton will do),
++ <em><strong>Error handling</em></strong>: Errors during message delivery are sent to an error handler of which a custom implementation can easily be plugged-in.
++ <em><strong>Ease of Use</em></strong>: Using Mbassador in your project is very easy. Create as many instances of Mbassador as you like (usually a singleton will do),
 mark and configure your message handlers with @Listener annotations and finally register the listeners at any Mbassador instance. Start
 sending messages to your listeners using one of Mbassador's publication methods (sync or async). Done!
 
