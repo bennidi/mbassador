@@ -75,6 +75,10 @@ Message puclication:
 + Maven dependency: Add Mbassador to your project using maven. Coming soon!
 + Message handler priority: Message handlers can specify priority to influence order of message delivery
 
+<h2>License</h2>
+
+This project is distributed under the terms of the MIT License. See file "LICENSE" for further reference.
+
 
 
 
