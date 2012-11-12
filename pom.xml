@@ -7,7 +7,7 @@
 	<version>1.0.0.RC</version>
 	<packaging>jar</packaging>
 	<name>mbassador</name>
-	<description>Library for simple implementation of bidirectional conversions</description>
+	<description>Mbassador is a fast and flexible message bus system that follows the publish subscribe pattern</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -33,6 +33,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.5.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2</version>
         </dependency>
 
 	</dependencies>

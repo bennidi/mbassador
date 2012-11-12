@@ -19,6 +19,34 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MBassadorTest {
 
 
+
+    @Test
+    public void testSubscribe() throws InterruptedException {
+
+        MBassador bus = new MBassador();
+        int listenerCount = 1000;
+
+        for (int i = 1; i <= listenerCount; i++) {
+            EventingTestBean bean = new EventingTestBean();
+            bus.subscribe(bean);
+            bus.unsubscribe(new EventingTestBean());
+
+        }
+    }
+
+    @Test
+    public void testUnSubscribe() throws InterruptedException {
+
+        MBassador bus = new MBassador();
+        int listenerCount = 1000;
+
+        for (int i = 1; i <= listenerCount; i++) {
+            bus.unsubscribe(new EventingTestBean());
+
+        }
+    }
+
+
 	@Test
 	public void testAsynchronous() throws InterruptedException {
 
