@@ -2,8 +2,7 @@ Mbassador
 =========
 
 Mbassador is a very light-weight message bus implementation following the publish subscribe pattern. It is designed
-for ease of use and aims to be resource efficient and very fast. It was inspired by google guava's event bus which lacked some
-features like weak references at that time. At its core it offers the following:
+for ease of use and aims to be resource efficient and very fast. At its core it offers the following:
 
 + <em><strong>Annotation driven</em></strong>: To define and customize a message handler simply mark it with @Listener annotation
 + <em><strong>Delivers everything</em></strong>: Messages must not implement any interface and can be of any type (-> message bus is typed using generics with upper
@@ -61,7 +60,7 @@ Creation of message bus and registration of listeners:
         bus.subscribe(new ClassWithoutAnyDefinedHandlers());
 
 
-Message puclication:
+Message publication:
 
         TestEvent event = new TestEvent();
         TestEvent subEvent = new SubTestEvent();
@@ -74,6 +73,8 @@ Message puclication:
 
 + Maven dependency: Add Mbassador to your project using maven. Coming soon!
 + Message handler priority: Message handlers can specify priority to influence order of message delivery
++ Spring integration with support for conditional message dispatch in transactional context (dispatch only after
+successful commit etc.)
 
 <h2>License</h2>
 
