@@ -1,4 +1,4 @@
-package org.mbassy.common;
+package org.mbassy;
 
 import java.lang.reflect.Method;
 

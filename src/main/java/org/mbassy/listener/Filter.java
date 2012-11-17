@@ -1,4 +1,4 @@
-package org.mbassy.filter;
+package org.mbassy.listener;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

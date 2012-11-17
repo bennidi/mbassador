@@ -1,6 +1,4 @@
-package org.mbassy;
-
-import org.mbassy.filter.Filter;
+package org.mbassy.listener;
 
 import java.lang.annotation.*;
 
@@ -16,12 +14,10 @@ import java.lang.annotation.*;
 @Target(value = {ElementType.METHOD})
 public @interface Listener {
 
-	Filter[] value() default {}; // no filters by default
+	Filter[] filters() default {}; // no filters by default
 
-    Dispatch mode() default Dispatch.Synchronous;
+    Mode dispatch() default Mode.Synchronous;
 
-    public static enum Dispatch{
-        Synchronous,Asynchronous
-    }
+    int priority() default 0;
 
 }

@@ -1,5 +1,8 @@
 package org.mbassy;
 
+import java.util.Collection;
+import java.util.concurrent.Executor;
+
 /**
  *
  * A message bus offers facilities for publishing messages to registered listeners. Messages can be dispatched
@@ -68,6 +71,25 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
      * @return
      */
     public P post(T message);
+
+    /**
+     * Publication errors may occur at various points of time during message delivery. A handler may throw an exception,
+     * may not be accessible due to security constraints or is not annotated properly.
+     * In any of all possible cases a publication error is created and passed to each of the registered error handlers.
+     * A call to this method will add the given error handler to the chain
+     *
+     * @param errorHandler
+     */
+    public void addErrorHandler(IPublicationErrorHandler errorHandler);
+
+    /**
+     * Returns an immutable collection containing all the registered error handlers
+     *
+     * @return
+     */
+    public Collection<IPublicationErrorHandler> getRegisteredErrorHandlers();
+
+    public Executor getExecutor();
 
 
 

@@ -1,4 +1,4 @@
-package org.mbassy.common;
+package org.mbassy;
 
 /**
  * TODO. Insert class description here

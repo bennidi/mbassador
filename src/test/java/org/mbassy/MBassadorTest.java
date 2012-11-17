@@ -2,8 +2,10 @@ package org.mbassy;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mbassy.filter.Filter;
-import org.mbassy.filter.MessageFilter;
+import org.mbassy.listener.Filter;
+import org.mbassy.listener.Listener;
+import org.mbassy.listener.MessageFilter;
+import org.mbassy.listener.Mode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,14 +189,17 @@ public class MBassadorTest {
 		}
 
         // this handler will be invoked asynchronously
-		@Listener(mode = Listener.Dispatch.Asynchronous)
+		@Listener(priority = 0, dispatch = Mode.Asynchronous)
 		public void handleSubTestEvent(SubTestEvent event) {
             event.counter.incrementAndGet();
 		}
 
         // this handler will receive events of type SubTestEvent
         // or any subtabe and that passes the given filter
-        @Listener({@Filter(MessageFilter.None.class),@Filter(MessageFilter.All.class)})
+        @Listener(
+                priority = 10,
+                dispatch = Mode.Synchronous,
+                filters = {@Filter(MessageFilter.None.class),@Filter(MessageFilter.All.class)})
         public void handleFiltered(SubTestEvent event) {
             event.counter.incrementAndGet();
         }

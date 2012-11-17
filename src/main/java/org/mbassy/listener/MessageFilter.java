@@ -1,4 +1,4 @@
-package org.mbassy.filter;
+package org.mbassy.listener;
 
 /**
  * Object filters can be used to prevent certain messages to be delivered to a specific listener.
