@@ -4,10 +4,9 @@
   <artifactId>mbassador</artifactId>
   <version>1.0.0.RC</version>
   <versioning>
-    <release>1.0.0.RC</release>
     <versions>
       <version>1.0.0.RC</version>
     </versions>
-    <lastUpdated>20121119141818</lastUpdated>
+    <lastUpdated>20121119144226</lastUpdated>
   </versioning>
 </metadata>

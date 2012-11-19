@@ -12,7 +12,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.java.version>1.6</project.build.java.version>
-        <github.url>file://${project.basedir}</github.url>
+        <github.url>file://${project.basedir}/maven</github.url>
 	</properties>
 
 	<dependencies>
@@ -40,7 +40,7 @@
 
     <distributionManagement>
         <repository>
-            <id>github-mbassador</id>
+            <id>mbassador-github-repo</id>
             <url>${github.url}</url>
         </repository>
     </distributionManagement>
