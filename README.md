@@ -76,12 +76,35 @@ Message publication:
         bus.publish(subEvent);   // will return after each handler has been invoked
         bus.post(subEvent).now(); // same as above
 
+<h2>Import using maven</h2>
+This project contains a maven repository that will allow you to import MBassador as a dependency into your maven project.
+The following steps are necessary:
 
-<h2>Planned features</h2>
+ 1. Add the repository location to your pom.xml
 
-+ Maven dependency: Add Mbassador to your project using maven. Coming soon!
+    <repositories>
+        <repository>
+            <id>mbassador-github-repo</id>
+            <url>https://raw.github.com/bennidi/mbassador/master/maven</url>
+        </repository>
+    </repositories>
+
+ 2. Add the MBassador dependency to your pom.xml. You can check which versions are available by browsing
+    the git repository online.
+
+    <dependency>
+        <groupId>org.mbassy</groupId>
+        <artifactId>mbassador</artifactId>
+        <version>1.0.0.RC</version>
+    </dependency>
+
+ 3. Run mvn clean package to have maven download and install the required version into your local repository
+
+
+<h2>Feature Roadmap</h2>
++ Make MBassador available in one of the official maven repositories
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
-successful commit etc.)
+successful commit etc.) -> coming in december 2012
 
 <h2>License</h2>
 
