@@ -1,8 +1,5 @@
 package org.mbassy.common;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
@@ -14,8 +11,6 @@ import java.util.List;
  * Time: 12:14 PM
  */
 public class ReflectionUtils {
-
-	private static final Logger logger = LoggerFactory.getLogger(ReflectionUtils.class);
 
 	public static List<Method> getMethods(IPredicate<Method> condition, Class<?> target) {
 		List<Method> methods = new LinkedList<Method>();

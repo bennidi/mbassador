@@ -24,17 +24,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         }
     };
 
-    // This is the default error handler it will simply log to standard out and
-    // print stack trace if available
-    protected static final class ConsoleLogger implements IPublicationErrorHandler {
-        @Override
-        public void handleError(PublicationError error) {
-            System.out.println(error);
-            if (error.getCause() != null) error.getCause().printStackTrace();
-        }
-    }
 
-    ;
 
     // executor for asynchronous listeners using unbound queuing strategy to ensure that no events get lost
     private ExecutorService executor;
@@ -98,7 +88,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     public AbstractMessageBus(int dispatcherThreadCount, ExecutorService executor) {
         this.executor = executor;
         initDispatcherThreads(dispatcherThreadCount > 0 ? dispatcherThreadCount : 2);
-        addErrorHandler(new ConsoleLogger());
+        addErrorHandler(new IPublicationErrorHandler.ConsoleLogger());
         subscriptionFactory = getSubscriptionFactory();
         initialize();
     }
