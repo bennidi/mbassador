@@ -1,8 +1,11 @@
 Mbassador
 =========
 
-Mbassador is a very light-weight message bus implementation following the publish subscribe pattern. It is designed
-for ease of use and aims to be resource efficient and very fast. At its core it offers the following:
+Mbassador is a very light-weight message bus (event bus) implementation following the publish subscribe pattern. It is designed
+for ease of use and aims to be feature rich, extensible while preserving resource efficiency and performance.
+Check out the [performance comparison](http://codeblock.engio.net/?p=37) which also reviews part of the features of the compared implementations
+
+At its core it offers the following:
 
 + <em><strong>Annotation driven</em></strong>: To define and customize a message handler simply mark it with @Listener annotation
 + <em><strong>Delivers everything</em></strong>: Messages must not implement any interface and can be of any type (-> message bus is typed using generics with upper
@@ -17,6 +20,7 @@ in certain environments where objects are created by frameworks, i.e. spring, gu
 ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
 + <em><strong>Filtering</em></strong>: Mbassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to
 a single message handler
++ <em><strong>Handler priorities</em></strong>: A listener can be associated with a priority to influence the order of the message delivery
 + <em><strong>Error handling</em></strong>: Errors during message delivery are sent to an error handler of which a custom implementation can easily be plugged-in.
 + <em><strong>Ease of Use</em></strong>: Using Mbassador in your project is very easy. Create as many instances of Mbassador as you like (usually a singleton will do),
 mark and configure your message handlers with @Listener annotations and finally register the listeners at any Mbassador instance. Start
@@ -36,14 +40,16 @@ Listener definition (in any bean):
 		}
 
         // this handler will be invoked asynchronously
-		@Listener(mode = Listener.Dispatch.Asynchronous)
+		@Listener(dispatch = Mode.Asynchronous)
 		public void handleSubTestEvent(SubTestEvent event) {
             // do something more expensive here
 		}
 
 		// this handler will receive events of type SubTestEvent
         // or any subtabe and that passes the given filter(s)
-        @Listener({@Filter(SpecialEventsOnly.class),@Filter(AnotherFilter.class)})
+        @Listener(priority = 10,
+                  dispatch = Mode.Synchronous,
+                  filters = {@Filter(MessageFilter.None.class),@Filter(MessageFilter.All.class)})
         public void handleFiltered(SubTestEvent event) {
            //do something special here
         }
@@ -52,7 +58,7 @@ Creation of message bus and registration of listeners:
 
         // create as many instances as necessary
         // bind it to any upper bound
-        MBassador<TestEvent> bus = new MBassador<TestEvent();
+        MBassador<TestEvent> bus = new MBassador<TestEvent>();
         ListeningBean listener = new ListeningBean();
         // the listener will be registered using a weak-reference
         bus.subscribe(listener);
@@ -66,13 +72,14 @@ Message publication:
         TestEvent subEvent = new SubTestEvent();
 
         bus.publishAsync(event); //returns immediately, publication will continue asynchronously
+        bus.post(event).asynchronously(); // same as above
         bus.publish(subEvent);   // will return after each handler has been invoked
+        bus.post(subEvent).now(); // same as above
 
 
 <h2>Planned features</h2>
 
 + Maven dependency: Add Mbassador to your project using maven. Coming soon!
-+ Message handler priority: Message handlers can specify priority to influence order of message delivery
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
 successful commit etc.)
 
