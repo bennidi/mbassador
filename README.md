@@ -82,12 +82,12 @@ The following steps are necessary:
 
  1. Add the repository location to your pom.xml
     ```xml
-        <repositories>
-            <repository>
-                <id>mbassador-github-repo</id>
-                <url>https://raw.github.com/bennidi/mbassador/master/maven</url>
-            </repository>
-        </repositories>
+    <repositories>
+        <repository>
+            <id>mbassador-github-repo</id>
+            <url>https://raw.github.com/bennidi/mbassador/master/maven</url>
+        </repository>
+    </repositories>
     ```
  2. Add the MBassador dependency to your pom.xml. You can check which versions are available by browsing
     the git repository online.
