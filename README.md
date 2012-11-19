@@ -81,13 +81,13 @@ This project contains a maven repository that will allow you to import MBassador
 The following steps are necessary:
 
  1. Add the repository location to your pom.xml
-    <pre><code>
-        &ltrepositories&gt
-            &ltrepository&gt
-                &ltid&gtmbassador-github-repo&lt/id&gt
-                &lturl&gthttps://raw.github.com/bennidi/mbassador/master/maven&lt/url&gt
-            &lt/repository&gt
-        &lt/repositories&gt
+    <pre><code class="xml">
+        <repositories>
+            <repository>
+                <id>mbassador-github-repo</id>
+                <url>https://raw.github.com/bennidi/mbassador/master/maven</url>
+            </repository>
+        </repositories>
     </pre></code>
  2. Add the MBassador dependency to your pom.xml. You can check which versions are available by browsing
     the git repository online.
