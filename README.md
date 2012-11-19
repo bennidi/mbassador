@@ -31,7 +31,6 @@ sending messages to your listeners using one of Mbassador's publication methods 
  <h2>Usage</h2>
 
 Listener definition (in any bean):
-        <pre><code class="java">
         // every event of type TestEvent or any subtype will be delivered
         // to this handler
         @Listener
@@ -53,7 +52,6 @@ Listener definition (in any bean):
         public void handleFiltered(SubTestEvent event) {
            //do something special here
         }
-        </pre></code>
 
 Creation of message bus and registration of listeners:
 
