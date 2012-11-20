@@ -17,7 +17,7 @@ Table of contents:
 + [License](#license)
 
 
-<h2 name="features">Feature overview</h2>
+<h2 name="features">Features</h2>
 
 At its core it offers the following:
 
@@ -42,7 +42,7 @@ sending messages to your listeners using one of Mbassador's publication methods 
 
 
 
-<h2 name="usage">Usage</h2>
+<h2>Usage</h2>
 
 Listener definition (in any bean):
         // every event of type TestEvent or any subtype will be delivered
@@ -89,7 +89,7 @@ Message publication:
         bus.publish(subEvent);   // will return after each handler has been invoked
         bus.post(subEvent).now(); // same as above
 
-<h2 name="installation">Installation</h2>
+<h2>Installation</h2>
 This project contains a maven repository that will allow you to import MBassador as a dependency into your maven project.
 Currently this is all that will be provided because publishing to a central repository requires extra project setup that
 will be done as soon as enough people use this component. Until then, the following steps are necessary:
@@ -116,7 +116,7 @@ will be done as soon as enough people use this component. Until then, the follow
 
 Of course you can always clone the repository and build from source
 
-<h2 name="roadmap">Feature Roadmap</h2>
+<h2>Roadmap</h2>
 + Make MBassador available in one of the official maven repositories as soon as the user base is big enough
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
 successful commit etc.) -> coming in december 2012
@@ -124,13 +124,13 @@ successful commit etc.) -> coming in december 2012
 during the running dispatch
 
 
-<h2 name="credits">Credits</h2>
+<h2>Credits</h2>
 The initial inspiration for creating this component came from looking at Google Guava's event bus implementation. Since
 it did not provide all the features we needed in our project, I decided to create my own implementation. When I saw that
 it outperformed the Guava implementation by far, I decided to share it with the community (I was longing to give something
 back to the community for quite a while).
 
-<h2 name="license">License</h2>
+<h2>License</h2>
 
 This project is distributed under the terms of the MIT License. See file "LICENSE" for further reference.
 
