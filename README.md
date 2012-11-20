@@ -14,12 +14,13 @@ Table of contents:
 + [Installation](#installation)
 + [Roadmap](#roadmap)
 + [Credits](#credits)
++ [Contribute](#contribute)
 + [License](#license)
 
 
 <h2 name="features">Features</h2>
 
-At its core it offers the following:
+At its core MBassador offers the following features:
 
 + <em><strong>Annotation driven</em></strong>: To define and customize a message handler simply mark it with @Listener annotation
 + <em><strong>Delivers everything</em></strong>: Messages must not implement any interface and can be of any type (-> message bus is typed using generics with upper
@@ -117,9 +118,9 @@ will be done as soon as enough people use this component. Until then, the follow
 Of course you can always clone the repository and build from source
 
 <h2>Roadmap</h2>
-+ Make MBassador available in one of the official maven repositories as soon as the user base is big enough
++ Checkout MBassador from one of the official maven repositories (as soon as the user base is big enough)
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
-successful commit etc.) -> coming in december 2012
+successful commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring>this</a> repository
 + MessageEnvelope for each dispatch that is passed to the handler and can be used for communication between handlers
 during the running dispatch
 
@@ -130,10 +131,16 @@ it did not provide all the features we needed in our project, I decided to creat
 it outperformed the Guava implementation by far, I decided to share it with the community to see if others consider it worth
 a shot.
 
+<h2>Contribute</h2>
+
+Any feature requests and feedback are more than welcome. You may suggest improvements either by submitting an
+issue or by forking the repo and creating a pull request. I will try to respond as quickly as possible.
 
 <h2>License</h2>
 
 This project is distributed under the terms of the MIT License. See file "LICENSE" for further reference.
+
+
 
 
 
