@@ -5,9 +5,12 @@ Mbassador is a very light-weight message bus (event bus) implementation followin
 for ease of use and aims to be feature rich, extensible while preserving resource efficiency and performance.
 
 Table of contents
-[License](#license)
++ [Features](#features)
++ [License](#license)
 
 Check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a> which also reviews part of the features of the compared implementations
+
+ <h2 name="features">Feature overview</h2>
 
 At its core it offers the following:
 
@@ -81,7 +84,8 @@ Message publication:
 
 <h2>Import using maven</h2>
 This project contains a maven repository that will allow you to import MBassador as a dependency into your maven project.
-The following steps are necessary:
+Currently this is all that will be provided because publishing to a central repository requires extra project setup that
+will be done as soon as enough people use this component. Until then, the following steps are necessary:
 
  1. Add the repository location to your pom.xml
     <pre><code class="xml">
@@ -109,7 +113,7 @@ The following steps are necessary:
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
 successful commit etc.) -> coming in december 2012
 
-<h2><h name="license">License</a></h2>
+<h2 name="license">License</h2>
 
 This project is distributed under the terms of the MIT License. See file "LICENSE" for further reference.
 
