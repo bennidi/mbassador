@@ -1,12 +1,12 @@
 Mbassador
 =========
 
-Mbassador is a very light-weight message bus (event bus) implementation following the publish subscribe pattern. It is designed
+Mbassador is a very light-weight message (event) bus implementation following the publish subscribe pattern. It is designed
 for ease of use and aims to be feature rich, extensible while preserving resource efficiency and performance.
 
-Read this documentation to get an overview of its features and how cool this event bus actually is.
+Read this documentation to get an overview of its features and how cool this message (event) bus actually is.
 You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
-which also reviews part of the features of the compared implementations.
+which also contains a partial list of the features of the compared implementations.
 
 Table of contents:
 + [Features](#features)
