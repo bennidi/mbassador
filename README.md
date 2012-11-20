@@ -4,13 +4,20 @@ Mbassador
 Mbassador is a very light-weight message bus (event bus) implementation following the publish subscribe pattern. It is designed
 for ease of use and aims to be feature rich, extensible while preserving resource efficiency and performance.
 
-Table of contents
+Read this documentation to get an overview of its features and how cool this event bus actually is.
+You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
+which also reviews part of the features of the compared implementations.
+
+Table of contents:
 + [Features](#features)
++ [Usage](#usage)
++ [Installation](#installation)
++ [Roadmap](#roadmap)
++ [Credits](#credits)
 + [License](#license)
 
-Check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a> which also reviews part of the features of the compared implementations
 
- <h2 name="features">Feature overview</h2>
+<h2 name="features">Feature overview</h2>
 
 At its core it offers the following:
 
@@ -35,7 +42,7 @@ sending messages to your listeners using one of Mbassador's publication methods 
 
 
 
- <h2>Usage</h2>
+<h2 name="usage">Usage</h2>
 
 Listener definition (in any bean):
         // every event of type TestEvent or any subtype will be delivered
@@ -82,7 +89,7 @@ Message publication:
         bus.publish(subEvent);   // will return after each handler has been invoked
         bus.post(subEvent).now(); // same as above
 
-<h2>Import using maven</h2>
+<h2 name="installation">Installation</h2>
 This project contains a maven repository that will allow you to import MBassador as a dependency into your maven project.
 Currently this is all that will be provided because publishing to a central repository requires extra project setup that
 will be done as soon as enough people use this component. Until then, the following steps are necessary:
@@ -107,11 +114,21 @@ will be done as soon as enough people use this component. Until then, the follow
     </pre></code>
  3. Run mvn clean package to have maven download and install the required version into your local repository
 
+Of course you can always clone the repository and build from source
 
-<h2>Feature Roadmap</h2>
-+ Make MBassador available in one of the official maven repositories
+<h2 name="roadmap">Feature Roadmap</h2>
++ Make MBassador available in one of the official maven repositories as soon as the user base is big enough
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
 successful commit etc.) -> coming in december 2012
++ MessageEnvelope for each dispatch that is passed to the handler and can be used for communication between handlers
+during the running dispatch
+
+
+<h2 name="credits">Credits</h2>
+The initial inspiration for creating this component came from looking at Google Guava's event bus implementation. Since
+it did not provide all the features we needed in our project, I decided to create my own implementation. When I saw that
+it outperformed the Guava implementation by far, I decided to share it with the community (I was longing to give something
+back to the community for quite a while).
 
 <h2 name="license">License</h2>
 
