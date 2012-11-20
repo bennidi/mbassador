@@ -3,6 +3,10 @@ Mbassador
 
 Mbassador is a very light-weight message bus (event bus) implementation following the publish subscribe pattern. It is designed
 for ease of use and aims to be feature rich, extensible while preserving resource efficiency and performance.
+
+Table of contents
+[License](#license)
+
 Check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a> which also reviews part of the features of the compared implementations
 
 At its core it offers the following:
@@ -105,7 +109,7 @@ The following steps are necessary:
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
 successful commit etc.) -> coming in december 2012
 
-<h2>License</h2>
+<h2><h name="license">License</a></h2>
 
 This project is distributed under the terms of the MIT License. See file "LICENSE" for further reference.
 
