@@ -120,7 +120,7 @@ Of course you can always clone the repository and build from source
 <h2>Roadmap</h2>
 + Checkout MBassador from one of the official maven repositories (as soon as the user base is big enough)
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
-successful commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring>this</a> repository
+successful commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring">this</a> repository
 + MessageEnvelope for each dispatch that is passed to the handler and can be used for communication between handlers
 during the running dispatch
 
