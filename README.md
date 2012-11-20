@@ -127,8 +127,9 @@ during the running dispatch
 <h2>Credits</h2>
 The initial inspiration for creating this component came from looking at Google Guava's event bus implementation. Since
 it did not provide all the features we needed in our project, I decided to create my own implementation. When I saw that
-it outperformed the Guava implementation by far, I decided to share it with the community (I was longing to give something
-back to the community for quite a while).
+it outperformed the Guava implementation by far, I decided to share it with the community to see if others consider it worth
+a shot.
+
 
 <h2>License</h2>
 
