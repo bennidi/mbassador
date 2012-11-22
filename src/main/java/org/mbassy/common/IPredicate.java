@@ -2,7 +2,7 @@ package org.mbassy.common;
 
 /**
  * Created with IntelliJ IDEA.
- * User: benni
+ * @author bennidi
  * Date: 10/22/12
  * Time: 9:33 AM
  * To change this template use File | Settings | File Templates.

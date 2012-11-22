@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * TODO. Insert class description here
  * <p/>
- * User: benni
+ * @author bennidi
  * Date: 2/8/12
  * Time: 3:35 PM
  */

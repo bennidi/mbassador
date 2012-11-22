@@ -10,7 +10,7 @@ import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
- * User: benni
+ * @author bennidi
  * Date: 11/12/12
  * Time: 3:02 PM
  * To change this template use File | Settings | File Templates.

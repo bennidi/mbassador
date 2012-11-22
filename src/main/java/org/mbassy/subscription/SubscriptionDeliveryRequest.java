@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 /**
- * User: benni
+ * @author bennidi
  * Date: 11/16/12
  */
 public class SubscriptionDeliveryRequest<T> {

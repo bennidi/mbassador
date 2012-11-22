@@ -62,8 +62,10 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
      * will not have any effect.
      *
      * @param listener
+     * @return  true, if the listener was found and successfully removed
+     *          false otherwise
      */
-    public void unsubscribe(Object listener);
+    public boolean unsubscribe(Object listener);
 
     /**
      *

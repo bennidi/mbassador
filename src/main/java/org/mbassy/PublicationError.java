@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
  * Publication errors are created when object publication fails for some reason and contain details
  * as to the cause and location where they occured.
  * <p/>
- * User: benni
+ * @author bennidi
  * Date: 2/22/12
  * Time: 4:59 PM
  */

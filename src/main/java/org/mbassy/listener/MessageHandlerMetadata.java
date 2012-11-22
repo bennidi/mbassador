@@ -7,7 +7,7 @@ import org.mbassy.listener.MessageFilter;
 import java.lang.reflect.Method;
 
 /**
- * User: benni
+ * @author bennidi
  * Date: 11/14/12
  */
 public class MessageHandlerMetadata {

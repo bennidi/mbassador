@@ -10,11 +10,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.UUID;
 
 /**
  * Subscription is a thread safe container for objects that contain message handlers
  */
 public abstract class Subscription {
+
+    private UUID id = UUID.randomUUID();
 
     private final Method handler;
 
@@ -88,8 +91,8 @@ public abstract class Subscription {
     }
 
 
-    public void unsubscribe(Object existingListener) {
-        listeners.remove(existingListener);
+    public boolean unsubscribe(Object existingListener) {
+        return listeners.remove(existingListener);
     }
 
 
@@ -97,7 +100,7 @@ public abstract class Subscription {
         @Override
         public int compare(Subscription o1, Subscription o2) {
             int result =  o1.getPriority() - o2.getPriority();
-            return result == 0 ? o1.handler.hashCode() - o2.handler.hashCode() : result;
+            return result == 0 ? o1.id.compareTo(o2.id): result;
         }
     };
 

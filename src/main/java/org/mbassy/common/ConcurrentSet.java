@@ -66,11 +66,11 @@ public class ConcurrentSet<T> implements Iterable<T> {
         return this;
     }
 
-    public ConcurrentSet<T> remove(T element) {
-        if (!entries.containsKey(element)) return this;
+    public boolean remove(T element) {
+        if (!entries.containsKey(element)) return false;
         synchronized (this) {
             Entry<T> listelement = entries.get(element);
-            if(listelement == null)return this;
+            if(listelement == null)return false;
             if (listelement != head) {
                 listelement.remove();
             } else {
@@ -78,7 +78,7 @@ public class ConcurrentSet<T> implements Iterable<T> {
             }
             entries.remove(element);
         }
-        return this;
+        return true;
     }
 
     public Iterator<T> iterator() {

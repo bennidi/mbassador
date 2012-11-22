@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.mbassy</groupId>
     <artifactId>mbassador</artifactId>
-    <version>1.0.0.RC</version>
+    <version>1.0.1.RC</version>
     <packaging>jar</packaging>
     <name>mbassador</name>
     <description>Mbassador is a fast and flexible message bus system that follows the publish subscribe pattern

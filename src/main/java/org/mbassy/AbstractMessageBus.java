@@ -12,23 +12,18 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 
-
+/**
+ * The base class for all message bus implementations.
+ *
+ * @param <T>
+ * @param <P>
+ */
 public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> implements IMessageBus<T, P> {
-
-
-    //  This predicate is used to find all message listeners (methods annotated with @Listener)
-    private static final IPredicate<Method> AllMessageListeners = new IPredicate<Method>() {
-        @Override
-        public boolean apply(Method target) {
-            return target.getAnnotation(Listener.class) != null;
-        }
-    };
-
-
 
     // executor for asynchronous listeners using unbound queuing strategy to ensure that no events get lost
     private ExecutorService executor;
 
+    // the metadata reader that is used to parse objects passed to the subscribe method
     private MetadataReader metadataReader = new MetadataReader();
 
     // all subscriptions per message type
@@ -64,7 +59,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                 public void run() {
                     while (true) {
                         try {
-                           pendingMessages.take().execute();
+                            pendingMessages.take().execute();
                         } catch (InterruptedException e) {
                             handlePublicationError(new PublicationError(e, "Asynchronous publication interrupted", null, null, null));
                             return;
@@ -95,20 +90,23 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
 
     protected abstract SubscriptionFactory getSubscriptionFactory();
 
-    protected void initialize(){}
+    protected void initialize() {
+    }
 
     @Override
     public Collection<IPublicationErrorHandler> getRegisteredErrorHandlers() {
         return Collections.unmodifiableCollection(errorHandlers);
     }
 
-    public void unsubscribe(Object listener) {
-        if (listener == null) return;
+    public boolean unsubscribe(Object listener) {
+        if (listener == null) return false;
         Collection<Subscription> subscriptions = subscriptionsPerListener.get(listener.getClass());
-        if (subscriptions == null) return;
+        if (subscriptions == null) return false;
+        boolean isRemoved = false;
         for (Subscription subscription : subscriptions) {
-            subscription.unsubscribe(listener);
+            isRemoved = isRemoved || subscription.unsubscribe(listener);
         }
+        return isRemoved;
     }
 
 
@@ -122,7 +120,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                 synchronized (this) { // new subscriptions must be processed sequentially for each class
                     subscriptionsByListener = subscriptionsPerListener.get(listeningClass);
                     if (subscriptionsByListener == null) {  // double check (a bit ugly but works here)
-                        List<Method> messageHandlers = getListeners(listeningClass);  // get all methods with subscriptions
+                        List<Method> messageHandlers = metadataReader.getListeners(listeningClass);  // get all methods with subscriptions
                         subscriptionsByListener = new ArrayList<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
                         if (messageHandlers.isEmpty()) {  // remember the class as non listening class
                             nonListeners.add(listeningClass);
@@ -143,7 +141,9 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                 }
             }
             // register the listener to the existing subscriptions
-            for (Subscription sub : subscriptionsByListener) sub.subscribe(listener);
+            for (Subscription sub : subscriptionsByListener){
+                sub.subscribe(listener);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -209,16 +209,12 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         return listener.getParameterTypes()[0];
     }
 
-    // get all listeners defined by the given class (includes
-    // listeners defined in super classes)
-    private static List<Method> getListeners(Class<?> target) {
-        return ReflectionUtils.getMethods(AllMessageListeners, target);
-    }
 
 
     public void handlePublicationError(PublicationError error) {
-        for (IPublicationErrorHandler errorHandler : errorHandlers)
+        for (IPublicationErrorHandler errorHandler : errorHandlers){
             errorHandler.handleError(error);
+        }
     }
 
     @Override
