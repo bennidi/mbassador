@@ -50,6 +50,7 @@ sending messages to your listeners using one of Mbassador's publication methods 
 <h2>Usage</h2>
 
 Listener definition (in any bean):
+
         // every event of type TestEvent or any subtype will be delivered
         // to this handler
         @Listener
