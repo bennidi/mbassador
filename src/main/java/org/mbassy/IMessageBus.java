@@ -7,8 +7,8 @@ import java.util.concurrent.Executor;
  *
  * A message bus offers facilities for publishing messages to registered listeners. Messages can be dispatched
  * synchronously or asynchronously and may be of any type that is a valid sub type of the type parameter T.
- * The dispatch mechanism can by controlled for each concrete message publication.
- * A message publication is the publication of any message using one of the bus' publish(..) methods.
+ * The dispatch mechanism can by controlled for per message handler and message publication.
+ * A message publication is the publication of any message using one of the bus' publication methods.
  * <p/>
  * Each message publication is isolated from all other running publications such that it does not interfere with them.
  * Hence, the bus expects message handlers to be stateless as it may invoke them concurrently if multiple
@@ -22,19 +22,22 @@ import java.util.concurrent.Executor;
  * be explicitly unregistered to be eligible for garbage collection. Dead (garbage collected) listeners are
  * removed on-the-fly as messages get dispatched.
  * <p/>
- * Generally message handlers will be invoked in inverse sequence of insertion (subscription) but any
- * class using this bus should not rely on this assumption. The basic contract of the bus is that it will deliver
+ * Generally message handlers will be invoked in inverse sequence of subscription but any
+ * client using this bus should not rely on this assumption. The basic contract of the bus is that it will deliver
  * a specific message exactly once to each of the subscribed message handlers.
  * <p/>
  * Messages are dispatched to all listeners that accept the type or supertype of the dispatched message. Additionally
  * a message handler may define filters to narrow the set of messages that it accepts.
  * <p/>
  * Subscribed message handlers are available to all pending message publications that have not yet started processing.
- * Any messageHandler may only be subscribed once (subsequent subscriptions of an already subscribed messageHandler will be silently ignored)
+ * Any message listener may only be subscribed once -> subsequent subscriptions of an already subscribed message listener
+ * will be silently ignored)
  * <p/>
- * Removing a listener means removing all subscribed message handlers of that object. This remove operation
- * immediately takes effect and on all running dispatch processes. A removed listener (a listener
+ * Removing a listener (unsubscribing) means removing all subscribed message handlers of that listener. This remove operation
+ * immediately takes effect and on all running dispatch processes -> A removed listener (a listener
  * is considered removed after the remove(Object) call returned) will under no circumstances receive any message publications.
+ * Any running message publication that has not yet delivered the message to the removed listener will not see the listener
+ * after the remove operation completed.
  *
  * NOTE: Generic type parameters of messages will not be taken into account, e.g. a List<Long> will
  * get dispatched to all message handlers that take an instance of List as their parameter
@@ -55,11 +58,12 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
 
 
     /**
-     * Immediately unsubscribe all registered message handlers (if any) of the given listener. When this call returns
+     * Immediately remove all registered message handlers (if any) of the given listener. When this call returns all handlers
      * have effectively been removed and will not receive any message publications (including asynchronously scheduled
-     * publications that have been published when the messageHandler was still subscribed).
-     * A call to this method passing null, an already subscribed message or any message that does not define any listeners
-     * will not have any effect.
+     * publications that have been published when the message listener was still subscribed).
+     *
+     * A call to this method passing null, an already unsubscribed listener or any object that does not define any message
+     * handlers will not have any effect and is silently ignored.
      *
      * @param listener
      * @return  true, if the listener was found and successfully removed
@@ -91,14 +95,34 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
      */
     public Collection<IPublicationErrorHandler> getRegisteredErrorHandlers();
 
+
+    /**
+     * Get the executor service that is used to asynchronous message publication.
+     * The executor is passed to the message bus at creation time.
+     *
+     * @return
+     */
     public Executor getExecutor();
 
 
-
+    /**
+     * A post command is used as an intermediate object created by a call to the message bus' post method.
+     * It encapsulates the functionality provided by the message bus that created the command.
+     * Subclasses may extend this interface and add functionality, e.g. different dispatch schemes.
+     *
+     */
     public static interface IPostCommand{
 
+        /**
+         * Execute the message publication immediately. This call blocks until every matching message handler
+         * has been invoked.
+         */
         public void now();
 
+        /**
+         * Execute the message publication asynchronously. This call return immediately and all matching message handlers
+         * will be invoked in another thread.
+         */
         public void asynchronously();
 
     }

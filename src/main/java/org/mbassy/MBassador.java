@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 
-public class MBassador<T> extends AbstractMessageBus<T, SimplePostCommand<T>>{
+public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>{
 
     public MBassador(){
         this(2);
@@ -56,8 +56,8 @@ public class MBassador<T> extends AbstractMessageBus<T, SimplePostCommand<T>>{
 
 
     @Override
-    public SimplePostCommand post(T message) {
-        return new SimplePostCommand(this, message);
+    public SyncAsyncPostCommand post(T message) {
+        return new SyncAsyncPostCommand(this, message);
     }
 
 }

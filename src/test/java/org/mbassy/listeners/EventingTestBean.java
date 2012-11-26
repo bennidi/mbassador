@@ -3,8 +3,8 @@ package org.mbassy.listeners;
 import org.mbassy.events.SubTestEvent;
 import org.mbassy.events.TestEvent;
 import org.mbassy.listener.Filter;
+import org.mbassy.listener.IMessageFilter;
 import org.mbassy.listener.Listener;
-import org.mbassy.listener.MessageFilter;
 import org.mbassy.listener.Mode;
 
 /**
@@ -33,7 +33,7 @@ public class EventingTestBean {
     @Listener(
             priority = 10,
             dispatch = Mode.Synchronous,
-            filters = {@Filter(MessageFilter.None.class), @Filter(MessageFilter.All.class)})
+            filters = {@Filter(IMessageFilter.None.class), @Filter(IMessageFilter.All.class)})
     public void handleFiltered(SubTestEvent event) {
         event.counter.incrementAndGet();
     }

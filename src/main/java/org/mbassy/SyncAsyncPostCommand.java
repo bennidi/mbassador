@@ -1,18 +1,17 @@
 package org.mbassy;
 
 /**
-* Created with IntelliJ IDEA.
-* @author bennidi
-* Date: 11/12/12
-* Time: 8:44 PM
-* To change this template use File | Settings | File Templates.
-*/
-public class SimplePostCommand<T> implements IMessageBus.IPostCommand {
+ * This post command provides access to standard synchronous and asynchronous dispatch
+ *
+ * @author bennidi
+ *         Date: 11/12/12
+ */
+public class SyncAsyncPostCommand<T> implements IMessageBus.IPostCommand {
 
     private T message;
     private MBassador mBassador;
 
-    public SimplePostCommand(MBassador mBassador, T message) {
+    public SyncAsyncPostCommand(MBassador mBassador, T message) {
         this.mBassador = mBassador;
         this.message = message;
     }

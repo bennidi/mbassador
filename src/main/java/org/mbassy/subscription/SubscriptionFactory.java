@@ -2,6 +2,7 @@ package org.mbassy.subscription;
 
 import org.mbassy.IMessageBus;
 import org.mbassy.IPublicationErrorHandler;
+import org.mbassy.dispatch.*;
 import org.mbassy.listener.MessageHandlerMetadata;
 
 import java.util.Collection;
@@ -17,27 +18,30 @@ public class SubscriptionFactory {
 
     private IMessageBus owner;
 
-
     public SubscriptionFactory(IMessageBus owner) {
         this.owner = owner;
     }
 
     public Subscription createSubscription(MessageHandlerMetadata messageHandlerMetadata){
-        if(messageHandlerMetadata.isFiltered()){
-            if(messageHandlerMetadata.isAsynchronous()){
-                return new UnfilteredAsynchronousSubscription(owner, messageHandlerMetadata);
-            }
-            else{
-                return new UnfilteredSynchronousSubscription(owner, messageHandlerMetadata);
-            }
+        MessagingContext context = new MessagingContext(owner, messageHandlerMetadata);
+        IHandlerInvocation invocation = buildInvocationForHandler(context);
+        IMessageDispatcher dispatcher = buildDispatcher(context, invocation);
+        return new Subscription(context, dispatcher);
+    }
+
+    protected IHandlerInvocation buildInvocationForHandler(MessagingContext context){
+        IHandlerInvocation invocation = new ReflectiveHandlerInvocation(context);
+        if(context.getHandlerMetadata().isAsynchronous()){
+            invocation = new AsynchronousHandlerInvocation(invocation);
         }
-        else{
-            if(messageHandlerMetadata.isAsynchronous()){
-                return new FilteredAsynchronousSubscription(owner, messageHandlerMetadata);
-            }
-            else{
-                return new FilteredSynchronousSubscription(owner, messageHandlerMetadata);
-            }
-        }
+        return invocation;
+    }
+
+    protected IMessageDispatcher buildDispatcher(MessagingContext context, IHandlerInvocation invocation){
+       IMessageDispatcher dispatcher = new MessageDispatcher(context, invocation);
+       if(context.getHandlerMetadata().isFiltered()){
+          dispatcher = new FilteredMessageDispatcher(dispatcher);
+       }
+       return dispatcher;
     }
 }

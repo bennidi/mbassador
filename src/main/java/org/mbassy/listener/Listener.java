@@ -3,16 +3,17 @@ package org.mbassy.listener;
 import java.lang.annotation.*;
 
 /**
- * TODO. Insert class description here
- * <p/>
+ * Mark any method of any object as a message handler and configure the handler
+ * using different properties.
+ *
  * @author bennidi
  * Date: 2/8/12
- * Time: 3:35 PM
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Inherited
 @Target(value = {ElementType.METHOD})
 public @interface Listener {
+
 
 	Filter[] filters() default {}; // no filters by default
 

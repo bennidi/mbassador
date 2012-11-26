@@ -28,15 +28,15 @@ public class MetadataReader {
     };
 
     // cache already created filter instances
-    private final Map<Class<? extends MessageFilter>, MessageFilter> filterCache = new HashMap<Class<? extends MessageFilter>, MessageFilter>();
+    private final Map<Class<? extends IMessageFilter>, IMessageFilter> filterCache = new HashMap<Class<? extends IMessageFilter>, IMessageFilter>();
 
     // retrieve all instances of filters associated with the given subscription
-    private MessageFilter[] getFilter(Listener subscription) throws Exception{
+    private IMessageFilter[] getFilter(Listener subscription) throws Exception{
         if (subscription.filters().length == 0) return null;
-        MessageFilter[] filters = new MessageFilter[subscription.filters().length];
+        IMessageFilter[] filters = new IMessageFilter[subscription.filters().length];
         int i = 0;
         for (Filter filterDef : subscription.filters()) {
-            MessageFilter filter = filterCache.get(filterDef.value());
+            IMessageFilter filter = filterCache.get(filterDef.value());
             if (filter == null) {
                     filter = filterDef.value().newInstance();
                     filterCache.put(filterDef.value(), filter);
@@ -51,7 +51,7 @@ public class MetadataReader {
 
     public MessageHandlerMetadata getHandlerMetadata(Method messageHandler) throws Exception{
         Listener config = messageHandler.getAnnotation(Listener.class);
-        MessageFilter[] filter = getFilter(config);
+        IMessageFilter[] filter = getFilter(config);
         return new MessageHandlerMetadata(messageHandler, filter, config);
     }
 

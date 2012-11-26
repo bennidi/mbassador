@@ -9,13 +9,17 @@ import java.util.LinkedList;
 import java.util.Random;
 
 /**
- * Created with IntelliJ IDEA.
+ * This test ensures the correct behaviour of the set implementation that is the building
+ * block of the subscription implementations used by the Mbassador message bus.
+ *
+ * It should behave exactly like other set implementations do and as such all tests are based
+ * on comparing the outcome of sequence of operations applied to a standard set implementation
+ * and the concurrent set.
+ *
  * @author bennidi
- * Date: 11/12/12
- * Time: 3:02 PM
- * To change this template use File | Settings | File Templates.
+ *         Date: 11/12/12
  */
-public class ConcurrentSetTest extends  UnitTest{
+public class ConcurrentSetTest extends UnitTest {
 
     private int numberOfElements = 100000;
 
@@ -23,27 +27,27 @@ public class ConcurrentSetTest extends  UnitTest{
 
 
     @Test
-    public void testIterator(){
-        final HashSet<Object> distinct = new HashSet<Object>();
-
-        final ConcurrentSet<Object> target = new ConcurrentSet<Object>();
+    public void testIteratorCleanup() {
+        final HashSet<Object> persistingCandidates = new HashSet<Object>();
+        final ConcurrentSet<Object> testSet = new ConcurrentSet<Object>();
         Random rand = new Random();
 
-        for(int i=0;i < numberOfElements ; i++){
+        for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
 
-            if(rand.nextInt() % 3 == 0){
-                distinct.add(candidate);
+            if (rand.nextInt() % 3 == 0) {
+                persistingCandidates.add(candidate);
             }
-            target.add(candidate);
+            testSet.add(candidate);
         }
 
+        // this will remove all objects that have not been inserted into the set of persisting candidates
         runGC();
 
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
             public void run() {
-                for(Object src : target){
+                for (Object testObject : testSet) {
                     // do nothing
                     // just iterate to trigger automatic clean up
                     System.currentTimeMillis();
@@ -51,139 +55,165 @@ public class ConcurrentSetTest extends  UnitTest{
             }
         }, numberOfThreads);
 
-
-
-
-        for(Object tar : target){
-            Assert.assertTrue(distinct.contains(tar));
+        assertEquals(persistingCandidates.size(), testSet.size());
+        for (Object test : testSet) {
+            assertTrue(persistingCandidates.contains(test));
         }
-
 
 
     }
 
 
-        @Test
-    public void testInsert(){
+    @Test
+    public void testUniqueness() {
         final LinkedList<Object> duplicates = new LinkedList<Object>();
         final HashSet<Object> distinct = new HashSet<Object>();
 
-        final ConcurrentSet<Object> target = new ConcurrentSet<Object>();
+        final ConcurrentSet<Object> testSet = new ConcurrentSet<Object>();
         Random rand = new Random();
 
+        // build set of distinct objects and list of duplicates
         Object candidate = new Object();
-        for(int i=0;i < numberOfElements ; i++){
-            if(rand.nextInt() % 3 == 0){
+        for (int i = 0; i < numberOfElements; i++) {
+            if (rand.nextInt() % 3 == 0) {
                 candidate = new Object();
             }
             duplicates.add(candidate);
             distinct.add(candidate);
         }
 
-
+        // insert all elements (containing duplicates) into the set
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
             public void run() {
-                for(Object src : duplicates){
-                    target.add(src);
+                for (Object src : duplicates) {
+                    testSet.add(src);
                 }
             }
         }, numberOfThreads);
 
-        pause(3000);
-
-
-        for(Object tar : target){
-            Assert.assertTrue(distinct.contains(tar));
+        // check that the control set and the test set contain the exact same elements
+        assertEquals(distinct.size(), testSet.size());
+        for (Object uniqueObject : distinct) {
+            assertTrue(testSet.contains(uniqueObject));
         }
 
-        for(Object src : distinct){
-            Assert.assertTrue(target.contains(src));
+
+    }
+
+    @Test
+    public void testPerformance(){
+        final HashSet<Object> source = new HashSet<Object>();
+
+        final HashSet<Object> hashSet = new HashSet<Object>();
+
+        final ConcurrentSet<Object> concurrentSet = new ConcurrentSet<Object>();
+
+        for (int i = 0; i < 1000000; i++) {
+            source.add(new Object());
         }
 
-        Assert.assertEquals(distinct.size(), target.size());
+
+        long start = System.currentTimeMillis();
+        for(Object o: source){
+            hashSet.add(o);
+        }
+        long duration = System.currentTimeMillis() - start;
+        System.out.println("Performance of HashSet for 1.000.000 object insertions " + duration);
+
+        start = System.currentTimeMillis();
+        for(Object o: source){
+            concurrentSet.add(o);
+        }
+        duration = System.currentTimeMillis() - start;
+        System.out.println("Performance of ConcurrentSet for 1.000.000 object insertions " + duration);
     }
 
 
-
     @Test
-    public void testRemove1(){
+    public void testRemove2() {
         final HashSet<Object> source = new HashSet<Object>();
         final HashSet<Object> toRemove = new HashSet<Object>();
 
-        final ConcurrentSet<Object> target = new ConcurrentSet<Object>();
-        for(int i=0;i < numberOfElements ; i++){
+        final ConcurrentSet<Object> testSet = new ConcurrentSet<Object>();
+        // build set of distinct objects and mark a subset of those for removal
+        for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
             source.add(candidate);
-            if(i % 3 == 0){
+            if (i % 3 == 0) {
                 toRemove.add(candidate);
             }
         }
 
-
+        // build the test set from the set of candidates
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
             public void run() {
-                for(Object src : source){
-                    target.add(src);
+                for (Object src : source) {
+                    testSet.add(src);
                 }
             }
         }, numberOfThreads);
 
+        // remove all candidates that have previously been marked for removal from the test set
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
             public void run() {
-                for(Object src : toRemove){
-                    target.remove(src);
+                for (Object src : toRemove) {
+                    testSet.remove(src);
                 }
             }
         }, numberOfThreads);
 
-        pause(3000);
-
-        for(Object tar : target){
+        // ensure that the test set does not contain any of the elements that have been removed from it
+        for (Object tar : testSet) {
             Assert.assertTrue(!toRemove.contains(tar));
         }
-
-        for(Object src : source){
-            if(!toRemove.contains(src))Assert.assertTrue(target.contains(src));
+        // ensure that the test set still contains all objects from the source set that have not been marked
+        // for removal
+        assertEquals(source.size() - toRemove.size(), testSet.size());
+        for (Object src : source) {
+            if (!toRemove.contains(src)) assertTrue(testSet.contains(src));
         }
     }
 
     @Test
-    public void testRemove2(){
+    public void testRemoval() {
         final HashSet<Object> source = new HashSet<Object>();
         final HashSet<Object> toRemove = new HashSet<Object>();
 
-        final ConcurrentSet<Object> target = new ConcurrentSet<Object>();
-        for(int i=0;i < numberOfElements ; i++){
+        final ConcurrentSet<Object> testSet = new ConcurrentSet<Object>();
+        // build set of candidates and mark subset for removal
+        for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
             source.add(candidate);
-            if(i % 3 == 0){
+            if (i % 3 == 0) {
                 toRemove.add(candidate);
             }
         }
 
-
+        // build test set by adding the candidates
+        // and subsequently removing those marked for removal
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
             public void run() {
-                for(Object src : source){
-                    target.add(src);
-                    if(toRemove.contains(src))
-                        target.remove(src);
+                for (Object src : source) {
+                    testSet.add(src);
+                    if (toRemove.contains(src))
+                        testSet.remove(src);
                 }
             }
         }, numberOfThreads);
 
-        pause(3000);
-
-        for(Object tar : target){
+        // ensure that the test set does not contain any of the elements that have been removed from it
+        for (Object tar : testSet) {
             Assert.assertTrue(!toRemove.contains(tar));
         }
-
-        for(Object src : source){
-            if(!toRemove.contains(src))Assert.assertTrue(target.contains(src));
+        // ensure that the test set still contains all objects from the source set that have not been marked
+        // for removal
+        assertEquals(source.size() - toRemove.size(), testSet.size());
+        for (Object src : source) {
+            if (!toRemove.contains(src)) assertTrue(testSet.contains(src));
         }
     }
 

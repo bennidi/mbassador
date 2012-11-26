@@ -1,12 +1,10 @@
 package org.mbassy.listener;
 
-import org.mbassy.listener.Listener;
-import org.mbassy.listener.Mode;
-import org.mbassy.listener.MessageFilter;
-
 import java.lang.reflect.Method;
 
 /**
+ *
+ *
  * @author bennidi
  * Date: 11/14/12
  */
@@ -14,18 +12,19 @@ public class MessageHandlerMetadata {
 
     private Method handler;
 
-    private MessageFilter[] filter;
+    private IMessageFilter[] filter;
 
     private Listener listenerConfig;
 
     private boolean isAsynchronous = false;
 
 
-    public MessageHandlerMetadata(Method handler, MessageFilter[] filter, Listener listenerConfig) {
+    public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Listener listenerConfig) {
         this.handler = handler;
         this.filter = filter;
         this.listenerConfig = listenerConfig;
         this.isAsynchronous = listenerConfig.dispatch().equals(Mode.Asynchronous);
+        this.handler.setAccessible(true);
     }
 
 
@@ -34,7 +33,7 @@ public class MessageHandlerMetadata {
     }
 
     public boolean isFiltered(){
-        return filter == null || filter.length == 0;
+        return filter != null && filter.length > 0;
     }
 
     public int getPriority(){
@@ -45,7 +44,11 @@ public class MessageHandlerMetadata {
         return handler;
     }
 
-    public MessageFilter[] getFilter() {
+    public IMessageFilter[] getFilter() {
         return filter;
+    }
+
+    public Class getDeclaredMessageType(){
+        return handler.getParameterTypes()[0];
     }
 }

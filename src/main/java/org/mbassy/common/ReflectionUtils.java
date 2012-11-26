@@ -2,6 +2,7 @@ package org.mbassy.common;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,6 +49,15 @@ public class ReflectionUtils {
             if (!containsOverridingMethod(allMethods, method)) filtered.add(method);
         }
         return filtered;
+    }
+
+    public static Collection<Class> getSuperclasses(Class from) {
+        Collection<Class> superclasses = new LinkedList<Class>();
+        while (!from.equals(Object.class)) {
+            superclasses.add(from.getSuperclass());
+            from = from.getSuperclass();
+        }
+        return superclasses;
     }
 
     public static boolean containsOverridingMethod(List<Method> allMethods, Method methodToCheck) {

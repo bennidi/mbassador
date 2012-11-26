@@ -12,12 +12,12 @@ import java.lang.annotation.Target;
  * to the message listener or not.
  *
  * <p/>
- * @author  benni
+ * @author  bennidi
  * Date: 2/14/12
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.ANNOTATION_TYPE})
 public @interface Filter {
 
-	Class<? extends MessageFilter> value();
+	Class<? extends IMessageFilter> value();
 }

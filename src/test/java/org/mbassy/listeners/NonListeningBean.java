@@ -7,7 +7,7 @@ import org.mbassy.listener.Mode;
 
 /**
  * This bean overrides all the handlers defined in its superclass. Since it does not specify any annotations
- * it should be considered a message lister
+ * it should not be considered a message listener
  *
  * @author bennidi
  * Date: 11/22/12

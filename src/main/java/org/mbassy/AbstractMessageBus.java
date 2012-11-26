@@ -48,6 +48,8 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     // all pending messages scheduled for asynchronous dispatch are queued here
     private final LinkedBlockingQueue<SubscriptionDeliveryRequest<T>> pendingMessages = new LinkedBlockingQueue<SubscriptionDeliveryRequest<T>>();
 
+    // this factory is used to create specialized subscriptions based on the given message handler configuration
+    // it can be customized by implementing the getSubscriptionFactory() method
     private final SubscriptionFactory subscriptionFactory;
 
     // initialize the dispatch workers
@@ -71,6 +73,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
             dispatcher.start();
         }
     }
+
 
     public AbstractMessageBus() {
         this(2);
@@ -102,9 +105,9 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         if (listener == null) return false;
         Collection<Subscription> subscriptions = subscriptionsPerListener.get(listener.getClass());
         if (subscriptions == null) return false;
-        boolean isRemoved = false;
+        boolean isRemoved = true;
         for (Subscription subscription : subscriptions) {
-            isRemoved = isRemoved || subscription.unsubscribe(listener);
+            isRemoved = isRemoved && subscription.unsubscribe(listener);
         }
         return isRemoved;
     }
@@ -165,24 +168,15 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         if (subscriptionsPerMessage.get(messageType) != null) {
             subscriptions.addAll(subscriptionsPerMessage.get(messageType));
         }
-        for (Class eventSuperType : getSuperclasses(messageType)) {
+        for (Class eventSuperType : ReflectionUtils.getSuperclasses(messageType)) {
             if (subscriptionsPerMessage.get(eventSuperType) != null) {
                 subscriptions.addAll(subscriptionsPerMessage.get(eventSuperType));
             }
         }
-        // IMPROVEMENT: use tree list that sorts during insertion
-        //Collections.sort(subscriptions, new SubscriptionByPriorityDesc());
         return subscriptions;
     }
 
-    private Collection<Class> getSuperclasses(Class from) {
-        Collection<Class> superclasses = new LinkedList<Class>();
-        while (!from.equals(Object.class)) {
-            superclasses.add(from.getSuperclass());
-            from = from.getSuperclass();
-        }
-        return superclasses;
-    }
+
 
     // associate a suscription with a message type
     private void addMessageTypeSubscription(Class messageType, Subscription subscription) {
