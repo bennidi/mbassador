@@ -1,0 +1,10 @@
+usePlugin('java')
+
+group="org.mbassy"
+version="1.0.2.RC"
+
+dependencies {
+    addMavenRepo()
+
+    testCompile "junit:junit:4.10@jar"
+}

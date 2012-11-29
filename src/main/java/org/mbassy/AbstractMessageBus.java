@@ -52,6 +52,27 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     // it can be customized by implementing the getSubscriptionFactory() method
     private final SubscriptionFactory subscriptionFactory;
 
+
+
+
+    public AbstractMessageBus() {
+        this(2);
+    }
+
+    public AbstractMessageBus(int dispatcherThreadCount) {
+        this(dispatcherThreadCount, new ThreadPoolExecutor(5, 50, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>()));
+    }
+
+    public AbstractMessageBus(int dispatcherThreadCount, ExecutorService executor) {
+        this.executor = executor;
+        initDispatcherThreads(dispatcherThreadCount > 0 ? dispatcherThreadCount : 2);
+        addErrorHandler(new IPublicationErrorHandler.ConsoleLogger());
+        subscriptionFactory = getSubscriptionFactory();
+    }
+
+    // use this method to introduce a custom subscription factory for extension
+    protected abstract SubscriptionFactory getSubscriptionFactory();
+
     // initialize the dispatch workers
     private void initDispatcherThreads(int numberOfThreads) {
         for (int i = 0; i < numberOfThreads; i++) {
@@ -72,28 +93,6 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
             dispatchers.add(dispatcher);
             dispatcher.start();
         }
-    }
-
-
-    public AbstractMessageBus() {
-        this(2);
-    }
-
-    public AbstractMessageBus(int dispatcherThreadCount) {
-        this(2, new ThreadPoolExecutor(5, 50, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>()));
-    }
-
-    public AbstractMessageBus(int dispatcherThreadCount, ExecutorService executor) {
-        this.executor = executor;
-        initDispatcherThreads(dispatcherThreadCount > 0 ? dispatcherThreadCount : 2);
-        addErrorHandler(new IPublicationErrorHandler.ConsoleLogger());
-        subscriptionFactory = getSubscriptionFactory();
-        initialize();
-    }
-
-    protected abstract SubscriptionFactory getSubscriptionFactory();
-
-    protected void initialize() {
     }
 
     @Override
