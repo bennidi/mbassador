@@ -77,7 +77,7 @@ Creation of message bus and registration of listeners:
 
         // create as many instances as necessary
         // bind it to any upper bound
-        MBassador<TestEvent> bus = new MBassador<TestEvent>();
+        MBassador<TestEvent> bus = new MBassador<TestEvent>(BusConfiguration.Default());
         ListeningBean listener = new ListeningBean();
         // the listener will be registered using a weak-reference
         bus.subscribe(listener);
