@@ -8,22 +8,10 @@ import java.util.concurrent.*;
 
 public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>{
 
-    public MBassador(){
-        this(2);
+    public MBassador(BusConfiguration configuration){
+        super(configuration);
     }
 
-    public MBassador(int dispatcherThreadCount){
-        super(dispatcherThreadCount);
-    }
-
-    public MBassador(int dispatcherThreadCount, ExecutorService executor){
-        super(dispatcherThreadCount,executor);
-    }
-
-    @Override
-    protected SubscriptionFactory getSubscriptionFactory() {
-        return new SubscriptionFactory(this);
-    }
 
     public void publishAsync(T message){
         addAsynchronousDeliveryRequest(new SubscriptionDeliveryRequest<T>(getSubscriptionsByMessageType(message.getClass()), message));

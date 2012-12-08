@@ -3,6 +3,7 @@ package org.mbassy.common;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
@@ -12,8 +13,7 @@ import java.util.WeakHashMap;
  * been reached by the iterator will not appear in that iterator anymore.
  * <p/>
  * The structure uses weak references to the elements. Iterators automatically perform cleanups of
- * garbace collect objects during iteration.
- * No dedicated maintenance operations need to be called or run in background.
+ * garbage collected objects during iteration -> no dedicated maintenance operations need to be called or run in background.
  * <p/>
  * <p/>
  * <p/>
@@ -21,8 +21,7 @@ import java.util.WeakHashMap;
  * @author bennidi
  *         Date: 2/12/12
  */
-public class ConcurrentSet<T> implements Iterable<T> {
-
+public class ConcurrentSet<T> implements Iterable<T>{
 
     private WeakHashMap<T, Entry<T>> entries = new WeakHashMap<T, Entry<T>>(); // maintain a map of entries for O(log n) lookup
 
@@ -70,11 +69,13 @@ public class ConcurrentSet<T> implements Iterable<T> {
         if (!entries.containsKey(element)) return false;
         synchronized (this) {
             Entry<T> listelement = entries.get(element);
-            if(listelement == null)return false;
+            if(listelement == null)return false; //removed by other thread
             if (listelement != head) {
                 listelement.remove();
             } else {
+                Entry<T> oldHead = head;
                 head = head.next();
+                oldHead.next = null; // optimize for GC
             }
             entries.remove(element);
         }
@@ -111,10 +112,9 @@ public class ConcurrentSet<T> implements Iterable<T> {
 
             public void remove() {
                 if (current == null) return;
-                synchronized (ConcurrentSet.this) {
-                    current.remove();
-                    current = current.next();
-                }
+                Entry<T> newCurrent = current.next();
+                ConcurrentSet.this.remove(current.getValue());
+                current = newCurrent;
             }
         };
     }
@@ -143,26 +143,22 @@ public class ConcurrentSet<T> implements Iterable<T> {
             return value.get();
         }
 
+        // not thread-safe! must be synchronized in enclosing context
         public void remove() {
             if (predecessor != null) {
-                predecessor.setNext(next());
-            } else if (next() != null) {
+                predecessor.next = next;
+                if(next != null)next.predecessor = predecessor;
+            } else if (next != null) {
                 next.predecessor = null;
             }
-        }
-
-        public void setNext(Entry<T> element) {
-            this.next = element;
-            if (element != null) element.predecessor = this;
+            next = null;
+            predecessor = null;
         }
 
         public Entry<T> next() {
             return next;
         }
 
-        public boolean hasNext() {
-            return next() != null;
-        }
 
     }
 }

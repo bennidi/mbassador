@@ -21,7 +21,7 @@ public class FilterTest extends UnitTest{
     @Test
     public void testSubclassFilter() throws Exception {
 
-        MBassador bus = new MBassador();
+        MBassador bus = new MBassador(new BusConfiguration());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, FilteredMessageListener.class)
                 .create(100, Object.class)

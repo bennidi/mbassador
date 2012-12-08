@@ -18,15 +18,6 @@ public class SubscriptionDeliveryRequest<T> {
         this.message = message;
     }
 
-    public SubscriptionDeliveryRequest(T message){
-        this.message = message;
-        subscriptions = new LinkedList<Subscription>();
-    }
-
-    public boolean addAll(Collection<? extends Subscription> c) {
-        return subscriptions.addAll(c);
-    }
-
     public boolean add(Subscription subscription) {
         return subscriptions.add(subscription);
     }

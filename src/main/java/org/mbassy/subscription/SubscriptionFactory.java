@@ -16,14 +16,7 @@ import java.util.Collection;
  */
 public class SubscriptionFactory {
 
-    private IMessageBus owner;
-
-    public SubscriptionFactory(IMessageBus owner) {
-        this.owner = owner;
-    }
-
-    public Subscription createSubscription(MessageHandlerMetadata messageHandlerMetadata){
-        MessagingContext context = new MessagingContext(owner, messageHandlerMetadata);
+    public Subscription createSubscription(MessagingContext context){
         IHandlerInvocation invocation = buildInvocationForHandler(context);
         IMessageDispatcher dispatcher = buildDispatcher(context, invocation);
         return new Subscription(context, dispatcher);

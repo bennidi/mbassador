@@ -1,5 +1,6 @@
 package org.mbassy;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mbassy.events.SubTestEvent;
 import org.mbassy.events.TestEvent;
@@ -20,10 +21,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class MBassadorTest extends UnitTest {
 
+
     // this is a single threaded test for subscribing and unsubscribing of a single listener
     @Test
     public void testSubscribeSimple() throws InterruptedException {
-        MBassador bus = new MBassador();
+        MBassador bus = new MBassador(new BusConfiguration());
         List<Object> listeners = new LinkedList<Object>();
         int listenerCount = 1000;
 
@@ -77,7 +79,7 @@ public class MBassadorTest extends UnitTest {
     @Test
     public void testConcurrentSubscription() throws Exception {
 
-        MBassador bus = new MBassador();
+        MBassador bus = new MBassador(new BusConfiguration());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, EventingTestBean.class)
                 .create(100, EventingTestBean2.class)
@@ -105,7 +107,7 @@ public class MBassadorTest extends UnitTest {
     @Test
     public void testAsynchronousMessagePublication() throws Exception {
 
-        MBassador bus = new MBassador();
+        MBassador bus = new MBassador(new BusConfiguration());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, EventingTestBean.class)
                 .create(100, EventingTestBean2.class)
@@ -134,7 +136,7 @@ public class MBassadorTest extends UnitTest {
     @Test
     public void testSynchronousMessagePublication() throws Exception {
 
-        MBassador bus = new MBassador();
+        MBassador bus = new MBassador(new BusConfiguration());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, EventingTestBean.class)
                 .create(100, EventingTestBean2.class)
@@ -167,7 +169,7 @@ public class MBassadorTest extends UnitTest {
         final int eventLoopsPerTHread = 100;
 
 
-        final MBassador bus = new MBassador();
+        final MBassador bus = new MBassador(new BusConfiguration());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, EventingTestBean.class)
                 .create(100, EventingTestBean2.class)

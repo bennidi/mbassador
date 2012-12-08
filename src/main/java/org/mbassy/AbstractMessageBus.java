@@ -2,6 +2,7 @@ package org.mbassy;
 
 import org.mbassy.common.IPredicate;
 import org.mbassy.common.ReflectionUtils;
+import org.mbassy.dispatch.MessagingContext;
 import org.mbassy.listener.Listener;
 import org.mbassy.listener.MetadataReader;
 import org.mbassy.subscription.Subscription;
@@ -21,10 +22,10 @@ import java.util.concurrent.*;
 public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> implements IMessageBus<T, P> {
 
     // executor for asynchronous listeners using unbound queuing strategy to ensure that no events get lost
-    private ExecutorService executor;
+    private final ExecutorService executor;
 
     // the metadata reader that is used to parse objects passed to the subscribe method
-    private MetadataReader metadataReader = new MetadataReader();
+    private final MetadataReader metadataReader;
 
     // all subscriptions per message type
     // this is the primary list for dispatching a specific message
@@ -40,13 +41,13 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     private final Collection<Class> nonListeners = new HashSet();
 
     // this handler will receive all errors that occur during message dispatch or message handling
-    private CopyOnWriteArrayList<IPublicationErrorHandler> errorHandlers = new CopyOnWriteArrayList<IPublicationErrorHandler>();
+    private final List<IPublicationErrorHandler> errorHandlers = new CopyOnWriteArrayList<IPublicationErrorHandler>();
 
     // all threads that are available for asynchronous message dispatching
-    private final CopyOnWriteArrayList<Thread> dispatchers = new CopyOnWriteArrayList<Thread>();
+    private final List<Thread> dispatchers = new CopyOnWriteArrayList<Thread>();
 
     // all pending messages scheduled for asynchronous dispatch are queued here
-    private final LinkedBlockingQueue<SubscriptionDeliveryRequest<T>> pendingMessages = new LinkedBlockingQueue<SubscriptionDeliveryRequest<T>>();
+    private final LinkedBlockingQueue<SubscriptionDeliveryRequest<T>> pendingMessages;
 
     // this factory is used to create specialized subscriptions based on the given message handler configuration
     // it can be customized by implementing the getSubscriptionFactory() method
@@ -54,24 +55,15 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
 
 
 
-
-    public AbstractMessageBus() {
-        this(2);
-    }
-
-    public AbstractMessageBus(int dispatcherThreadCount) {
-        this(dispatcherThreadCount, new ThreadPoolExecutor(5, 50, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>()));
-    }
-
-    public AbstractMessageBus(int dispatcherThreadCount, ExecutorService executor) {
-        this.executor = executor;
-        initDispatcherThreads(dispatcherThreadCount > 0 ? dispatcherThreadCount : 2);
+    public AbstractMessageBus(BusConfiguration configuration) {
+        this.executor = configuration.getExecutor();
+        subscriptionFactory = configuration.getSubscriptionFactory();
+        this.metadataReader = configuration.getMetadataReader();
+        pendingMessages  = new LinkedBlockingQueue<SubscriptionDeliveryRequest<T>>(configuration.getMaximumNumberOfPendingMessages());
+        initDispatcherThreads(configuration.getNumberOfMessageDispatchers());
         addErrorHandler(new IPublicationErrorHandler.ConsoleLogger());
-        subscriptionFactory = getSubscriptionFactory();
     }
 
-    // use this method to introduce a custom subscription factory for extension
-    protected abstract SubscriptionFactory getSubscriptionFactory();
 
     // initialize the dispatch workers
     private void initDispatcherThreads(int numberOfThreads) {
@@ -119,20 +111,21 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                 return; // early reject of known classes that do not participate in eventing
             Collection<Subscription> subscriptionsByListener = subscriptionsPerListener.get(listeningClass);
             if (subscriptionsByListener == null) { // if the type is registered for the first time
-                synchronized (this) { // new subscriptions must be processed sequentially for each class
+                synchronized (this) { // new subscriptions must be processed sequentially
                     subscriptionsByListener = subscriptionsPerListener.get(listeningClass);
                     if (subscriptionsByListener == null) {  // double check (a bit ugly but works here)
                         List<Method> messageHandlers = metadataReader.getListeners(listeningClass);  // get all methods with subscriptions
-                        subscriptionsByListener = new ArrayList<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
                         if (messageHandlers.isEmpty()) {  // remember the class as non listening class
                             nonListeners.add(listeningClass);
                             return;
                         }
+                        subscriptionsByListener = new ArrayList<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
                         // create subscriptions for all detected listeners
                         for (Method messageHandler : messageHandlers) {
                             if (!isValidMessageHandler(messageHandler)) continue; // ignore invalid listeners
                             Class eventType = getMessageType(messageHandler);
-                            Subscription subscription = subscriptionFactory.createSubscription(metadataReader.getHandlerMetadata(messageHandler));
+                            Subscription subscription = subscriptionFactory
+                                    .createSubscription(new MessagingContext(this, metadataReader.getHandlerMetadata(messageHandler)));
                             subscription.subscribe(listener);
                             addMessageTypeSubscription(eventType, subscription);
                             subscriptionsByListener.add(subscription);

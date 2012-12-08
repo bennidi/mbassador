@@ -5,13 +5,14 @@ import org.junit.Test;
 import org.mbassy.common.ConcurrentSet;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
 /**
  * This test ensures the correct behaviour of the set implementation that is the building
  * block of the subscription implementations used by the Mbassador message bus.
- *
+ * <p/>
  * It should behave exactly like other set implementations do and as such all tests are based
  * on comparing the outcome of sequence of operations applied to a standard set implementation
  * and the concurrent set.
@@ -102,7 +103,7 @@ public class ConcurrentSetTest extends UnitTest {
     }
 
     @Test
-    public void testPerformance(){
+    public void testPerformance() {
         final HashSet<Object> source = new HashSet<Object>();
 
         final HashSet<Object> hashSet = new HashSet<Object>();
@@ -115,14 +116,14 @@ public class ConcurrentSetTest extends UnitTest {
 
 
         long start = System.currentTimeMillis();
-        for(Object o: source){
+        for (Object o : source) {
             hashSet.add(o);
         }
         long duration = System.currentTimeMillis() - start;
         System.out.println("Performance of HashSet for 1.000.000 object insertions " + duration);
 
         start = System.currentTimeMillis();
-        for(Object o: source){
+        for (Object o : source) {
             concurrentSet.add(o);
         }
         duration = System.currentTimeMillis() - start;
@@ -216,5 +217,71 @@ public class ConcurrentSetTest extends UnitTest {
             if (!toRemove.contains(src)) assertTrue(testSet.contains(src));
         }
     }
+
+    @Test
+    public void testCompleteRemoval() {
+        final HashSet<Object> source = new HashSet<Object>();
+        final ConcurrentSet<Object> testSet = new ConcurrentSet<Object>();
+
+        // build set of candidates and mark subset for removal
+        for (int i = 0; i < numberOfElements; i++) {
+            Object candidate = new Object();
+            source.add(candidate);
+            testSet.add(candidate);
+        }
+
+        // build test set by adding the candidates
+        // and subsequently removing those marked for removal
+        ConcurrentExecutor.runConcurrent(new Runnable() {
+            @Override
+            public void run() {
+                for (Object src : source) {
+                    testSet.remove(src);
+                }
+            }
+        }, numberOfThreads);
+
+
+        // ensure that the test set still contains all objects from the source set that have not been marked
+        // for removal
+        assertEquals(0, testSet.size());
+        for(Object src : source){
+            assertFalse(testSet.contains(src));
+        }
+    }
+
+    @Test
+    public void testRemovalViaIterator() {
+        final HashSet<Object> source = new HashSet<Object>();
+        final ConcurrentSet<Object> testSet = new ConcurrentSet<Object>();
+
+        // build set of candidates and mark subset for removal
+        for (int i = 0; i < numberOfElements; i++) {
+            Object candidate = new Object();
+            source.add(candidate);
+            testSet.add(candidate);
+        }
+
+        // build test set by adding the candidates
+        // and subsequently removing those marked for removal
+        ConcurrentExecutor.runConcurrent(new Runnable() {
+            @Override
+            public void run() {
+                Iterator<Object> iterator = testSet.iterator();
+                while(iterator.hasNext()){
+                    iterator.remove();
+                }
+            }
+        }, numberOfThreads);
+
+
+        // ensure that the test set still contains all objects from the source set that have not been marked
+        // for removal
+        assertEquals(0, testSet.size());
+        for(Object src : source){
+            assertFalse(testSet.contains(src));
+        }
+    }
+
 
 }
