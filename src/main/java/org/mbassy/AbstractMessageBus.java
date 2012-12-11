@@ -1,9 +1,7 @@
 package org.mbassy;
 
-import org.mbassy.common.IPredicate;
 import org.mbassy.common.ReflectionUtils;
 import org.mbassy.dispatch.MessagingContext;
-import org.mbassy.listener.Listener;
 import org.mbassy.listener.MetadataReader;
 import org.mbassy.subscription.Subscription;
 import org.mbassy.subscription.SubscriptionDeliveryRequest;
@@ -12,6 +10,7 @@ import org.mbassy.subscription.SubscriptionFactory;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The base class for all message bus implementations.
@@ -53,6 +52,10 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     // it can be customized by implementing the getSubscriptionFactory() method
     private final SubscriptionFactory subscriptionFactory;
 
+    // indicates whether the shutdown method has been invoked
+    // -> if true, then dispatchers will have been shutdown
+    private final AtomicBoolean isShutDown = new AtomicBoolean(false);
+
 
 
     public AbstractMessageBus(BusConfiguration configuration) {
@@ -76,12 +79,13 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                         try {
                             pendingMessages.take().execute();
                         } catch (InterruptedException e) {
-                            handlePublicationError(new PublicationError(e, "Asynchronous publication interrupted", null, null, null));
+                            Thread.currentThread().interrupt();
                             return;
                         }
                     }
                 }
             });
+            dispatcher.setDaemon(true); // do not prevent the JVM from exiting
             dispatchers.add(dispatcher);
             dispatcher.start();
         }
@@ -114,8 +118,8 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                 synchronized (this) { // new subscriptions must be processed sequentially
                     subscriptionsByListener = subscriptionsPerListener.get(listeningClass);
                     if (subscriptionsByListener == null) {  // double check (a bit ugly but works here)
-                        List<Method> messageHandlers = metadataReader.getListeners(listeningClass);  // get all methods with subscriptions
-                        if (messageHandlers.isEmpty()) {  // remember the class as non listening class
+                        List<Method> messageHandlers = metadataReader.getMessageHandlers(listeningClass);  // get all methods with subscriptions
+                        if (messageHandlers.isEmpty()) {  // remember the class as non listening class if no handlers are found
                             nonListeners.add(listeningClass);
                             return;
                         }
@@ -160,6 +164,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         if (subscriptionsPerMessage.get(messageType) != null) {
             subscriptions.addAll(subscriptionsPerMessage.get(messageType));
         }
+        // TODO: get superclasses is eligible for caching
         for (Class eventSuperType : ReflectionUtils.getSuperclasses(messageType)) {
             if (subscriptionsPerMessage.get(eventSuperType) != null) {
                 subscriptions.addAll(subscriptionsPerMessage.get(eventSuperType));
@@ -171,10 +176,11 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
 
 
     // associate a suscription with a message type
+    // NOTE: Not thread-safe! must be synchronized in outer scope
     private void addMessageTypeSubscription(Class messageType, Subscription subscription) {
         Collection<Subscription> subscriptions = subscriptionsPerMessage.get(messageType);
         if (subscriptions == null) {
-            subscriptions = new CopyOnWriteArraySet<Subscription>();
+            subscriptions = new LinkedList<Subscription>();
             subscriptionsPerMessage.put(messageType, subscriptions);
         }
         subscriptions.add(subscription);
@@ -195,8 +201,6 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         return listener.getParameterTypes()[0];
     }
 
-
-
     public void handlePublicationError(PublicationError error) {
         for (IPublicationErrorHandler errorHandler : errorHandlers){
             errorHandler.handleError(error);
@@ -205,10 +209,20 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
 
     @Override
     protected void finalize() throws Throwable {
+        shutdown();
         super.finalize();
+    }
+
+    private void shutdown(){
         for (Thread dispatcher : dispatchers) {
             dispatcher.interrupt();
         }
+        executor.shutdown();
+        isShutDown.set(true);
+    }
+
+    public boolean hasPendingMessages(){
+        return pendingMessages.size() > 0;
     }
 
     @Override

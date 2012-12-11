@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class TestUtil {
 
+
     public static void setup(final IMessageBus bus, final List<Object> listeners, int numberOfThreads) {
         Runnable[] setupUnits = new Runnable[numberOfThreads];
         int partitionSize;

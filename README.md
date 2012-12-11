@@ -10,7 +10,7 @@ Read this documentation to get an overview of its features and how cool this mes
 You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
 which also contains a partial list of the features of the compared implementations.
 
-The current version is 1.0.3.RC
+The current version is 1.0.4.RC
 
 Table of contents:
 + [Features](#features)

@@ -1,7 +1,7 @@
 usePlugin('java')
 
 group="org.mbassy"
-version="1.0.2.RC"
+version="1.0.4.RC"
 
 dependencies {
     addMavenRepo()

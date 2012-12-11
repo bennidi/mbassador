@@ -104,6 +104,13 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
      */
     public Executor getExecutor();
 
+    /**
+     * Check whether any asynchronous message publications are pending for being processed
+     *
+     * @return
+     */
+    public boolean hasPendingMessages();
+
 
     /**
      * A post command is used as an intermediate object created by a call to the message bus' post method.

@@ -57,7 +57,7 @@ public class MetadataReader {
 
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
-    public List<Method> getListeners(Class<?> target) {
+    public List<Method> getMessageHandlers(Class<?> target) {
         List<Method> allMethods = ReflectionUtils.getMethods(AllMessageHandlers, target);
         List<Method>  handlers = new LinkedList<Method>();
         for(Method listener : allMethods){
