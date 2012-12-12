@@ -78,14 +78,7 @@ Listener definition (in any bean):
         @Listener(dispatch = Mode.Synchronous, filters = @Filter(Filters.RejectSubtypes.class))
         @Enveloped(messages = {TestEvent.class, TestEvent2.class})
         public void handleSuperTypeEvents(MessageEnvelope envelope) {
-            if(TestEvent.class.isAssignableFrom(envelope.getMessage().getClass())){
-                TestEvent event = envelope.getMessage();
-                event.counter.incrementAndGet();
-            }
-            if(envelope.getMessage().getClass().equals(TestEvent2.class)){
-                TestEvent2 event = envelope.getMessage();
-                event.counter.incrementAndGet();
-            }
+            // detect the type of event here and then decide the course of action
         }
 
 
