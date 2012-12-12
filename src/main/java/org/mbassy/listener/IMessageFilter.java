@@ -1,8 +1,5 @@
 package org.mbassy.listener;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Message filters can be used to prevent certain messages to be delivered to a specific listener.
  * If a filter is used the message will only be delivered if it passes the filter(s)
@@ -22,33 +19,5 @@ public interface IMessageFilter {
      * @return
      */
 	public boolean accepts(Object message, MessageHandlerMetadata metadata);
-
-
-
-	public static final class All implements IMessageFilter {
-
-		@Override
-		public boolean accepts(Object event, MessageHandlerMetadata metadata) {
-			return true;
-		}
-	}
-
-    public static final class None implements IMessageFilter {
-
-        @Override
-        public boolean accepts(Object event, MessageHandlerMetadata metadata) {
-            return false;
-        }
-    }
-
-
-    public static final class DontAllowSubtypes implements IMessageFilter {
-
-        @Override
-        public boolean accepts(Object event, MessageHandlerMetadata metadata) {
-            return event.getClass().equals(metadata.getDeclaredMessageType());
-        }
-    }
-
 
 }

@@ -6,13 +6,21 @@ import org.mbassy.subscription.SubscriptionFactory;
 import java.util.concurrent.*;
 
 /**
- *
- *
+ * The bus configuration holds various parameters that can be used to customize the bus' runtime behaviour. *
  *
  * @author bennidi
  *         Date: 12/8/12
  */
 public class BusConfiguration {
+
+    private static final ThreadFactory DaemonThreadFactory = new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = Executors.defaultThreadFactory().newThread(r);
+            thread.setDaemon(true);
+            return thread;
+        }
+    };
 
     public static final BusConfiguration Default(){
         return new BusConfiguration();
@@ -32,7 +40,7 @@ public class BusConfiguration {
         this.numberOfMessageDispatchers = 2;
         this.maximumNumberOfPendingMessages = Integer.MAX_VALUE;
         this.subscriptionFactory = new SubscriptionFactory();
-        this.executor = new ThreadPoolExecutor(5, 20, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>());
+        this.executor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), DaemonThreadFactory);
         this.metadataReader = new MetadataReader();
     }
 

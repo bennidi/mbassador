@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mbassy.events.SubTestEvent;
 import org.mbassy.events.TestEvent;
+import org.mbassy.events.TestEvent2;
 import org.mbassy.listeners.*;
 import org.mbassy.subscription.Subscription;
 
@@ -113,7 +114,8 @@ public class MBassadorTest extends UnitTest {
                 .create(100, EventingTestBean2.class)
                 .create(100, EventingTestBean3.class)
                 .create(100, Object.class)
-                .create(100, NonListeningBean.class);
+                .create(100, NonListeningBean.class)
+                .create(100, MultiEventHandler.class);
 
         List<Object> listeners = listenerFactory.build();
 
@@ -122,14 +124,17 @@ public class MBassadorTest extends UnitTest {
 
         TestEvent event = new TestEvent();
         TestEvent subEvent = new SubTestEvent();
+        TestEvent2 event2 = new TestEvent2();
 
         bus.publishAsync(event);
         bus.publishAsync(subEvent);
+        bus.publishAsync(event2);
 
         pause(2000);
 
-        assertEquals(300, event.counter.get());
-        assertEquals(700, subEvent.counter.get());
+        assertEquals(500, event.counter.get());
+        assertEquals(800, subEvent.counter.get());
+        assertEquals(200, event2.counter.get());
 
     }
 

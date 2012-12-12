@@ -2,12 +2,12 @@ package org.mbassy;
 
 import org.mbassy.common.ReflectionUtils;
 import org.mbassy.dispatch.MessagingContext;
+import org.mbassy.listener.MessageHandlerMetadata;
 import org.mbassy.listener.MetadataReader;
 import org.mbassy.subscription.Subscription;
 import org.mbassy.subscription.SubscriptionDeliveryRequest;
 import org.mbassy.subscription.SubscriptionFactory;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -118,21 +118,24 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                 synchronized (this) { // new subscriptions must be processed sequentially
                     subscriptionsByListener = subscriptionsPerListener.get(listeningClass);
                     if (subscriptionsByListener == null) {  // double check (a bit ugly but works here)
-                        List<Method> messageHandlers = metadataReader.getMessageHandlers(listeningClass);  // get all methods with subscriptions
+                        List<MessageHandlerMetadata> messageHandlers = metadataReader.getMessageHandlers(listeningClass);
                         if (messageHandlers.isEmpty()) {  // remember the class as non listening class if no handlers are found
                             nonListeners.add(listeningClass);
                             return;
                         }
                         subscriptionsByListener = new ArrayList<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
                         // create subscriptions for all detected listeners
-                        for (Method messageHandler : messageHandlers) {
-                            if (!isValidMessageHandler(messageHandler)) continue; // ignore invalid listeners
-                            Class eventType = getMessageType(messageHandler);
+                        for (MessageHandlerMetadata messageHandler : messageHandlers) {
+                            // create the subscription
                             Subscription subscription = subscriptionFactory
-                                    .createSubscription(new MessagingContext(this, metadataReader.getHandlerMetadata(messageHandler)));
+                                    .createSubscription(new MessagingContext(this, messageHandler));
                             subscription.subscribe(listener);
-                            addMessageTypeSubscription(eventType, subscription);
-                            subscriptionsByListener.add(subscription);
+                            subscriptionsByListener.add(subscription);// add it for the listener type (for future subscriptions)
+
+                            List<Class<?>> messageTypes = messageHandler.getHandledMessages();
+                            for(Class<?> messageType : messageTypes){
+                                addMessageTypeSubscription(messageType, subscription);
+                            }
                             //updateMessageTypeHierarchy(eventType);
                         }
                         subscriptionsPerListener.put(listeningClass, subscriptionsByListener);
@@ -187,19 +190,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     }
 
 
-    private boolean isValidMessageHandler(Method handler) {
-        if (handler.getParameterTypes().length != 1) {
-            // a messageHandler only defines one parameter (the message)
-            System.out.println("Found no or more than one parameter in messageHandler [" + handler.getName()
-                    + "]. A messageHandler must define exactly one parameter");
-            return false;
-        }
-        return true;
-    }
 
-    private static Class getMessageType(Method listener) {
-        return listener.getParameterTypes()[0];
-    }
 
     public void handlePublicationError(PublicationError error) {
         for (IPublicationErrorHandler errorHandler : errorHandlers){

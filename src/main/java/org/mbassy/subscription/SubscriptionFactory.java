@@ -32,6 +32,9 @@ public class SubscriptionFactory {
 
     protected IMessageDispatcher buildDispatcher(MessagingContext context, IHandlerInvocation invocation){
        IMessageDispatcher dispatcher = new MessageDispatcher(context, invocation);
+       if(context.getHandlerMetadata().isEnveloped()){
+          dispatcher = new EnvelopedMessageDispatcher(dispatcher);
+       }
        if(context.getHandlerMetadata().isFiltered()){
           dispatcher = new FilteredMessageDispatcher(dispatcher);
        }

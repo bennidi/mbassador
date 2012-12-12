@@ -1,21 +1,20 @@
 package org.mbassy.listener;
 
+import com.sun.xml.internal.messaging.saaj.soap.Envelope;
 import org.mbassy.common.IPredicate;
 import org.mbassy.common.ReflectionUtils;
+import org.mbassy.subscription.MessageEnvelope;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * Created with IntelliJ IDEA.
+ *
+ * The meta data reader is responsible for parsing and validating message handler configurations.
+ *
  * @author bennidi
  * Date: 11/16/12
- * Time: 10:22 AM
- * To change this template use File | Settings | File Templates.
  */
 public class MetadataReader {
 
@@ -31,15 +30,20 @@ public class MetadataReader {
     private final Map<Class<? extends IMessageFilter>, IMessageFilter> filterCache = new HashMap<Class<? extends IMessageFilter>, IMessageFilter>();
 
     // retrieve all instances of filters associated with the given subscription
-    private IMessageFilter[] getFilter(Listener subscription) throws Exception{
+    private IMessageFilter[] getFilter(Listener subscription){
         if (subscription.filters().length == 0) return null;
         IMessageFilter[] filters = new IMessageFilter[subscription.filters().length];
         int i = 0;
         for (Filter filterDef : subscription.filters()) {
             IMessageFilter filter = filterCache.get(filterDef.value());
             if (filter == null) {
+                try{
                     filter = filterDef.value().newInstance();
                     filterCache.put(filterDef.value(), filter);
+                }
+                catch (Exception e){
+                    throw new RuntimeException(e);// propagate as runtime exception
+                }
 
             }
             filters[i] = filter;
@@ -49,15 +53,14 @@ public class MetadataReader {
     }
 
 
-    public MessageHandlerMetadata getHandlerMetadata(Method messageHandler) throws Exception{
+    public MessageHandlerMetadata getHandlerMetadata(Method messageHandler){
         Listener config = messageHandler.getAnnotation(Listener.class);
-        IMessageFilter[] filter = getFilter(config);
-        return new MessageHandlerMetadata(messageHandler, filter, config);
+        return new MessageHandlerMetadata(messageHandler, getFilter(config), config);
     }
 
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
-    public List<Method> getMessageHandlers(Class<?> target) {
+    public List<MessageHandlerMetadata> getMessageHandlers(Class<?> target) {
         List<Method> allMethods = ReflectionUtils.getMethods(AllMessageHandlers, target);
         List<Method>  handlers = new LinkedList<Method>();
         for(Method listener : allMethods){
@@ -70,7 +73,13 @@ public class MetadataReader {
                 handlers.add(listener);
             }
         }
-        return ReflectionUtils.withoutOverridenSuperclassMethods(handlers);
+        handlers =  ReflectionUtils.withoutOverridenSuperclassMethods(handlers);
+        List<MessageHandlerMetadata> messageHandlers = new ArrayList<MessageHandlerMetadata>(handlers.size());
+        for(Method handler : handlers){
+            if(isValidMessageHandler(handler))
+                messageHandlers.add(getHandlerMetadata(handler));
+        }
+        return messageHandlers;
     }
 
     private static boolean isHandler(Method m){
@@ -79,7 +88,25 @@ public class MetadataReader {
             if(annotation.equals(Listener.class))return true;
         }
         return false;
+    }
 
+    private boolean isValidMessageHandler(Method handler) {
+        if (handler.getParameterTypes().length != 1) {
+            // a messageHandler only defines one parameter (the message)
+            System.out.println("Found no or more than one parameter in messageHandler [" + handler.getName()
+                    + "]. A messageHandler must define exactly one parameter");
+            return false;
+        }
+        Enveloped envelope = handler.getAnnotation(Enveloped.class);
+        if(envelope != null && !MessageEnvelope.class.isAssignableFrom(handler.getParameterTypes()[0])){
+            System.out.println("Message envelope configured but no subclass of MessageEnvelope found as parameter");
+            return false;
+        }
+        if(envelope != null && envelope.messages().length == 0){
+            System.out.println("Message envelope configured but message types defined for handler");
+            return false;
+        }
+        return true;
     }
 
 }

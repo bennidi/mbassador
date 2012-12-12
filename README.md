@@ -10,7 +10,7 @@ Read this documentation to get an overview of its features and how cool this mes
 You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
 which also contains a partial list of the features of the compared implementations.
 
-The current version is 1.0.4.RC
+The current version is 1.0.5.RC
 
 Table of contents:
 + [Features](#features)
@@ -39,6 +39,8 @@ in certain environments where objects are created by frameworks, i.e. spring, gu
 ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
 + <em><strong>Filtering</em></strong>: Mbassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to
 a single message handler
++ <em><strong>Message envelopes</em></strong>: Message handlers can declare to receive an enveloped message. The envelope can wrap around different
+types of messages. This allows for a single handler to handle multiple message types
 + <em><strong>Handler priorities</em></strong>: A listener can be associated with a priority to influence the order of the message delivery
 + <em><strong>Error handling</em></strong>: Errors during message delivery are sent to an error handler of which a custom implementation can easily be plugged-in.
 + <em><strong>Ease of Use</em></strong>: Using Mbassador in your project is very easy. Create as many instances of Mbassador as you like (usually a singleton will do),
@@ -72,6 +74,20 @@ Listener definition (in any bean):
         public void handleFiltered(SubTestEvent event) {
            //do something special here
         }
+
+        @Listener(dispatch = Mode.Synchronous, filters = @Filter(Filters.RejectSubtypes.class))
+        @Enveloped(messages = {TestEvent.class, TestEvent2.class})
+        public void handleSuperTypeEvents(MessageEnvelope envelope) {
+            if(TestEvent.class.isAssignableFrom(envelope.getMessage().getClass())){
+                TestEvent event = envelope.getMessage();
+                event.counter.incrementAndGet();
+            }
+            if(envelope.getMessage().getClass().equals(TestEvent2.class)){
+                TestEvent2 event = envelope.getMessage();
+                event.counter.incrementAndGet();
+            }
+        }
+
 
 Creation of message bus and registration of listeners:
 

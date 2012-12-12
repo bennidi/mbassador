@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.mbassy.events.SubTestEvent;
 import org.mbassy.events.TestEvent;
 import org.mbassy.listener.Filter;
+import org.mbassy.listener.Filters;
 import org.mbassy.listener.IMessageFilter;
 import org.mbassy.listener.Listener;
 import org.mbassy.listeners.*;
@@ -46,7 +47,7 @@ public class FilterTest extends UnitTest{
 
     public static class FilteredMessageListener{
 
-        @Listener(filters = {@Filter(IMessageFilter.DontAllowSubtypes.class)})
+        @Listener(filters = {@Filter(Filters.RejectSubtypes.class)})
         public void handleTestEvent(TestEvent event){
             event.counter.incrementAndGet();
         }

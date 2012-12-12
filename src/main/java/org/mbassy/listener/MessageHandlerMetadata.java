@@ -1,6 +1,8 @@
 package org.mbassy.listener;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -18,12 +20,24 @@ public class MessageHandlerMetadata {
 
     private boolean isAsynchronous = false;
 
+    private Enveloped envelope = null;
+
+    private List<Class<?>> handledMessages = new LinkedList<Class<?>>();
+
 
     public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Listener listenerConfig) {
         this.handler = handler;
         this.filter = filter;
         this.listenerConfig = listenerConfig;
         this.isAsynchronous = listenerConfig.dispatch().equals(Mode.Asynchronous);
+        this.envelope = handler.getAnnotation(Enveloped.class);
+        if(this.envelope != null){
+            for(Class messageType : envelope.messages())
+                handledMessages.add(messageType);
+        }
+        else{
+            handledMessages.add(handler.getParameterTypes()[0]);
+        }
         this.handler.setAccessible(true);
     }
 
@@ -48,7 +62,11 @@ public class MessageHandlerMetadata {
         return filter;
     }
 
-    public Class getDeclaredMessageType(){
-        return handler.getParameterTypes()[0];
+    public List<Class<?>> getHandledMessages(){
+        return handledMessages;
+    }
+
+    public boolean isEnveloped() {
+        return envelope != null;
     }
 }
