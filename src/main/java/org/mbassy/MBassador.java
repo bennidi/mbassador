@@ -44,8 +44,8 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
 
 
     @Override
-    public SyncAsyncPostCommand post(T message) {
-        return new SyncAsyncPostCommand(this, message);
+    public SyncAsyncPostCommand<T> post(T message) {
+        return new SyncAsyncPostCommand<T>(this, message);
     }
 
 }
