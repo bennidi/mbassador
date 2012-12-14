@@ -1,7 +1,6 @@
 package org.mbassy.subscription;
 
 import java.util.Collection;
-import java.util.LinkedList;
 
 /**
  * @author bennidi

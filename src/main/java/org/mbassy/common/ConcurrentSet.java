@@ -3,7 +3,6 @@ package org.mbassy.common;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
