@@ -1,9 +1,12 @@
 package org.mbassy.listeners;
 
-import org.mbassy.events.SubTestEvent;
 import org.mbassy.events.TestEvent;
 import org.mbassy.events.TestEvent2;
-import org.mbassy.listener.*;
+import org.mbassy.listener.Enveloped;
+import org.mbassy.listener.Filter;
+import org.mbassy.listener.Filters;
+import org.mbassy.listener.Listener;
+import org.mbassy.listener.Mode;
 import org.mbassy.subscription.MessageEnvelope;
 
 /**

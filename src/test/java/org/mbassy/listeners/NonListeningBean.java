@@ -2,8 +2,6 @@ package org.mbassy.listeners;
 
 import org.mbassy.events.SubTestEvent;
 import org.mbassy.events.TestEvent;
-import org.mbassy.listener.Listener;
-import org.mbassy.listener.Mode;
 
 /**
  * This bean overrides all the handlers defined in its superclass. Since it does not specify any annotations
