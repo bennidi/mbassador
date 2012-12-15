@@ -1,18 +1,21 @@
 package org.mbassy;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mbassy.events.SubTestEvent;
-import org.mbassy.events.TestEvent;
-import org.mbassy.events.TestEvent2;
-import org.mbassy.listeners.*;
-import org.mbassy.subscription.Subscription;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.junit.Test;
+import org.mbassy.events.SubTestEvent;
+import org.mbassy.events.TestEvent;
+import org.mbassy.events.TestEvent2;
+import org.mbassy.listeners.EventingTestBean;
+import org.mbassy.listeners.EventingTestBean2;
+import org.mbassy.listeners.EventingTestBean3;
+import org.mbassy.listeners.ListenerFactory;
+import org.mbassy.listeners.MultiEventHandler;
+import org.mbassy.listeners.NonListeningBean;
+import org.mbassy.subscription.Subscription;
 
 /**
  * Test synchronous and asynchronous dispatch in single and multi-threaded scenario.

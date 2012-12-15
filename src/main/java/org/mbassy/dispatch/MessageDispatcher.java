@@ -1,9 +1,8 @@
 package org.mbassy.dispatch;
 
-import org.mbassy.common.ConcurrentSet;
-import org.mbassy.subscription.Subscription;
-
 import java.lang.reflect.Method;
+
+import org.mbassy.common.ConcurrentSet;
 
 /**
  * Standard implementation for direct, unfiltered message delivery.

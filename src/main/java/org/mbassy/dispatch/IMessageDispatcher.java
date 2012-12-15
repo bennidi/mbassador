@@ -1,7 +1,6 @@
 package org.mbassy.dispatch;
 
 import org.mbassy.common.ConcurrentSet;
-import org.mbassy.subscription.Subscription;
 
 /**
  * A message dispatcher provides the functionality to deliver a single message
