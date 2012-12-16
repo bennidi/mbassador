@@ -1,9 +1,9 @@
 package org.mbassy;
 
-import org.mbassy.subscription.*;
+import java.util.Collection;
 
-import java.util.*;
-import java.util.concurrent.*;
+import org.mbassy.subscription.Subscription;
+import org.mbassy.subscription.SubscriptionDeliveryRequest;
 
 
 public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>{
@@ -44,8 +44,8 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
 
 
     @Override
-    public SyncAsyncPostCommand post(T message) {
-        return new SyncAsyncPostCommand(this, message);
+    public SyncAsyncPostCommand<T> post(T message) {
+        return new SyncAsyncPostCommand<T>(this, message);
     }
 
 }

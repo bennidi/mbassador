@@ -1,6 +1,5 @@
 package org.mbassy.listener;
 
-import com.sun.xml.internal.messaging.saaj.soap.Envelope;
 import org.mbassy.common.IPredicate;
 import org.mbassy.common.ReflectionUtils;
 import org.mbassy.subscription.MessageEnvelope;

@@ -1,15 +1,15 @@
 package org.mbassy;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.mbassy.events.SubTestEvent;
 import org.mbassy.events.TestEvent;
 import org.mbassy.listener.Filter;
 import org.mbassy.listener.Filters;
-import org.mbassy.listener.IMessageFilter;
 import org.mbassy.listener.Listener;
-import org.mbassy.listeners.*;
-
-import java.util.List;
+import org.mbassy.listeners.ListenerFactory;
+import org.mbassy.listeners.NonListeningBean;
 
 /**
  * Testing of filter functionality

@@ -9,9 +9,9 @@ package org.mbassy;
 public class SyncAsyncPostCommand<T> implements IMessageBus.IPostCommand {
 
     private T message;
-    private MBassador mBassador;
+    private MBassador<T> mBassador;
 
-    public SyncAsyncPostCommand(MBassador mBassador, T message) {
+    public SyncAsyncPostCommand(MBassador<T> mBassador, T message) {
         this.mBassador = mBassador;
         this.message = message;
     }
