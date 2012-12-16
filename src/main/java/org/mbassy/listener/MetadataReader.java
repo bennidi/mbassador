@@ -85,7 +85,7 @@ public class MetadataReader {
     private static boolean isHandler(Method m){
         Annotation[] annotations  = m.getDeclaredAnnotations();
         for(Annotation annotation : annotations){
-            if(annotation.equals(Listener.class))return true;
+            if(annotation.annotationType().equals(Listener.class))return true;
         }
         return false;
     }
