@@ -77,7 +77,7 @@ Listener definition (in any bean):
 
         @Listener(dispatch = Mode.Synchronous, rejectSubtypes = true)
         @Enveloped(messages = {TestEvent.class, TestEvent2.class})
-        public void handleSuperTypeEvents(MessageEnvelope envelope) {
+        public void handleVariousEvents(MessageEnvelope envelope) {
             // the envelope will contain either an instance of TestEvent or TestEvent2
             // if rejectSubtypes were set to 'false' (default) also subtypes of TestEvent or TestEvent2 would be allowed
         }
