@@ -33,7 +33,7 @@ public class MessageHandlerMetadata {
         this.listenerConfig = listenerConfig;
         this.isAsynchronous = listenerConfig.dispatch().equals(Mode.Asynchronous);
         this.envelope = handler.getAnnotation(Enveloped.class);
-        this.acceptsSubtypes = listenerConfig.handlesSubtypes();
+        this.acceptsSubtypes = !listenerConfig.rejectSubtypes();
         if(this.envelope != null){
             for(Class messageType : envelope.messages())
                 handledMessages.add(messageType);

@@ -111,7 +111,7 @@ public class MetadataReaderTest extends UnitTest {
     // a simple event listener
     public class EventListener1 {
 
-        @Listener(handlesSubtypes = false)
+        @Listener(rejectSubtypes = true)
         public void handleObject(Object o) {
 
         }
@@ -135,7 +135,7 @@ public class MetadataReaderTest extends UnitTest {
     public class EventListener3 extends EventListener2 {
 
         // narrow the handler
-        @Listener(handlesSubtypes = false)
+        @Listener(rejectSubtypes = true)
         public void handleAny(Object o) {
 
         }
@@ -150,7 +150,7 @@ public class MetadataReaderTest extends UnitTest {
     public class EnvelopedListener{
 
 
-        @Listener(handlesSubtypes = false)
+        @Listener(rejectSubtypes = true)
         @Enveloped(messages = {String.class, Integer.class, Long.class})
         public void handleEnveloped(MessageEnvelope o) {
 

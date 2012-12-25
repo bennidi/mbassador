@@ -66,19 +66,20 @@ Listener definition (in any bean):
             // do something more expensive here
 		}
 
-		// this handler will receive events of type SubTestEvent
-        // or any subtabe and that passes the given filter(s)
+		// this handler will receive messages of type SubTestEvent
+        // or any of its sub types that passe the given filter(s)
         @Listener(priority = 10,
                   dispatch = Mode.Synchronous,
-                  filters = {@Filter(MessageFilter.None.class),@Filter(MessageFilter.All.class)})
+                  filters = {@Filter(Filters.SpecialEvent.class)})
         public void handleFiltered(SubTestEvent event) {
            //do something special here
         }
 
-        @Listener(dispatch = Mode.Synchronous, filters = @Filter(Filters.RejectSubtypes.class))
+        @Listener(dispatch = Mode.Synchronous, rejectSubtypes = true)
         @Enveloped(messages = {TestEvent.class, TestEvent2.class})
         public void handleSuperTypeEvents(MessageEnvelope envelope) {
-            // detect the type of event here and then decide the course of action
+            // the envelope will contain either an instance of TestEvent or TestEvent2
+            // if rejectSubtypes were set to 'false' (default) also subtypes of TestEvent or TestEvent2 would be allowed
         }
 
 

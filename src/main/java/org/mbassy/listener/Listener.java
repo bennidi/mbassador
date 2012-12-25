@@ -21,6 +21,6 @@ public @interface Listener {
 
     int priority() default 0;
 
-    boolean handlesSubtypes() default true;
+    boolean rejectSubtypes() default false;
 
 }
