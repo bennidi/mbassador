@@ -60,34 +60,27 @@ public class MetadataReader {
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
     public List<MessageHandlerMetadata> getMessageHandlers(Class<?> target) {
+        // get all handlers (this will include overridden handlers)
         List<Method> allMethods = ReflectionUtils.getMethods(AllMessageHandlers, target);
-        List<Method>  handlers = new LinkedList<Method>();
-        for(Method listener : allMethods){
-            Method overriddenHandler = ReflectionUtils.getOverridingMethod(listener, target);
-
-            if(overriddenHandler != null && isHandler(overriddenHandler)){
-                handlers.add(overriddenHandler);
-            }
-            if(overriddenHandler == null){
-                handlers.add(listener);
+        List<MessageHandlerMetadata>  handlers = new LinkedList<MessageHandlerMetadata>();
+        for(Method handler : allMethods){
+            Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
+            if(overriddenHandler == null && isValidMessageHandler(handler)){
+                // add the handler only if it has not been overridden because
+                // either the override in the subclass deactivates the handler (by not specifying the @Listener)
+                // or the handler defined in the subclass is part of the list and will be processed itself
+                handlers.add(getHandlerMetadata(handler));
             }
         }
-        handlers =  ReflectionUtils.withoutOverridenSuperclassMethods(handlers);
-        List<MessageHandlerMetadata> messageHandlers = new ArrayList<MessageHandlerMetadata>(handlers.size());
-        for(Method handler : handlers){
-            if(isValidMessageHandler(handler))
-                messageHandlers.add(getHandlerMetadata(handler));
-        }
-        return messageHandlers;
+        return handlers;
     }
 
-    private static boolean isHandler(Method m){
-        Annotation[] annotations  = m.getDeclaredAnnotations();
-        for(Annotation annotation : annotations){
-            if(annotation.annotationType().equals(Listener.class))return true;
-        }
-        return false;
+
+    public <T> MessageListenerMetadata<T> getMessageListener(Class<T> target) {
+        return new MessageListenerMetadata(getMessageHandlers(target), target);
     }
+
+
 
     private boolean isValidMessageHandler(Method handler) {
         if (handler.getParameterTypes().length != 1) {

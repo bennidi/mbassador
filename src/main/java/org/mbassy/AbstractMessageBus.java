@@ -5,7 +5,6 @@ import org.mbassy.dispatch.MessagingContext;
 import org.mbassy.listener.MessageHandlerMetadata;
 import org.mbassy.listener.MetadataReader;
 import org.mbassy.subscription.Subscription;
-import org.mbassy.subscription.SubscriptionDeliveryRequest;
 import org.mbassy.subscription.SubscriptionFactory;
 
 import java.util.*;
@@ -46,15 +45,11 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     private final List<Thread> dispatchers = new CopyOnWriteArrayList<Thread>();
 
     // all pending messages scheduled for asynchronous dispatch are queued here
-    private final LinkedBlockingQueue<SubscriptionDeliveryRequest<T>> pendingMessages;
+    private final BlockingQueue<MessagePublication<T>> pendingMessages;
 
     // this factory is used to create specialized subscriptions based on the given message handler configuration
     // it can be customized by implementing the getSubscriptionFactory() method
     private final SubscriptionFactory subscriptionFactory;
-
-    // indicates whether the shutdown method has been invoked
-    // -> if true, then dispatchers will have been shutdown
-    private final AtomicBoolean isShutDown = new AtomicBoolean(false);
 
 
 
@@ -62,7 +57,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         this.executor = configuration.getExecutor();
         subscriptionFactory = configuration.getSubscriptionFactory();
         this.metadataReader = configuration.getMetadataReader();
-        pendingMessages  = new LinkedBlockingQueue<SubscriptionDeliveryRequest<T>>(configuration.getMaximumNumberOfPendingMessages());
+        pendingMessages  = new LinkedBlockingQueue<MessagePublication<T>>(configuration.getMaximumNumberOfPendingMessages());
         initDispatcherThreads(configuration.getNumberOfMessageDispatchers());
         addErrorHandler(new IPublicationErrorHandler.ConsoleLogger());
     }
@@ -156,8 +151,25 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         errorHandlers.add(handler);
     }
 
-    protected void addAsynchronousDeliveryRequest(SubscriptionDeliveryRequest<T> request) {
-        pendingMessages.offer(request);
+    // this method enqueues a message delivery request
+    protected MessagePublication<T> addAsynchronousDeliveryRequest(MessagePublication<T> request){
+        try {
+            pendingMessages.put(request);
+            return request.markScheduled();
+        } catch (InterruptedException e) {
+            return request.setError();
+        }
+    }
+
+    // this method enqueues a message delivery request
+    protected MessagePublication<T> addAsynchronousDeliveryRequest(MessagePublication<T> request, long timeout, TimeUnit unit){
+        try {
+            return pendingMessages.offer(request, timeout, unit)
+                    ? request.markScheduled()
+                    : request.setError();
+        } catch (InterruptedException e) {
+            return request.setError();
+        }
     }
 
     // obtain the set of subscriptions for the given message type
@@ -169,8 +181,11 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         }
         // TODO: get superclasses is eligible for caching
         for (Class eventSuperType : ReflectionUtils.getSuperclasses(messageType)) {
-            if (subscriptionsPerMessage.get(eventSuperType) != null) {
-                subscriptions.addAll(subscriptionsPerMessage.get(eventSuperType));
+            Collection<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
+            if (subs != null) {
+                for(Subscription sub : subs){
+                    if(sub.handlesMessageType(messageType))subscriptions.add(sub);
+                }
             }
         }
         return subscriptions;
@@ -209,7 +224,6 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
             dispatcher.interrupt();
         }
         executor.shutdown();
-        isShutDown.set(true);
     }
 
     public boolean hasPendingMessages(){

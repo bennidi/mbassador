@@ -2,20 +2,20 @@ Mbassador
 =========
 
 Mbassador is a very light-weight message (event) bus implementation following the publish subscribe pattern. It is designed
-for ease of use and aims to be feature rich, extensible while preserving resource efficiency and performance.
-
-It uses a specialized data structure to allow high throughput for concurrent access.
+for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. It uses a specialized
+data structure to allow high throughput for concurrent access.
 
 Read this documentation to get an overview of its features and how cool this message (event) bus actually is.
 You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
 which also contains a partial list of the features of the compared implementations.
 
-The current version is 1.0.5.RC
+The current version is 1.0.6.RC, see the release notes for more details.
 
 Table of contents:
 + [Features](#features)
 + [Usage](#usage)
 + [Installation](#installation)
++ [Release Notes](#releasenotes)
 + [Roadmap](#roadmap)
 + [Credits](#credits)
 + [Contribute](#contribute)
@@ -124,26 +124,46 @@ will be done as soon as enough people use this component. Until then, the follow
         &lt;dependency&gt;
             &lt;groupId&gt;org.mbassy&lt;/groupId&gt;
             &lt;artifactId&gt;mbassador&lt;/artifactId&gt;
-            &lt;version&gt;1.0.0.RC&lt;/version&gt;
+            &lt;version&gt;1.0.6.RC&lt;/version&gt;
         &lt;/dependency&gt;
     </pre></code>
  3. Run mvn clean package to have maven download and install the required version into your local repository
 
 Of course you can always clone the repository and build from source
 
+<h2>Release Notes</h2>
+
+<h3>1.0.6.RC</h3>
+
+ + Fixed behaviour with capacity bound blocking queue such that there now are two methods to schedule a message
+ asynchronously. One will block until capacity becomes available, the other will timeout after a specified amount of
+ time.
+ +  Added unit tests
+
+<h3>1.0.5.RC</h3>
+
+ + Added MessageEnvelope and @Enveloped annotation to configure handlers that might receive arbitrary message type
+ + Added handler configuration property to @Listener annotation to move from message filtering to more specific implementation
+ of this feature
+
+<h3>1.0.4.RC</h3>
+
+  + Introduced BusConfiguration as a central class to encapsulate configurational aspects
+
+
 <h2>Roadmap</h2>
 + Checkout MBassador from one of the official maven repositories (as soon as the user base is big enough)
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
 successful commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring">this</a> repository
-+ MessageEnvelope for each dispatch that is passed to the handler and can be used for communication between handlers
-during the running dispatch
 
 
 <h2>Credits</h2>
 The initial inspiration for creating this component came from looking at Google Guava's event bus implementation. Since
-it did not provide all the features we needed in our project, I decided to create my own implementation. When I saw that
-it outperformed the Guava implementation by far, I decided to share it with the community to see if others consider it worth
-a shot.
+it did not provide all the features we needed in our project, I decided to create my own implementation. It matured to be
+quite a feature rich and yet very efficient and performant message bus.
+
+I want to thank the development team from friendsurance (www.friendsurance.de) for their support and feedback on the bus
+implementation and the management of friendsurance for allowing me to publish the component as an open source project.
 
 <h2>Contribute</h2>
 

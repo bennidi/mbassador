@@ -13,7 +13,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         ConcurrentSetTest.class,
         MBassadorTest.class,
-        FilterTest.class
+        FilterTest.class,
+        MetadataReaderTest.class
 })
 public class AllTests {
 }

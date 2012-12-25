@@ -42,6 +42,7 @@ public class BusConfiguration {
         this.subscriptionFactory = new SubscriptionFactory();
         this.executor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), DaemonThreadFactory);
         this.metadataReader = new MetadataReader();
+
     }
 
     public MetadataReader getMetadataReader() {

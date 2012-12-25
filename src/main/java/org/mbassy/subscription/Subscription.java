@@ -26,6 +26,11 @@ public class Subscription {
     }
 
 
+    public boolean handlesMessageType(Class<?> messageType){
+        return context.getHandlerMetadata().handlesMessage(messageType);
+    }
+
+
     public void publish(Object message){
           dispatcher.dispatch(message, listeners);
     }

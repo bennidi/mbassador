@@ -1,20 +1,26 @@
 package org.mbassy;
 
-import java.util.Collection;
-
 import org.mbassy.subscription.Subscription;
-import org.mbassy.subscription.SubscriptionDeliveryRequest;
+
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 
-public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>{
+public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>> {
 
-    public MBassador(BusConfiguration configuration){
+    public MBassador(BusConfiguration configuration) {
         super(configuration);
     }
 
 
-    public void publishAsync(T message){
-        addAsynchronousDeliveryRequest(new SubscriptionDeliveryRequest<T>(getSubscriptionsByMessageType(message.getClass()), message));
+    public MessagePublication<T> publishAsync(T message) {
+        return addAsynchronousDeliveryRequest(MessagePublication.Create(
+                getSubscriptionsByMessageType(message.getClass()), message));
+    }
+
+    public MessagePublication<T> publishAsync(T message, long timeout, TimeUnit unit) {
+        return addAsynchronousDeliveryRequest(MessagePublication.Create(
+                getSubscriptionsByMessageType(message.getClass()), message), timeout, unit);
     }
 
 
@@ -24,23 +30,23 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
      *
      * @param message
      */
-	public void publish(T message){
-		try {
-			final Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
-			if(subscriptions == null){
+    public void publish(T message) {
+        try {
+            final Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
+            if (subscriptions == null) {
                 return; // TODO: Dead Event?
             }
-            for (Subscription subscription : subscriptions){
+            for (Subscription subscription : subscriptions) {
                 subscription.publish(message);
             }
-		} catch (Throwable e) {
-			handlePublicationError(new PublicationError()
-					.setMessage("Error during publication of message")
-					.setCause(e)
-					.setPublishedObject(message));
-		}
+        } catch (Throwable e) {
+            handlePublicationError(new PublicationError()
+                    .setMessage("Error during publication of message")
+                    .setCause(e)
+                    .setPublishedObject(message));
+        }
 
-	}
+    }
 
 
     @Override

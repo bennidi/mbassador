@@ -24,6 +24,8 @@ public class MessageHandlerMetadata {
 
     private List<Class<?>> handledMessages = new LinkedList<Class<?>>();
 
+    private boolean acceptsSubtypes = true;
+
 
     public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Listener listenerConfig) {
         this.handler = handler;
@@ -31,6 +33,7 @@ public class MessageHandlerMetadata {
         this.listenerConfig = listenerConfig;
         this.isAsynchronous = listenerConfig.dispatch().equals(Mode.Asynchronous);
         this.envelope = handler.getAnnotation(Enveloped.class);
+        this.acceptsSubtypes = listenerConfig.handlesSubtypes();
         if(this.envelope != null){
             for(Class messageType : envelope.messages())
                 handledMessages.add(messageType);
@@ -69,4 +72,18 @@ public class MessageHandlerMetadata {
     public boolean isEnveloped() {
         return envelope != null;
     }
+
+    public boolean handlesMessage(Class<?> messageType){
+        for(Class<?> handledMessage : handledMessages){
+            if(handledMessage.equals(messageType))return true;
+            if(handledMessage.isAssignableFrom(messageType) && acceptsSubtypes()) return true;
+        }
+        return false;
+    }
+
+    public boolean acceptsSubtypes(){
+        return acceptsSubtypes;
+    }
+
+
 }

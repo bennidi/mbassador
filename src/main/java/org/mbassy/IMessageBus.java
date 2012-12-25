@@ -2,6 +2,7 @@ package org.mbassy;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -118,7 +119,7 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
      * Subclasses may extend this interface and add functionality, e.g. different dispatch schemes.
      *
      */
-    public static interface IPostCommand{
+    public static interface IPostCommand<T>{
 
         /**
          * Execute the message publication immediately. This call blocks until every matching message handler
@@ -127,10 +128,28 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
         public void now();
 
         /**
-         * Execute the message publication asynchronously. This call return immediately and all matching message handlers
-         * will be invoked in another thread.
+         * Execute the message publication asynchronously. The behaviour of this method depends on the
+         * configured queuing strategy:
+         *
+         * If an unbound queuing strategy is used the call returns immediately.
+         * If a bounded queue is used the call might block until the message can be placed in the queue.
+         *
+         * @return A message publication that can be used to access information about the state of
          */
-        public void asynchronously();
+        public MessagePublication<T> asynchronously();
+
+
+        /**
+         * Execute the message publication asynchronously. The behaviour of this method depends on the
+         * configured queuing strategy:
+         *
+         * If an unbound queuing strategy is used the call returns immediately.
+         * If a bounded queue is used the call will block until the message can be placed in the queue
+         * or the timeout r
+         *
+         * @return A message publication that wraps up the publication request
+         */
+        public MessagePublication<T> asynchronously(long timeout, TimeUnit unit);
 
     }
 

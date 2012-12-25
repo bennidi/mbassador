@@ -1,5 +1,7 @@
 package org.mbassy;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * This post command provides access to standard synchronous and asynchronous dispatch
  *
@@ -22,7 +24,12 @@ public class SyncAsyncPostCommand<T> implements IMessageBus.IPostCommand {
     }
 
     @Override
-    public void asynchronously() {
-        mBassador.publishAsync(message);
+    public MessagePublication<T> asynchronously() {
+        return mBassador.publishAsync(message);
+    }
+
+    @Override
+    public MessagePublication asynchronously(long timeout, TimeUnit unit) {
+        return mBassador.publishAsync(message, timeout, unit);
     }
 }
