@@ -8,3 +8,7 @@
 
 # root of compiled classes #
 target/**/*
+
+# the local maven repository #
+maven/**/*
+release.properties
