@@ -8,6 +8,7 @@
 
 # root of compiled classes #
 target/**/*
+target/*
 
 # the local maven repository #
 mvn-local-repo/**/*
