@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.mbassy</groupId>
     <artifactId>mbassador</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.8-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>mbassador</name>
     <description>
@@ -30,7 +30,7 @@
     <scm>
         <url>scm:git:git@github.com:bennidi/mbassador.git</url>
         <connection>scm:git:git@github.com:bennidi/mbassador.git</connection>
-      <tag>mbassador-1.0.7</tag>
+      <tag>HEAD</tag>
   </scm>
     <developers>
 
