@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.mbassy</groupId>
+  <artifactId>mbassador</artifactId>
+  <version>1.0.7.RC-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20121229.133808</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20121229133808</lastUpdated>
+  </versioning>
+</metadata>

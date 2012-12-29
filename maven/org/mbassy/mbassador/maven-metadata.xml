@@ -12,7 +12,8 @@
       <version>1.0.4.RC</version>
       <version>1.0.5.RC</version>
       <version>1.0.6.RC</version>
+      <version>1.0.7.RC-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20121225161830</lastUpdated>
+    <lastUpdated>20121229133808</lastUpdated>
   </versioning>
 </metadata>

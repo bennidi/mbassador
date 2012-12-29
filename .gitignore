@@ -10,5 +10,5 @@
 target/**/*
 
 # the local maven repository #
-maven/**/*
+mvn-local-repo/**/*
 release.properties
