@@ -1,6 +1,6 @@
 package org.mbassy;
 
-public class DeadEvent implements IEventFunction
+public class DeadEvent
 {
     private Object event;
 
