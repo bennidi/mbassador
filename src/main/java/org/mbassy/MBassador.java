@@ -34,7 +34,16 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
         try {
             final Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
             if (subscriptions == null) {
-                return; // TODO: Dead Event?
+    			// Dead Event
+				final Collection<Subscription> deadEventSubscriptions = getSubscriptionsByMessageType(DeadEvent.class);
+				
+				if (deadEventSubscriptions == null) {
+					return; 
+				}
+				
+				for (Subscription subscription : deadEventSubscriptions) {
+					subscription.publish(new DeadEvent(message));
+				}
             }
             for (Subscription subscription : subscriptions) {
                 subscription.publish(message);
