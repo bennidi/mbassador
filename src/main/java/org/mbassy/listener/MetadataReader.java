@@ -16,8 +16,8 @@ import java.util.*;
  * Date: 11/16/12
  */
 public class MetadataReader {
-    
-    private boolean allowOverriddenMethod = false;
+
+	private boolean allowOverriddenMethod = false;
 
     //  This predicate is used to find all message listeners (methods annotated with @Listener)
     private static final IPredicate<Method> AllMessageHandlers = new IPredicate<Method>() {
@@ -66,8 +66,8 @@ public class MetadataReader {
         List<Method> allMethods = ReflectionUtils.getMethods(AllMessageHandlers, target);
         List<MessageHandlerMetadata>  handlers = new LinkedList<MessageHandlerMetadata>();
         for(Method handler : allMethods){
-            if (allowOverriddenMethod){
-    			if (isValidMessageHandler(handler)){
+			if (allowOverriddenMethod){
+				if (isValidMessageHandler(handler)){
 					handlers.add(getHandlerMetadata(handler));
 				}
 			}else{
@@ -108,8 +108,8 @@ public class MetadataReader {
         }
         return true;
     }
-
-    public void setAllowOverriddenMethod(boolean allowOverriddenMethod){
+	
+	public void setAllowOverriddenMethod(boolean allowOverriddenMethod){
 		this.allowOverriddenMethod = allowOverriddenMethod;
 	}
 
