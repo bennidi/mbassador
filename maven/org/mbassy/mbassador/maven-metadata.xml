@@ -2,8 +2,8 @@
 <metadata>
   <groupId>org.mbassy</groupId>
   <artifactId>mbassador</artifactId>
-  <version>1.0.0.RC</version>
   <versioning>
+    <release>1.0.7.RC</release>
     <versions>
       <version>1.0.0.RC</version>
       <version>1.0.1.RC</version>
@@ -13,7 +13,8 @@
       <version>1.0.5.RC</version>
       <version>1.0.6.RC</version>
       <version>1.0.7.RC-SNAPSHOT</version>
+      <version>1.0.7.RC</version>
     </versions>
-    <lastUpdated>20121229133808</lastUpdated>
+    <lastUpdated>20130109132141</lastUpdated>
   </versioning>
 </metadata>
