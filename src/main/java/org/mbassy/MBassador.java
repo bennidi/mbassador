@@ -33,11 +33,11 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
     public void publish(T message) {
         try {
             final Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
-            if (subscriptions == null) {
+            if (subscriptions == null || subscriptions.isEmpty()) {
     			// Dead Event
 				final Collection<Subscription> deadEventSubscriptions = getSubscriptionsByMessageType(DeadEvent.class);
 				
-				if (deadEventSubscriptions == null) {
+				if (deadEventSubscriptions == null || deadEventSubscriptions.isEmpty()) {
 					return; 
 				}
 				
