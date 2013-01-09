@@ -9,7 +9,7 @@ Read this documentation to get an overview of its features and how cool this mes
 You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
 which also contains a partial list of the features of the compared implementations.
 
-The current version is 1.0.6.RC, see the release notes for more details.
+The current version is 1.1.0, see the release notes for more details.
 
 Table of contents:
 + [Features](#features)
@@ -134,6 +134,13 @@ Of course you can always clone the repository and build from source
 
 <h2>Release Notes</h2>
 
+<h3>1.1.0</h3>
+
+First stable release!
+
+ + Refactoring and repackaging
+ + More exhaustive unit tests
+
 <h3>1.0.6.RC</h3>
 
  + Fixed behaviour with capacity bound blocking queue such that there now are two methods to schedule a message
@@ -153,7 +160,6 @@ Of course you can always clone the repository and build from source
 
 
 <h2>Roadmap</h2>
-+ Checkout MBassador from one of the official maven repositories (as soon as the user base is big enough)
 + Spring integration with support for conditional message dispatch in transactional context (dispatch only after
 successful commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring">this</a> repository
 
@@ -161,7 +167,7 @@ successful commit etc.). Currently in beta, see <a href="https://github.com/benn
 <h2>Credits</h2>
 The initial inspiration for creating this component came from looking at Google Guava's event bus implementation. Since
 it did not provide all the features we needed in our project, I decided to create my own implementation. It matured to be
-quite a feature rich and yet very efficient and performant message bus.
+quite a feature rich and yet very efficient and performant implementation.
 
 I want to thank the development team from friendsurance (www.friendsurance.de) for their support and feedback on the bus
 implementation and the management of friendsurance for allowing me to publish the component as an open source project.
