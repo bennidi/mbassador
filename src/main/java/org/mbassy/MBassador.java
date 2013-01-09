@@ -14,15 +14,25 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
 
 
     public MessagePublication<T> publishAsync(T message) {
-        return addAsynchronousDeliveryRequest(MessagePublication.Create(
-                getSubscriptionsByMessageType(message.getClass()), message));
+        return addAsynchronousDeliveryRequest(createMessagePublication(message));
     }
 
     public MessagePublication<T> publishAsync(T message, long timeout, TimeUnit unit) {
-        return addAsynchronousDeliveryRequest(MessagePublication.Create(
-                getSubscriptionsByMessageType(message.getClass()), message), timeout, unit);
+        return addAsynchronousDeliveryRequest(createMessagePublication(message), timeout, unit);
     }
 
+    private MessagePublication<T> createMessagePublication(T message) {
+		Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
+		if (subscriptions == null || subscriptions.isEmpty()) {
+			// Dead Event
+			subscriptions = getSubscriptionsByMessageType(DeadEvent.class);
+			
+			if (subscriptions != null && !subscriptions.isEmpty()) {				
+				return MessagePublication.Create(subscriptions, message, true);
+    		}
+		}
+		return MessagePublication.Create(subscriptions, message, false);
+	}
 
     /**
      * Synchronously publish a message to all registered listeners (this includes listeners defined for super types)
