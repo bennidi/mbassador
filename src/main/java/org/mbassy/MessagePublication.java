@@ -14,8 +14,8 @@ import java.util.Collection;
  */
 public class MessagePublication<T> {
 
-    public static <T> MessagePublication<T> Create(Collection<Subscription> subscriptions, T message){
-        return new MessagePublication<T>(subscriptions, message, State.Initial);
+    public static <T> MessagePublication<T> Create(Collection<Subscription> subscriptions, T message, boolean isDeadEvent){
+        return new MessagePublication<T>(subscriptions, message, State.Initial, isDeadEvent);
     }
 
     private Collection<Subscription> subscriptions;
@@ -23,11 +23,14 @@ public class MessagePublication<T> {
     private T message;
 
     private State state = State.Scheduled;
+    
+    private boolean isDeadEvent;
 
-    private MessagePublication(Collection<Subscription> subscriptions, T message, State initialState) {
+    private MessagePublication(Collection<Subscription> subscriptions, T message, State initialState, boolean isDeadEvent) {
         this.subscriptions = subscriptions;
         this.message = message;
         this.state = initialState;
+        this.isDeadEvent = isDeadEvent;
     }
 
     public boolean add(Subscription subscription) {
@@ -36,8 +39,9 @@ public class MessagePublication<T> {
 
     protected void execute(){
         state = State.Running;
+        Object curMessage = isDeadEvent ? new DeadEvent(message) : message; 
         for(Subscription sub : subscriptions){
-            sub.publish(message);
+            sub.publish(curMessage);
         }
         state = State.Finished;
     }
