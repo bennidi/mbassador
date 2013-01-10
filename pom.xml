@@ -1,9 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.mbassy</groupId>
+    <groupId>net.engio</groupId>
     <artifactId>mbassador</artifactId>
-    <version>1.0.8-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>mbassador</name>
     <description>
@@ -28,9 +34,10 @@
         </license>
     </licenses>
     <scm>
-        <url>scm:git:git@github.com:bennidi/mbassador.git</url>
+        <url>git@github.com:bennidi/mbassador.git</url>
         <connection>scm:git:git@github.com:bennidi/mbassador.git</connection>
-      <tag>HEAD</tag>
+        <tag>HEAD</tag>
+        <developerConnection>scm:git:git@github.com:bennidi/mbassador.git</developerConnection>
   </scm>
     <developers>
 
@@ -38,6 +45,7 @@
             <id>bennidi</id>
             <name>Benjamin Diedrichsen</name>
             <timezone>+1</timezone>
+            <email>b.diedrichsen@googlemail.com</email>
         </developer>
     </developers>
 
@@ -58,12 +66,14 @@
 
     </dependencies>
 
+    <!--  Local repository (for testing)
     <distributionManagement>
         <repository>
             <id>mbassador-github-repo</id>
             <url>${github.url}</url>
         </repository>
     </distributionManagement>
+    -->
 
     <build>
         <plugins>
