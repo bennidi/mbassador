@@ -1,7 +1,7 @@
-Mbassador
+MBassador
 =========
 
-Mbassador is a very light-weight message (event) bus implementation following the publish subscribe pattern. It is designed
+MBassador is a very light-weight message (event) bus implementation following the publish subscribe pattern. It is designed
 for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. It uses a specialized
 data structure to allow high throughput for concurrent access.
 
@@ -9,7 +9,7 @@ Read this documentation to get an overview of its features and how cool this mes
 You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
 which also contains a partial list of the features of the compared implementations.
 
-The current version is 1.1.0, see the release notes for more details.
+The current version is 1.1.0 and it is available from the Maven Central Repository. See the release notes for more details.
 
 Table of contents:
 + [Features](#features)
@@ -106,9 +106,10 @@ Message publication:
         bus.post(subEvent).now(); // same as above
 
 <h2>Installation</h2>
-This project contains a maven repository that will allow you to import MBassador as a dependency into your maven project.
-Currently this is all that will be provided because publishing to a central repository requires extra project setup that
-will be done as soon as enough people use this component. Until then, the following steps are necessary:
+Beginning with version 1.1.0 MBassador is available from the Maven Central Repository (Hooray!). Older versions are
+still available from the included maven repository in this github repo but will be deleted in the future.
+The preferred way of using MBassador is to simply add the dependency as shown in step two. Step one is only necessary
+if you want to use an older version that is not available in the central repository.
 
  1. Add the repository location to your pom.xml
     <pre><code class="xml">
@@ -123,9 +124,9 @@ will be done as soon as enough people use this component. Until then, the follow
     the git repository online.
     <pre><code class="xml">
         &lt;dependency&gt;
-            &lt;groupId&gt;org.mbassy&lt;/groupId&gt;
+            &lt;groupId&gt;net.engio&lt;/groupId&gt;
             &lt;artifactId&gt;mbassador&lt;/artifactId&gt;
-            &lt;version&gt;1.0.6.RC&lt;/version&gt;
+            &lt;version&gt;1.1.0&lt;/version&gt;
         &lt;/dependency&gt;
     </pre></code>
  3. Run mvn clean package to have maven download and install the required version into your local repository
@@ -140,6 +141,7 @@ First stable release!
 
  + Refactoring and repackaging
  + More exhaustive unit tests
+ + Installation from the central repository
 
 <h3>1.0.6.RC</h3>
 
