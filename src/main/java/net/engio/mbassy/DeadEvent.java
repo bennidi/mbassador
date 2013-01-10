@@ -1,4 +1,4 @@
-package org.mbassy;
+package net.engio.mbassy;
 
 /**
  * the DeadEvent which may be catched if needed
