@@ -16,6 +16,8 @@ import java.util.*;
  */
 public class MetadataReader {
 
+    private boolean allowOverriddenMethod = false;
+
     //  This predicate is used to find all message listeners (methods annotated with @Listener)
     private static final IPredicate<Method> AllMessageHandlers = new IPredicate<Method>() {
         @Override
@@ -63,12 +65,18 @@ public class MetadataReader {
         List<Method> allMethods = ReflectionUtils.getMethods(AllMessageHandlers, target);
         List<MessageHandlerMetadata>  handlers = new LinkedList<MessageHandlerMetadata>();
         for(Method handler : allMethods){
-            Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
-            if(overriddenHandler == null && isValidMessageHandler(handler)){
-                // add the handler only if it has not been overridden because
-                // either the override in the subclass deactivates the handler (by not specifying the @Listener)
-                // or the handler defined in the subclass is part of the list and will be processed itself
-                handlers.add(getHandlerMetadata(handler));
+            if (allowOverriddenMethod){
+                if (isValidMessageHandler(handler)){
+                    handlers.add(getHandlerMetadata(handler));
+                }
+            }else{
+                Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
+                if(overriddenHandler == null && isValidMessageHandler(handler)){
+                    // add the handler only if it has not been overridden because
+                    // either the override in the subclass deactivates the handler (by not specifying the @Listener)
+                    // or the handler defined in the subclass is part of the list and will be processed itself
+                    handlers.add(getHandlerMetadata(handler));
+                }
             }
         }
         return handlers;
@@ -99,5 +107,12 @@ public class MetadataReader {
         }
         return true;
     }
+	
+    public void setAllowOverriddenMethod(boolean allowOverriddenMethod){
+        this.allowOverriddenMethod = allowOverriddenMethod;
+    }
 
+    public boolean getAllowOverriddenMethod(){
+        return this.allowOverriddenMethod;
+    }
 }
