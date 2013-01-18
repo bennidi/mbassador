@@ -136,7 +136,7 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
          *
          * @return A message publication that can be used to access information about the state of
          */
-        public MessagePublication<T> asynchronously();
+        public MessagePublication asynchronously();
 
 
         /**
@@ -149,7 +149,7 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
          *
          * @return A message publication that wraps up the publication request
          */
-        public MessagePublication<T> asynchronously(long timeout, TimeUnit unit);
+        public MessagePublication asynchronously(long timeout, TimeUnit unit);
 
     }
 

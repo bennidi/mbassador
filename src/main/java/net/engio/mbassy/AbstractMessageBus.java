@@ -44,7 +44,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     private final List<Thread> dispatchers = new CopyOnWriteArrayList<Thread>();
 
     // all pending messages scheduled for asynchronous dispatch are queued here
-    private final BlockingQueue<MessagePublication<T>> pendingMessages;
+    private final BlockingQueue<MessagePublication> pendingMessages;
 
     // this factory is used to create specialized subscriptions based on the given message handler configuration
     // it can be customized by implementing the getSubscriptionFactory() method
@@ -56,7 +56,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         this.executor = configuration.getExecutor();
         subscriptionFactory = configuration.getSubscriptionFactory();
         this.metadataReader = configuration.getMetadataReader();
-        pendingMessages  = new LinkedBlockingQueue<MessagePublication<T>>(configuration.getMaximumNumberOfPendingMessages());
+        pendingMessages  = new LinkedBlockingQueue<MessagePublication>(configuration.getMaximumNumberOfPendingMessages());
         initDispatcherThreads(configuration.getNumberOfMessageDispatchers());
         addErrorHandler(new IPublicationErrorHandler.ConsoleLogger());
     }
@@ -151,7 +151,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     }
 
     // this method enqueues a message delivery request
-    protected MessagePublication<T> addAsynchronousDeliveryRequest(MessagePublication<T> request){
+    protected MessagePublication addAsynchronousDeliveryRequest(MessagePublication request){
         try {
             pendingMessages.put(request);
             return request.markScheduled();
@@ -161,7 +161,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     }
 
     // this method enqueues a message delivery request
-    protected MessagePublication<T> addAsynchronousDeliveryRequest(MessagePublication<T> request, long timeout, TimeUnit unit){
+    protected MessagePublication addAsynchronousDeliveryRequest(MessagePublication request, long timeout, TimeUnit unit){
         try {
             return pendingMessages.offer(request, timeout, unit)
                     ? request.markScheduled()
@@ -172,6 +172,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     }
 
     // obtain the set of subscriptions for the given message type
+    // Note: never returns null!
     protected Collection<Subscription> getSubscriptionsByMessageType(Class messageType) {
         Set<Subscription> subscriptions = new TreeSet<Subscription>(Subscription.SubscriptionByPriorityDesc);
 

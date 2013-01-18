@@ -24,7 +24,7 @@ public class SyncAsyncPostCommand<T> implements IMessageBus.IPostCommand {
     }
 
     @Override
-    public MessagePublication<T> asynchronously() {
+    public MessagePublication asynchronously() {
         return mBassador.publishAsync(message);
     }
 

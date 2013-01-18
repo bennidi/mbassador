@@ -1,5 +1,6 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.common.DeadEvent;
 import net.engio.mbassy.subscription.Subscription;
 
 import java.util.Collection;
@@ -12,19 +13,19 @@ import java.util.Collection;
  * @author bennidi
  * Date: 11/16/12
  */
-public class MessagePublication<T> {
+public class MessagePublication {
 
-    public static <T> MessagePublication<T> Create(Collection<Subscription> subscriptions, T message){
-        return new MessagePublication<T>(subscriptions, message, State.Initial);
+    public static  MessagePublication Create(Collection<Subscription> subscriptions, Object message){
+        return new MessagePublication(subscriptions, message, State.Initial);
     }
 
     private Collection<Subscription> subscriptions;
 
-    private T message;
+    private Object message;
 
     private State state = State.Scheduled;
 
-    private MessagePublication(Collection<Subscription> subscriptions, T message, State initialState) {
+    private MessagePublication(Collection<Subscription> subscriptions, Object message, State initialState) {
         this.subscriptions = subscriptions;
         this.message = message;
         this.state = initialState;
@@ -54,16 +55,20 @@ public class MessagePublication<T> {
         return state.equals(State.Scheduled);
     }
 
-    public MessagePublication<T> markScheduled(){
+    public MessagePublication markScheduled(){
         if(!state.equals(State.Initial))
             return this;
         state = State.Scheduled;
         return this;
     }
 
-    public MessagePublication<T> setError(){
+    public MessagePublication setError(){
         state = State.Error;
         return this;
+    }
+
+    public boolean isDeadEvent(){
+        return DeadEvent.class.isAssignableFrom(message.getClass());
     }
 
     private enum State{

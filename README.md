@@ -137,6 +137,7 @@ Of course you can always clone the repository and build from source
 
 <h3>1.1.1</h3>
 
+ + Added support for DeadEvent
  + Introduced new property to @Listener annotation that allows to activate/deactivate any message handler
  + Full support of proxies created by cglib
  + Message handler inheritance changed! See wiki page about handler definition for more details.

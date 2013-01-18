@@ -1,5 +1,6 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.common.DeadEvent;
 import net.engio.mbassy.subscription.Subscription;
 
 import java.util.Collection;
@@ -13,15 +14,24 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
     }
 
 
-    public MessagePublication<T> publishAsync(T message) {
-        return addAsynchronousDeliveryRequest(MessagePublication.Create(
-                getSubscriptionsByMessageType(message.getClass()), message));
+    public MessagePublication publishAsync(T message) {
+        return addAsynchronousDeliveryRequest(createMessagePublication(message));
     }
 
-    public MessagePublication<T> publishAsync(T message, long timeout, TimeUnit unit) {
-        return addAsynchronousDeliveryRequest(MessagePublication.Create(
-                getSubscriptionsByMessageType(message.getClass()), message), timeout, unit);
+    public MessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
+        return addAsynchronousDeliveryRequest(createMessagePublication(message), timeout, unit);
     }
+
+    private MessagePublication createMessagePublication(T message) {
+        Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
+        if (subscriptions == null || subscriptions.isEmpty()) {
+            // Dead Event
+            subscriptions = getSubscriptionsByMessageType(DeadEvent.class);
+            return MessagePublication.Create(subscriptions, new DeadEvent(message));
+        }
+        else return MessagePublication.Create(subscriptions, message);
+    }
+
 
 
     /**
@@ -32,13 +42,25 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
      */
     public void publish(T message) {
         try {
+            MessagePublication publication = createMessagePublication(message);
+            publication.execute();
+
+            /*
             final Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
-            if (subscriptions == null) {
-                return; // TODO: Dead Event?
+            if (subscriptions == null || subscriptions.isEmpty()) {
+                // publish a DeadEvent since no subscriptions could be found
+                final Collection<Subscription> deadEventSubscriptions = getSubscriptionsByMessageType(DeadEvent.class);
+                if (deadEventSubscriptions != null && !deadEventSubscriptions.isEmpty()) {
+                    for (Subscription subscription : deadEventSubscriptions) {
+                        subscription.publish(new DeadEvent(message));
+                    }
+                }
             }
-            for (Subscription subscription : subscriptions) {
-                subscription.publish(message);
-            }
+            else{
+                for (Subscription subscription : subscriptions) {
+                    subscription.publish(message);
+                }
+            }*/
         } catch (Throwable e) {
             handlePublicationError(new PublicationError()
                     .setMessage("Error during publication of message")
