@@ -1,15 +1,12 @@
-Listener Definition
-===================
-
 MBassador allows a variety of message handler configurations that will affect how a message
 is delivered to a specific listener. There are properties to control the handling of subclasses
-of the specified message (the method parameter), the execution order of handlers for the same message,
+of the specified message (the method parameter), the execution order of handlers for the same message type,
 filters, delivery modes etc.
 
 <h2>Message handler properties</h2>
 
 <table>
-  <tr> <td>Property</td> <td>Meaning</td> <td>Default</td> </tr>
+  <tr> <td>Property</td> <td>Description</td> <td>Default</td> </tr>
 
   <tr>
         <td>delivery</td>
