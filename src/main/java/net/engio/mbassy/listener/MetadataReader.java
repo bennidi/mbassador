@@ -59,19 +59,31 @@ public class MetadataReader {
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
     public List<MessageHandlerMetadata> getMessageHandlers(Class<?> target) {
-        // get all handlers (this will include overridden handlers)
-        List<Method> allMethods = ReflectionUtils.getMethods(AllMessageHandlers, target);
-        List<MessageHandlerMetadata>  handlers = new LinkedList<MessageHandlerMetadata>();
-        for(Method handler : allMethods){
-            Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
-            if(overriddenHandler == null && isValidMessageHandler(handler)){
-                // add the handler only if it has not been overridden because
-                // either the override in the subclass deactivates the handler (by not specifying the @Listener)
-                // or the handler defined in the subclass is part of the list and will be processed itself
-                handlers.add(getHandlerMetadata(handler));
+        // get all handlers (this will include all (inherited) methods directly annotated using @Listener)
+        List<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
+        // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
+        List<Method> bottomMostHandlers = new LinkedList<Method>();
+        for(Method handler : allHandlers){
+            if(!ReflectionUtils.containsOverridingMethod(allHandlers, handler)){
+                bottomMostHandlers.add(handler);
             }
         }
-        return handlers;
+
+
+        List<MessageHandlerMetadata>  filteredHandlers = new LinkedList<MessageHandlerMetadata>();
+        // for each handler there will be no overriding method that specifies @Listener annotation
+        // but an overriding method does inherit the listener configuration of the overwritten method
+        for(Method handler : bottomMostHandlers){
+            Listener listener = handler.getAnnotation(Listener.class);
+            if(!listener.enabled() || !isValidMessageHandler(handler)) continue; // disabled or invalid listeners are ignored
+            Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
+            // if a handler is overwritten it inherits the configuration of its parent method
+            MessageHandlerMetadata handlerMetadata = new MessageHandlerMetadata(overriddenHandler == null ? handler : overriddenHandler,
+                    getFilter(listener), listener);
+            filteredHandlers.add(handlerMetadata);
+
+        }
+        return filteredHandlers;
     }
 
 
@@ -82,6 +94,9 @@ public class MetadataReader {
 
 
     private boolean isValidMessageHandler(Method handler) {
+        if(handler == null || handler.getAnnotation(Listener.class) == null){
+            return false;
+        }
         if (handler.getParameterTypes().length != 1) {
             // a messageHandler only defines one parameter (the message)
             System.out.println("Found no or more than one parameter in messageHandler [" + handler.getName()

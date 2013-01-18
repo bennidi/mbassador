@@ -8,5 +8,5 @@ package net.engio.mbassy.listener;
 * To change this template use File | Settings | File Templates.
 */
 public enum Mode {
-    Synchronous,Asynchronous
+    Sequential, Concurrent
 }

@@ -29,6 +29,15 @@ public class ReflectionUtils {
         return methods;
     }
 
+    /**
+     * Traverses the class hierarchy upwards, starting at the given subclass, looking
+     * for an override of the given methods -> finds the bottom most override of the given
+     * method if any exists
+     *
+     * @param overridingMethod
+     * @param subclass
+     * @return
+     */
     public static Method getOverridingMethod(Method overridingMethod, Class subclass) {
         Class current = subclass;
         while(!current.equals(overridingMethod.getDeclaringClass())){
@@ -67,7 +76,7 @@ public class ReflectionUtils {
     }
 
     private static boolean isOverriddenBy(Method superclassMethod, Method subclassMethod) {
-        // if the declaring classes are the same or the subclass method is not defined in the subbclass
+        // if the declaring classes are the same or the subclass method is not defined in the subclass
         // hierarchy of the given superclass method or the method names are not the same then
         // subclassMethod does not override superclassMethod
         if (superclassMethod.getDeclaringClass().equals(subclassMethod.getDeclaringClass())

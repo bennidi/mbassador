@@ -9,7 +9,7 @@ Read this documentation to get an overview of its features and how cool this mes
 You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
 which also contains a partial list of the features of the compared implementations.
 
-The current version is 1.1.0 and it is available from the Maven Central Repository. See the release notes for more details.
+The current version is 1.1.1 and it is available from the Maven Central Repository. See the release notes for more details.
 
 Table of contents:
 + [Features](#features)
@@ -60,8 +60,8 @@ Listener definition (in any bean):
 			// do something
 		}
 
-        // this handler will be invoked asynchronously
-		@Listener(dispatch = Mode.Asynchronous)
+        // this handler will be invoked concurrently
+		@Listener(delivery = Mode.Concurrent)
 		public void handleSubTestEvent(SubTestEvent event) {
             // do something more expensive here
 		}
@@ -69,13 +69,13 @@ Listener definition (in any bean):
 		// this handler will receive messages of type SubTestEvent
         // or any of its sub types that passe the given filter(s)
         @Listener(priority = 10,
-                  dispatch = Mode.Synchronous,
+                  delivery = Mode.Sequential,
                   filters = {@Filter(Filters.SpecialEvent.class)})
         public void handleFiltered(SubTestEvent event) {
            //do something special here
         }
 
-        @Listener(dispatch = Mode.Synchronous, rejectSubtypes = true)
+        @Listener(delivery = Mode.Sequential, rejectSubtypes = true)
         @Enveloped(messages = {TestEvent.class, TestEvent2.class})
         public void handleVariousEvents(MessageEnvelope envelope) {
             // the envelope will contain either an instance of TestEvent or TestEvent2
@@ -134,6 +134,15 @@ if you want to use an older version that is not available in the central reposit
 Of course you can always clone the repository and build from source
 
 <h2>Release Notes</h2>
+
+<h3>1.1.1</h3>
+
+ + Introduced new property to @Listener annotation that allows to activate/deactivate any message handler
+ + Full support of proxies created by cglib
+ + Message handler inheritance changed! See wiki page about handler definition for more details.
+ + Changed @Listener property "dispatch" to "delivery" and renamed the associated enumeration values to
+   more precisely indicate their meaning
+ + Added more unit tests
 
 <h3>1.1.0</h3>
 

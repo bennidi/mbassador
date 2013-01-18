@@ -18,7 +18,7 @@ import net.engio.mbassy.subscription.MessageEnvelope;
 public class MultiEventHandler {
 
 
-    @Listener(dispatch = Mode.Synchronous)
+    @Listener(delivery = Mode.Sequential)
     @Enveloped(messages = {TestEvent.class, TestEvent2.class})
     public void handleEvents(MessageEnvelope envelope) {
         if(TestEvent.class.isAssignableFrom(envelope.getMessage().getClass())){
@@ -31,7 +31,7 @@ public class MultiEventHandler {
         }
     }
 
-    @Listener(dispatch = Mode.Synchronous, filters = @Filter(Filters.RejectSubtypes.class))
+    @Listener(delivery = Mode.Sequential, filters = @Filter(Filters.RejectSubtypes.class))
     @Enveloped(messages = {TestEvent.class, TestEvent2.class})
     public void handleSuperTypeEvents(MessageEnvelope envelope) {
         if(TestEvent.class.isAssignableFrom(envelope.getMessage().getClass())){

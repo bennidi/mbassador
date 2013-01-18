@@ -20,7 +20,7 @@ public class EventingTestBean {
     }
 
     // this handler will be invoked asynchronously
-    @Listener(priority = 0, dispatch = Mode.Asynchronous)
+    @Listener(priority = 0, delivery = Mode.Concurrent)
     public void handleSubTestEvent(SubTestEvent event) {
         event.counter.incrementAndGet();
     }
@@ -29,7 +29,7 @@ public class EventingTestBean {
     // or any subtabe and that passes the given filter
     @Listener(
             priority = 10,
-            dispatch = Mode.Synchronous,
+            delivery = Mode.Sequential,
             filters = {@Filter(Filters.RejectAll.class), @Filter(Filters.AllowAll.class)})
     public void handleFiltered(SubTestEvent event) {
         event.counter.incrementAndGet();

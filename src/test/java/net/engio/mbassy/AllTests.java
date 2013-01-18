@@ -15,7 +15,8 @@ import org.junit.runners.Suite;
         MessagePublicationTest.class,
         FilterTest.class,
         MetadataReaderTest.class,
-        ListenerSubscriptionTest.class
+        ListenerSubscriptionTest.class,
+        MethodDispatchTest.class
 })
 public class AllTests {
 }

@@ -11,7 +11,7 @@ import net.engio.mbassy.listener.Mode;
 public class EventingTestBean2 extends EventingTestBean{
 
     // redefine the configuration for this handler
-    @Listener(dispatch = Mode.Synchronous)
+    @Listener(delivery = Mode.Sequential)
     public void handleSubTestEvent(SubTestEvent event) {
         super.handleSubTestEvent(event);
     }

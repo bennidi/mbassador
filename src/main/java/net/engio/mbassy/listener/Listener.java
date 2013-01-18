@@ -17,10 +17,12 @@ public @interface Listener {
 
 	Filter[] filters() default {}; // no filters by default
 
-    Mode dispatch() default Mode.Synchronous;
+    Mode delivery() default Mode.Sequential;
 
     int priority() default 0;
 
     boolean rejectSubtypes() default false;
+
+    boolean enabled() default true;
 
 }

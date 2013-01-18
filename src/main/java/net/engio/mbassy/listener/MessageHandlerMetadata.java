@@ -31,7 +31,7 @@ public class MessageHandlerMetadata {
         this.handler = handler;
         this.filter = filter;
         this.listenerConfig = listenerConfig;
-        this.isAsynchronous = listenerConfig.dispatch().equals(Mode.Asynchronous);
+        this.isAsynchronous = listenerConfig.delivery().equals(Mode.Concurrent);
         this.envelope = handler.getAnnotation(Enveloped.class);
         this.acceptsSubtypes = !listenerConfig.rejectSubtypes();
         if(this.envelope != null){
@@ -86,4 +86,7 @@ public class MessageHandlerMetadata {
     }
 
 
+    public boolean isEnabled() {
+        return listenerConfig.enabled();
+    }
 }

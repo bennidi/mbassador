@@ -131,7 +131,14 @@ public class MetadataReaderTest extends UnitTest {
     }
 
     // the same handlers as its super class
-    public class EventListener2 extends EventListener1 {}
+    public class EventListener2 extends EventListener1 {
+
+        // redefine handler implementation (not configuration)
+        public void handleString(String s) {
+
+        }
+
+    }
 
     public class EventListener3 extends EventListener2 {
 
@@ -141,7 +148,7 @@ public class MetadataReaderTest extends UnitTest {
 
         }
 
-        // remove this handler
+        @Listener(enabled = false)
         public void handleString(String s) {
 
         }
