@@ -1,7 +1,7 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.common.ReflectionUtils;
-import net.engio.mbassy.dispatch.MessagingContext;
+import net.engio.mbassy.dispatch.SubscriptionContext;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.subscription.Subscription;
@@ -122,7 +122,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                         for (MessageHandlerMetadata messageHandler : messageHandlers) {
                             // create the subscription
                             Subscription subscription = subscriptionFactory
-                                    .createSubscription(new MessagingContext(this, messageHandler));
+                                    .createSubscription(new SubscriptionContext(this, messageHandler));
                             subscription.subscribe(listener);
                             subscriptionsByListener.add(subscription);// add it for the listener type (for future subscriptions)
 

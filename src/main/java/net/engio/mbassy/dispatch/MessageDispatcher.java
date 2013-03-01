@@ -2,7 +2,10 @@ package net.engio.mbassy.dispatch;
 
 import java.lang.reflect.Method;
 
+import net.engio.mbassy.IMessageBus;
+import net.engio.mbassy.MessagePublication;
 import net.engio.mbassy.common.ConcurrentSet;
+import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 
 /**
  * Standard implementation for direct, unfiltered message delivery.
@@ -14,31 +17,26 @@ import net.engio.mbassy.common.ConcurrentSet;
  * @author bennidi
  *         Date: 11/23/12
  */
-public class MessageDispatcher implements IMessageDispatcher {
-
-    private MessagingContext context;
+public class MessageDispatcher extends AbstractSubscriptionContextAware implements IMessageDispatcher {
 
     private IHandlerInvocation invocation;
 
-    public MessageDispatcher(MessagingContext context, IHandlerInvocation invocation) {
-        this.context = context;
+    public MessageDispatcher(SubscriptionContext context, IHandlerInvocation invocation) {
+        super(context);
         this.invocation = invocation;
     }
 
     @Override
-    public void dispatch(Object message, ConcurrentSet listeners) {
-        Method handler = getContext().getHandlerMetadata().getHandler();
+    public void dispatch(MessagePublication publication, Object message, ConcurrentSet listeners) {
+        publication.markDelivered();
         for(Object listener: listeners){
-            getInvocation().invoke(handler, listener, message);
+            getInvocation().invoke(listener, message);
         }
-    }
-
-    public MessagingContext getContext() {
-        return context;
     }
 
     @Override
     public IHandlerInvocation getInvocation() {
         return invocation;
     }
+
 }

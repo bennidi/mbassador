@@ -1,5 +1,6 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.MessagePublication;
 import net.engio.mbassy.common.ConcurrentSet;
 
 /**
@@ -11,30 +12,24 @@ import net.engio.mbassy.common.ConcurrentSet;
  * handler invocation object associated with the dispatcher.
  *
  * Implementations if IMessageDispatcher are partially designed using decorator pattern
- * such that it is possible to compose different message dispatchers to achieve more complex
- * dispatch logic.
+ * such that it is possible to compose different message dispatchers into dispatcher chains
+ * to achieve more complex dispatch logic.
  *
  * @author bennidi
  *         Date: 11/23/12
  */
-public interface IMessageDispatcher {
+public interface IMessageDispatcher extends ISubscriptionContextAware {
 
     /**
      * Delivers the given message to the given set of listeners.
      * Delivery may be delayed, aborted or restricted in various ways, depending
      * on the configuration of the dispatcher
      *
+     * @param publication The message publication that initiated the dispatch
      * @param message The message that should be delivered to the listeners
      * @param listeners The listeners that should receive the message
      */
-    public void dispatch(Object message, ConcurrentSet listeners);
-
-    /**
-     * Get the messaging context associated with this dispatcher
-     *
-     * @return
-     */
-    public MessagingContext getContext();
+    public void dispatch(MessagePublication publication, Object message, ConcurrentSet listeners);
 
     /**
      * Get the handler invocation that will be used to deliver the message to each

@@ -1,5 +1,6 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.MessagePublication;
 import net.engio.mbassy.common.ConcurrentSet;
 import net.engio.mbassy.listener.IMessageFilter;
 
@@ -11,14 +12,12 @@ import net.engio.mbassy.listener.IMessageFilter;
  * @author bennidi
  *         Date: 11/23/12
  */
-public class FilteredMessageDispatcher implements IMessageDispatcher {
+public class FilteredMessageDispatcher extends DelegatingMessageDispatcher {
 
     private final IMessageFilter[] filter;
 
-    private IMessageDispatcher del;
-
     public FilteredMessageDispatcher(IMessageDispatcher dispatcher) {
-        this.del = dispatcher;
+        super(dispatcher);
         this.filter = dispatcher.getContext().getHandlerMetadata().getFilter();
     }
 
@@ -37,21 +36,10 @@ public class FilteredMessageDispatcher implements IMessageDispatcher {
 
 
     @Override
-    public void dispatch(Object message, ConcurrentSet listeners) {
+    public void dispatch(MessagePublication publication, Object message, ConcurrentSet listeners) {
          if(passesFilter(message)){
-             del.dispatch(message, listeners);
+             getDelegate().dispatch(publication, message, listeners);
          }
     }
-
-    @Override
-    public MessagingContext getContext() {
-        return del.getContext();
-    }
-
-    @Override
-    public IHandlerInvocation getInvocation() {
-        return del.getInvocation();
-    }
-
 
 }

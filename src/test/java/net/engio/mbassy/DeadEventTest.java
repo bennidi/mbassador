@@ -7,7 +7,7 @@ import net.engio.mbassy.listener.Listener;
 import org.junit.Test;
 
 /**
- * Verify correct behaviour in case of empty message publications
+ * Verify correct behaviour in case of message publications that do not have any matching subscriptions
  *
  * @author bennidi
  *         Date: 1/18/13

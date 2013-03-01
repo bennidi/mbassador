@@ -27,9 +27,9 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
         if (subscriptions == null || subscriptions.isEmpty()) {
             // Dead Event
             subscriptions = getSubscriptionsByMessageType(DeadEvent.class);
-            return MessagePublication.Create(subscriptions, new DeadEvent(message));
+            return MessagePublication.Create(this, subscriptions, new DeadEvent(message));
         }
-        else return MessagePublication.Create(subscriptions, message);
+        else return MessagePublication.Create(this, subscriptions, message);
     }
 
 
@@ -44,23 +44,6 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
         try {
             MessagePublication publication = createMessagePublication(message);
             publication.execute();
-
-            /*
-            final Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
-            if (subscriptions == null || subscriptions.isEmpty()) {
-                // publish a DeadEvent since no subscriptions could be found
-                final Collection<Subscription> deadEventSubscriptions = getSubscriptionsByMessageType(DeadEvent.class);
-                if (deadEventSubscriptions != null && !deadEventSubscriptions.isEmpty()) {
-                    for (Subscription subscription : deadEventSubscriptions) {
-                        subscription.publish(new DeadEvent(message));
-                    }
-                }
-            }
-            else{
-                for (Subscription subscription : subscriptions) {
-                    subscription.publish(message);
-                }
-            }*/
         } catch (Throwable e) {
             handlePublicationError(new PublicationError()
                     .setMessage("Error during publication of message")

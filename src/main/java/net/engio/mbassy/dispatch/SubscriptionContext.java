@@ -4,21 +4,21 @@ import net.engio.mbassy.IMessageBus;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
 
 /**
- * The messaging context holds all data/objects that is relevant to successfully publish
+ * The subscription context holds all (meta)data/objects that are relevant to successfully publish
  * a message within a subscription. A one-to-one relation between a subscription and
- * MessagingContext holds -> a messaging context is created for each distinct subscription
+ * subscription context holds -> a subscription context is created for each distinct subscription
  * that lives inside a message bus.
  *
  * @author bennidi
  *         Date: 11/23/12
  */
-public class MessagingContext {
+public class SubscriptionContext {
 
     private IMessageBus owningBus;
 
     private MessageHandlerMetadata handlerMetadata;
 
-    public MessagingContext(IMessageBus owningBus, MessageHandlerMetadata handlerMetadata) {
+    public SubscriptionContext(IMessageBus owningBus, MessageHandlerMetadata handlerMetadata) {
         this.owningBus = owningBus;
         this.handlerMetadata = handlerMetadata;
     }

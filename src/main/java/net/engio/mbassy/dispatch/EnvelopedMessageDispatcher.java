@@ -1,34 +1,27 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.MessagePublication;
 import net.engio.mbassy.common.ConcurrentSet;
 import net.engio.mbassy.subscription.MessageEnvelope;
 
 /**
- * Todo: Add javadoc
+ * The enveloped dispatcher will wrap published messages in an envelope before
+ * passing them to their configured dispatcher.
+ *
+ * All enveloped message handlers will have this dispatcher in their chain
  *
  * @author bennidi
  *         Date: 12/12/12
  */
-public class EnvelopedMessageDispatcher implements IMessageDispatcher {
+public class EnvelopedMessageDispatcher extends DelegatingMessageDispatcher{
 
-    private IMessageDispatcher del;
 
     public EnvelopedMessageDispatcher(IMessageDispatcher dispatcher) {
-        this.del = dispatcher;
+        super(dispatcher);
     }
 
     @Override
-    public void dispatch(Object message, ConcurrentSet listeners) {
-        del.dispatch(new MessageEnvelope(message), listeners);
-    }
-
-    @Override
-    public MessagingContext getContext() {
-        return del.getContext();
-    }
-
-    @Override
-    public IHandlerInvocation getInvocation() {
-        return del.getInvocation();
+    public void dispatch(MessagePublication publication, Object message, ConcurrentSet listeners) {
+        getDelegate().dispatch(publication, new MessageEnvelope(message), listeners);
     }
 }

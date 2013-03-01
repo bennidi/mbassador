@@ -7,15 +7,10 @@ package net.engio.mbassy.common;
  * @author bennidi
  *         Date: 1/18/13
  */
-public class DeadEvent {
+public class DeadEvent extends PublicationEvent {
 
-    private Object event;
-
-    public DeadEvent(Object event) {
-        this.event = event;
+    public DeadEvent(Object message) {
+        super(message);
     }
 
-    public Object getEvent() {
-        return event;
-    }
 }

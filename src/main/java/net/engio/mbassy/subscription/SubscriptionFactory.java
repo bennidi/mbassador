@@ -1,13 +1,7 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.dispatch.AsynchronousHandlerInvocation;
-import net.engio.mbassy.dispatch.EnvelopedMessageDispatcher;
-import net.engio.mbassy.dispatch.FilteredMessageDispatcher;
-import net.engio.mbassy.dispatch.IHandlerInvocation;
-import net.engio.mbassy.dispatch.IMessageDispatcher;
-import net.engio.mbassy.dispatch.MessageDispatcher;
-import net.engio.mbassy.dispatch.MessagingContext;
-import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
+import net.engio.mbassy.dispatch.*;
+import net.engio.mbassy.dispatch.SubscriptionContext;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,13 +12,13 @@ import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
  */
 public class SubscriptionFactory {
 
-    public Subscription createSubscription(MessagingContext context){
+    public Subscription createSubscription(SubscriptionContext context){
         IHandlerInvocation invocation = buildInvocationForHandler(context);
         IMessageDispatcher dispatcher = buildDispatcher(context, invocation);
         return new Subscription(context, dispatcher);
     }
 
-    protected IHandlerInvocation buildInvocationForHandler(MessagingContext context){
+    protected IHandlerInvocation buildInvocationForHandler(SubscriptionContext context){
         IHandlerInvocation invocation = new ReflectiveHandlerInvocation(context);
         if(context.getHandlerMetadata().isAsynchronous()){
             invocation = new AsynchronousHandlerInvocation(invocation);
@@ -32,7 +26,7 @@ public class SubscriptionFactory {
         return invocation;
     }
 
-    protected IMessageDispatcher buildDispatcher(MessagingContext context, IHandlerInvocation invocation){
+    protected IMessageDispatcher buildDispatcher(SubscriptionContext context, IHandlerInvocation invocation){
        IMessageDispatcher dispatcher = new MessageDispatcher(context, invocation);
        if(context.getHandlerMetadata().isEnveloped()){
           dispatcher = new EnvelopedMessageDispatcher(dispatcher);
