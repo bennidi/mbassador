@@ -8,7 +8,7 @@ data structure to allow high throughput for concurrent access.
 Read this documentation to get an overview of its features. You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
 which also contains a partial list of the features of the compared implementations.
 
-The current version is 1.1.1 and it is available from the Maven Central Repository. See the release notes for more details.
+The current version is 1.1.3 and it is available from the Maven Central Repository. See the release notes for more details.
 
 Table of contents:
 + [Features](#features)
@@ -43,9 +43,9 @@ a single message handler
 types of messages. This allows for a single handler to handle multiple (unrelated) message types.
 + <em><strong>Handler priorities</em></strong>: A listener can be associated with a priority to influence the order in which messages are delivered when multiple handlers exist
 + <em><strong>Custom error handling</em></strong>: Errors during message delivery are sent to all registered error handlers which can be added to the bus as necessary.
-+ <em><strong>Dead Event</em></strong>: Messages that do not match any handler result in the publication of a DeadEvent object which wraps the original message. Dead events
++ <em><strong>DeadMessage event</em></strong>: Messages that do not match any handler result in the publication of a DeadMessage object which wraps the original message. Dead events
 can be handled by registering listeners that handle DeadEvent.
-+ <em><strong>Dead Event</em></strong>: Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredEvent object which wraps the original message.
++ <em><strong>FilteredMessage event</em></strong>: Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message.
 Filtered events can be handled by registering listeners that handle FilteredEvent.
 + <em><strong>Extensibility</em></strong>:MBassador is designed to be extensible with custom implementations of various components like message
 dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different
