@@ -147,7 +147,7 @@ to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
 
-<h3>1.1.2</h3>
+<h3>1.1.3</h3>
 
  + Added support for FilteredMessage event
  + Renamed @Listener to @Handler and DeadEvent to DeadMessage to increase alignment with the established terminology.
