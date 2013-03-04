@@ -1,5 +1,6 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.bus.ListenerSubscriptionTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

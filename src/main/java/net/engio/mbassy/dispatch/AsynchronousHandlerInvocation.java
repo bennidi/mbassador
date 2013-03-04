@@ -1,6 +1,5 @@
 package net.engio.mbassy.dispatch;
 
-import net.engio.mbassy.MessagePublication;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 
 /**

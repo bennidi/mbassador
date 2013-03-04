@@ -1,5 +1,7 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.subscription.SubscriptionContext;
+
 /**
  * This interface marks components that have access to the subscription context.
  *

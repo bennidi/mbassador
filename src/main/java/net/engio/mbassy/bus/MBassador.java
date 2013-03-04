@@ -1,6 +1,7 @@
-package net.engio.mbassy;
+package net.engio.mbassy.bus;
 
-import net.engio.mbassy.common.DeadEvent;
+import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.common.DeadMessage;
 import net.engio.mbassy.subscription.Subscription;
 
 import java.util.Collection;
@@ -24,12 +25,12 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
 
     private MessagePublication createMessagePublication(T message) {
         Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
-        if (subscriptions == null || subscriptions.isEmpty()) {
+        if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass().equals(DeadMessage.class)) {
             // Dead Event
-            subscriptions = getSubscriptionsByMessageType(DeadEvent.class);
-            return MessagePublication.Create(this, subscriptions, new DeadEvent(message));
+            subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
+            return getPublicationFactory().createPublication(this, subscriptions, new DeadMessage(message));
         }
-        else return MessagePublication.Create(this, subscriptions, message);
+        else return getPublicationFactory().createPublication(this, subscriptions, message);
     }
 
 

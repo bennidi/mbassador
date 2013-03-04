@@ -1,17 +1,19 @@
 package net.engio.mbassy;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import net.engio.mbassy.bus.BusConfiguration;
+import net.engio.mbassy.bus.MBassador;
+import net.engio.mbassy.common.DeadMessage;
+import net.engio.mbassy.common.FilteredMessage;
+import net.engio.mbassy.common.MessageBusTest;
+import net.engio.mbassy.events.SubTestMessage;
+import net.engio.mbassy.listener.*;
 import org.junit.Test;
 import net.engio.mbassy.common.TestUtil;
-import net.engio.mbassy.common.UnitTest;
-import net.engio.mbassy.events.SubTestEvent;
-import net.engio.mbassy.events.TestEvent;
-import net.engio.mbassy.listener.Filter;
-import net.engio.mbassy.listener.Filters;
-import net.engio.mbassy.listener.Listener;
+import net.engio.mbassy.events.TestMessage;
 import net.engio.mbassy.listeners.ListenerFactory;
-import net.engio.mbassy.listeners.NonListeningBean;
 
 /**
  * Testing of filter functionality
@@ -19,42 +21,94 @@ import net.engio.mbassy.listeners.NonListeningBean;
  * @author bennidi
  *         Date: 11/26/12
  */
-public class FilterTest extends UnitTest {
+public class FilterTest extends MessageBusTest {
+
+    private static final AtomicInteger FilteredEventCounter = new AtomicInteger(0);
+    private static final AtomicInteger DeadEventCounter = new AtomicInteger(0);
 
     @Test
     public void testSubclassFilter() throws Exception {
 
-        MBassador bus = new MBassador(new BusConfiguration());
+        MBassador bus = getBus(new BusConfiguration());
         ListenerFactory listenerFactory = new ListenerFactory()
-                .create(100, FilteredMessageListener.class)
-                .create(100, Object.class)
-                .create(100, NonListeningBean.class);
+                .create(100, FilteredMessageListener.class);
 
         List<Object> listeners = listenerFactory.build();
 
         // this will subscribe the listeners concurrently to the bus
         TestUtil.setup(bus, listeners, 10);
 
-        TestEvent event = new TestEvent();
-        TestEvent subTestEvent = new SubTestEvent();
+        TestMessage message = new TestMessage();
+        TestMessage subTestMessage = new SubTestMessage();
 
-        bus.post(event).now();
-        bus.post(subTestEvent).now();
+        bus.post(message).now();
+        bus.post(subTestMessage).now();
 
-        assertEquals(100, event.counter.get());
-        assertEquals(0, subTestEvent.counter.get());
-
+        assertEquals(100, message.counter.get());
+        assertEquals(0, subTestMessage.counter.get());
+        assertEquals(100, FilteredEventCounter.get());
     }
 
+    @Test
+    public void testFilteredFilteredEvent() throws Exception {
+        FilteredEventCounter.set(0);
+        DeadEventCounter.set(0);
+
+        MBassador bus = getBus(new BusConfiguration());
+        ListenerFactory listenerFactory = new ListenerFactory()
+                .create(100, FilteredMessageListener.class);
+
+        List<Object> listeners = listenerFactory.build();
+
+        // this will subscribe the listeners concurrently to the bus
+        TestUtil.setup(bus, listeners, 10);
+
+        bus.post(new Object()).now();
+        bus.post(new SubTestMessage()).now();
+
+        assertEquals(100, FilteredEventCounter.get()); // the SubTestMessage should have been republished as a filtered event
+        assertEquals(100, DeadEventCounter.get()); // Object.class was filtered and the fil
+    }
 
     public static class FilteredMessageListener{
 
-        @Listener(filters = {@Filter(Filters.RejectSubtypes.class)})
-        public void handleTestEvent(TestEvent event){
-            event.counter.incrementAndGet();
+        // NOTE: Use rejectSubtypes property of @Handler to achieve the same functionality but with better performance
+        // and more concise syntax
+        @Handler(filters = {@Filter(Filters.RejectSubtypes.class)})
+        public void handleTestMessage(TestMessage message){
+            message.counter.incrementAndGet();
+        }
+
+        // FilteredEvents that contain messages of class Object will be filtered (again) and should cause a DeadEvent to be thrown
+        @Handler(filters = {@Filter(RejectFilteredObjects.class)})
+        public void handleFilteredEvent(FilteredMessage filtered){
+            FilteredEventCounter.incrementAndGet();
+        }
+
+        // will cause republication of a FilteredEvent
+        @Handler(filters = {@Filter(Filters.RejectAll.class)})
+        public void handleNone(Object any){
+            FilteredEventCounter.incrementAndGet();
+        }
+
+        // will cause republication of a FilteredEvent
+        @Handler
+        public void handleDead(DeadMessage dead){
+            DeadEventCounter.incrementAndGet();
         }
 
 
+    }
+
+    public static class RejectFilteredObjects implements IMessageFilter{
+
+        @Override
+        public boolean accepts(Object message, MessageHandlerMetadata metadata) {
+            if(message.getClass().equals(FilteredMessage.class) && ((FilteredMessage)message).getMessage().getClass().equals(Object.class)){
+                return false;
+            }
+            return true;
+        }
     }
 
 }

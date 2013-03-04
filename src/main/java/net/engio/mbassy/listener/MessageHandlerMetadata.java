@@ -16,7 +16,7 @@ public class MessageHandlerMetadata {
 
     private IMessageFilter[] filter;
 
-    private Listener listenerConfig;
+    private Handler handlerConfig;
 
     private boolean isAsynchronous = false;
 
@@ -27,13 +27,13 @@ public class MessageHandlerMetadata {
     private boolean acceptsSubtypes = true;
 
 
-    public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Listener listenerConfig) {
+    public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Handler handlerConfig) {
         this.handler = handler;
         this.filter = filter;
-        this.listenerConfig = listenerConfig;
-        this.isAsynchronous = listenerConfig.delivery().equals(Mode.Concurrent);
+        this.handlerConfig = handlerConfig;
+        this.isAsynchronous = handlerConfig.delivery().equals(Mode.Concurrent);
         this.envelope = handler.getAnnotation(Enveloped.class);
-        this.acceptsSubtypes = !listenerConfig.rejectSubtypes();
+        this.acceptsSubtypes = !handlerConfig.rejectSubtypes();
         if(this.envelope != null){
             for(Class messageType : envelope.messages())
                 handledMessages.add(messageType);
@@ -54,7 +54,7 @@ public class MessageHandlerMetadata {
     }
 
     public int getPriority(){
-        return listenerConfig.priority();
+        return handlerConfig.priority();
     }
 
     public Method getHandler() {
@@ -87,6 +87,6 @@ public class MessageHandlerMetadata {
 
 
     public boolean isEnabled() {
-        return listenerConfig.enabled();
+        return handlerConfig.enabled();
     }
 }

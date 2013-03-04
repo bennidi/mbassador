@@ -7,9 +7,9 @@ package net.engio.mbassy.common;
  * @author bennidi
  *         Date: 1/18/13
  */
-public class DeadEvent extends PublicationEvent {
+public final class DeadMessage extends PublicationEvent {
 
-    public DeadEvent(Object message) {
+    public DeadMessage(Object message) {
         super(message);
     }
 

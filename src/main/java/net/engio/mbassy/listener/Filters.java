@@ -1,7 +1,8 @@
 package net.engio.mbassy.listener;
 
 /**
- * Todo: Add javadoc
+ * Some sample filters that are not particularly useful in production environment
+ * but illustrate how filters are meant to be used.
  *
  * @author bennidi
  *         Date: 12/12/12

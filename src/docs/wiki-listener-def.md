@@ -52,7 +52,7 @@ receive all messages of type TestEvent or any subtype sequentially.
 
         // every message of type TestEvent or any subtype will be delivered
         // to this handler
-        @Listener
+        @Handler
 		public void handleTestEvent(TestEvent event) {
 			// do something
 		}
@@ -62,7 +62,7 @@ receive all messages of type TestEvent or any subtype sequentially.
 This handler will receive all messages of type SubTestEvent or any subtype concurrently
 
         // this handler will be invoked concurrently
-		@Listener(delivery = Mode.Concurrent)
+		@Handler(delivery = Mode.Concurrent)
 		public void handleSubTestEvent(SubTestEvent event) {
             // do something more expensive here
 		}
@@ -73,7 +73,7 @@ defined one, since it specifies a higher priority
 
 		// this handler will receive messages of type SubTestEvent
         // or any of its sub types that passe the given filter(s)
-        @Listener(priority = 10,
+        @Handler(priority = 10,
                   dispatch = Mode.Synchronous,
                   filters = {@Filter(Filters.SpecialEvent.class)})
         public void handleFiltered(SubTestEvent event) {
@@ -81,7 +81,7 @@ defined one, since it specifies a higher priority
         }
 
 
-        @Listener(dispatch = Mode.Synchronous, rejectSubtypes = true)
+        @Handler(dispatch = Mode.Synchronous, rejectSubtypes = true)
         @Enveloped(messages = {TestEvent.class, TestEvent2.class})
         public void handleVariousEvents(MessageEnvelope envelope) {
             // the envelope will contain either an instance of TestEvent or TestEvent2
@@ -95,10 +95,10 @@ defined one, since it specifies a higher priority
 Since one parameter (the message) does not offer a great deal of flexibility if different types
 of messages should be consumed, there exists the possibility to wrap a message inside an envelope.
 An enveloped message handler specifies the message type it consumes by using the @Enveloped annotation
-in addition to the @Listener annotation. All configurations of @Listener apply to each of the specified
+in addition to the @Handler annotation. All configurations of @Handler apply to each of the specified
 message types.
 
-        @Listener(dispatch = Mode.Synchronous, rejectSubtypes = true)
+        @Handler(dispatch = Mode.Synchronous, rejectSubtypes = true)
         @Enveloped(messages = {TestEvent.class, TestEvent2.class})
         public void handleVariousEvents(MessageEnvelope envelope) {
             // the envelope will contain either an instance of TestEvent or TestEvent2

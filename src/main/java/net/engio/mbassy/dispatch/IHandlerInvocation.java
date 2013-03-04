@@ -1,7 +1,5 @@
 package net.engio.mbassy.dispatch;
 
-import net.engio.mbassy.MessagePublication;
-
 /**
  * A handler invocation encapsulates the logic that is used to invoke a single
  * message handler to process a given message.

@@ -3,7 +3,7 @@ package net.engio.mbassy;
 import org.junit.Test;
 import net.engio.mbassy.common.UnitTest;
 import net.engio.mbassy.listener.Enveloped;
-import net.engio.mbassy.listener.Listener;
+import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.MessageListenerMetadata;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.subscription.MessageEnvelope;
@@ -112,18 +112,18 @@ public class MetadataReaderTest extends UnitTest {
     // a simple event listener
     public class EventListener1 {
 
-        @Listener(rejectSubtypes = true)
+        @Handler(rejectSubtypes = true)
         public void handleObject(Object o) {
 
         }
 
-        @Listener
+        @Handler
         public void handleAny(Object o) {
 
         }
 
 
-        @Listener
+        @Handler
         public void handleString(String s) {
 
         }
@@ -143,12 +143,12 @@ public class MetadataReaderTest extends UnitTest {
     public class EventListener3 extends EventListener2 {
 
         // narrow the handler
-        @Listener(rejectSubtypes = true)
+        @Handler(rejectSubtypes = true)
         public void handleAny(Object o) {
 
         }
 
-        @Listener(enabled = false)
+        @Handler(enabled = false)
         public void handleString(String s) {
 
         }
@@ -158,13 +158,13 @@ public class MetadataReaderTest extends UnitTest {
     public class EnvelopedListener{
 
 
-        @Listener(rejectSubtypes = true)
+        @Handler(rejectSubtypes = true)
         @Enveloped(messages = {String.class, Integer.class, Long.class})
         public void handleEnveloped(MessageEnvelope o) {
 
         }
 
-        @Listener
+        @Handler
         @Enveloped(messages = {Number.class})
         public void handleEnveloped2(MessageEnvelope o) {
 
@@ -175,7 +175,7 @@ public class MetadataReaderTest extends UnitTest {
     public class EnvelopedListenerSubclass extends EnvelopedListener{
 
         // narrow to integer
-        @Listener
+        @Handler
         @Enveloped(messages = {Integer.class})
         public void handleEnveloped2(MessageEnvelope o) {
 

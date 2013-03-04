@@ -1,10 +1,12 @@
-package net.engio.mbassy;
+package net.engio.mbassy.bus;
 
+import net.engio.mbassy.bus.BusConfiguration;
+import net.engio.mbassy.bus.MBassador;
+import net.engio.mbassy.common.MessageBusTest;
+import net.engio.mbassy.events.SubTestMessage;
 import org.junit.Test;
 import net.engio.mbassy.common.TestUtil;
-import net.engio.mbassy.common.UnitTest;
-import net.engio.mbassy.events.SubTestEvent;
-import net.engio.mbassy.events.TestEvent;
+import net.engio.mbassy.events.TestMessage;
 import net.engio.mbassy.listeners.*;
 import net.engio.mbassy.subscription.Subscription;
 
@@ -18,13 +20,13 @@ import java.util.List;
  * @author bennidi
  *         Date: 1/9/13
  */
-public class ListenerSubscriptionTest extends UnitTest{
+public class ListenerSubscriptionTest extends MessageBusTest{
 
 
     // this is a single threaded test for subscribing and unsubscribing of a single listener
     @Test
     public void testSubscribeSimple() throws InterruptedException {
-        MBassador bus = new MBassador(new BusConfiguration());
+        MBassador bus = getBus(new BusConfiguration());
         List<Object> listeners = new LinkedList<Object>();
         int listenerCount = 200000;
 
@@ -43,11 +45,11 @@ public class ListenerSubscriptionTest extends UnitTest{
         }
 
         // check the generated subscriptions for existence of all previously subscribed valid listeners
-        Collection<Subscription> testEventsubscriptions = bus.getSubscriptionsByMessageType(TestEvent.class);
+        Collection<Subscription> testEventsubscriptions = bus.getSubscriptionsByMessageType(TestMessage.class);
         assertEquals(1, testEventsubscriptions.size());
         assertEquals(listenerCount, getNumberOfSubscribedListeners(testEventsubscriptions));
 
-        Collection<Subscription> subTestEventsubscriptions = bus.getSubscriptionsByMessageType(SubTestEvent.class);
+        Collection<Subscription> subTestEventsubscriptions = bus.getSubscriptionsByMessageType(SubTestMessage.class);
         assertEquals(3, subTestEventsubscriptions.size());
         assertEquals(3 * listenerCount, getNumberOfSubscribedListeners(subTestEventsubscriptions));
 
@@ -57,11 +59,11 @@ public class ListenerSubscriptionTest extends UnitTest{
         }
 
         // no listener should be left
-        testEventsubscriptions = bus.getSubscriptionsByMessageType(TestEvent.class);
+        testEventsubscriptions = bus.getSubscriptionsByMessageType(TestMessage.class);
         assertEquals(1, testEventsubscriptions.size());
         assertEquals(0, getNumberOfSubscribedListeners(testEventsubscriptions));
 
-        subTestEventsubscriptions = bus.getSubscriptionsByMessageType(SubTestEvent.class);
+        subTestEventsubscriptions = bus.getSubscriptionsByMessageType(SubTestMessage.class);
         assertEquals(3, subTestEventsubscriptions.size());
         assertEquals(0, getNumberOfSubscribedListeners(subTestEventsubscriptions));
 
@@ -78,7 +80,7 @@ public class ListenerSubscriptionTest extends UnitTest{
     @Test
     public void testConcurrentSubscription() throws Exception {
 
-        MBassador bus = new MBassador(new BusConfiguration());
+        MBassador bus = getBus(new BusConfiguration());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(10000, EventingTestBean.class)
                 .create(10000, EventingTestBean2.class)
@@ -92,11 +94,11 @@ public class ListenerSubscriptionTest extends UnitTest{
         TestUtil.setup(bus, listeners, 10);
 
         // check the generated subscriptions for existence of all previously subscribed valid listeners
-        Collection<Subscription> testEventsubscriptions = bus.getSubscriptionsByMessageType(TestEvent.class);
+        Collection<Subscription> testEventsubscriptions = bus.getSubscriptionsByMessageType(TestMessage.class);
         assertEquals(3, testEventsubscriptions.size());
         assertEquals(30000, getNumberOfSubscribedListeners(testEventsubscriptions));
 
-        Collection<Subscription> subTestEventsubscriptions = bus.getSubscriptionsByMessageType(SubTestEvent.class);
+        Collection<Subscription> subTestEventsubscriptions = bus.getSubscriptionsByMessageType(SubTestMessage.class);
         assertEquals(10, subTestEventsubscriptions.size());
         assertEquals(100000, getNumberOfSubscribedListeners(subTestEventsubscriptions));
 

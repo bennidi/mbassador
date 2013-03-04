@@ -1,6 +1,6 @@
 package net.engio.mbassy.dispatch;
 
-import net.engio.mbassy.MessagePublication;
+import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.common.ConcurrentSet;
 
 /**

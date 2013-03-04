@@ -6,10 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * THe filter annotation is used to add filters to message listeners.
- * It references a class that implements the MessageFilter interface.
- * The object filter will be used to check whether a message should be delivered
- * to the message listener or not.
+ * The filter annotation is used to add filters to message listeners.
+ * It references a class that implements the IMessageFilter interface.
+ * The filter will be used to check whether a message should be delivered
+ * to the listener or not.
  *
  * <p/>
  * @author  bennidi
@@ -19,5 +19,10 @@ import java.lang.annotation.Target;
 @Target(value = {ElementType.ANNOTATION_TYPE})
 public @interface Filter {
 
+    /**
+     * The class that implements the filter.
+     * Note: A filter always needs to provide a non-arg constructor
+     * @return
+     */
 	Class<? extends IMessageFilter> value();
 }

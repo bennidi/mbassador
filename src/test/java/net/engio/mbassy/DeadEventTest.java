@@ -1,9 +1,11 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.bus.BusConfiguration;
+import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.ConcurrentSet;
-import net.engio.mbassy.common.DeadEvent;
-import net.engio.mbassy.common.UnitTest;
-import net.engio.mbassy.listener.Listener;
+import net.engio.mbassy.common.DeadMessage;
+import net.engio.mbassy.common.MessageBusTest;
+import net.engio.mbassy.listener.Handler;
 import org.junit.Test;
 
 /**
@@ -12,12 +14,12 @@ import org.junit.Test;
  * @author bennidi
  *         Date: 1/18/13
  */
-public class DeadEventTest extends UnitTest{
+public class DeadEventTest extends MessageBusTest{
 
 
     @Test
     public void testDeadEvent(){
-        MBassador bus = new MBassador(BusConfiguration.Default());
+        MBassador bus = getBus(BusConfiguration.Default());
         DeadEventHandler deadEventHandler = new DeadEventHandler();
         bus.subscribe(deadEventHandler);
         assertEquals(0, deadEventHandler.getDeadEventCount());
@@ -33,9 +35,9 @@ public class DeadEventTest extends UnitTest{
 
          private ConcurrentSet deadEvents = new ConcurrentSet();
 
-        @Listener
-         public void handle(DeadEvent event){
-             deadEvents.add(event);
+        @Handler
+         public void handle(DeadMessage message){
+             deadEvents.add(message);
          }
 
 

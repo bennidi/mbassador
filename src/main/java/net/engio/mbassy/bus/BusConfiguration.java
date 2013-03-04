@@ -1,4 +1,4 @@
-package net.engio.mbassy;
+package net.engio.mbassy.bus;
 
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.subscription.SubscriptionFactory;
@@ -6,7 +6,7 @@ import net.engio.mbassy.subscription.SubscriptionFactory;
 import java.util.concurrent.*;
 
 /**
- * The bus configuration holds various parameters that can be used to customize the bus' runtime behaviour. *
+ * The bus configuration holds various parameters that can be used to customize the bus' runtime behaviour.
  *
  * @author bennidi
  *         Date: 12/8/12
@@ -36,13 +36,23 @@ public class BusConfiguration {
 
     private MetadataReader metadataReader;
 
+    private MessagePublication.Factory messagePublicationFactory;
+
     public BusConfiguration() {
         this.numberOfMessageDispatchers = 2;
         this.maximumNumberOfPendingMessages = Integer.MAX_VALUE;
         this.subscriptionFactory = new SubscriptionFactory();
         this.executor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), DaemonThreadFactory);
         this.metadataReader = new MetadataReader();
+        this.messagePublicationFactory = new MessagePublication.Factory();
+    }
 
+    public MessagePublication.Factory getMessagePublicationFactory() {
+        return messagePublicationFactory;
+    }
+
+    public void setMessagePublicationFactory(MessagePublication.Factory messagePublicationFactory) {
+        this.messagePublicationFactory = messagePublicationFactory;
     }
 
     public MetadataReader getMetadataReader() {

@@ -1,6 +1,6 @@
-package net.engio.mbassy.dispatch;
+package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.IMessageBus;
+import net.engio.mbassy.bus.IMessageBus;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
 
 /**

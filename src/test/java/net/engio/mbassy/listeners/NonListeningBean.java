@@ -1,8 +1,8 @@
 package net.engio.mbassy.listeners;
 
-import net.engio.mbassy.events.SubTestEvent;
-import net.engio.mbassy.events.TestEvent;
-import net.engio.mbassy.listener.Listener;
+import net.engio.mbassy.events.SubTestMessage;
+import net.engio.mbassy.events.TestMessage;
+import net.engio.mbassy.listener.Handler;
 
 /**
  * This bean overrides all the handlers defined in its superclass. Since it does not specify any annotations
@@ -15,20 +15,20 @@ public class NonListeningBean extends EventingTestBean{
 
 
     @Override
-    @Listener(enabled = false)
-    public void handleTestEvent(TestEvent event) {
-        event.counter.incrementAndGet();   // should never be called
+    @Handler(enabled = false)
+    public void handleTestEvent(TestMessage message) {
+        message.counter.incrementAndGet();   // should never be called
     }
 
     @Override
-    @Listener(enabled = false)
-    public void handleSubTestEvent(SubTestEvent event) {
-        event.counter.incrementAndGet();   // should never be called
+    @Handler(enabled = false)
+    public void handleSubTestEvent(SubTestMessage message) {
+        message.counter.incrementAndGet();   // should never be called
     }
 
     @Override
-    @Listener(enabled = false)
-    public void handleFiltered(SubTestEvent event) {
-        event.counter.incrementAndGet();   // should never be called
+    @Handler(enabled = false)
+    public void handleFiltered(SubTestMessage message) {
+        message.counter.incrementAndGet();   // should never be called
     }
 }

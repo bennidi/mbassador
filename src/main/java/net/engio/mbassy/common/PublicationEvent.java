@@ -15,7 +15,7 @@ public abstract class PublicationEvent {
         this.event = message;
     }
 
-    public Object getEvent() {
+    public Object getMessage() {
         return event;
     }
 }

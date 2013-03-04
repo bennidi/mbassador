@@ -1,7 +1,7 @@
 package net.engio.mbassy.listeners;
 
-import net.engio.mbassy.events.SubTestEvent;
-import net.engio.mbassy.listener.Listener;
+import net.engio.mbassy.events.SubTestMessage;
+import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.Mode;
 
 /**
@@ -11,8 +11,8 @@ import net.engio.mbassy.listener.Mode;
 public class EventingTestBean2 extends EventingTestBean{
 
     // redefine the configuration for this handler
-    @Listener(delivery = Mode.Sequential)
-    public void handleSubTestEvent(SubTestEvent event) {
-        super.handleSubTestEvent(event);
+    @Handler(delivery = Mode.Sequential)
+    public void handleSubTestEvent(SubTestMessage message) {
+        super.handleSubTestEvent(message);
     }
 }

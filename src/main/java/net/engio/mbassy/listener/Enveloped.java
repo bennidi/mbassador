@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * Configure a handler to receive an enveloped message as a wrapper around the source
- * message. An enveloped message can be
+ * message. An enveloped message can contain any type of message
  *
  * @author bennidi
  * Date: 2/8/12

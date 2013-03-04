@@ -8,10 +8,10 @@ package net.engio.mbassy.common;
  * @author bennidi
  *         Date: 3/1/13
  */
-public class FilteredEvent extends PublicationEvent {
+public class FilteredMessage extends PublicationEvent {
 
 
-    public FilteredEvent(Object event) {
+    public FilteredMessage(Object event) {
         super(event);
     }
 }

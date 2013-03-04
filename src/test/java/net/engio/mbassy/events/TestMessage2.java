@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 * @author bennidi
 * Date: 11/22/12
 */
-public class TestEvent {
+public class TestMessage2 {
 
     public AtomicInteger counter = new AtomicInteger();
 

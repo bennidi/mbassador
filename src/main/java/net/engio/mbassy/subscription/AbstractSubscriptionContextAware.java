@@ -1,8 +1,7 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.IMessageBus;
+import net.engio.mbassy.bus.IMessageBus;
 import net.engio.mbassy.dispatch.ISubscriptionContextAware;
-import net.engio.mbassy.dispatch.SubscriptionContext;
 
 /**
  * The base implementation for subscription context aware objects (mightily obvious :)

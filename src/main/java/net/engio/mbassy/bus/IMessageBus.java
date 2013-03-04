@@ -1,4 +1,6 @@
-package net.engio.mbassy;
+package net.engio.mbassy.bus;
+
+import net.engio.mbassy.IPublicationErrorHandler;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * <p/>
  * A listener is any object that defines at least one message handler and that has been subscribed to at least
  * one message bus. A message handler can be any method that accepts exactly one parameter (the message) and is marked
- * as a message handler using the @Listener annotation.
+ * as a message handler using the @Handler annotation.
  * <p/>
  * The bus uses weak references to all listeners such that registered listeners do not need to
  * be explicitly unregistered to be eligible for garbage collection. Dead (garbage collected) listeners are
@@ -145,7 +147,7 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
          *
          * If an unbound queuing strategy is used the call returns immediately.
          * If a bounded queue is used the call will block until the message can be placed in the queue
-         * or the timeout r
+         * or the timeout is reached.
          *
          * @return A message publication that wraps up the publication request
          */

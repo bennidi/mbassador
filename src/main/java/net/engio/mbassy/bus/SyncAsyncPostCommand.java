@@ -1,4 +1,4 @@
-package net.engio.mbassy;
+package net.engio.mbassy.bus;
 
 import java.util.concurrent.TimeUnit;
 

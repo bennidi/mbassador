@@ -1,6 +1,6 @@
 package net.engio.mbassy.common;
 
-import net.engio.mbassy.IMessageBus;
+import net.engio.mbassy.bus.IMessageBus;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
-package net.engio.mbassy;
+package net.engio.mbassy.bus;
 
-import net.engio.mbassy.common.DeadEvent;
-import net.engio.mbassy.common.FilteredEvent;
+import net.engio.mbassy.common.DeadMessage;
+import net.engio.mbassy.common.FilteredMessage;
 import net.engio.mbassy.subscription.Subscription;
 
 import java.util.Collection;
@@ -19,8 +19,12 @@ import java.util.Collection;
  */
 public class MessagePublication {
 
-    public static  MessagePublication Create(IMessageBus bus, Collection<Subscription> subscriptions, Object message){
-        return new MessagePublication(bus,subscriptions, message, State.Initial);
+    public static class Factory{
+
+        public MessagePublication createPublication(IMessageBus owningBus, Collection<Subscription> subscriptions, Object message){
+            return new MessagePublication(owningBus, subscriptions, message, State.Initial);
+        }
+
     }
 
     private Collection<Subscription> subscriptions;
@@ -33,7 +37,7 @@ public class MessagePublication {
 
     private IMessageBus bus;
 
-    private MessagePublication(IMessageBus bus, Collection<Subscription> subscriptions, Object message, State initialState) {
+    public MessagePublication(IMessageBus bus, Collection<Subscription> subscriptions, Object message, State initialState) {
         this.bus = bus;
         this.subscriptions = subscriptions;
         this.message = message;
@@ -50,8 +54,14 @@ public class MessagePublication {
             sub.publish(this, message);
         }
         state = State.Finished;
-        if(!delivered && !isFilteredEvent() && !isDeadEvent()){
-            bus.post(new FilteredEvent(message)).now();
+        // if the message has not been marked delivered by the dispatcher
+        if(!delivered){
+            if(!isFilteredEvent() && !isDeadEvent()){
+                bus.post(new FilteredMessage(message)).now();
+            }else if(!isDeadEvent()){
+                bus.post(new DeadMessage(message)).now();
+            }
+
         }
     }
 
@@ -84,11 +94,11 @@ public class MessagePublication {
     }
 
     public boolean isDeadEvent(){
-        return DeadEvent.class.isAssignableFrom(message.getClass());
+        return DeadMessage.class.isAssignableFrom(message.getClass());
     }
 
     public boolean isFilteredEvent(){
-        return FilteredEvent.class.isAssignableFrom(message.getClass());
+        return FilteredMessage.class.isAssignableFrom(message.getClass());
     }
 
     private enum State{

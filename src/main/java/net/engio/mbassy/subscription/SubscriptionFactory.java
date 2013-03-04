@@ -1,7 +1,6 @@
 package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.dispatch.*;
-import net.engio.mbassy.dispatch.SubscriptionContext;
 
 /**
  * Created with IntelliJ IDEA.

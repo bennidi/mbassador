@@ -1,7 +1,9 @@
-package net.engio.mbassy;
+package net.engio.mbassy.bus;
 
+import net.engio.mbassy.IPublicationErrorHandler;
+import net.engio.mbassy.PublicationError;
 import net.engio.mbassy.common.ReflectionUtils;
-import net.engio.mbassy.dispatch.SubscriptionContext;
+import net.engio.mbassy.subscription.SubscriptionContext;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.subscription.Subscription;
@@ -50,12 +52,14 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     // it can be customized by implementing the getSubscriptionFactory() method
     private final SubscriptionFactory subscriptionFactory;
 
+    private final MessagePublication.Factory publicationFactory;
 
 
     public AbstractMessageBus(BusConfiguration configuration) {
         this.executor = configuration.getExecutor();
         subscriptionFactory = configuration.getSubscriptionFactory();
         this.metadataReader = configuration.getMetadataReader();
+        this.publicationFactory = configuration.getMessagePublicationFactory();
         pendingMessages  = new LinkedBlockingQueue<MessagePublication>(configuration.getMaximumNumberOfPendingMessages());
         initDispatcherThreads(configuration.getNumberOfMessageDispatchers());
         addErrorHandler(new IPublicationErrorHandler.ConsoleLogger());
@@ -83,6 +87,10 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
             dispatchers.add(dispatcher);
             dispatcher.start();
         }
+    }
+
+    protected MessagePublication.Factory getPublicationFactory(){
+        return publicationFactory;
     }
 
     @Override

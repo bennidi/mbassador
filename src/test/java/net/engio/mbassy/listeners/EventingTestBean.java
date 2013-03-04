@@ -1,7 +1,7 @@
 package net.engio.mbassy.listeners;
 
-import net.engio.mbassy.events.SubTestEvent;
-import net.engio.mbassy.events.TestEvent;
+import net.engio.mbassy.events.SubTestMessage;
+import net.engio.mbassy.events.TestMessage;
 import net.engio.mbassy.listener.*;
 
 /**
@@ -14,25 +14,25 @@ public class EventingTestBean {
 
     // every event of type TestEvent or any subtype will be delivered
     // to this listener
-    @Listener
-    public void handleTestEvent(TestEvent event) {
-        event.counter.incrementAndGet();
+    @Handler
+    public void handleTestEvent(TestMessage message) {
+        message.counter.incrementAndGet();
     }
 
     // this handler will be invoked asynchronously
-    @Listener(priority = 0, delivery = Mode.Concurrent)
-    public void handleSubTestEvent(SubTestEvent event) {
-        event.counter.incrementAndGet();
+    @Handler(priority = 0, delivery = Mode.Concurrent)
+    public void handleSubTestEvent(SubTestMessage message) {
+        message.counter.incrementAndGet();
     }
 
     // this handler will receive events of type SubTestEvent
     // or any subtabe and that passes the given filter
-    @Listener(
+    @Handler(
             priority = 10,
             delivery = Mode.Sequential,
             filters = {@Filter(Filters.RejectAll.class), @Filter(Filters.AllowAll.class)})
-    public void handleFiltered(SubTestEvent event) {
-        event.counter.incrementAndGet();
+    public void handleFiltered(SubTestMessage message) {
+        message.counter.incrementAndGet();
     }
 
 

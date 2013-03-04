@@ -16,11 +16,11 @@ import java.util.*;
  */
 public class MetadataReader {
 
-    //  This predicate is used to find all message listeners (methods annotated with @Listener)
+    //  This predicate is used to find all message listeners (methods annotated with @Handler)
     private static final IPredicate<Method> AllMessageHandlers = new IPredicate<Method>() {
         @Override
         public boolean apply(Method target) {
-            return target.getAnnotation(Listener.class) != null;
+            return target.getAnnotation(Handler.class) != null;
         }
     };
 
@@ -28,7 +28,7 @@ public class MetadataReader {
     private final Map<Class<? extends IMessageFilter>, IMessageFilter> filterCache = new HashMap<Class<? extends IMessageFilter>, IMessageFilter>();
 
     // retrieve all instances of filters associated with the given subscription
-    private IMessageFilter[] getFilter(Listener subscription){
+    private IMessageFilter[] getFilter(Handler subscription){
         if (subscription.filters().length == 0) return null;
         IMessageFilter[] filters = new IMessageFilter[subscription.filters().length];
         int i = 0;
@@ -52,14 +52,14 @@ public class MetadataReader {
 
 
     public MessageHandlerMetadata getHandlerMetadata(Method messageHandler){
-        Listener config = messageHandler.getAnnotation(Listener.class);
+        Handler config = messageHandler.getAnnotation(Handler.class);
         return new MessageHandlerMetadata(messageHandler, getFilter(config), config);
     }
 
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
     public List<MessageHandlerMetadata> getMessageHandlers(Class<?> target) {
-        // get all handlers (this will include all (inherited) methods directly annotated using @Listener)
+        // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
         List<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
         // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
         List<Method> bottomMostHandlers = new LinkedList<Method>();
@@ -71,15 +71,15 @@ public class MetadataReader {
 
 
         List<MessageHandlerMetadata>  filteredHandlers = new LinkedList<MessageHandlerMetadata>();
-        // for each handler there will be no overriding method that specifies @Listener annotation
+        // for each handler there will be no overriding method that specifies @Handler annotation
         // but an overriding method does inherit the listener configuration of the overwritten method
         for(Method handler : bottomMostHandlers){
-            Listener listener = handler.getAnnotation(Listener.class);
-            if(!listener.enabled() || !isValidMessageHandler(handler)) continue; // disabled or invalid listeners are ignored
+            Handler handle = handler.getAnnotation(Handler.class);
+            if(!handle.enabled() || !isValidMessageHandler(handler)) continue; // disabled or invalid listeners are ignored
             Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
             // if a handler is overwritten it inherits the configuration of its parent method
             MessageHandlerMetadata handlerMetadata = new MessageHandlerMetadata(overriddenHandler == null ? handler : overriddenHandler,
-                    getFilter(listener), listener);
+                    getFilter(handle), handle);
             filteredHandlers.add(handlerMetadata);
 
         }
@@ -94,7 +94,7 @@ public class MetadataReader {
 
 
     private boolean isValidMessageHandler(Method handler) {
-        if(handler == null || handler.getAnnotation(Listener.class) == null){
+        if(handler == null || handler.getAnnotation(Handler.class) == null){
             return false;
         }
         if (handler.getParameterTypes().length != 1) {

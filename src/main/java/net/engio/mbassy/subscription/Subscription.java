@@ -3,10 +3,9 @@ package net.engio.mbassy.subscription;
 import java.util.Comparator;
 import java.util.UUID;
 
-import net.engio.mbassy.MessagePublication;
+import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.common.ConcurrentSet;
 import net.engio.mbassy.dispatch.IMessageDispatcher;
-import net.engio.mbassy.dispatch.SubscriptionContext;
 
 /**
  * A subscription is a thread safe container for objects that contain message handlers
