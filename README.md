@@ -84,7 +84,7 @@ Listener definition (in any bean):
 
         @Handler(delivery = Mode.Sequential, rejectSubtypes = true)
         @Enveloped(messages = {TestMessage.class, TestMessage2.class})
-        public void handleVariousEvents(MessageEnvelope envelope) {
+        public void handleUnrelatedMessageTypes(MessageEnvelope envelope) {
             // the envelope will contain either an instance of TestMessage or TestMessage2
             // if rejectSubtypes were set to 'false' (default) also subtypes of TestMessage or TestMessage2 would be allowed
         }
