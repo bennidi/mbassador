@@ -43,10 +43,10 @@ a single message handler
 types of messages. This allows for a single handler to handle multiple (unrelated) message types.
 + <em><strong>Handler priorities</em></strong>: A listener can be associated with a priority to influence the order in which messages are delivered when multiple handlers exist
 + <em><strong>Custom error handling</em></strong>: Errors during message delivery are sent to all registered error handlers which can be added to the bus as necessary.
-+ <em><strong>DeadMessage event</em></strong>: Messages that do not match any handler result in the publication of a DeadMessage object which wraps the original message. Dead events
-can be handled by registering listeners that handle DeadEvent.
++ <em><strong>DeadMessage event</em></strong>: Messages that do not match any handler result in the publication of a DeadMessage object which wraps the original message. DeadMessage events
+can be handled by registering listeners that handle DeadMessage.
 + <em><strong>FilteredMessage event</em></strong>: Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message.
-Filtered events can be handled by registering listeners that handle FilteredEvent.
+FilteredMessage events can be handled by registering listeners that handle FilteredMessage.
 + <em><strong>Extensibility</em></strong>:MBassador is designed to be extensible with custom implementations of various components like message
 dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different
  kinds of object.A configuration object can be passed to on instance creation to specify the different configurable parts
@@ -60,16 +60,16 @@ sending messages to your listeners using one of MBassador's publication methods 
 
 Listener definition (in any bean):
 
-        // every event of type TestMessage or any subtype will be delivered
+        // every message of type TestMessage or any subtype will be delivered
         // to this handler
         @Handler
-		public void handleTestMessage(TestMessage event) {
+		public void handleTestMessage(TestMessage message) {
 			// do something
 		}
 
         // this handler will be invoked concurrently
 		@Handler(delivery = Mode.Concurrent)
-		public void handleSubTestMessage(SubTestMessage event) {
+		public void handleSubTestMessage(SubTestMessage message) {
             // do something more expensive here
 		}
 
@@ -78,7 +78,7 @@ Listener definition (in any bean):
         @Handler(priority = 10,
                   delivery = Mode.Sequential,
                   filters = {@Filter(Filters.SpecialMessage.class)})
-        public void handleFiltered(SubTestMessage event) {
+        public void handleFiltered(SubTestMessage message) {
            //do something special here
         }
 
@@ -202,8 +202,7 @@ The initial inspiration for creating this component came from trying out Google 
 I liked the simplicity of its design and I do trust the developers at Google a lot, so I was happy to find that they also
 provided an event bus system. The main reason it proved to be unusable for our scenario was that it uses strong references
 to the listeners such that every object has to be explicitly deregistered. This was difficult in our Spring managed environment.
-Finally, I decided to create a custom implementation, which then matured to be stable, extensibel and yet very efficient
-and well performing.
+Finally, I decided to create a custom implementation, which then matured to be stable, extensible and yet very efficient.
 
 I want to thank the development team from friendsurance (www.friendsurance.de) for their support and feedback on the bus
 implementation and the management of friendsurance for allowing me to publish the component as an open source project.
