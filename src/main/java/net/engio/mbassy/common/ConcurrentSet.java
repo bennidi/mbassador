@@ -88,9 +88,10 @@ public class ConcurrentSet<T> implements Iterable<T>{
 
             public boolean hasNext() {
                 if (current == null) return false;
-                T value = current.getValue();
-                if (value == null) {    // auto-removal of orphan references
-                    remove();
+                if (current.getValue() == null) {    // auto-removal of orphan references
+                    do {
+                        remove();
+                    } while(current != null && current.getValue() == null);
                     return hasNext();
                 } else {
                     return true;
@@ -101,7 +102,9 @@ public class ConcurrentSet<T> implements Iterable<T>{
                 if (current == null) return null;
                 T value = current.getValue();
                 if (value == null) {    // auto-removal of orphan references
-                    remove();
+                    do {
+                        remove();
+                    } while(current != null && current.getValue() == null);
                     return next();
                 } else {
                     current = current.next();
