@@ -29,10 +29,10 @@ public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>>
             // Dead Event
             subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
             return getPublicationFactory().createPublication(this, subscriptions, new DeadMessage(message));
+        } else {
+            return getPublicationFactory().createPublication(this, subscriptions, message);
         }
-        else return getPublicationFactory().createPublication(this, subscriptions, message);
     }
-
 
 
     /**

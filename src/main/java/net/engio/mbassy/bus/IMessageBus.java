@@ -7,7 +7,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
  * A message bus offers facilities for publishing messages to registered listeners. Messages can be dispatched
  * synchronously or asynchronously and may be of any type that is a valid sub type of the type parameter T.
  * The dispatch mechanism can by controlled for per message handler and message publication.
@@ -41,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  * is considered removed after the remove(Object) call returned) will under no circumstances receive any message publications.
  * Any running message publication that has not yet delivered the message to the removed listener will not see the listener
  * after the remove operation completed.
- *
+ * <p/>
  * NOTE: Generic type parameters of messages will not be taken into account, e.g. a List<Long> will
  * get dispatched to all message handlers that take an instance of List as their parameter
  *
@@ -57,29 +56,27 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
      *
      * @param listener
      */
-    public void subscribe(Object listener);
-
+    void subscribe(Object listener);
 
     /**
      * Immediately remove all registered message handlers (if any) of the given listener. When this call returns all handlers
      * have effectively been removed and will not receive any message publications (including asynchronously scheduled
      * publications that have been published when the message listener was still subscribed).
-     *
+     * <p/>
      * A call to this method passing null, an already unsubscribed listener or any object that does not define any message
      * handlers will not have any effect and is silently ignored.
      *
      * @param listener
-     * @return  true, if the listener was found and successfully removed
-     *          false otherwise
+     * @return true, if the listener was found and successfully removed
+     *         false otherwise
      */
-    public boolean unsubscribe(Object listener);
+    boolean unsubscribe(Object listener);
 
     /**
-     *
      * @param message
      * @return
      */
-    public P post(T message);
+    P post(T message);
 
     /**
      * Publication errors may occur at various points of time during message delivery. A handler may throw an exception,
@@ -89,15 +86,14 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
      *
      * @param errorHandler
      */
-    public void addErrorHandler(IPublicationErrorHandler errorHandler);
+    void addErrorHandler(IPublicationErrorHandler errorHandler);
 
     /**
      * Returns an immutable collection containing all the registered error handlers
      *
      * @return
      */
-    public Collection<IPublicationErrorHandler> getRegisteredErrorHandlers();
-
+    Collection<IPublicationErrorHandler> getRegisteredErrorHandlers();
 
     /**
      * Get the executor service that is used to asynchronous message publication.
@@ -105,54 +101,49 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> {
      *
      * @return
      */
-    public Executor getExecutor();
+    Executor getExecutor();
 
     /**
      * Check whether any asynchronous message publications are pending for being processed
      *
      * @return
      */
-    public boolean hasPendingMessages();
-
+    boolean hasPendingMessages();
 
     /**
      * A post command is used as an intermediate object created by a call to the message bus' post method.
      * It encapsulates the functionality provided by the message bus that created the command.
      * Subclasses may extend this interface and add functionality, e.g. different dispatch schemes.
-     *
      */
-    public static interface IPostCommand<T>{
+    interface IPostCommand<T> {
 
         /**
          * Execute the message publication immediately. This call blocks until every matching message handler
          * has been invoked.
          */
-        public void now();
+        void now();
 
         /**
          * Execute the message publication asynchronously. The behaviour of this method depends on the
          * configured queuing strategy:
-         *
+         * <p/>
          * If an unbound queuing strategy is used the call returns immediately.
          * If a bounded queue is used the call might block until the message can be placed in the queue.
          *
          * @return A message publication that can be used to access information about the state of
          */
-        public MessagePublication asynchronously();
-
+        MessagePublication asynchronously();
 
         /**
          * Execute the message publication asynchronously. The behaviour of this method depends on the
          * configured queuing strategy:
-         *
+         * <p/>
          * If an unbound queuing strategy is used the call returns immediately.
          * If a bounded queue is used the call will block until the message can be placed in the queue
          * or the timeout is reached.
          *
          * @return A message publication that wraps up the publication request
          */
-        public MessagePublication asynchronously(long timeout, TimeUnit unit);
-
+        MessagePublication asynchronously(long timeout, TimeUnit unit);
     }
-
 }

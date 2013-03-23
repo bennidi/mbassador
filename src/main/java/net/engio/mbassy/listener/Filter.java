@@ -10,10 +10,11 @@ import java.lang.annotation.Target;
  * It references a class that implements the IMessageFilter interface.
  * The filter will be used to check whether a message should be delivered
  * to the listener or not.
- *
  * <p/>
- * @author  bennidi
- * Date: 2/14/12
+ * <p/>
+ *
+ * @author bennidi
+ *         Date: 2/14/12
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.ANNOTATION_TYPE})
@@ -22,7 +23,8 @@ public @interface Filter {
     /**
      * The class that implements the filter.
      * Note: A filter always needs to provide a non-arg constructor
+     *
      * @return
      */
-	Class<? extends IMessageFilter> value();
+    Class<? extends IMessageFilter> value();
 }

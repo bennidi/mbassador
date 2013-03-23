@@ -3,14 +3,28 @@ package net.engio.mbassy.bus;
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
 import net.engio.mbassy.common.ReflectionUtils;
-import net.engio.mbassy.subscription.SubscriptionContext;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.subscription.Subscription;
+import net.engio.mbassy.subscription.SubscriptionContext;
 import net.engio.mbassy.subscription.SubscriptionFactory;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The base class for all message bus implementations.
@@ -60,7 +74,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         subscriptionFactory = configuration.getSubscriptionFactory();
         this.metadataReader = configuration.getMetadataReader();
         this.publicationFactory = configuration.getMessagePublicationFactory();
-        pendingMessages  = new LinkedBlockingQueue<MessagePublication>(configuration.getMaximumNumberOfPendingMessages());
+        pendingMessages = new LinkedBlockingQueue<MessagePublication>(configuration.getMaximumNumberOfPendingMessages());
         initDispatcherThreads(configuration.getNumberOfMessageDispatchers());
         addErrorHandler(new IPublicationErrorHandler.ConsoleLogger());
     }
@@ -89,7 +103,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         }
     }
 
-    protected MessagePublication.Factory getPublicationFactory(){
+    protected MessagePublication.Factory getPublicationFactory() {
         return publicationFactory;
     }
 
@@ -99,9 +113,13 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     }
 
     public boolean unsubscribe(Object listener) {
-        if (listener == null) return false;
+        if (listener == null) {
+            return false;
+        }
         Collection<Subscription> subscriptions = subscriptionsPerListener.get(listener.getClass());
-        if (subscriptions == null) return false;
+        if (subscriptions == null) {
+            return false;
+        }
         boolean isRemoved = true;
         for (Subscription subscription : subscriptions) {
             isRemoved = isRemoved && subscription.unsubscribe(listener);
@@ -113,8 +131,9 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     public void subscribe(Object listener) {
         try {
             Class listeningClass = listener.getClass();
-            if (nonListeners.contains(listeningClass))
+            if (nonListeners.contains(listeningClass)) {
                 return; // early reject of known classes that do not participate in eventing
+            }
             Collection<Subscription> subscriptionsByListener = subscriptionsPerListener.get(listeningClass);
             if (subscriptionsByListener == null) { // if the type is registered for the first time
                 synchronized (this) { // new subscriptions must be processed sequentially
@@ -135,7 +154,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                             subscriptionsByListener.add(subscription);// add it for the listener type (for future subscriptions)
 
                             List<Class<?>> messageTypes = messageHandler.getHandledMessages();
-                            for(Class<?> messageType : messageTypes){
+                            for (Class<?> messageType : messageTypes) {
                                 addMessageTypeSubscription(messageType, subscription);
                             }
                             //updateMessageTypeHierarchy(eventType);
@@ -145,7 +164,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
                 }
             }
             // register the listener to the existing subscriptions
-            for (Subscription sub : subscriptionsByListener){
+            for (Subscription sub : subscriptionsByListener) {
                 sub.subscribe(listener);
             }
         } catch (Exception e) {
@@ -154,12 +173,12 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     }
 
 
-    public void addErrorHandler(IPublicationErrorHandler handler) {
+    public final void addErrorHandler(IPublicationErrorHandler handler) {
         errorHandlers.add(handler);
     }
 
     // this method enqueues a message delivery request
-    protected MessagePublication addAsynchronousDeliveryRequest(MessagePublication request){
+    protected MessagePublication addAsynchronousDeliveryRequest(MessagePublication request) {
         try {
             pendingMessages.put(request);
             return request.markScheduled();
@@ -169,7 +188,7 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     }
 
     // this method enqueues a message delivery request
-    protected MessagePublication addAsynchronousDeliveryRequest(MessagePublication request, long timeout, TimeUnit unit){
+    protected MessagePublication addAsynchronousDeliveryRequest(MessagePublication request, long timeout, TimeUnit unit) {
         try {
             return pendingMessages.offer(request, timeout, unit)
                     ? request.markScheduled()
@@ -191,14 +210,15 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         for (Class eventSuperType : ReflectionUtils.getSuperclasses(messageType)) {
             Collection<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
             if (subs != null) {
-                for(Subscription sub : subs){
-                    if(sub.handlesMessageType(messageType))subscriptions.add(sub);
+                for (Subscription sub : subs) {
+                    if (sub.handlesMessageType(messageType)) {
+                        subscriptions.add(sub);
+                    }
                 }
             }
         }
         return subscriptions;
     }
-
 
 
     // associate a suscription with a message type
@@ -213,10 +233,8 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     }
 
 
-
-
     public void handlePublicationError(PublicationError error) {
-        for (IPublicationErrorHandler errorHandler : errorHandlers){
+        for (IPublicationErrorHandler errorHandler : errorHandlers) {
             errorHandler.handleError(error);
         }
     }
@@ -227,14 +245,14 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
         super.finalize();
     }
 
-    private void shutdown(){
+    private void shutdown() {
         for (Thread dispatcher : dispatchers) {
             dispatcher.interrupt();
         }
         executor.shutdown();
     }
 
-    public boolean hasPendingMessages(){
+    public boolean hasPendingMessages() {
         return pendingMessages.size() > 0;
     }
 

@@ -5,10 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
- *
  * @author bennidi
- * Date: 11/14/12
+ *         Date: 11/14/12
  */
 public class MessageHandlerMetadata {
 
@@ -34,26 +32,25 @@ public class MessageHandlerMetadata {
         this.isAsynchronous = handlerConfig.delivery().equals(Mode.Concurrent);
         this.envelope = handler.getAnnotation(Enveloped.class);
         this.acceptsSubtypes = !handlerConfig.rejectSubtypes();
-        if(this.envelope != null){
-            for(Class messageType : envelope.messages())
+        if (this.envelope != null) {
+            for (Class messageType : envelope.messages())
                 handledMessages.add(messageType);
-        }
-        else{
+        } else {
             handledMessages.add(handler.getParameterTypes()[0]);
         }
         this.handler.setAccessible(true);
     }
 
 
-    public boolean isAsynchronous(){
+    public boolean isAsynchronous() {
         return isAsynchronous;
     }
 
-    public boolean isFiltered(){
+    public boolean isFiltered() {
         return filter != null && filter.length > 0;
     }
 
-    public int getPriority(){
+    public int getPriority() {
         return handlerConfig.priority();
     }
 
@@ -65,7 +62,7 @@ public class MessageHandlerMetadata {
         return filter;
     }
 
-    public List<Class<?>> getHandledMessages(){
+    public List<Class<?>> getHandledMessages() {
         return handledMessages;
     }
 
@@ -73,15 +70,19 @@ public class MessageHandlerMetadata {
         return envelope != null;
     }
 
-    public boolean handlesMessage(Class<?> messageType){
-        for(Class<?> handledMessage : handledMessages){
-            if(handledMessage.equals(messageType))return true;
-            if(handledMessage.isAssignableFrom(messageType) && acceptsSubtypes()) return true;
+    public boolean handlesMessage(Class<?> messageType) {
+        for (Class<?> handledMessage : handledMessages) {
+            if (handledMessage.equals(messageType)) {
+                return true;
+            }
+            if (handledMessage.isAssignableFrom(messageType) && acceptsSubtypes()) {
+                return true;
+            }
         }
         return false;
     }
 
-    public boolean acceptsSubtypes(){
+    public boolean acceptsSubtypes() {
         return acceptsSubtypes;
     }
 

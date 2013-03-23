@@ -7,10 +7,10 @@ import net.engio.mbassy.common.ConcurrentSet;
  * A message dispatcher provides the functionality to deliver a single message
  * to a set of listeners. A message dispatcher uses a message context to access
  * all information necessary for the message delivery.
- *
+ * <p/>
  * The delivery of a single message to a single listener is responsibility of the
  * handler invocation object associated with the dispatcher.
- *
+ * <p/>
  * Implementations if IMessageDispatcher are partially designed using decorator pattern
  * such that it is possible to compose different message dispatchers into dispatcher chains
  * to achieve more complex dispatch logic.
@@ -26,15 +26,17 @@ public interface IMessageDispatcher extends ISubscriptionContextAware {
      * on the configuration of the dispatcher
      *
      * @param publication The message publication that initiated the dispatch
-     * @param message The message that should be delivered to the listeners
-     * @param listeners The listeners that should receive the message
+     * @param message     The message that should be delivered to the listeners
+     * @param listeners   The listeners that should receive the message
      */
-    public void dispatch(MessagePublication publication, Object message, ConcurrentSet listeners);
+    void dispatch(MessagePublication publication, Object message, ConcurrentSet listeners);
 
     /**
-     * Get the handler invocation that will be used to deliver the message to each
-     * listener
-     * @return
+     * Get the handler invocation that will be used to deliver the
+     * message to each listener.
+     *
+     * @return the handler invocation that will be used to deliver the
+     *         message to each listener
      */
-    public IHandlerInvocation getInvocation();
+    IHandlerInvocation getInvocation();
 }

@@ -30,8 +30,10 @@ public class Filters {
 
         @Override
         public boolean accepts(Object event, MessageHandlerMetadata metadata) {
-            for(Class handledMessage : metadata.getHandledMessages()){
-                if(handledMessage.equals(event.getClass()))return true;
+            for (Class handledMessage : metadata.getHandledMessages()) {
+                if (handledMessage.equals(event.getClass())) {
+                    return true;
+                }
             }
             return false;
         }

@@ -1,7 +1,8 @@
 package net.engio.mbassy.common;
 
 import junit.framework.Assert;
-import net.engio.mbassy.*;
+import net.engio.mbassy.IPublicationErrorHandler;
+import net.engio.mbassy.PublicationError;
 import net.engio.mbassy.bus.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
 
@@ -12,7 +13,7 @@ import net.engio.mbassy.bus.MBassador;
  * @author bennidi
  *         Date: 3/2/13
  */
-public class MessageBusTest extends UnitTest{
+public class MessageBusTest extends UnitTest {
 
     private static final IPublicationErrorHandler TestFailingHandler = new IPublicationErrorHandler() {
         @Override
@@ -21,11 +22,9 @@ public class MessageBusTest extends UnitTest{
         }
     };
 
-    public MBassador getBus(BusConfiguration configuration){
+    public MBassador getBus(BusConfiguration configuration) {
         MBassador bus = new MBassador(configuration);
         bus.addErrorHandler(TestFailingHandler);
         return bus;
     }
-
-
 }

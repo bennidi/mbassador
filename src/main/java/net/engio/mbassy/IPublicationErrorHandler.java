@@ -1,32 +1,44 @@
 package net.engio.mbassy;
 
 /**
- * Publication error handlers are provided with a publication error every time an error occurs during message publication.
- * A handler might fail with an exception, not be accessible because of the presence of a security manager
- * or other reasons might lead to failures during the message publication process.
- *
+ * Publication error handlers are provided with a publication error every time an
+ * error occurs during message publication.
+ * A handler might fail with an exception, not be accessible because of the presence
+ * of a security manager or other reasons might lead to failures during the message publication process.
  * <p/>
+ *
  * @author bennidi
- * Date: 2/22/12
+ *         Date: 2/22/12
  */
+@SuppressWarnings("PMD.UnusedModifier")
 public interface IPublicationErrorHandler {
 
     /**
      * Handle the given publication error.
      *
-     * @param error
+     * @param error The PublicationError to handle.
      */
-	public void handleError(PublicationError error);
+    void handleError(PublicationError error);
 
-    // This is the default error handler it will simply log to standard out and
-    // print stack trace if available
+    /**
+     * The default error handler will simply log to standard out and
+     * print the stack trace if available.
+     */
     static final class ConsoleLogger implements IPublicationErrorHandler {
+
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public void handleError(PublicationError error) {
+        public void handleError(final PublicationError error) {
+
+            // Printout the error itself
             System.out.println(error);
-            if (error.getCause() != null) error.getCause().printStackTrace();
+
+            // Printout the stacktrace from the cause.
+            if (error.getCause() != null) {
+                error.getCause().printStackTrace();
+            }
         }
     }
-
-    ;
 }

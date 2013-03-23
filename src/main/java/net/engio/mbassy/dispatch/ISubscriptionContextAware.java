@@ -13,7 +13,7 @@ public interface ISubscriptionContextAware extends IMessageBusAware {
     /**
      * Get the subscription context associated with this object
      *
-     * @return
+     * @return the subscription context associated with this object
      */
-    public SubscriptionContext getContext();
+    SubscriptionContext getContext();
 }

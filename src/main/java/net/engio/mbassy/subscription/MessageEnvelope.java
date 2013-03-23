@@ -11,17 +11,14 @@ import java.sql.Timestamp;
  */
 public class MessageEnvelope {
 
-    private Timestamp tsCreated = new Timestamp(System.currentTimeMillis());
-
+    // Internal state
     private Object message;
-
 
     public MessageEnvelope(Object message) {
         this.message = message;
     }
 
-
-    public <T> T getMessage(){
-        return (T)message;
+    public <T> T getMessage() {
+        return (T) message;
     }
 }

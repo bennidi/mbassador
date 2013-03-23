@@ -20,27 +20,31 @@ import java.util.WeakHashMap;
  * @author bennidi
  *         Date: 2/12/12
  */
-public class ConcurrentSet<T> implements Iterable<T>{
+public class ConcurrentSet<T> implements Iterable<T> {
 
     private WeakHashMap<T, Entry<T>> entries = new WeakHashMap<T, Entry<T>>(); // maintain a map of entries for O(log n) lookup
 
     private Entry<T> head; // reference to the first element
 
     public ConcurrentSet<T> add(T element) {
-        if (element == null || entries.containsKey(element)) return this;
+        if (element == null || entries.containsKey(element)) {
+            return this;
+        }
         synchronized (this) {
             insert(element);
         }
         return this;
     }
 
-    public boolean contains(T element){
+    public boolean contains(T element) {
         Entry<T> entry = entries.get(element);
         return entry != null && entry.getValue() != null;
     }
 
     private void insert(T element) {
-        if (entries.containsKey(element)) return;
+        if (entries.containsKey(element)) {
+            return;
+        }
         if (head == null) {
             head = new Entry<T>(element);
         } else {
@@ -49,14 +53,16 @@ public class ConcurrentSet<T> implements Iterable<T>{
         entries.put(element, head);
     }
 
-    public int size(){
+    public int size() {
         return entries.size();
     }
 
     public ConcurrentSet<T> addAll(Iterable<T> elements) {
         synchronized (this) {
             for (T element : elements) {
-                if (element == null || entries.containsKey(element)) return this;
+                if (element == null || entries.containsKey(element)) {
+                    return this;
+                }
 
                 insert(element);
             }
@@ -65,10 +71,14 @@ public class ConcurrentSet<T> implements Iterable<T>{
     }
 
     public boolean remove(T element) {
-        if (!entries.containsKey(element)) return false;
+        if (!entries.containsKey(element)) {
+            return false;
+        }
         synchronized (this) {
             Entry<T> listelement = entries.get(element);
-            if(listelement == null)return false; //removed by other thread
+            if (listelement == null) {
+                return false; //removed by other thread
+            }
             if (listelement != head) {
                 listelement.remove();
             } else {
@@ -87,7 +97,9 @@ public class ConcurrentSet<T> implements Iterable<T>{
             private Entry<T> current = head;
 
             public boolean hasNext() {
-                if (current == null) return false;
+                if (current == null) {
+                    return false;
+                }
                 T value = current.getValue();
                 if (value == null) {    // auto-removal of orphan references
                     remove();
@@ -98,7 +110,9 @@ public class ConcurrentSet<T> implements Iterable<T>{
             }
 
             public T next() {
-                if (current == null) return null;
+                if (current == null) {
+                    return null;
+                }
                 T value = current.getValue();
                 if (value == null) {    // auto-removal of orphan references
                     remove();
@@ -110,7 +124,9 @@ public class ConcurrentSet<T> implements Iterable<T>{
             }
 
             public void remove() {
-                if (current == null) return;
+                if (current == null) {
+                    return;
+                }
                 Entry<T> newCurrent = current.next();
                 ConcurrentSet.this.remove(current.getValue());
                 current = newCurrent;
@@ -146,7 +162,9 @@ public class ConcurrentSet<T> implements Iterable<T>{
         public void remove() {
             if (predecessor != null) {
                 predecessor.next = next;
-                if(next != null)next.predecessor = predecessor;
+                if (next != null) {
+                    next.predecessor = predecessor;
+                }
             } else if (next != null) {
                 next.predecessor = null;
             }

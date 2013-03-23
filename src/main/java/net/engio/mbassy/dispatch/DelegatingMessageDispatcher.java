@@ -9,7 +9,7 @@ import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
  * @author bennidi
  *         Date: 3/1/13
  */
-public abstract class DelegatingMessageDispatcher extends AbstractSubscriptionContextAware implements IMessageDispatcher{
+public abstract class DelegatingMessageDispatcher extends AbstractSubscriptionContextAware implements IMessageDispatcher {
 
     private IMessageDispatcher delegate;
 

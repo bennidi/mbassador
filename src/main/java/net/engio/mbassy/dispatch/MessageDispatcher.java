@@ -7,7 +7,7 @@ import net.engio.mbassy.subscription.SubscriptionContext;
 
 /**
  * Standard implementation for direct, unfiltered message delivery.
- *
+ * <p/>
  * For each message delivery, this dispatcher iterates over the listeners
  * and uses the previously provided handler invocation to deliver the message
  * to each listener
@@ -27,7 +27,7 @@ public class MessageDispatcher extends AbstractSubscriptionContextAware implemen
     @Override
     public void dispatch(MessagePublication publication, Object message, ConcurrentSet listeners) {
         publication.markDelivered();
-        for(Object listener: listeners){
+        for (Object listener : listeners) {
             getInvocation().invoke(listener, message);
         }
     }
@@ -36,5 +36,4 @@ public class MessageDispatcher extends AbstractSubscriptionContextAware implemen
     public IHandlerInvocation getInvocation() {
         return invocation;
     }
-
 }
