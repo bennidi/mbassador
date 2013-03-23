@@ -32,9 +32,11 @@ public class ConcurrentSetTest extends UnitTest {
     @Ignore("Currently fails when building as a suite with JDK 1.7.0_15 and Maven 3.0.5 on a Mac")
     @Test
     public void testIteratorCleanup() {
+
+        // Assemble
         final HashSet<Object> persistingCandidates = new HashSet<Object>();
         final ConcurrentSet<Object> testSet = new ConcurrentSet<Object>();
-        Random rand = new Random();
+        final Random rand = new Random();
 
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
@@ -100,8 +102,6 @@ public class ConcurrentSetTest extends UnitTest {
         for (Object uniqueObject : distinct) {
             assertTrue(testSet.contains(uniqueObject));
         }
-
-
     }
 
     @Test

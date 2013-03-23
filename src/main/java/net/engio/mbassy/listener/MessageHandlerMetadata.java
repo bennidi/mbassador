@@ -1,6 +1,7 @@
 package net.engio.mbassy.listener;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,8 +34,7 @@ public class MessageHandlerMetadata {
         this.envelope = handler.getAnnotation(Enveloped.class);
         this.acceptsSubtypes = !handlerConfig.rejectSubtypes();
         if (this.envelope != null) {
-            for (Class messageType : envelope.messages())
-                handledMessages.add(messageType);
+            Collections.addAll(handledMessages, envelope.messages());
         } else {
             handledMessages.add(handler.getParameterTypes()[0]);
         }

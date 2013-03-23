@@ -26,8 +26,8 @@ public class FilteredMessageDispatcher extends DelegatingMessageDispatcher {
         if (filter == null) {
             return true;
         } else {
-            for (int i = 0; i < filter.length; i++) {
-                if (!filter[i].accepts(message, getContext().getHandlerMetadata())) {
+            for (IMessageFilter aFilter : filter) {
+                if (!aFilter.accepts(message, getContext().getHandlerMetadata())) {
                     return false;
                 }
             }

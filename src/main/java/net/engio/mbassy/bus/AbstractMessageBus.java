@@ -43,15 +43,17 @@ public abstract class AbstractMessageBus<T, P extends IMessageBus.IPostCommand> 
     // all subscriptions per message type
     // this is the primary list for dispatching a specific message
     // write access is synchronized and happens very infrequently
-    private final Map<Class, Collection<Subscription>> subscriptionsPerMessage = new HashMap(50);
+    private final Map<Class, Collection<Subscription>> subscriptionsPerMessage
+            = new HashMap<Class, Collection<Subscription>>(50);
 
     // all subscriptions per messageHandler type
     // this list provides fast access for subscribing and unsubscribing
     // write access is synchronized and happens very infrequently
-    private final Map<Class, Collection<Subscription>> subscriptionsPerListener = new HashMap(50);
+    private final Map<Class, Collection<Subscription>> subscriptionsPerListener
+            = new HashMap<Class, Collection<Subscription>>(50);
 
     // remember already processed classes that do not contain any listeners
-    private final Collection<Class> nonListeners = new HashSet();
+    private final Collection<Class> nonListeners = new HashSet<Class>();
 
     // this handler will receive all errors that occur during message dispatch or message handling
     private final List<IPublicationErrorHandler> errorHandlers = new CopyOnWriteArrayList<IPublicationErrorHandler>();

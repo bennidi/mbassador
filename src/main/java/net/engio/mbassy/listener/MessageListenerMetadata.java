@@ -15,7 +15,7 @@ import java.util.List;
 public class MessageListenerMetadata<T> {
 
 
-    public static final IPredicate<MessageHandlerMetadata> ForMessage(final Class<?> messageType) {
+    public static IPredicate<MessageHandlerMetadata> ForMessage(final Class<?> messageType) {
         return new IPredicate<MessageHandlerMetadata>() {
             @Override
             public boolean apply(MessageHandlerMetadata target) {

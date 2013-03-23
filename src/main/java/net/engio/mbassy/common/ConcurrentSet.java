@@ -22,15 +22,16 @@ import java.util.WeakHashMap;
  */
 public class ConcurrentSet<T> implements Iterable<T> {
 
+    // Internal state
+    private final Object lock = new Object();
     private WeakHashMap<T, Entry<T>> entries = new WeakHashMap<T, Entry<T>>(); // maintain a map of entries for O(log n) lookup
-
     private Entry<T> head; // reference to the first element
 
     public ConcurrentSet<T> add(T element) {
         if (element == null || entries.containsKey(element)) {
             return this;
         }
-        synchronized (this) {
+        synchronized (lock) {
             insert(element);
         }
         return this;
@@ -58,7 +59,7 @@ public class ConcurrentSet<T> implements Iterable<T> {
     }
 
     public ConcurrentSet<T> addAll(Iterable<T> elements) {
-        synchronized (this) {
+        synchronized (lock) {
             for (T element : elements) {
                 if (element == null || entries.containsKey(element)) {
                     return this;
@@ -74,7 +75,7 @@ public class ConcurrentSet<T> implements Iterable<T> {
         if (!entries.containsKey(element)) {
             return false;
         }
-        synchronized (this) {
+        synchronized (lock) {
             Entry<T> listelement = entries.get(element);
             if (listelement == null) {
                 return false; //removed by other thread

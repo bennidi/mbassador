@@ -103,7 +103,7 @@ public class MessagePublication {
     }
 
     private enum State {
-        Initial, Scheduled, Running, Finished, Error;
+        Initial, Scheduled, Running, Finished, Error
     }
 
 }

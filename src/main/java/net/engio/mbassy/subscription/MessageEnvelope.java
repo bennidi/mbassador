@@ -1,7 +1,5 @@
 package net.engio.mbassy.subscription;
 
-import java.sql.Timestamp;
-
 /**
  * A message envelope is used to wrap messages of arbitrary type such that a handler
  * my receive messages of different types.
