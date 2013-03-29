@@ -38,12 +38,11 @@ public class ReflectionUtils {
      * @param subclass
      * @return
      */
-    public static Method getOverridingMethod(Method overridingMethod, Class subclass) {
+    public static Method getOverridingMethod(final Method overridingMethod, final Class subclass) {
         Class current = subclass;
-        while(!current.equals(overridingMethod.getDeclaringClass())){
+        while (!current.equals(overridingMethod.getDeclaringClass())) {
             try {
-                Method overridden = current.getDeclaredMethod(overridingMethod.getName(), overridingMethod.getParameterTypes());
-                return overridden;
+                return current.getDeclaredMethod(overridingMethod.getName(), overridingMethod.getParameterTypes());
             } catch (NoSuchMethodException e) {
                 current = current.getSuperclass();
             }
@@ -51,10 +50,12 @@ public class ReflectionUtils {
         return null;
     }
 
-    public static List<Method> withoutOverridenSuperclassMethods(List<Method> allMethods) {
+    public static List<Method> withoutOverridenSuperclassMethods(final List<Method> allMethods) {
         List<Method> filtered = new LinkedList<Method>();
         for (Method method : allMethods) {
-            if (!containsOverridingMethod(allMethods, method)) filtered.add(method);
+            if (!containsOverridingMethod(allMethods, method)) {
+                filtered.add(method);
+            }
         }
         return filtered;
     }
@@ -68,9 +69,11 @@ public class ReflectionUtils {
         return superclasses;
     }
 
-    public static boolean containsOverridingMethod(List<Method> allMethods, Method methodToCheck) {
+    public static boolean containsOverridingMethod(final List<Method> allMethods, final Method methodToCheck) {
         for (Method method : allMethods) {
-            if (isOverriddenBy(methodToCheck, method)) return true;
+            if (isOverriddenBy(methodToCheck, method)) {
+                return true;
+            }
         }
         return false;
     }
@@ -88,14 +91,11 @@ public class ReflectionUtils {
         Class[] superClassMethodParameters = superclassMethod.getParameterTypes();
         Class[] subClassMethodParameters = superclassMethod.getParameterTypes();
         // method must specify the same number of parameters
-        if(subClassMethodParameters.length != subClassMethodParameters.length){
-            return false;
-        }
         //the parameters must occur in the exact same order
-        for(int i = 0 ; i< subClassMethodParameters.length; i++){
-           if(!superClassMethodParameters[i].equals(subClassMethodParameters[i])){
-               return false;
-           }
+        for (int i = 0; i < subClassMethodParameters.length; i++) {
+            if (!superClassMethodParameters[i].equals(subClassMethodParameters[i])) {
+                return false;
+            }
         }
         return true;
     }

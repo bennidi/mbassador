@@ -7,13 +7,13 @@ import net.engio.mbassy.subscription.MessageEnvelope;
 /**
  * The enveloped dispatcher will wrap published messages in an envelope before
  * passing them to their configured dispatcher.
- *
+ * <p/>
  * All enveloped message handlers will have this dispatcher in their chain
  *
  * @author bennidi
  *         Date: 12/12/12
  */
-public class EnvelopedMessageDispatcher extends DelegatingMessageDispatcher{
+public class EnvelopedMessageDispatcher extends DelegatingMessageDispatcher {
 
 
     public EnvelopedMessageDispatcher(IMessageDispatcher dispatcher) {

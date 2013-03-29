@@ -13,12 +13,14 @@ import java.lang.ref.WeakReference;
  */
 public class UnitTest {
 
+    // Internal state
+    private Runtime runtime = Runtime.getRuntime();
 
     public void pause(long ms) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
     }
 
@@ -30,7 +32,7 @@ public class UnitTest {
     public void runGC() {
         WeakReference ref = new WeakReference<Object>(new Object());
         while(ref.get() != null) {
-            System.gc();
+            runtime.gc();
         }
     }
 

@@ -1,5 +1,9 @@
 # idea project settings #
 *.iml
+*.ipr
+*.iws
+.idea/*
+.idea
 
 # Package Files #
 *.war

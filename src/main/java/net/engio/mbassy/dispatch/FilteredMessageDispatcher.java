@@ -25,10 +25,11 @@ public class FilteredMessageDispatcher extends DelegatingMessageDispatcher {
 
         if (filter == null) {
             return true;
-        }
-        else {
-            for (int i = 0; i < filter.length; i++) {
-                if (!filter[i].accepts(message, getContext().getHandlerMetadata())) return false;
+        } else {
+            for (IMessageFilter aFilter : filter) {
+                if (!aFilter.accepts(message, getContext().getHandlerMetadata())) {
+                    return false;
+                }
             }
             return true;
         }
@@ -37,9 +38,9 @@ public class FilteredMessageDispatcher extends DelegatingMessageDispatcher {
 
     @Override
     public void dispatch(MessagePublication publication, Object message, ConcurrentSet listeners) {
-         if(passesFilter(message)){
-             getDelegate().dispatch(publication, message, listeners);
-         }
+        if (passesFilter(message)) {
+            getDelegate().dispatch(publication, message, listeners);
+        }
     }
 
 }

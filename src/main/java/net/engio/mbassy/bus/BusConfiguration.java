@@ -3,7 +3,12 @@ package net.engio.mbassy.bus;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.subscription.SubscriptionFactory;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The bus configuration holds various parameters that can be used to customize the bus' runtime behaviour.
@@ -22,7 +27,7 @@ public class BusConfiguration {
         }
     };
 
-    public static final BusConfiguration Default(){
+    public static BusConfiguration Default() {
         return new BusConfiguration();
     }
 

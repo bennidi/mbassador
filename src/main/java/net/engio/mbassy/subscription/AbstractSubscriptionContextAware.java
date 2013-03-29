@@ -9,7 +9,7 @@ import net.engio.mbassy.dispatch.ISubscriptionContextAware;
  * @author bennidi
  *         Date: 3/1/13
  */
-public class AbstractSubscriptionContextAware implements ISubscriptionContextAware{
+public class AbstractSubscriptionContextAware implements ISubscriptionContextAware {
 
     private SubscriptionContext context;
 

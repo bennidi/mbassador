@@ -10,5 +10,5 @@ import net.engio.mbassy.bus.IMessageBus;
  */
 public interface IMessageBusAware {
 
-    public IMessageBus getBus();
+    IMessageBus getBus();
 }

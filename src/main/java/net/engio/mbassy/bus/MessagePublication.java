@@ -10,18 +10,18 @@ import java.util.Collection;
  * A message publication is created for each asynchronous message dispatch. It reflects the state
  * of the corresponding message publication process, i.e. provides information whether the
  * publication was successfully scheduled, is currently running etc.
- *
+ * <p/>
  * A message publication lives within a single thread. It is not designed in a thread-safe manner -> not eligible to
  * be used in multiple threads simultaneously .
  *
  * @author bennidi
- * Date: 11/16/12
+ *         Date: 11/16/12
  */
 public class MessagePublication {
 
-    public static class Factory{
+    public static class Factory {
 
-        public MessagePublication createPublication(IMessageBus owningBus, Collection<Subscription> subscriptions, Object message){
+        public MessagePublication createPublication(IMessageBus owningBus, Collection<Subscription> subscriptions, Object message) {
             return new MessagePublication(owningBus, subscriptions, message, State.Initial);
         }
 
@@ -48,17 +48,17 @@ public class MessagePublication {
         return subscriptions.add(subscription);
     }
 
-    protected void execute(){
+    protected void execute() {
         state = State.Running;
-        for(Subscription sub : subscriptions){
+        for (Subscription sub : subscriptions) {
             sub.publish(this, message);
         }
         state = State.Finished;
         // if the message has not been marked delivered by the dispatcher
-        if(!delivered){
-            if(!isFilteredEvent() && !isDeadEvent()){
+        if (!delivered) {
+            if (!isFilteredEvent() && !isDeadEvent()) {
                 bus.post(new FilteredMessage(message)).now();
-            }else if(!isDeadEvent()){
+            } else if (!isDeadEvent()) {
                 bus.post(new DeadMessage(message)).now();
             }
 
@@ -77,32 +77,33 @@ public class MessagePublication {
         return state.equals(State.Scheduled);
     }
 
-    public void markDelivered(){
+    public void markDelivered() {
         delivered = true;
     }
 
-    public MessagePublication markScheduled(){
-        if(!state.equals(State.Initial))
+    public MessagePublication markScheduled() {
+        if (!state.equals(State.Initial)) {
             return this;
+        }
         state = State.Scheduled;
         return this;
     }
 
-    public MessagePublication setError(){
+    public MessagePublication setError() {
         state = State.Error;
         return this;
     }
 
-    public boolean isDeadEvent(){
+    public boolean isDeadEvent() {
         return DeadMessage.class.isAssignableFrom(message.getClass());
     }
 
-    public boolean isFilteredEvent(){
+    public boolean isFilteredEvent() {
         return FilteredMessage.class.isAssignableFrom(message.getClass());
     }
 
-    private enum State{
-        Initial,Scheduled,Running,Finished,Error;
+    private enum State {
+        Initial, Scheduled, Running, Finished, Error
     }
 
 }

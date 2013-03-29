@@ -25,6 +25,7 @@ public class SubscriptionContext {
 
     /**
      * Get a reference to the message bus this context belongs to
+     *
      * @return
      */
     public IMessageBus getOwningBus() {
@@ -35,6 +36,7 @@ public class SubscriptionContext {
     /**
      * Get the meta data that specifies the characteristics of the message handler
      * that is associated with this context
+     *
      * @return
      */
     public MessageHandlerMetadata getHandlerMetadata() {

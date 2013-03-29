@@ -9,14 +9,13 @@ import java.util.List;
  * Provides information about the message listeners of a specific class. Each message handler
  * defined by the target class is represented as a single entity.
  *
- *
  * @author bennidi
  *         Date: 12/16/12
  */
 public class MessageListenerMetadata<T> {
 
 
-    public static final IPredicate<MessageHandlerMetadata> ForMessage(final Class<?> messageType){
+    public static IPredicate<MessageHandlerMetadata> ForMessage(final Class<?> messageType) {
         return new IPredicate<MessageHandlerMetadata>() {
             @Override
             public boolean apply(MessageHandlerMetadata target) {
@@ -35,19 +34,21 @@ public class MessageListenerMetadata<T> {
     }
 
 
-    public List<MessageHandlerMetadata> getHandlers(IPredicate<MessageHandlerMetadata> filter){
+    public List<MessageHandlerMetadata> getHandlers(IPredicate<MessageHandlerMetadata> filter) {
         List<MessageHandlerMetadata> matching = new LinkedList<MessageHandlerMetadata>();
-        for(MessageHandlerMetadata handler : handlers){
-            if(filter.apply(handler))matching.add(handler);
+        for (MessageHandlerMetadata handler : handlers) {
+            if (filter.apply(handler)) {
+                matching.add(handler);
+            }
         }
         return matching;
     }
 
-    public boolean handles(Class<?> messageType){
+    public boolean handles(Class<?> messageType) {
         return !getHandlers(ForMessage(messageType)).isEmpty();
     }
 
-    public Class<T> getListerDefinition(){
+    public Class<T> getListerDefinition() {
         return listenerDefinition;
     }
 }

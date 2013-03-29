@@ -17,6 +17,9 @@ public class AsynchronousHandlerInvocation extends AbstractSubscriptionContextAw
         this.delegate = delegate;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void invoke(final Object listener, final Object message) {
         getContext().getOwningBus().getExecutor().execute(new Runnable() {

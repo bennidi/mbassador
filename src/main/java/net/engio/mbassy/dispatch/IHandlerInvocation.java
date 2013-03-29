@@ -17,7 +17,5 @@ public interface IHandlerInvocation extends ISubscriptionContextAware {
      * @param listener The listener that will receive the message
      * @param message  The message to be delivered to the listener
      */
-    public void invoke(final Object listener, final Object message);
-
-
+    void invoke(Object listener, Object message);
 }
