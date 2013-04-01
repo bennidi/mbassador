@@ -133,6 +133,11 @@ Message publication:
 
 <h2>Installation</h2>
 Beginning with version 1.1.0 MBassador is available from the Maven Central Repository using the following coordinates:
+        <dependency>
+            <groupId>net.engio</groupId>
+            <artifactId>mbassador</artifactId>
+            <version>1.1.0</version>
+        </dependency>
 
     <pre><code class="xml">
         &lt;dependency&gt;
