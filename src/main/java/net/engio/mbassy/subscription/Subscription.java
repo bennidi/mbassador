@@ -1,7 +1,7 @@
 package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.bus.MessagePublication;
-import net.engio.mbassy.common.ConcurrentSet;
+import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.dispatch.IMessageDispatcher;
 
 import java.util.Comparator;
@@ -12,17 +12,18 @@ import java.util.UUID;
  */
 public class Subscription {
 
-    private UUID id = UUID.randomUUID();
+    private final UUID id = UUID.randomUUID();
 
-    protected ConcurrentSet<Object> listeners = new ConcurrentSet<Object>();
+    protected final IConcurrentSet<Object> listeners;
 
-    private IMessageDispatcher dispatcher;
+    private final IMessageDispatcher dispatcher;
 
-    private SubscriptionContext context;
+    private final SubscriptionContext context;
 
-    public Subscription(SubscriptionContext context, IMessageDispatcher dispatcher) {
+    Subscription(SubscriptionContext context, IMessageDispatcher dispatcher, IConcurrentSet<Object> listeners) {
         this.context = context;
         this.dispatcher = dispatcher;
+        this.listeners = listeners;
     }
 
 

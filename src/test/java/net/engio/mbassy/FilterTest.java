@@ -1,19 +1,19 @@
 package net.engio.mbassy;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.engio.mbassy.bus.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.DeadMessage;
 import net.engio.mbassy.common.FilteredMessage;
 import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.events.SubTestMessage;
-import net.engio.mbassy.listener.*;
-import org.junit.Test;
 import net.engio.mbassy.common.TestUtil;
+import net.engio.mbassy.events.SubTestMessage;
 import net.engio.mbassy.events.TestMessage;
+import net.engio.mbassy.listener.*;
 import net.engio.mbassy.listeners.ListenerFactory;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Testing of filter functionality
@@ -28,6 +28,8 @@ public class FilterTest extends MessageBusTest {
 
     @Test
     public void testSubclassFilter() throws Exception {
+        FilteredEventCounter.set(0);
+        DeadEventCounter.set(0);
 
         MBassador bus = getBus(new BusConfiguration());
         ListenerFactory listenerFactory = new ListenerFactory()

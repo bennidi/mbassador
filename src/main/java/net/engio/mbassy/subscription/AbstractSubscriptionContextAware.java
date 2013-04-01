@@ -1,6 +1,6 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.bus.IMessageBus;
+import net.engio.mbassy.bus.ISyncMessageBus;
 import net.engio.mbassy.dispatch.ISubscriptionContextAware;
 
 /**
@@ -9,20 +9,20 @@ import net.engio.mbassy.dispatch.ISubscriptionContextAware;
  * @author bennidi
  *         Date: 3/1/13
  */
-public class AbstractSubscriptionContextAware implements ISubscriptionContextAware {
+public class AbstractSubscriptionContextAware<Bus extends ISyncMessageBus> implements ISubscriptionContextAware<Bus> {
 
-    private SubscriptionContext context;
+    private final SubscriptionContext<Bus> context;
 
-    public AbstractSubscriptionContextAware(SubscriptionContext context) {
+    public AbstractSubscriptionContextAware(SubscriptionContext<Bus> context) {
         this.context = context;
     }
 
-    public SubscriptionContext getContext() {
+    public SubscriptionContext<Bus> getContext() {
         return context;
     }
 
     @Override
-    public IMessageBus getBus() {
+    public Bus getBus() {
         return context.getOwningBus();
     }
 }

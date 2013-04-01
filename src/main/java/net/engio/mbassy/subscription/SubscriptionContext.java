@@ -1,6 +1,6 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.bus.IMessageBus;
+import net.engio.mbassy.bus.ISyncMessageBus;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
 
 /**
@@ -12,13 +12,13 @@ import net.engio.mbassy.listener.MessageHandlerMetadata;
  * @author bennidi
  *         Date: 11/23/12
  */
-public class SubscriptionContext {
+public class SubscriptionContext<Bus extends ISyncMessageBus> {
 
-    private IMessageBus owningBus;
+    private Bus owningBus;
 
     private MessageHandlerMetadata handlerMetadata;
 
-    public SubscriptionContext(IMessageBus owningBus, MessageHandlerMetadata handlerMetadata) {
+    public SubscriptionContext(Bus owningBus, MessageHandlerMetadata handlerMetadata) {
         this.owningBus = owningBus;
         this.handlerMetadata = handlerMetadata;
     }
@@ -28,7 +28,7 @@ public class SubscriptionContext {
      *
      * @return
      */
-    public IMessageBus getOwningBus() {
+    public Bus getOwningBus() {
         return owningBus;
     }
 

@@ -2,7 +2,6 @@ package net.engio.mbassy.dispatch;
 
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
-import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 import net.engio.mbassy.subscription.SubscriptionContext;
 
 import java.lang.reflect.InvocationTargetException;
@@ -15,7 +14,7 @@ import java.util.Collection;
  * @author bennidi
  *         Date: 11/23/12
  */
-public class ReflectiveHandlerInvocation extends AbstractSubscriptionContextAware implements IHandlerInvocation {
+public class ReflectiveHandlerInvocation extends HandlerInvocation{
 
     public ReflectiveHandlerInvocation(SubscriptionContext context) {
         super(context);

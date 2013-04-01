@@ -1,7 +1,7 @@
 package net.engio.mbassy.dispatch;
 
 import net.engio.mbassy.bus.MessagePublication;
-import net.engio.mbassy.common.ConcurrentSet;
+import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 import net.engio.mbassy.subscription.SubscriptionContext;
 
@@ -17,7 +17,7 @@ import net.engio.mbassy.subscription.SubscriptionContext;
  */
 public class MessageDispatcher extends AbstractSubscriptionContextAware implements IMessageDispatcher {
 
-    private IHandlerInvocation invocation;
+    private final IHandlerInvocation invocation;
 
     public MessageDispatcher(SubscriptionContext context, IHandlerInvocation invocation) {
         super(context);
@@ -25,7 +25,7 @@ public class MessageDispatcher extends AbstractSubscriptionContextAware implemen
     }
 
     @Override
-    public void dispatch(MessagePublication publication, Object message, ConcurrentSet listeners) {
+    public void dispatch(final MessagePublication publication, final Object message, final IConcurrentSet listeners) {
         publication.markDelivered();
         for (Object listener : listeners) {
             getInvocation().invoke(listener, message);

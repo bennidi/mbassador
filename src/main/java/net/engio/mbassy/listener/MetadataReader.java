@@ -54,14 +54,12 @@ public class MetadataReader {
     }
 
 
-    public MessageHandlerMetadata getHandlerMetadata(Method messageHandler) {
-        Handler config = messageHandler.getAnnotation(Handler.class);
-        return new MessageHandlerMetadata(messageHandler, getFilter(config), config);
-    }
+
 
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
     public List<MessageHandlerMetadata> getMessageHandlers(Class<?> target) {
+        Listener listenerConfig = target.getAnnotation(Listener.class);
         // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
         List<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
         // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
@@ -72,19 +70,18 @@ public class MetadataReader {
             }
         }
 
-
         List<MessageHandlerMetadata> filteredHandlers = new LinkedList<MessageHandlerMetadata>();
         // for each handler there will be no overriding method that specifies @Handler annotation
         // but an overriding method does inherit the listener configuration of the overwritten method
         for (Method handler : bottomMostHandlers) {
-            Handler handle = handler.getAnnotation(Handler.class);
-            if (!handle.enabled() || !isValidMessageHandler(handler)) {
+            Handler handlerConfig = handler.getAnnotation(Handler.class);
+            if (!handlerConfig.enabled() || !isValidMessageHandler(handler)) {
                 continue; // disabled or invalid listeners are ignored
             }
             Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
             // if a handler is overwritten it inherits the configuration of its parent method
             MessageHandlerMetadata handlerMetadata = new MessageHandlerMetadata(overriddenHandler == null ? handler : overriddenHandler,
-                    getFilter(handle), handle);
+                    getFilter(handlerConfig), handlerConfig, listenerConfig);
             filteredHandlers.add(handlerMetadata);
 
         }

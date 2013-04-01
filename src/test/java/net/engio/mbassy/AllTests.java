@@ -12,13 +12,15 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        ConcurrentSetTest.class,
+        StrongConcurrentSetTest.class,
+        WeakConcurrentSetTest.class,
         MessagePublicationTest.class,
         FilterTest.class,
         MetadataReaderTest.class,
         ListenerSubscriptionTest.class,
         MethodDispatchTest.class,
-        DeadEventTest.class
+        DeadEventTest.class,
+        SynchronizedHandlerTest.class
 })
 public class AllTests {
 }

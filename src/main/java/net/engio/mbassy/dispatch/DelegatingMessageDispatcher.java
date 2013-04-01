@@ -11,7 +11,7 @@ import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
  */
 public abstract class DelegatingMessageDispatcher extends AbstractSubscriptionContextAware implements IMessageDispatcher {
 
-    private IMessageDispatcher delegate;
+    private final IMessageDispatcher delegate;
 
 
     public DelegatingMessageDispatcher(IMessageDispatcher delegate) {

@@ -1,10 +1,9 @@
 package net.engio.mbassy.listener;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import net.engio.mbassy.dispatch.HandlerInvocation;
+import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
+
+import java.lang.annotation.*;
 
 /**
  * Mark any method of any object(=listener) as a message handler and configure the handler
@@ -28,7 +27,7 @@ public @interface Handler {
      * Define the mode in which a message is delivered to each listener. Listeners can be notified
      * sequentially or concurrently.
      */
-    Mode delivery() default Mode.Sequential;
+    Invoke delivery() default Invoke.Synchronously;
 
     /**
      * Handlers are ordered by priority and handlers with higher priority are processed before
@@ -50,5 +49,18 @@ public @interface Handler {
      * handlers that have been declared by a superclass but do not apply to the subclass
      */
     boolean enabled() default true;
+
+
+    /**
+     * Each handler call is implemented as an invocation object that implements the invocation mechanism.
+     * The basic implementation uses reflection and is the default. It is possible though to provide a custom
+     * invocation to add additional logic.
+     *
+     * Note: Providing a custom invocation will most likely reduce performance, since the JIT-Compiler
+     * can not do some of its sophisticated byte code optimizations.
+     *
+     */
+    Class<? extends HandlerInvocation> invocation() default ReflectiveHandlerInvocation.class;
+
 
 }

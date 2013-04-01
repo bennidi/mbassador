@@ -1,5 +1,6 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.bus.IMessageBus;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 
 /**
@@ -8,7 +9,7 @@ import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
  * @author bennidi
  *         Date: 11/23/12
  */
-public class AsynchronousHandlerInvocation extends AbstractSubscriptionContextAware implements IHandlerInvocation {
+public class AsynchronousHandlerInvocation extends AbstractSubscriptionContextAware<IMessageBus> implements IHandlerInvocation<Object,Object,IMessageBus> {
 
     private IHandlerInvocation delegate;
 

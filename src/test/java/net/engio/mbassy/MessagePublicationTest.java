@@ -1,23 +1,18 @@
 package net.engio.mbassy;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import net.engio.mbassy.bus.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.events.SubTestMessage;
-import org.junit.Test;
 import net.engio.mbassy.common.ConcurrentExecutor;
+import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
+import net.engio.mbassy.events.SubTestMessage;
 import net.engio.mbassy.events.TestMessage;
 import net.engio.mbassy.events.TestMessage2;
-import net.engio.mbassy.listeners.EventingTestBean;
-import net.engio.mbassy.listeners.EventingTestBean2;
-import net.engio.mbassy.listeners.EventingTestBean3;
-import net.engio.mbassy.listeners.ListenerFactory;
-import net.engio.mbassy.listeners.MultiEventHandler;
-import net.engio.mbassy.listeners.NonListeningBean;
+import net.engio.mbassy.listeners.*;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Test synchronous and asynchronous dispatch in single and multi-threaded scenario.
@@ -92,6 +87,31 @@ public class MessagePublicationTest extends MessageBusTest {
 
         assertEquals(30000, message.counter.get());
         assertEquals(70000, subMessage.counter.get());
+
+    }
+
+    @Test
+    public void testStrongListenerSubscription() throws Exception {
+
+        MBassador bus = getBus(new BusConfiguration());
+
+
+        for(int i = 0; i< 10000; i++){
+            bus.subscribe(new EventingTestBean2());
+        }
+
+        runGC();
+
+        TestMessage message = new TestMessage();
+        TestMessage subMessage = new SubTestMessage();
+
+        bus.publish(message);
+        bus.publish(subMessage);
+
+        pause(processingTimeInMS);
+
+        assertEquals(10000, message.counter.get());
+        assertEquals(20000, subMessage.counter.get());
 
     }
 

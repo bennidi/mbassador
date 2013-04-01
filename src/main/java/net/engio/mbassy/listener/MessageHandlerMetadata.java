@@ -1,7 +1,8 @@
 package net.engio.mbassy.listener;
 
+import net.engio.mbassy.dispatch.HandlerInvocation;
+
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,36 +12,54 @@ import java.util.List;
  */
 public class MessageHandlerMetadata {
 
-    private Method handler;
+    private final Method handler;
 
-    private IMessageFilter[] filter;
+    private final IMessageFilter[] filter;
 
-    private Handler handlerConfig;
+    private final Handler handlerConfig;
 
-    private boolean isAsynchronous = false;
+    private final boolean isAsynchronous;
 
-    private Enveloped envelope = null;
+    private final Enveloped envelope;
 
-    private List<Class<?>> handledMessages = new LinkedList<Class<?>>();
+    private final List<Class<?>> handledMessages = new LinkedList<Class<?>>();
 
-    private boolean acceptsSubtypes = true;
+    private final boolean acceptsSubtypes;
+
+    private final Listener listenerConfig;
+
+    private final boolean isSynchronized;
 
 
-    public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Handler handlerConfig) {
+    public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Handler handlerConfig, Listener listenerConfig) {
+        if(handler == null || handlerConfig == null){
+            throw new IllegalArgumentException("The message handler configuration may not be null");
+        }
         this.handler = handler;
         this.filter = filter;
         this.handlerConfig = handlerConfig;
-        this.isAsynchronous = handlerConfig.delivery().equals(Mode.Concurrent);
+        this.isAsynchronous = handlerConfig.delivery().equals(Invoke.Asynchronously);
         this.envelope = handler.getAnnotation(Enveloped.class);
         this.acceptsSubtypes = !handlerConfig.rejectSubtypes();
+        this.listenerConfig = listenerConfig;
+        this.isSynchronized = handler.getAnnotation(Synchronized.class) != null;
         if (this.envelope != null) {
-            Collections.addAll(handledMessages, envelope.messages());
+            for(Class messageType : envelope.messages()){
+                handledMessages.add(messageType);
+            }
         } else {
             handledMessages.add(handler.getParameterTypes()[0]);
         }
         this.handler.setAccessible(true);
     }
 
+    public boolean isSynchronized(){
+        return isSynchronized;
+    }
+
+    public boolean useStrongReferences(){
+        return listenerConfig != null && listenerConfig.references().equals(References.Strong);
+    }
 
     public boolean isAsynchronous() {
         return isAsynchronous;
@@ -68,6 +87,10 @@ public class MessageHandlerMetadata {
 
     public boolean isEnveloped() {
         return envelope != null;
+    }
+
+    public Class<? extends HandlerInvocation> getHandlerInvocation(){
+        return handlerConfig.invocation();
     }
 
     public boolean handlesMessage(Class<?> messageType) {

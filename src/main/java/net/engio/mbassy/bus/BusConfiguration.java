@@ -1,14 +1,6 @@
 package net.engio.mbassy.bus;
 
-import net.engio.mbassy.listener.MetadataReader;
-import net.engio.mbassy.subscription.SubscriptionFactory;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * The bus configuration holds various parameters that can be used to customize the bus' runtime behaviour.
@@ -16,7 +8,7 @@ import java.util.concurrent.TimeUnit;
  * @author bennidi
  *         Date: 12/8/12
  */
-public class BusConfiguration {
+public class BusConfiguration extends SyncBusConfiguration<BusConfiguration> {
 
     private static final ThreadFactory DaemonThreadFactory = new ThreadFactory() {
         @Override
@@ -37,36 +29,11 @@ public class BusConfiguration {
 
     private int maximumNumberOfPendingMessages;
 
-    private SubscriptionFactory subscriptionFactory;
-
-    private MetadataReader metadataReader;
-
-    private MessagePublication.Factory messagePublicationFactory;
-
     public BusConfiguration() {
+        super();
         this.numberOfMessageDispatchers = 2;
         this.maximumNumberOfPendingMessages = Integer.MAX_VALUE;
-        this.subscriptionFactory = new SubscriptionFactory();
         this.executor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), DaemonThreadFactory);
-        this.metadataReader = new MetadataReader();
-        this.messagePublicationFactory = new MessagePublication.Factory();
-    }
-
-    public MessagePublication.Factory getMessagePublicationFactory() {
-        return messagePublicationFactory;
-    }
-
-    public void setMessagePublicationFactory(MessagePublication.Factory messagePublicationFactory) {
-        this.messagePublicationFactory = messagePublicationFactory;
-    }
-
-    public MetadataReader getMetadataReader() {
-        return metadataReader;
-    }
-
-    public BusConfiguration setMetadataReader(MetadataReader metadataReader) {
-        this.metadataReader = metadataReader;
-        return this;
     }
 
     public int getNumberOfMessageDispatchers() {
@@ -78,6 +45,10 @@ public class BusConfiguration {
         return this;
     }
 
+    /**
+     * By default an unbound queuing strategy is used to ensure that no events get lost
+     * @return
+     */
     public ExecutorService getExecutor() {
         return executor;
     }
@@ -98,12 +69,4 @@ public class BusConfiguration {
         return this;
     }
 
-    public SubscriptionFactory getSubscriptionFactory() {
-        return subscriptionFactory;
-    }
-
-    public BusConfiguration setSubscriptionFactory(SubscriptionFactory subscriptionFactory) {
-        this.subscriptionFactory = subscriptionFactory;
-        return this;
-    }
 }

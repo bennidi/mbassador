@@ -1,6 +1,6 @@
 package net.engio.mbassy.dispatch;
 
-import net.engio.mbassy.bus.IMessageBus;
+import net.engio.mbassy.bus.ISyncMessageBus;
 
 /**
  * This interface marks components that have access to the message bus that they belong to.
@@ -8,7 +8,7 @@ import net.engio.mbassy.bus.IMessageBus;
  * @author bennidi
  *         Date: 3/1/13
  */
-public interface IMessageBusAware {
+public interface IMessageBusAware<Bus extends ISyncMessageBus> {
 
-    IMessageBus getBus();
+    Bus getBus();
 }

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 
-public class MBassador<T> extends AbstractMessageBus<T, SyncAsyncPostCommand<T>> {
+public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> {
 
     public MBassador(BusConfiguration configuration) {
         super(configuration);

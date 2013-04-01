@@ -18,9 +18,10 @@ The basic contract of the bus is that it will deliver a specific message exactly
 Currently, message handlers will be invoked in inverse sequence of subscription but any
 client using this bus should not rely on this assumption.
 
-The bus uses weak references to all listeners such that registered listeners do not need to
+By default, the bus uses weak references to all listeners such that registered listeners do not need to
 be explicitly unregistered to be eligible for garbage collection. Dead (garbage collected) listeners are
-removed on-the-fly as messages get published.
+removed on-the-fly as messages get published. It is possible to enable the use of strong references on the message handler
+level.
 
 Unsubscribing a listener means removing all subscribed message handlers of that listener. This remove operation
 immediately effects all running publications processes -> A removed listener will under no circumstances receive any message publications.

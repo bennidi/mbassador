@@ -2,7 +2,7 @@ package net.engio.mbassy;
 
 import net.engio.mbassy.bus.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.common.ConcurrentSet;
+import net.engio.mbassy.common.WeakConcurrentSet;
 import net.engio.mbassy.common.DeadMessage;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.Handler;
@@ -33,7 +33,7 @@ public class DeadEventTest extends MessageBusTest{
 
     public class DeadEventHandler{
 
-         private ConcurrentSet deadEvents = new ConcurrentSet();
+         private WeakConcurrentSet deadEvents = new WeakConcurrentSet();
 
         @Handler
          public void handle(DeadMessage message){

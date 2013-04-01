@@ -8,7 +8,7 @@ data structure to allow high throughput for concurrent access.
 Read this documentation to get an overview of its features. You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
 which also contains a partial list of the features of the compared implementations.
 
-The current version is 1.1.3 and it is available from the Maven Central Repository. See the release notes for more details.
+The current version is 1.1.4 and it is available from the Maven Central Repository. See the release notes for more details.
 
 Table of contents:
 + [Features](#features)
@@ -33,10 +33,11 @@ This means that listeners will also receivesubtypes of the message type they are
 + <em><strong>Synchronous and asynchronous message delivery</em></strong>: A handler can be invoked to handle a message either synchronously or
 asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method
 blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch
-+ <em><strong>Weak references</em></strong>: MBassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister
++ <em><strong>Weak references</em></strong>: By default, MBassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister
 listeners that are not used anymore (of course it is also possible to explicitly unregister a listener if needed). This is very comfortable
 in certain environments where listeners are managed by frameworks, i.e. spring, guice etc. Just stuff everything into the message bus, it will
 ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
++ <em><strong>Strong references</em></strong>: Instead of using weak references, the bus can be configured to use strong references.
 + <em><strong>Filtering</em></strong>: MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to
 a single message handler
 + <em><strong>Message envelopes</em></strong>: Message handlers can declare to receive an enveloped message. The envelope can wrap different
@@ -58,7 +59,7 @@ sending messages to your listeners using one of MBassador's publication methods 
 
 <h2>Usage</h2>
 
-Listener definition (in any bean):
+Handler definition (in any bean):
 
         // every message of type TestMessage or any subtype will be delivered
         // to this handler
@@ -67,8 +68,15 @@ Listener definition (in any bean):
 			// do something
 		}
 
-        // this handler will be invoked concurrently
-		@Handler(delivery = Mode.Concurrent)
+		// every message of type TestMessage or any subtype will be delivered
+        // to this handler
+        @Handler
+        public void handleTestMessageStrong(TestMessage message) {
+            // do something
+        }
+
+        // this handler will be invoked asynchronously (in a different thread)
+		@Handler(delivery = Invoke.Asynchronously)
 		public void handleSubTestMessage(SubTestMessage message) {
             // do something more expensive here
 		}
@@ -87,6 +95,15 @@ Listener definition (in any bean):
         public void handleUnrelatedMessageTypes(MessageEnvelope envelope) {
             // the envelope will contain either an instance of TestMessage or TestMessage2
             // if rejectSubtypes were set to 'false' (default) also subtypes of TestMessage or TestMessage2 would be allowed
+        }
+
+
+        // configure a listener to be stored using strong instead of weak references
+        @Listener(references = References.Strong)
+        public class MessageListener{
+
+            // any handler definitions
+
         }
 
 
@@ -113,22 +130,8 @@ Message publication:
         bus.post(subMessage).now(); // same as above
 
 <h2>Installation</h2>
-Beginning with version 1.1.0 MBassador is available from the Maven Central Repository (Hooray!). Older versions are
-still available from the included maven repository in this github repo but will be deleted in the future.
-The recommended way of using MBassador in your project is to add the dependency as shown in step two. Step one is only necessary
-if you want to use an older version that is not available in the central repository.
+Beginning with version 1.1.0 MBassador is available from the Maven Central Repository using the following coordinates:
 
- 1. Add the repository location to your pom.xml
-    <pre><code class="xml">
-    &lt;repositories&gt;
-        &lt;repository&gt;
-            &lt;id&gt;mbassador-github-repo&lt;/id&gt;
-            &lt;url&gt;https://raw.github.com/bennidi/mbassador/master/maven &lt;/url&gt;
-        &lt;/repository&gt;
-    &lt;/repositories&gt;
-    </pre></code>
- 2. Add the MBassador dependency to your pom.xml. You can check which versions are available by browsing
-    the git repository online.
     <pre><code class="xml">
         &lt;dependency&gt;
             &lt;groupId&gt;net.engio&lt;/groupId&gt;
@@ -136,7 +139,6 @@ if you want to use an older version that is not available in the central reposit
             &lt;version&gt;1.1.0&lt;/version&gt;
         &lt;/dependency&gt;
     </pre></code>
- 3. Run mvn clean package to have maven download and install the required version into your local repository
 
 Of course you can always clone the repository and build from source.
 
@@ -146,6 +148,18 @@ works. Code samples can also be found in the various test cases. Please read abo
 to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
+
+<h3>1.1.4</h3>
+
+ + Added support for choosing between strong and weak references using the new @Listener annotation. @Listener can be
+ added to any class that defines message handlers and allows to configure which reference type is used
+ + Custom handler invocations: It is possible to provide a custom handler invocation for each message handler, see "invocation"
+ property of @Handler
+ + Changed packaging to "bundle" to support OSGI environments
+ + Synchronization of message handlers via @Synchronized: Handlers that are not thread-safe can be synchronized to guarantee
+  that only one thread at a time can invoke that handler
+ + Created a message bus implementation that does not use threading to support use in non-multi-threaded environments like GWT,
+ see ISyncMessageBus
 
 <h3>1.1.3</h3>
 
@@ -179,7 +193,7 @@ First stable release!
  + Fixed behaviour with capacity bound blocking queue such that there now are two methods to schedule a message
  asynchronously. One will block until capacity becomes available, the other will timeout after a specified amount of
  time.
- +  Added unit tests
+ +  Additional unit tests
 
 <h3>1.0.5.RC</h3>
 

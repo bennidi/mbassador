@@ -10,10 +10,17 @@ filters, delivery modes etc.
 
   <tr>
         <td>delivery</td>
-        <td>Message delivery can either run sequentially(i.e. one listener at a time) or concurrently
-            (i.e. multiple threads are used to deliver the same message to different listeners).
-            Note:The number of parallel threads is configurable per instance using the BusConfiguration</td>
-        <td>Sequential</td>
+        <td>Message handler invocation can be configured to run
+            <ul>
+                <li>Synchronously: One handler at a time within a given message publication. Each invocation occurs from the same thread</li>
+                <li>Asynchronously: Multiple threads are used within a given message publication. Each handler invocation
+                runs in a separate thread.Note:The number of parallel threads is configurable per instance using the BusConfiguration</li>
+            </ul>
+            Note: Use @Synchronized if your handler does not allow multiple, concurrent message publications, i.e.
+            handlers that are not thread-safe but are used in a multi-threaded environment where asynchronous message publication
+            is possible.
+        </td>
+        <td>Synchronously</td>
   </tr>
 
   <tr>
@@ -42,6 +49,21 @@ filters, delivery modes etc.
             <td>true</td>
     </tr>
 
+    <tr>
+                <td>strongReferencess</td>
+                <td>Whether the bus should use storng references to the listeners instead of weak references
+                </td>
+                <td>false</td>
+        </tr>
+    <tr>
+                    <td>invocation</td>
+                    <td>Specify a custom implementation for the handler invocation. By default, a generic implementation
+                    that uses reflection will be used. Note: A custom implementation will not be faster than the generic one
+                    since there are heavy optimizations by the JVM using JIT-Compiler and more.
+                    </td>
+                    <td>false</td>
+            </tr>
+
 
 </table>
 
@@ -59,22 +81,22 @@ receive all messages of type TestEvent or any subtype sequentially.
 
 
 
-This handler will receive all messages of type SubTestEvent or any subtype concurrently
+This handler will receive all messages of type SubTestEvent or any subtype
 
-        // this handler will be invoked concurrently
-		@Handler(delivery = Mode.Concurrent)
+        // handler invocation will occur in a different thread
+		@Handler(delivery = Invoke.Asynchronously)
 		public void handleSubTestEvent(SubTestEvent event) {
             // do something more expensive here
 		}
 
-This handler will receive all messages of type SubTestEvent or any subtype sequentially,
+This handler will receive all messages of type SubTestEvent or any subtype,
 given that they pass the specified filters. This handler will be invoked before the formerly
 defined one, since it specifies a higher priority
 
 		// this handler will receive messages of type SubTestEvent
         // or any of its sub types that passe the given filter(s)
         @Handler(priority = 10,
-                  dispatch = Mode.Synchronous,
+                  dispatch = Invoke.Synchronously,
                   filters = {@Filter(Filters.SpecialEvent.class)})
         public void handleFiltered(SubTestEvent event) {
            //do something special here
@@ -112,8 +134,8 @@ Message handler inheritance corresponds to inheritance of methods as defined in 
 A subclass of any class that defines message handlers will inherit these handler and their configuration.
 It is possible to change (override) the configuration simply by overriding the super class' method and
 specifying a different configuration. This way, it is also possible to deactivate a message handler of
-a super class by using the "enabled" property on the overridden method.
-If a class overrides a method that is configured as a message handler in one of its super classes
+a super class by setting the "enabled" property to "false" on the overridden method.
+If a class overrides a method that is already configured as a message handler
 it is still considered a message handler but of course the implementation of the overriding class
 will be used.
 
