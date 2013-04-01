@@ -42,7 +42,7 @@ ignore objects without message handlers and automatically clean-up orphaned weak
 a single message handler
 + <em><strong>Message envelopes</em></strong>: Message handlers can declare to receive an enveloped message. The envelope can wrap different
 types of messages. This allows for a single handler to handle multiple, unrelated message types.
-+ <em><strong>Handler priorities</em></strong>: A listener can be associated with a priority to influence the order in which messages are delivered when multiple handlers exist
++ <em><strong>Handler priorities</em></strong>: A handler can be associated with a priority to influence the order in which messages are delivered when multiple matching handlers exist
 + <em><strong>Custom error handling</em></strong>: Errors during message delivery are sent to all registered error handlers which can be added to the bus as necessary.
 + <em><strong>DeadMessage event</em></strong>: Messages that do not match any handler result in the publication of a DeadMessage object which wraps the original message. DeadMessage events
 can be handled by registering listeners that handle DeadMessage.
