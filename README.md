@@ -8,7 +8,7 @@ data structure to allow high throughput for concurrent access.
 Read this documentation to get an overview of its features. You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
 which also contains a partial list of the features of the compared implementations.
 
-The current version is 1.1.4 and it is available from the Maven Central Repository. See the release notes for more details.
+The current version is 1.1.6 and it is available from the Maven Central Repository. See the release notes for more details.
 
 Table of contents:
 + [Features](#features)
@@ -137,7 +137,7 @@ Beginning with version 1.1.0 MBassador is available from the Maven Central Repos
     <dependency>
         <groupId>net.engio</groupId>
         <artifactId>mbassador</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.6</version>
     </dependency>
 ```
 
@@ -151,7 +151,7 @@ to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
 
-<h3>1.1.4</h3>
+<h3>1.1.6</h3>
 
  + Added support for choosing between strong and weak references using the new @Listener annotation. @Listener can be
  added to any class that defines message handlers and allows to configure which reference type is used
