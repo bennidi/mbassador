@@ -140,7 +140,7 @@ Beginning with version 1.1.0 MBassador is available from the Maven Central Repos
             &lt;artifactId&gt;mbassador&lt;/artifactId&gt;
             &lt;version&gt;1.1.0&lt;/version&gt;
         &lt;/dependency&gt;
-    </pre></code>
+    </code></pre>
 
 Of course you can always clone the repository and build from source.
 
