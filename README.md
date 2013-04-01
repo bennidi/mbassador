@@ -29,7 +29,7 @@ At its core MBassador offers the following features:
 + <em><strong>Annotation driven</em></strong>: To define and customize a message handler simply mark it with @Handler annotation
 + <em><strong>Delivers everything</em></strong>: Messages must not implement any interface and can be of any type. It is
 possible though to define an upper bound of the message type using generics. The class hierarchy of a message is considered during message delivery.
-This means that listeners will also receivesubtypes of the message type they are listening for, e.g. a listener for Object.class receives everything.
+This means that handlers will also receive subtypes of the message type they are listening for, e.g. a handler of Object.class receives everything.
 + <em><strong>Synchronous and asynchronous message delivery</em></strong>: A handler can be invoked to handle a message either synchronously or
 asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method
 blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch
@@ -37,23 +37,25 @@ blocks until messages are delivered to all handlers) or asynchronous (fire and f
 listeners that are not used anymore (of course it is also possible to explicitly unregister a listener if needed). This is very comfortable
 in certain environments where listeners are managed by frameworks, i.e. spring, guice etc. Just stuff everything into the message bus, it will
 ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
-+ <em><strong>Strong references</em></strong>: Instead of using weak references, the bus can be configured to use strong references.
++ <em><strong>Strong references</em></strong>: Instead of using weak references, a listener can be configured to be referenced using strong references using @Listener
 + <em><strong>Filtering</em></strong>: MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to
 a single message handler
 + <em><strong>Message envelopes</em></strong>: Message handlers can declare to receive an enveloped message. The envelope can wrap different
-types of messages. This allows for a single handler to handle multiple (unrelated) message types.
+types of messages. This allows for a single handler to handle multiple, unrelated message types.
 + <em><strong>Handler priorities</em></strong>: A listener can be associated with a priority to influence the order in which messages are delivered when multiple handlers exist
 + <em><strong>Custom error handling</em></strong>: Errors during message delivery are sent to all registered error handlers which can be added to the bus as necessary.
 + <em><strong>DeadMessage event</em></strong>: Messages that do not match any handler result in the publication of a DeadMessage object which wraps the original message. DeadMessage events
 can be handled by registering listeners that handle DeadMessage.
 + <em><strong>FilteredMessage event</em></strong>: Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message.
 FilteredMessage events can be handled by registering listeners that handle FilteredMessage.
++ <em><strong>Synchronization</em></strong>: It is possible to ensure that a handler is invoked non-concurrently,i.e. making it thread-safe by adding @Synchronized
 + <em><strong>Extensibility</em></strong>:MBassador is designed to be extensible with custom implementations of various components like message
 dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different
  kinds of object.A configuration object can be passed to on instance creation to specify the different configurable parts
 + <em><strong>Ease of Use</em></strong>: Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do),
 mark and configure your message handlers with @Handler annotations and finally register the listeners at any MBassador instance. Start
 sending messages to your listeners using one of MBassador's publication methods (sync or async). Done!
+
 
 
 
