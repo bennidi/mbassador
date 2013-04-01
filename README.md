@@ -115,7 +115,7 @@ Creation of message bus and registration of listeners:
         // bind it to any upper bound
         MBassador<TestMessage> bus = new MBassador<TestMessage>(BusConfiguration.Default());
         ListeningBean listener = new ListeningBean();
-        // the listener will be registered using a weak-reference
+        // the listener will be registered using a weak-reference if not configured otherwise with @Listener
         bus.subscribe(listener);
         // objects without handlers will be ignored
         bus.subscribe(new ClassWithoutAnyDefinedHandlers());
