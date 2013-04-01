@@ -51,7 +51,7 @@ FilteredMessage events can be handled by registering listeners that handle Filte
 + <em><strong>Synchronization</em></strong>: It is possible to ensure that a handler is invoked non-concurrently,i.e. making it thread-safe by adding @Synchronized
 + <em><strong>Extensibility</em></strong>:MBassador is designed to be extensible with custom implementations of various components like message
 dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different
- kinds of object.A configuration object can be passed to on instance creation to specify the different configurable parts
+ kinds of objects. A configuration object is used to customize the different configurable parts
 + <em><strong>Ease of Use</em></strong>: Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do),
 mark and configure your message handlers with @Handler annotations and finally register the listeners at any MBassador instance. Start
 sending messages to your listeners using one of MBassador's publication methods (sync or async). Done!
@@ -86,13 +86,13 @@ Handler definition (in any bean):
 		// this handler will receive messages of type SubTestMessage
         // or any of its sub types that passe the given filter(s)
         @Handler(priority = 10,
-                  delivery = Mode.Sequential,
+                  delivery = Invoke.Synchronously,
                   filters = {@Filter(Filters.SpecialMessage.class)})
         public void handleFiltered(SubTestMessage message) {
            //do something special here
         }
 
-        @Handler(delivery = Mode.Sequential, rejectSubtypes = true)
+        @Handler(delivery = Invoke.Synchronously, rejectSubtypes = true)
         @Enveloped(messages = {TestMessage.class, TestMessage2.class})
         public void handleUnrelatedMessageTypes(MessageEnvelope envelope) {
             // the envelope will contain either an instance of TestMessage or TestMessage2
