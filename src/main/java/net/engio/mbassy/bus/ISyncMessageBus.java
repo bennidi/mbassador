@@ -10,7 +10,7 @@ import java.util.Collection;
  * @author bennidi
  *         Date: 3/29/13
  */
-public interface ISyncMessageBus<T, P extends IMessageBus.ISyncPostCommand> {
+public interface ISyncMessageBus<T, P extends ISyncMessageBus.ISyncPostCommand> {
 
 
     /**
