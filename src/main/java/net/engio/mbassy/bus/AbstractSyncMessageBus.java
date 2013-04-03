@@ -11,7 +11,6 @@ import net.engio.mbassy.subscription.SubscriptionContext;
 import net.engio.mbassy.subscription.SubscriptionFactory;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * The base class for all message bus implementations.
@@ -41,7 +40,7 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
     private final Collection<Class> nonListeners = new HashSet<Class>();
 
     // this handler will receive all errors that occur during message dispatch or message handling
-    private final List<IPublicationErrorHandler> errorHandlers = new CopyOnWriteArrayList<IPublicationErrorHandler>();
+    private final List<IPublicationErrorHandler> errorHandlers = new ArrayList<IPublicationErrorHandler>();
 
     // this factory is used to create specialized subscriptions based on the given message handler configuration
     // it can be customized by implementing the getSubscriptionFactory() method
@@ -128,7 +127,9 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
 
 
     public final void addErrorHandler(IPublicationErrorHandler handler) {
-        errorHandlers.add(handler);
+        synchronized (this){
+            errorHandlers.add(handler);
+        }
     }
 
     protected MessagePublication createMessagePublication(T message) {

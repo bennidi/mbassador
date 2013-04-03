@@ -1,10 +1,7 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.PublicationError;
-import net.engio.mbassy.common.DeadMessage;
-import net.engio.mbassy.subscription.Subscription;
 
-import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 
