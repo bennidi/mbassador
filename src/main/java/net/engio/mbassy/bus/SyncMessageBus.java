@@ -1,28 +1,20 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.PublicationError;
-import net.engio.mbassy.common.DeadMessage;
-import net.engio.mbassy.subscription.Subscription;
 
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
+/**
+ * Created with IntelliJ IDEA.
+ * User: benjamin
+ * Date: 4/3/13
+ * Time: 9:02 AM
+ * To change this template use File | Settings | File Templates.
+ */
+public class SyncMessageBus<T> extends AbstractSyncMessageBus<T, SyncMessageBus.SyncPostCommand>{
 
 
-public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> {
-
-    public MBassador(BusConfiguration configuration) {
+    public SyncMessageBus(SyncBusConfiguration configuration) {
         super(configuration);
     }
-
-
-    public MessagePublication publishAsync(T message) {
-        return addAsynchronousDeliveryRequest(createMessagePublication(message));
-    }
-
-    public MessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
-        return addAsynchronousDeliveryRequest(createMessagePublication(message), timeout, unit);
-    }
-
 
     /**
      * Synchronously publish a message to all registered listeners (this includes listeners defined for super types)
@@ -43,10 +35,23 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
 
     }
 
-
     @Override
-    public SyncAsyncPostCommand<T> post(T message) {
-        return new SyncAsyncPostCommand<T>(this, message);
+    public SyncPostCommand post(T message) {
+        return new SyncPostCommand(message);
     }
 
+    public class SyncPostCommand implements ISyncMessageBus.ISyncPostCommand{
+
+
+        private T message;
+
+        public SyncPostCommand(T message) {
+            this.message = message;
+        }
+
+        @Override
+        public void now() {
+            publish(message);
+        }
+    }
 }

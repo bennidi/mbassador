@@ -21,7 +21,7 @@ public class MessagePublication {
 
     public static class Factory {
 
-        public MessagePublication createPublication(IMessageBus owningBus, Collection<Subscription> subscriptions, Object message) {
+        public MessagePublication createPublication(ISyncMessageBus owningBus, Collection<Subscription> subscriptions, Object message) {
             return new MessagePublication(owningBus, subscriptions, message, State.Initial);
         }
 
@@ -35,9 +35,9 @@ public class MessagePublication {
 
     private boolean delivered = false;
 
-    private IMessageBus bus;
+    private ISyncMessageBus bus;
 
-    public MessagePublication(IMessageBus bus, Collection<Subscription> subscriptions, Object message, State initialState) {
+    public MessagePublication(ISyncMessageBus bus, Collection<Subscription> subscriptions, Object message, State initialState) {
         this.bus = bus;
         this.subscriptions = subscriptions;
         this.message = message;

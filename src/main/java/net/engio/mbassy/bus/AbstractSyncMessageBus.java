@@ -2,6 +2,7 @@ package net.engio.mbassy.bus;
 
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.common.DeadMessage;
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
 import net.engio.mbassy.listener.MetadataReader;
@@ -130,7 +131,16 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
         errorHandlers.add(handler);
     }
 
-
+    protected MessagePublication createMessagePublication(T message) {
+        Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
+        if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass().equals(DeadMessage.class)) {
+            // Dead Event
+            subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
+            return getPublicationFactory().createPublication(this, subscriptions, new DeadMessage(message));
+        } else {
+            return getPublicationFactory().createPublication(this, subscriptions, message);
+        }
+    }
 
     // obtain the set of subscriptions for the given message type
     // Note: never returns null!

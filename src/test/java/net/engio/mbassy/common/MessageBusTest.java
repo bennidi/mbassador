@@ -4,6 +4,7 @@ import junit.framework.Assert;
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
 import net.engio.mbassy.bus.BusConfiguration;
+import net.engio.mbassy.bus.ISyncMessageBus;
 import net.engio.mbassy.bus.MBassador;
 
 /**
@@ -13,9 +14,9 @@ import net.engio.mbassy.bus.MBassador;
  * @author bennidi
  *         Date: 3/2/13
  */
-public class MessageBusTest extends UnitTest {
+public class MessageBusTest<Bus extends ISyncMessageBus> extends UnitTest {
 
-    private static final IPublicationErrorHandler TestFailingHandler = new IPublicationErrorHandler() {
+    protected static final IPublicationErrorHandler TestFailingHandler = new IPublicationErrorHandler() {
         @Override
         public void handleError(PublicationError error) {
             Assert.fail();
@@ -27,4 +28,5 @@ public class MessageBusTest extends UnitTest {
         bus.addErrorHandler(TestFailingHandler);
         return bus;
     }
+
 }

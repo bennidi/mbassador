@@ -23,7 +23,5 @@ public class MessageBusException extends Exception{
         super(cause);
     }
 
-    public MessageBusException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
+
 }

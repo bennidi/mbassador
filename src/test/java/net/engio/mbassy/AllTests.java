@@ -14,7 +14,9 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         StrongConcurrentSetTest.class,
         WeakConcurrentSetTest.class,
-        MessagePublicationTest.class,
+        AsynchronousMessageBusTest.class,
+        SyncBusTest.MBassadorTest.class,
+        SyncBusTest.SyncMessageBusTest.class,
         FilterTest.class,
         MetadataReaderTest.class,
         ListenerSubscriptionTest.class,
