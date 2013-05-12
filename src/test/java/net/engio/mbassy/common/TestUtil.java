@@ -1,6 +1,7 @@
 package net.engio.mbassy.common;
 
 import net.engio.mbassy.bus.IMessageBus;
+import net.engio.mbassy.bus.ISyncMessageBus;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class TestUtil {
 
 
-    public static void setup(final IMessageBus bus, final List<Object> listeners, int numberOfThreads) {
+    public static void setup(final ISyncMessageBus bus, final List<Object> listeners, int numberOfThreads) {
         Runnable[] setupUnits = new Runnable[numberOfThreads];
         int partitionSize;
         if(listeners.size() >= numberOfThreads){

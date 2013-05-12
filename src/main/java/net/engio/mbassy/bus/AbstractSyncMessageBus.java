@@ -2,13 +2,16 @@ package net.engio.mbassy.bus;
 
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
+
+import net.engio.mbassy.common.DeadMessage;
+
 import net.engio.mbassy.subscription.Subscription;
 import net.engio.mbassy.subscription.SubscriptionManager;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
 
 /**
  * The base class for all message bus implementations.
@@ -20,7 +23,7 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
 
 
     // this handler will receive all errors that occur during message dispatch or message handling
-    private final List<IPublicationErrorHandler> errorHandlers = new CopyOnWriteArrayList<IPublicationErrorHandler>();
+    private final List<IPublicationErrorHandler> errorHandlers = new ArrayList<IPublicationErrorHandler>();
 
     private final MessagePublication.Factory publicationFactory;
 
@@ -54,9 +57,22 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
 
 
     public final void addErrorHandler(IPublicationErrorHandler handler) {
-        errorHandlers.add(handler);
+        synchronized (this){
+            errorHandlers.add(handler);
+        }
     }
 
+
+    protected MessagePublication createMessagePublication(T message) {
+        Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
+        if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass().equals(DeadMessage.class)) {
+            // Dead Event
+            subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
+            return getPublicationFactory().createPublication(this, subscriptions, new DeadMessage(message));
+        } else {
+            return getPublicationFactory().createPublication(this, subscriptions, message);
+        }
+    }
 
     // obtain the set of subscriptions for the given message type
     // Note: never returns null!

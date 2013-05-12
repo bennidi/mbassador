@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author bennidi
  *         Date: 2/8/12
  */
-public class MessagePublicationTest extends MessageBusTest {
+public class AsynchronousMessageBusTest extends MessageBusTest {
 
     // this value probably needs to be adjusted depending on the performance of the underlying plattform
     // otherwise the tests will fail since asynchronous processing might not have finished when
@@ -61,59 +61,6 @@ public class MessagePublicationTest extends MessageBusTest {
 
     }
 
-    @Test
-    public void testSynchronousMessagePublication() throws Exception {
-
-        MBassador bus = getBus(new BusConfiguration());
-        ListenerFactory listenerFactory = new ListenerFactory()
-                .create(10000, EventingTestBean.class)
-                .create(10000, EventingTestBean2.class)
-                .create(10000, EventingTestBean3.class)
-                .create(10000, Object.class)
-                .create(10000, NonListeningBean.class);
-
-        List<Object> listeners = listenerFactory.build();
-
-        // this will subscribe the listeners concurrently to the bus
-        TestUtil.setup(bus, listeners, 10);
-
-        TestMessage message = new TestMessage();
-        TestMessage subMessage = new SubTestMessage();
-
-        bus.publish(message);
-        bus.publish(subMessage);
-
-        pause(processingTimeInMS);
-
-        assertEquals(30000, message.counter.get());
-        assertEquals(70000, subMessage.counter.get());
-
-    }
-
-    @Test
-    public void testStrongListenerSubscription() throws Exception {
-
-        MBassador bus = getBus(new BusConfiguration());
-
-
-        for(int i = 0; i< 10000; i++){
-            bus.subscribe(new EventingTestBean2());
-        }
-
-        runGC();
-
-        TestMessage message = new TestMessage();
-        TestMessage subMessage = new SubTestMessage();
-
-        bus.publish(message);
-        bus.publish(subMessage);
-
-        pause(processingTimeInMS);
-
-        assertEquals(10000, message.counter.get());
-        assertEquals(20000, subMessage.counter.get());
-
-    }
 
     @Test
     public void testConcurrentMixedMessagePublication() throws Exception {

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 /**
- * The base class for all message bus implementations.
+ * The base class for all async message bus implementations.
  *
  * @param <T>
  * @param <P>
