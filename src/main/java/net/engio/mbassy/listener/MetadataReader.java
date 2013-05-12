@@ -58,7 +58,8 @@ public class MetadataReader {
 
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
-    public List<MessageHandlerMetadata> getMessageHandlers(Class<?> target) {
+    public List<MessageHandlerMetadata> getMessageHandlers(Object listener) {
+        Class<?> target = listener.getClass();
         Listener listenerConfig = target.getAnnotation(Listener.class);
         // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
         List<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
@@ -89,8 +90,8 @@ public class MetadataReader {
     }
 
 
-    public <T> MessageListenerMetadata<T> getMessageListener(Class<T> target) {
-        return new MessageListenerMetadata(getMessageHandlers(target), target);
+    public <T> MessageListenerMetadata<T> getMessageListener(Object listener) {
+        return new MessageListenerMetadata(getMessageHandlers(listener), listener.getClass());
     }
 
 

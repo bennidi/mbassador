@@ -1,8 +1,8 @@
 package net.engio.mbassy.listeners;
 
 import net.engio.mbassy.dispatch.HandlerInvocation;
-import net.engio.mbassy.events.SubTestMessage;
-import net.engio.mbassy.events.TestMessage;
+import net.engio.mbassy.messages.SubTestMessage;
+import net.engio.mbassy.messages.TestMessage;
 import net.engio.mbassy.listener.*;
 import net.engio.mbassy.subscription.SubscriptionContext;
 

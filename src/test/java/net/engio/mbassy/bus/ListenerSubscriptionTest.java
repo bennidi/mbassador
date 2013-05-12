@@ -2,8 +2,8 @@ package net.engio.mbassy.bus;
 
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
-import net.engio.mbassy.events.SubTestMessage;
-import net.engio.mbassy.events.TestMessage;
+import net.engio.mbassy.messages.SubTestMessage;
+import net.engio.mbassy.messages.TestMessage;
 import net.engio.mbassy.listeners.EventingTestBean;
 import net.engio.mbassy.listeners.EventingTestBean2;
 import net.engio.mbassy.listeners.EventingTestBean3;

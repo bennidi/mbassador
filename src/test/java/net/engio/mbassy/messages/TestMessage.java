@@ -1,4 +1,4 @@
-package net.engio.mbassy.events;
+package net.engio.mbassy.messages;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

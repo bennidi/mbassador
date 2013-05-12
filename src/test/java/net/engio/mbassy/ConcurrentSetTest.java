@@ -6,10 +6,8 @@ import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.common.UnitTest;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * This test ensures the correct behaviour of the set implementation that is the building
@@ -218,13 +216,13 @@ public abstract class ConcurrentSetTest extends UnitTest {
     @Test
     public void testRemovalViaIterator() {
         final HashSet<Object> source = new HashSet<Object>();
-        final IConcurrentSet testSetWeak = createSet();
+        final IConcurrentSet setUnderTest = createSet();
 
         // build set of candidates and mark subset for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
             source.add(candidate);
-            testSetWeak.add(candidate);
+            setUnderTest.add(candidate);
         }
 
         // build test set by adding the candidates
@@ -232,7 +230,7 @@ public abstract class ConcurrentSetTest extends UnitTest {
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
             public void run() {
-                Iterator<Object> iterator = testSetWeak.iterator();
+                Iterator<Object> iterator = setUnderTest.iterator();
                 while(iterator.hasNext()){
                     iterator.remove();
                 }
@@ -242,11 +240,89 @@ public abstract class ConcurrentSetTest extends UnitTest {
 
         // ensure that the test set still contains all objects from the source set that have not been marked
         // for removal
-        assertEquals(0, testSetWeak.size());
+        assertEquals(0, setUnderTest.size());
         for(Object src : source){
-            assertFalse(testSetWeak.contains(src));
+            assertFalse(setUnderTest.contains(src));
         }
     }
 
+
+    /**
+     * In this test HashMap will cross capacity threshold multiple times in
+     * different directions which will trigger rehashing. Because rehashing
+     * requires modification of Entry class for all hash map entries some keys
+     * may temporarily disappear from the map.
+     * <p>
+     * For more information please take a look at transfer method in HashMap.
+     *
+     * Thanks to Ivan Koblik (http://koblik.blogspot.com) for contributing initial code and idea
+     */
+    @Test
+    public void testConcurrentAddRemove() {
+        final IConcurrentSet set = createSet();
+        final List permanentObjects = createWithRandomIntegers(80, null);
+        final List volatileObjects = createWithRandomIntegers(10000, permanentObjects);
+        final CopyOnWriteArraySet missing = new CopyOnWriteArraySet();
+        final int mutatorThreshold = 1000;
+
+        // Add elements that will not be touched by the constantly running mutating thread
+        final int numItems = 8;
+        for (Object permanent : permanentObjects) {
+            set.add(permanent);
+        }
+
+        // Adds and removes items >= numItems
+        // thus forcing constant rehashing of the backing hashtable
+        Runnable updatingThread = new Runnable() {
+            public void run() {
+                Random rand = new Random();
+                for(int times = 0; times < 1000 ; times++){
+                    System.out.println("New mutator cycle: " + times);
+                    HashSet elements = new HashSet(mutatorThreshold);
+
+                    for (int i = numItems; i < mutatorThreshold; i++) {
+                        Object volatileObject = volatileObjects.get(Math.abs(rand.nextInt()) % volatileObjects.size());
+                        set.add(volatileObject);
+                        elements.add(volatileObject);
+                    }
+                    for (Object volObj : elements) {
+                        set.remove(volObj);
+                    }
+                }
+            };
+        };
+
+        Runnable lookupThread = new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 10000; i++) {
+                    System.out.println("New lookup cycle: " + i);
+                    for (Object permanent : permanentObjects) {
+                        // permanent items are never touched,
+                        // --> set.contains(j) should always return true
+                        if(!set.contains(permanent))
+                            missing.add(permanent);
+                    }
+                }
+            }
+        };
+
+        ConcurrentExecutor.runConcurrent(updatingThread, lookupThread, lookupThread, lookupThread);
+        assertTrue("There where items temporarily unavailable: " + missing.size(), missing.size() == 0);
+
+    }
+
+
+    public List createWithRandomIntegers(int size, List<Integer> exluding){
+        if(exluding == null) exluding = new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<Integer>(size);
+        Random rand = new Random();
+        for(int i = 0; i < size;i++){
+            result.add(rand.nextInt());
+        }
+        for(Integer excluded : exluding)
+            result.remove(excluded);
+        return result;
+    }
 
 }

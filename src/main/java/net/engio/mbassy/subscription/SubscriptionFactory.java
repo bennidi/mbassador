@@ -1,25 +1,31 @@
 package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.MessageBusException;
+import net.engio.mbassy.bus.ISyncMessageBus;
 import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.common.WeakConcurrentSet;
 import net.engio.mbassy.dispatch.*;
+import net.engio.mbassy.listener.MessageHandlerMetadata;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
 /**
- * Created with IntelliJ IDEA.
- *
- * @author bennidi
- *         Date: 11/16/12
- *         Time: 10:39 AM
- *         To change this template use File | Settings | File Templates.
+ * The subscription factory is used to create an empty subscription for specific message handler.
+ * The message handler's configuration is evaluated and a corresponding subscription is built.
  */
 public class SubscriptionFactory {
 
-    public Subscription createSubscription(SubscriptionContext context) throws MessageBusException{
+    private ISyncMessageBus bus;
+
+    public SubscriptionFactory setBus(ISyncMessageBus bus) {
+        this.bus = bus;
+        return this;
+    }
+
+    public Subscription createSubscription(MessageHandlerMetadata handlerMetadata) throws MessageBusException{
         try {
+            SubscriptionContext context = new SubscriptionContext(bus, handlerMetadata);
             IHandlerInvocation invocation = buildInvocationForHandler(context);
             IMessageDispatcher dispatcher = buildDispatcher(context, invocation);
             return new Subscription(context, dispatcher, context.getHandlerMetadata().useStrongReferences()

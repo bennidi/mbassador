@@ -2,6 +2,8 @@ package net.engio.mbassy.common;
 
 
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This data structure is optimized for non-blocking reads even when write operations occur.
@@ -15,7 +17,7 @@ import java.util.Map;
 public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
 
     // Internal state
-    private final Object lock = new Object();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final Map<T, ISetEntry<T>> entries; // maintain a map of entries for O(log n) lookup
     protected Entry<T> head; // reference to the first element
 
@@ -27,27 +29,38 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
 
     @Override
     public IConcurrentSet<T> add(T element) {
+        if (element == null) return this;
+        Lock writeLock = lock.writeLock();
+        writeLock.lock();
         if (element == null || entries.containsKey(element)) {
+            writeLock.unlock();
             return this;
-        }
-        synchronized (lock) {
+        } else {
             insert(element);
+            writeLock.unlock();
         }
         return this;
     }
 
     @Override
     public boolean contains(T element) {
-        ISetEntry<T> entry = entries.get(element);
+        Lock readLock = lock.readLock();
+        ISetEntry<T> entry;
+        try {
+            readLock.lock();
+            entry = entries.get(element);
+
+        } finally {
+            readLock.unlock();
+        }
         return entry != null && entry.getValue() != null;
     }
 
     private void insert(T element) {
-        if (entries.containsKey(element)) {
-            return;
+        if (!entries.containsKey(element)) {
+            head = createEntry(element, head);
+            entries.put(element, head);
         }
-        head = createEntry(element, head);
-        entries.put(element, head);
     }
 
     @Override
@@ -57,38 +70,45 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
 
     @Override
     public IConcurrentSet<T> addAll(Iterable<T> elements) {
-        synchronized (lock) {
+        Lock writeLock = lock.writeLock();
+        try {
+            writeLock.lock();
             for (T element : elements) {
-                if (element == null || entries.containsKey(element)) {
-                    return this;
+                if (element != null) {
+                    insert(element);
                 }
-
-                insert(element);
             }
+        } finally {
+            writeLock.unlock();
         }
         return this;
     }
 
     @Override
     public boolean remove(T element) {
-        if (!entries.containsKey(element)) {
+        if (!contains(element)) {
             return false;
-        }
-        synchronized (lock) {
-            ISetEntry<T> listelement = entries.get(element);
-            if (listelement == null) {
-                return false; //removed by other thread
+        } else {
+            Lock writeLock = lock.writeLock();
+            try {
+                writeLock.lock();
+                ISetEntry<T> listelement = entries.get(element);
+                if (listelement == null) {
+                    return false; //removed by other thread
+                }
+                if (listelement != head) {
+                    listelement.remove();
+                } else {
+                    ISetEntry<T> oldHead = head;
+                    head = head.next();
+                    oldHead.clear(); // optimize for GC
+                }
+                entries.remove(element);
+            } finally {
+                writeLock.unlock();
             }
-            if (listelement != head) {
-                listelement.remove();
-            } else {
-                ISetEntry<T> oldHead = head;
-                head = head.next();
-                oldHead.clear(); // optimize for GC
-            }
-            entries.remove(element);
+            return true;
         }
-        return true;
     }
 
 

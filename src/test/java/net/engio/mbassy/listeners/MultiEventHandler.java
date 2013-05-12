@@ -1,7 +1,7 @@
 package net.engio.mbassy.listeners;
 
-import net.engio.mbassy.events.TestMessage;
-import net.engio.mbassy.events.TestMessage2;
+import net.engio.mbassy.messages.TestMessage;
+import net.engio.mbassy.messages.TestMessage2;
 import net.engio.mbassy.listener.*;
 import net.engio.mbassy.listener.Invoke;
 import net.engio.mbassy.subscription.MessageEnvelope;

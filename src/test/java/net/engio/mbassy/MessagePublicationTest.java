@@ -5,9 +5,9 @@ import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
-import net.engio.mbassy.events.SubTestMessage;
-import net.engio.mbassy.events.TestMessage;
-import net.engio.mbassy.events.TestMessage2;
+import net.engio.mbassy.messages.SubTestMessage;
+import net.engio.mbassy.messages.TestMessage;
+import net.engio.mbassy.messages.TestMessage2;
 import net.engio.mbassy.listeners.*;
 import org.junit.Test;
 

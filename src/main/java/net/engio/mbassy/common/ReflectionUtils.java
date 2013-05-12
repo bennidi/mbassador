@@ -62,11 +62,19 @@ public class ReflectionUtils {
 
     public static Collection<Class> getSuperclasses(Class from) {
         Collection<Class> superclasses = new LinkedList<Class>();
-        while (!from.equals(Object.class)) {
+        while (!from.equals(Object.class) && !from.isInterface()) {
             superclasses.add(from.getSuperclass());
             from = from.getSuperclass();
         }
+        collectInterfaces(from, superclasses);
         return superclasses;
+    }
+
+    public static void collectInterfaces(Class from, Collection<Class> accumulator){
+        for(Class intface : from.getInterfaces()){
+            accumulator.add(intface);
+            collectInterfaces(intface, accumulator);
+        }
     }
 
     public static boolean containsOverridingMethod(final List<Method> allMethods, final Method methodToCheck) {

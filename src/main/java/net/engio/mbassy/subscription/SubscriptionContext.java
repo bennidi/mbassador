@@ -7,7 +7,7 @@ import net.engio.mbassy.listener.MessageHandlerMetadata;
  * The subscription context holds all (meta)data/objects that are relevant to successfully publish
  * a message within a subscription. A one-to-one relation between a subscription and
  * subscription context holds -> a subscription context is created for each distinct subscription
- * that lives inside a message bus.
+ * managed by the subscription manager.
  *
  * @author bennidi
  *         Date: 11/23/12

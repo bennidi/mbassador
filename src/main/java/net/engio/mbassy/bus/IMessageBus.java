@@ -55,7 +55,7 @@ public interface IMessageBus<T, P extends IMessageBus.IPostCommand> extends ISyn
     Executor getExecutor();
 
     /**
-     * Check whether any asynchronous message publications are pending for being processed
+     * Check whether any asynchronous message publications are pending to be processed
      *
      * @return
      */
