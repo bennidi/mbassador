@@ -62,8 +62,6 @@ public class ReflectionUtils {
 
     public static Collection<Class> getSuperclasses(Class from) {
         Collection<Class> superclasses = new LinkedList<Class>();
-        // collectInterfaces needs to come first otherwise you call it on class "Object"
-        collectInterfaces(from, superclasses);
         while (!from.equals(Object.class) && !from.isInterface()) {
             superclasses.add(from.getSuperclass());
             collectInterfaces(from, superclasses);
