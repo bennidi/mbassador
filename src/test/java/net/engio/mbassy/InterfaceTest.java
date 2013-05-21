@@ -71,5 +71,5 @@ public class InterfaceTest {
 		Assert.fail("This class should handle this message appropriately!");
 	}
 	
-	public static class CloneMessage extends TestMessage3 implements Cloneable { }
+	public static class CloneMessage extends TestMessage3 implements Cloneable, ITestMessage { }
 }
