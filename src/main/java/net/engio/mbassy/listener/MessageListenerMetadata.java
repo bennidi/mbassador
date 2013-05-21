@@ -28,18 +28,18 @@ public class MessageListenerMetadata<T> {
 
     private List<MessageHandlerMetadata> handlers = new ArrayList<MessageHandlerMetadata>();
 
-    private Class<T> listenerDefinition;
+    private Class<T> listenerClass;
 
     private Listener listenerAnnotation;
 
-    public MessageListenerMetadata(Class<T> listenerDefinition) {
-        this.listenerDefinition = listenerDefinition;
-        Listener listenerAnnotation = listenerDefinition.getAnnotation(Listener.class);
+    public MessageListenerMetadata(Class<T> listenerClass) {
+        this.listenerClass = listenerClass;
+        this.listenerAnnotation = listenerClass.getAnnotation(Listener.class);
     }
 
 
     public boolean isFromListener(Object listener){
-        return listenerDefinition.equals(listener.getClass());
+        return listenerClass.equals(listener.getClass());
     }
 
     public boolean useStrongReferences(){
@@ -74,6 +74,6 @@ public class MessageListenerMetadata<T> {
     }
 
     public Class<T> getListerDefinition() {
-        return listenerDefinition;
+        return listenerClass;
     }
 }

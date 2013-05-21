@@ -6,6 +6,7 @@ import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.messages.ITestMessage;
 import net.engio.mbassy.messages.TestMessage;
+import net.engio.mbassy.messages.TestMessage3;
 import net.engio.mbassy.subscription.Subscription;
 import net.engio.mbassy.subscription.SubscriptionFactory;
 import net.engio.mbassy.subscription.SubscriptionManager;
@@ -15,7 +16,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Todo: Add javadoc
@@ -54,22 +54,33 @@ public class SubscriptionManagerTest extends UnitTest{
         assertEquals(2, subscriptions.size());
 
         for(Subscription sub : subscriptions){
-            assertEquals(numberOfListeners, sub.size());
+            assertEquals(numberOfListeners / 2, sub.size());
             for(Object listener : listeners){
-
                 if(sub.isFromListener(listener))assertTrue(sub.contains(listener));
             }
         }
 
         subscriptions = subMan.getSubscriptionsByMessageType(ITestMessage.class);
-        assertEquals(2, subscriptions.size());
+        assertEquals(2 , subscriptions.size());
         for(Subscription sub : subscriptions){
-            assertEquals(numberOfListeners, sub.size());
+            assertEquals(numberOfListeners / 2, sub.size());
+            for(Object listener : listeners){
+                if(sub.isFromListener(listener))assertTrue(sub.contains(listener));
+            }
+        }
+
+        subscriptions = subMan.getSubscriptionsByMessageType(TestMessage3.class);
+        assertEquals(4 , subscriptions.size());
+        for(Subscription sub : subscriptions){
+            assertEquals(numberOfListeners / 2, sub.size());
             for(Object listener : listeners){
                 if(sub.isFromListener(listener))assertTrue(sub.contains(listener));
             }
         }
     }
+
+
+
 
 
     static class SimpleSynchronousMessageHandler{
@@ -80,6 +91,10 @@ public class SubscriptionManagerTest extends UnitTest{
 
         @Handler
         public void handle(ITestMessage message) {
+        }
+
+        @Handler
+        public void handle(TestMessage3 message) {
         }
     }
 
@@ -92,6 +107,10 @@ public class SubscriptionManagerTest extends UnitTest{
 
         @Handler
         public void handle(ITestMessage message) {
+        }
+
+        @Handler
+        public void handle(TestMessage3 message) {
         }
     }
 }

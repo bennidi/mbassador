@@ -1,14 +1,18 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.bus.*;
+import net.engio.mbassy.common.DeadMessage;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
 import net.engio.mbassy.dispatch.HandlerInvocation;
+import net.engio.mbassy.messages.ITestMessage;
 import net.engio.mbassy.messages.SubTestMessage;
 import net.engio.mbassy.messages.TestMessage;
 import net.engio.mbassy.listener.*;
 import net.engio.mbassy.listeners.*;
+import net.engio.mbassy.messages.TestMessage3;
 import net.engio.mbassy.subscription.SubscriptionContext;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
@@ -61,7 +65,6 @@ public abstract class SyncBusTest extends MessageBusTest {
 
         ISyncMessageBus bus = getSyncMessageBus();
 
-
         for(int i = 0; i< 10000; i++){
             bus.subscribe(new MessageListener2());
         }
@@ -82,6 +85,30 @@ public abstract class SyncBusTest extends MessageBusTest {
     }
 
     protected abstract ISyncMessageBus getSyncMessageBus();
+
+
+
+    @Test
+    public void testHandlerUsingInterface() {
+        MBassador<ITestMessage> bus = new MBassador<ITestMessage>(BusConfiguration.Default());
+        bus.subscribe(new InterfaceMessageListener());
+        bus.publish(new TestMessage3());
+    }
+
+    @Listener(references = References.Strong)
+    static class InterfaceMessageListener{
+
+    @Handler
+    public void handleFoo(ITestMessage f) {
+        Assert.assertTrue(f instanceof TestMessage3);
+    }
+
+    @Handler
+    public void handleDead(DeadMessage d) {
+        Assert.fail("This class should handle this message appropriately!");
+    }
+
+    }
 
 
     public static class MessageListener1 {
