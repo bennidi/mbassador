@@ -64,9 +64,9 @@ public class ReflectionUtils {
         Collection<Class> superclasses = new LinkedList<Class>();
         while (!from.equals(Object.class) && !from.isInterface()) {
             superclasses.add(from.getSuperclass());
+            collectInterfaces(from, superclasses);
             from = from.getSuperclass();
         }
-        collectInterfaces(from, superclasses);
         return superclasses;
     }
 

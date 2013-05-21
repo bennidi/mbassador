@@ -27,7 +27,7 @@ public class MetadataReaderTest extends UnitTest {
 
     @Test
     public void testListenerWithoutInheritance() {
-        MessageListenerMetadata<MessageListener1> listener = reader.getMessageListener(new MessageListener1());
+        MessageListenerMetadata<MessageListener1> listener = reader.getMessageListener(MessageListener1.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(2, String.class)
                 .expectHandlers(2, Object.class)
@@ -38,7 +38,7 @@ public class MetadataReaderTest extends UnitTest {
 
     @Test
     public void testListenerWithInheritance() {
-        MessageListenerMetadata<MessageListener2> listener = reader.getMessageListener(new MessageListener2());
+        MessageListenerMetadata<MessageListener2> listener = reader.getMessageListener(MessageListener2.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(2, String.class)
                 .expectHandlers(2, Object.class)
@@ -48,7 +48,7 @@ public class MetadataReaderTest extends UnitTest {
 
     @Test
     public void testListenerWithInheritanceOverriding() {
-        MessageListenerMetadata<MessageListener3> listener = reader.getMessageListener(new MessageListener3());
+        MessageListenerMetadata<MessageListener3> listener = reader.getMessageListener(MessageListener3.class);
 
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(0, String.class)
@@ -59,7 +59,7 @@ public class MetadataReaderTest extends UnitTest {
 
     @Test
     public void testEnveloped() {
-        MessageListenerMetadata<EnvelopedListener> listener = reader.getMessageListener(new EnvelopedListener());
+        MessageListenerMetadata<EnvelopedListener> listener = reader.getMessageListener(EnvelopedListener.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(1, String.class)
                 .expectHandlers(2, Integer.class)
@@ -72,7 +72,7 @@ public class MetadataReaderTest extends UnitTest {
 
     @Test
     public void testEnvelopedSubclass() {
-        MessageListenerMetadata<EnvelopedListenerSubclass> listener = reader.getMessageListener(new EnvelopedListenerSubclass());
+        MessageListenerMetadata<EnvelopedListenerSubclass> listener = reader.getMessageListener(EnvelopedListenerSubclass.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(1, String.class)
                 .expectHandlers(2, Integer.class)

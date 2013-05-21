@@ -45,7 +45,6 @@ public class MetadataReader {
                 } catch (Exception e) {
                     throw new RuntimeException(e);// propagate as runtime exception
                 }
-
             }
             filters[i] = filter;
             i++;
@@ -54,13 +53,10 @@ public class MetadataReader {
     }
 
 
-
-
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
-    public List<MessageHandlerMetadata> getMessageHandlers(Object listener) {
-        Class<?> target = listener.getClass();
-        Listener listenerConfig = target.getAnnotation(Listener.class);
+    public MessageListenerMetadata getMessageListener(Class target) {
+        MessageListenerMetadata listenerMetadata = new MessageListenerMetadata(target);
         // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
         List<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
         // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
@@ -71,7 +67,6 @@ public class MetadataReader {
             }
         }
 
-        List<MessageHandlerMetadata> filteredHandlers = new LinkedList<MessageHandlerMetadata>();
         // for each handler there will be no overriding method that specifies @Handler annotation
         // but an overriding method does inherit the listener configuration of the overwritten method
         for (Method handler : bottomMostHandlers) {
@@ -82,17 +77,14 @@ public class MetadataReader {
             Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
             // if a handler is overwritten it inherits the configuration of its parent method
             MessageHandlerMetadata handlerMetadata = new MessageHandlerMetadata(overriddenHandler == null ? handler : overriddenHandler,
-                    getFilter(handlerConfig), handlerConfig, listenerConfig);
-            filteredHandlers.add(handlerMetadata);
+                    getFilter(handlerConfig), handlerConfig, listenerMetadata);
+            listenerMetadata.addHandler(handlerMetadata);
 
         }
-        return filteredHandlers;
+        return listenerMetadata;
     }
 
 
-    public <T> MessageListenerMetadata<T> getMessageListener(Object listener) {
-        return new MessageListenerMetadata(getMessageHandlers(listener), listener.getClass());
-    }
 
 
     private boolean isValidMessageHandler(Method handler) {

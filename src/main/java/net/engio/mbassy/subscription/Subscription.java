@@ -27,6 +27,10 @@ public class Subscription {
         this.listeners = listeners;
     }
 
+    public boolean isFromListener(Object listener){
+        return context.getHandlerMetadata().isFromListener(listener);
+    }
+
     public boolean contains(Object listener){
         return listeners.contains(listener);
     }
