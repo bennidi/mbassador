@@ -37,7 +37,7 @@ public class MessagePublication {
 
     private ISyncMessageBus bus;
 
-    public MessagePublication(ISyncMessageBus bus, Collection<Subscription> subscriptions, Object message, State initialState) {
+    protected MessagePublication(ISyncMessageBus bus, Collection<Subscription> subscriptions, Object message, State initialState) {
         this.bus = bus;
         this.subscriptions = subscriptions;
         this.message = message;

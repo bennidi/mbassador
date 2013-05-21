@@ -26,12 +26,14 @@ public class MessageHandlerMetadata {
 
     private final boolean acceptsSubtypes;
 
-    private final Listener listenerConfig;
+    private final MessageListenerMetadata listenerConfig;
 
     private final boolean isSynchronized;
 
+    private Class listeningClass;
 
-    public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Handler handlerConfig, Listener listenerConfig) {
+
+    public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Handler handlerConfig, MessageListenerMetadata listenerConfig) {
         if(handler == null || handlerConfig == null){
             throw new IllegalArgumentException("The message handler configuration may not be null");
         }
@@ -58,7 +60,11 @@ public class MessageHandlerMetadata {
     }
 
     public boolean useStrongReferences(){
-        return listenerConfig != null && listenerConfig.references().equals(References.Strong);
+        return listenerConfig.useStrongReferences();
+    }
+
+    public boolean isFromListener(Object listener){
+        return listenerConfig.isFromListener(listener);
     }
 
     public boolean isAsynchronous() {

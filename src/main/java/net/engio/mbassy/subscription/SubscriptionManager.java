@@ -82,7 +82,7 @@ public class SubscriptionManager {
             Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
             // a listener is either subscribed for the first time
             if (subscriptionsByListener == null) {
-                List<MessageHandlerMetadata> messageHandlers = metadataReader.getMessageHandlers(listener);
+                List<MessageHandlerMetadata> messageHandlers = metadataReader.getMessageListener(listener.getClass()).getHandlers();
                 if (messageHandlers.isEmpty()) {  // remember the class as non listening class if no handlers are found
                     nonListeners.add(listener.getClass());
                     return;

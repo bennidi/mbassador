@@ -22,7 +22,8 @@ import org.junit.runners.Suite;
         ListenerSubscriptionTest.class,
         MethodDispatchTest.class,
         DeadEventTest.class,
-        SynchronizedHandlerTest.class
+        SynchronizedHandlerTest.class,
+        SubscriptionManagerTest.class
 })
 public class AllTests {
 }
