@@ -2,6 +2,7 @@ package net.engio.mbassy.common;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -61,9 +62,7 @@ public class ReflectionUtils {
     }
 
     public static Collection<Class> getSuperclasses(Class from) {
-        Collection<Class> superclasses = new LinkedList<Class>();
-        // collectInterfaces needs to come first otherwise you call it on class "Object"
-        collectInterfaces(from, superclasses);
+        Collection<Class> superclasses = new HashSet<Class>();
         while (!from.equals(Object.class) && !from.isInterface()) {
             superclasses.add(from.getSuperclass());
             collectInterfaces(from, superclasses);
