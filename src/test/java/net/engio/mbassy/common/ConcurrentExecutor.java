@@ -51,17 +51,6 @@ public class ConcurrentExecutor {
 			// unlikely that this will happen
 			e.printStackTrace();
 		}
-
-		// print results
-		for (Future<Long> result : returnValues)
-			try {
-				System.out.println("Execution of unit of work to " + result.get() + "ms.");
-			} catch (Exception e) {
-				//should never happen
-				// since the code waits until all tasks are processed
-				e.printStackTrace();
-			}
-
 	}
 
 

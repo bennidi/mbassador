@@ -33,8 +33,8 @@ public class MessageListenerMetadata<T> {
     private Listener listenerAnnotation;
 
     public MessageListenerMetadata(Class<T> listenerDefinition) {
-        this.listenerDefinition = listenerDefinition;
-        Listener listenerAnnotation = listenerDefinition.getAnnotation(Listener.class);
+       this.listenerDefinition = listenerDefinition;
+       listenerAnnotation = listenerDefinition.getAnnotation(Listener.class);
     }
 
 

@@ -28,7 +28,7 @@ public class SubscriptionFactory {
             SubscriptionContext context = new SubscriptionContext(bus, handlerMetadata);
             IHandlerInvocation invocation = buildInvocationForHandler(context);
             IMessageDispatcher dispatcher = buildDispatcher(context, invocation);
-            return new Subscription(context, dispatcher, context.getHandlerMetadata().useStrongReferences()
+            return new Subscription(context, dispatcher, handlerMetadata.useStrongReferences()
                 ? new StrongConcurrentSet<Object>()
                 : new WeakConcurrentSet<Object>());
         } catch (Exception e) {

@@ -65,37 +65,9 @@ public abstract class ConcurrentSetTest extends UnitTest {
         }
     }
 
-    @Test
-    public void testPerformance() {
-        final HashSet<Object> source = new HashSet<Object>();
-
-        final HashSet<Object> hashSet = new HashSet<Object>();
-
-        final IConcurrentSet weakConcurrentSet = createSet();
-
-        for (int i = 0; i < 1000000; i++) {
-            source.add(new Object());
-        }
-
-
-        long start = System.currentTimeMillis();
-        for (Object o : source) {
-            hashSet.add(o);
-        }
-        long duration = System.currentTimeMillis() - start;
-        System.out.println("Performance of HashSet for 1.000.000 object insertions " + duration);
-
-        start = System.currentTimeMillis();
-        for (Object o : source) {
-            weakConcurrentSet.add(o);
-        }
-        duration = System.currentTimeMillis() - start;
-        System.out.println("Performance of ConcurrentSet for 1.000.000 object insertions " + duration);
-    }
-
 
     @Test
-    public void testRemove2() {
+    public void testRandomRemoval() {
         final HashSet<Object> source = new HashSet<Object>();
         final HashSet<Object> toRemove = new HashSet<Object>();
 
@@ -142,7 +114,7 @@ public abstract class ConcurrentSetTest extends UnitTest {
     }
 
     @Test
-    public void testRemoval() {
+    public void testRemovalOfHead() {
         final HashSet<Object> source = new HashSet<Object>();
         final HashSet<Object> toRemove = new HashSet<Object>();
 
@@ -259,34 +231,36 @@ public abstract class ConcurrentSetTest extends UnitTest {
      */
     @Test
     public void testConcurrentAddRemove() {
-        final IConcurrentSet set = createSet();
-        final List permanentObjects = createWithRandomIntegers(80, null);
-        final List volatileObjects = createWithRandomIntegers(10000, permanentObjects);
+        final IConcurrentSet testSet = createSet();
+        // a set of unique integers that will stay permanently in the test set
+        final List permanentObjects = new ArrayList();
+        // a set of objects that will be added and removed at random to the test set to force rehashing
+        final List volatileObjects = new ArrayList();
+        permanentObjects.addAll(createWithRandomIntegers(80, null));
+        volatileObjects.addAll(createWithRandomIntegers(10000, permanentObjects));
         final CopyOnWriteArraySet missing = new CopyOnWriteArraySet();
         final int mutatorThreshold = 1000;
 
         // Add elements that will not be touched by the constantly running mutating thread
-        final int numItems = 8;
         for (Object permanent : permanentObjects) {
-            set.add(permanent);
+            testSet.add(permanent);
         }
 
-        // Adds and removes items >= numItems
+        // Adds and removes items
         // thus forcing constant rehashing of the backing hashtable
         Runnable updatingThread = new Runnable() {
             public void run() {
                 Random rand = new Random();
                 for(int times = 0; times < 1000 ; times++){
-                    System.out.println("New mutator cycle: " + times);
                     HashSet elements = new HashSet(mutatorThreshold);
 
-                    for (int i = numItems; i < mutatorThreshold; i++) {
+                    for (int i = 0; i < mutatorThreshold; i++) {
                         Object volatileObject = volatileObjects.get(Math.abs(rand.nextInt()) % volatileObjects.size());
-                        set.add(volatileObject);
+                        testSet.add(volatileObject);
                         elements.add(volatileObject);
                     }
                     for (Object volObj : elements) {
-                        set.remove(volObj);
+                        testSet.remove(volObj);
                     }
                 }
             };
@@ -296,11 +270,10 @@ public abstract class ConcurrentSetTest extends UnitTest {
             @Override
             public void run() {
                 for (int i = 0; i < 10000; i++) {
-                    System.out.println("New lookup cycle: " + i);
                     for (Object permanent : permanentObjects) {
                         // permanent items are never touched,
                         // --> set.contains(j) should always return true
-                        if(!set.contains(permanent))
+                        if(!testSet.contains(permanent))
                             missing.add(permanent);
                     }
                 }
@@ -313,14 +286,14 @@ public abstract class ConcurrentSetTest extends UnitTest {
     }
 
 
-    public List createWithRandomIntegers(int size, List<Integer> exluding){
-        if(exluding == null) exluding = new ArrayList<Integer>();
-        List<Integer> result = new ArrayList<Integer>(size);
+    public Set createWithRandomIntegers(int size, List<Integer> excluding){
+        if(excluding == null) excluding = new ArrayList<Integer>();
+        Set<Integer> result = new HashSet<Integer>(size);
         Random rand = new Random();
-        for(int i = 0; i < size;i++){
+        while(result.size() < size){
             result.add(rand.nextInt());
         }
-        for(Integer excluded : exluding)
+        for(Integer excluded : excluding)
             result.remove(excluded);
         return result;
     }
