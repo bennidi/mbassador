@@ -13,7 +13,6 @@ import net.engio.mbassy.subscription.SubscriptionManager;
 import org.junit.Test;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Todo: Add javadoc
@@ -30,7 +29,7 @@ public class SubscriptionManagerTest extends UnitTest{
         final Set listeners = Collections.synchronizedSet(new HashSet());
         final int concurrentUnits = 5;
         final int numberOfLoops = 100;
-        final int numberOfListeners =  numberOfLoops * concurrentUnits * 2;
+        final int numberOfListeners =  numberOfLoops * concurrentUnits;
 
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
@@ -48,26 +47,14 @@ public class SubscriptionManagerTest extends UnitTest{
             }
         }, concurrentUnits);
 
+        SubscriptionValidator validator = new SubscriptionValidator();
+        validator.expect(numberOfListeners, SimpleSynchronousMessageHandler.class, ITestMessage.class);
+        validator.expect(numberOfListeners, SimpleSynchronousMessageHandler2.class, ITestMessage.class);
+        validator.expect(numberOfListeners, SimpleSynchronousMessageHandler.class, TestMessage.class);
+        validator.expect(numberOfListeners, SimpleSynchronousMessageHandler2.class, TestMessage.class);
 
-        Collection<Subscription> subscriptions = subMan.getSubscriptionsByMessageType(TestMessage.class);
-        assertEquals(2, subscriptions.size());
+        validator.validate(subMan);
 
-        for(Subscription sub : subscriptions){
-            assertEquals(numberOfListeners, sub.size());
-            for(Object listener : listeners){
-
-                if(sub.isFromListener(listener))assertTrue(sub.contains(listener));
-            }
-        }
-
-        subscriptions = subMan.getSubscriptionsByMessageType(ITestMessage.class);
-        assertEquals(2, subscriptions.size());
-        for(Subscription sub : subscriptions){
-            assertEquals(numberOfListeners, sub.size());
-            for(Object listener : listeners){
-                if(sub.isFromListener(listener))assertTrue(sub.contains(listener));
-            }
-        }
     }
 
 
@@ -93,13 +80,17 @@ public class SubscriptionManagerTest extends UnitTest{
                 assertEquals(subscriptions.size(), validationEntries.size());
                 for(Entry validationEntry : validationEntries){
                     Subscription matchingSub = null;
+                    // one of the subscriptions must belong to the subscriber type
                     for(Subscription sub : subscriptions){
-                        if(sub.isFromListener(validationEntry.subscriber));
+                        if(sub.belongsTo(validationEntry.subscriber)){
+                            matchingSub = sub;
+                            break;
+                        }
                     }
+                    assertNotNull(matchingSub);
+                    assertEquals(validationEntry.numberOfSubscribers, matchingSub.size());
                 }
             }
-
-
         }
 
 
