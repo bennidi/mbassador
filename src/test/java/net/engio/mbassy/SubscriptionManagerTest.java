@@ -1,6 +1,7 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.common.ConcurrentExecutor;
+import net.engio.mbassy.common.IPredicate;
 import net.engio.mbassy.common.UnitTest;
 import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.MetadataReader;
@@ -11,10 +12,7 @@ import net.engio.mbassy.subscription.SubscriptionFactory;
 import net.engio.mbassy.subscription.SubscriptionManager;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -24,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *         Date: 5/12/13
  */
 public class SubscriptionManagerTest extends UnitTest{
+
 
     @Test
     public void testSimpleSynchronousHandler(){
@@ -69,6 +68,86 @@ public class SubscriptionManagerTest extends UnitTest{
                 if(sub.isFromListener(listener))assertTrue(sub.contains(listener));
             }
         }
+    }
+
+
+    class SubscriptionValidator{
+
+
+        private List<Entry> validations = new LinkedList<Entry>();
+        private Set<Class> messageTypes = new HashSet<Class>();
+        private Set<Class> subsribers = new HashSet<Class>();
+
+
+        public SubscriptionValidator expect(int numberOfSubscriber, Class subscriber, Class messageType){
+            validations.add(new Entry(messageType, numberOfSubscriber, subscriber));
+            messageTypes.add(messageType);
+            subsribers.add(subscriber);
+            return this;
+        }
+
+        public void validate(SubscriptionManager manager){
+            for(Class messageType : messageTypes){
+                Collection<Subscription> subscriptions = manager.getSubscriptionsByMessageType(messageType);
+                Collection<Entry> validationEntries = getEntries(EntriesByMessageType(messageType));
+                assertEquals(subscriptions.size(), validationEntries.size());
+                for(Entry validationEntry : validationEntries){
+                    Subscription matchingSub = null;
+                    for(Subscription sub : subscriptions){
+                        if(sub.isFromListener(validationEntry.subscriber));
+                    }
+                }
+            }
+
+
+        }
+
+
+        private Collection<Entry> getEntries(IPredicate<Entry> filter){
+            Collection<Entry> matching = new LinkedList<Entry>();
+            for (Entry validationEntry : validations){
+                if(filter.apply(validationEntry))matching.add(validationEntry);
+            }
+            return matching;
+        }
+
+        private IPredicate<Entry> EntriesByMessageType(final Class messageType){
+            return new IPredicate<Entry>() {
+                @Override
+                public boolean apply(Entry target) {
+                    return target.messageType.equals(messageType);
+                }
+            };
+        }
+
+        private IPredicate<Entry> EntriesBySubscriberType(final Class subscriberType){
+            return new IPredicate<Entry>() {
+                @Override
+                public boolean apply(Entry target) {
+                    return target.subscriber.equals(subscriberType);
+                }
+            };
+        }
+
+
+
+        private class Entry{
+
+            private int numberOfSubscribers;
+
+            private Class subscriber;
+
+            private Class messageType;
+
+            private Entry(Class messageType, int numberOfSubscribers, Class subscriber) {
+                this.messageType = messageType;
+                this.numberOfSubscribers = numberOfSubscribers;
+                this.subscriber = subscriber;
+            }
+
+
+        }
+
     }
 
 

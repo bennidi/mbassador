@@ -1,9 +1,7 @@
 package net.engio.mbassy.common;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author bennidi
@@ -50,27 +48,18 @@ public class ReflectionUtils {
         return null;
     }
 
-    public static List<Method> withoutOverridenSuperclassMethods(final List<Method> allMethods) {
-        List<Method> filtered = new LinkedList<Method>();
-        for (Method method : allMethods) {
-            if (!containsOverridingMethod(allMethods, method)) {
-                filtered.add(method);
-            }
-        }
-        return filtered;
-    }
-
-    public static Collection<Class> getSuperclasses(Class from) {
-        Collection<Class> superclasses = new LinkedList<Class>();
+    public static Set<Class> getSuperclasses(Class from) {
+        Set<Class> superclasses = new HashSet<Class>();
+        collectInterfaces(from, superclasses);
         while (!from.equals(Object.class) && !from.isInterface()) {
             superclasses.add(from.getSuperclass());
-            collectInterfaces(from, superclasses);
+
             from = from.getSuperclass();
         }
         return superclasses;
     }
 
-    public static void collectInterfaces(Class from, Collection<Class> accumulator){
+    public static void collectInterfaces(Class from, Set<Class> accumulator){
         for(Class intface : from.getInterfaces()){
             accumulator.add(intface);
             collectInterfaces(intface, accumulator);

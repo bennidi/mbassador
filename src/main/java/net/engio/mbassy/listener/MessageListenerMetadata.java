@@ -38,8 +38,8 @@ public class MessageListenerMetadata<T> {
     }
 
 
-    public boolean isFromListener(Object listener){
-        return listenerDefinition.equals(listener.getClass());
+    public boolean isFromListener(Class listener){
+        return listenerDefinition.equals(listener);
     }
 
     public boolean useStrongReferences(){

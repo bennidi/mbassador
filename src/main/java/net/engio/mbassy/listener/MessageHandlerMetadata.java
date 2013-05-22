@@ -63,7 +63,7 @@ public class MessageHandlerMetadata {
         return listenerConfig.useStrongReferences();
     }
 
-    public boolean isFromListener(Object listener){
+    public boolean isFromListener(Class listener){
         return listenerConfig.isFromListener(listener);
     }
 
