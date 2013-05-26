@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.engio</groupId>
     <artifactId>mbassador</artifactId>
-    <version>1.1.7-SNAPSHOT</version>
+    <version>1.1.7</version>
     <packaging>bundle</packaging>
     <name>mbassador</name>
     <description>
@@ -35,7 +35,7 @@
     <scm>
         <url>git@github.com:bennidi/mbassador.git</url>
         <connection>scm:git:git@github.com:bennidi/mbassador.git</connection>
-        <tag>mbassador-1.1.4</tag>
+        <tag>mbassador-1.1.7</tag>
         <developerConnection>scm:git:git@github.com:bennidi/mbassador.git</developerConnection>
   </scm>
     <developers>
