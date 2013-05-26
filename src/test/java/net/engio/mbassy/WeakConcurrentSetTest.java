@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 /**
- * Todo: Add javadoc
+ *
  *
  * @author bennidi
  *         Date: 3/29/13
@@ -21,12 +21,11 @@ public class WeakConcurrentSetTest extends ConcurrentSetTest{
         return new WeakConcurrentSet();
     }
 
-    //@Ignore("Currently fails when building as a suite with JDK 1.7.0_15 and Maven 3.0.5 on a Mac")
     @Test
     public void testIteratorCleanup() {
 
         // Assemble
-        final HashSet<Object> persistingCandidates = new HashSet<Object>();
+        final HashSet<Object> permanentElements = new HashSet<Object>();
         final IConcurrentSet testSetWeak = createSet();
         final Random rand = new Random();
 
@@ -34,13 +33,13 @@ public class WeakConcurrentSetTest extends ConcurrentSetTest{
             Object candidate = new Object();
 
             if (rand.nextInt() % 3 == 0) {
-                persistingCandidates.add(candidate);
+                permanentElements.add(candidate);
             }
             testSetWeak.add(candidate);
         }
 
         // Remove/Garbage collect all objects that have not
-        // been inserted into the set of persisting candidates.
+        // been inserted into the set of permanent candidates.
         runGC();
 
         ConcurrentExecutor.runConcurrent(new Runnable() {
@@ -54,9 +53,13 @@ public class WeakConcurrentSetTest extends ConcurrentSetTest{
             }
         }, numberOfThreads);
 
-        assertEquals(persistingCandidates.size(), testSetWeak.size());
+        // the set should have cleaned up the garbage collected elements
+        // it must still contain all of the permanent objects
+        // since different GC mechanisms can be used (not necessarily full, stop-the-world) not all dead objects
+        // must have been collected
+        assertTrue(permanentElements.size() <= testSetWeak.size() && testSetWeak.size() < numberOfElements);
         for (Object test : testSetWeak) {
-            assertTrue(persistingCandidates.contains(test));
+            assertTrue(permanentElements.contains(test));
         }
     }
 
