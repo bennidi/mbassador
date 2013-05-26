@@ -35,7 +35,7 @@ public class FilterTest extends MessageBusTest {
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, FilteredMessageListener.class);
 
-        List<Object> listeners = listenerFactory.build();
+        List<Object> listeners = listenerFactory.getAll();
 
         // this will subscribe the listeners concurrently to the bus
         TestUtil.setup(bus, listeners, 10);
@@ -60,7 +60,7 @@ public class FilterTest extends MessageBusTest {
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, FilteredMessageListener.class);
 
-        List<Object> listeners = listenerFactory.build();
+        List<Object> listeners = listenerFactory.getAll();
 
         // this will subscribe the listeners concurrently to the bus
         TestUtil.setup(bus, listeners, 10);

@@ -8,6 +8,7 @@ import net.engio.mbassy.dispatch.*;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
 /**
@@ -58,12 +59,20 @@ public class SubscriptionFactory {
         return dispatcher;
     }
 
-    protected IHandlerInvocation createBaseHandlerInvocation(SubscriptionContext context) throws Exception {
+    protected IHandlerInvocation createBaseHandlerInvocation(SubscriptionContext context) throws MessageBusException {
         Class<? extends HandlerInvocation> invocation = context.getHandlerMetadata().getHandlerInvocation();
         if(invocation.isMemberClass() && !Modifier.isStatic(invocation.getModifiers())){
             throw new MessageBusException("The handler invocation must be top level class or nested STATIC inner class");
         }
-        Constructor<? extends IHandlerInvocation> constructor = invocation.getConstructor(SubscriptionContext.class);
-        return constructor.newInstance(context);
+        try {
+            Constructor<? extends IHandlerInvocation> constructor = invocation.getConstructor(SubscriptionContext.class);
+            return constructor.newInstance(context);
+        } catch (NoSuchMethodException e) {
+            throw new MessageBusException("The provided handler invocation did not specify the necessary constructor "
+                    + invocation.getSimpleName() + "(SubscriptionContext);", e);
+        } catch (Exception e) {
+            throw new MessageBusException("Could not instantiate the provided handler invocation "
+                    + invocation.getSimpleName(), e);
+        }
     }
 }

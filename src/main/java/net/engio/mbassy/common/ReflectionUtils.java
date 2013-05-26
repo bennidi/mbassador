@@ -53,8 +53,8 @@ public class ReflectionUtils {
         collectInterfaces(from, superclasses);
         while (!from.equals(Object.class) && !from.isInterface()) {
             superclasses.add(from.getSuperclass());
-
             from = from.getSuperclass();
+            collectInterfaces(from, superclasses);
         }
         return superclasses;
     }

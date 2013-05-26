@@ -21,17 +21,17 @@ import java.util.List;
 public class SynchronizedHandlerTest extends MessageBusTest {
 
 
-    private static int incrementsPerHandler = 10000;
+    private static int incrementsPerMessage = 10000;
     private static int numberOfMessages = 1000;
-    private static int numberOfHandlers = 1000;
+    private static int numberOfListeners = 1000;
 
     @Test
     public void testSynchronizedWithSynchronousInvocation(){
-        List<SynchronizedMessageHandlerSync> handlers = new LinkedList<SynchronizedMessageHandlerSync>();
+        List<SynchronizedWithSynchronousDelivery> handlers = new LinkedList<SynchronizedWithSynchronousDelivery>();
         IMessageBus bus = getBus(BusConfiguration.Default()
                 .setNumberOfMessageDispatchers(6));
-        for(int i = 0; i < numberOfHandlers; i++){
-            SynchronizedMessageHandlerSync handler = new SynchronizedMessageHandlerSync();
+        for(int i = 0; i < numberOfListeners; i++){
+            SynchronizedWithSynchronousDelivery handler = new SynchronizedWithSynchronousDelivery();
             handlers.add(handler);
             bus.subscribe(handler);
         }
@@ -40,23 +40,24 @@ public class SynchronizedHandlerTest extends MessageBusTest {
         for(int i = 0; i < numberOfMessages; i++){
            publication =  bus.post(new Object()).asynchronously();
         }
+        // wait for last publication
         while (!publication.isFinished()){
-            pause(2000);
+            pause(100);
         }
 
-        for(SynchronizedMessageHandlerSync handler : handlers){
-            assertEquals(incrementsPerHandler * numberOfMessages, handler.Counter);
+        for(SynchronizedWithSynchronousDelivery handler : handlers){
+            assertEquals(incrementsPerMessage * numberOfMessages, handler.counter);
         }
 
     }
 
     @Test
     public void testSynchronizedWithAsSynchronousInvocation(){
-        List<SynchronizedMessageHandlerAsyn> handlers = new LinkedList<SynchronizedMessageHandlerAsyn>();
+        List<SynchronizedWithAsynchronousDelivery> handlers = new LinkedList<SynchronizedWithAsynchronousDelivery>();
         IMessageBus bus = getBus(BusConfiguration.Default()
                 .setNumberOfMessageDispatchers(6));
-        for(int i = 0; i < numberOfHandlers; i++){
-            SynchronizedMessageHandlerAsyn handler = new SynchronizedMessageHandlerAsyn();
+        for(int i = 0; i < numberOfListeners; i++){
+            SynchronizedWithAsynchronousDelivery handler = new SynchronizedWithAsynchronousDelivery();
             handlers.add(handler);
             bus.subscribe(handler);
         }
@@ -67,35 +68,35 @@ public class SynchronizedHandlerTest extends MessageBusTest {
 
         pause(10000);
 
-        for(SynchronizedMessageHandlerAsyn handler : handlers){
-            assertEquals(incrementsPerHandler * numberOfMessages, handler.Counter);
+        for(SynchronizedWithAsynchronousDelivery handler : handlers){
+            assertEquals(incrementsPerMessage * numberOfMessages, handler.counter);
         }
 
     }
 
-    public static class SynchronizedMessageHandlerSync{
+    public static class SynchronizedWithSynchronousDelivery {
 
-        private int Counter = 0;
+        private int counter = 0;
 
         @Handler
         @Synchronized
         public void handleMessage(Object o){
-           for(int i = 0; i < incrementsPerHandler; i++){
-               Counter++;
+           for(int i = 0; i < incrementsPerMessage; i++){
+               counter++;
            }
         }
 
     }
 
-    public static class SynchronizedMessageHandlerAsyn{
+    public static class SynchronizedWithAsynchronousDelivery {
 
-        private int Counter = 0;
+        private int counter = 0;
 
         @Handler(delivery = Invoke.Asynchronously)
         @Synchronized
         public void handleMessage(Object o){
-            for(int i = 0; i < incrementsPerHandler; i++){
-                Counter++;
+            for(int i = 0; i < incrementsPerMessage; i++){
+                counter++;
             }
         }
 

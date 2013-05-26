@@ -1,6 +1,7 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.IPublicationErrorHandler;
+import net.engio.mbassy.PubSubSupport;
 
 import java.util.Collection;
 
@@ -10,31 +11,8 @@ import java.util.Collection;
  * @author bennidi
  *         Date: 3/29/13
  */
-public interface ISyncMessageBus<T, P extends ISyncMessageBus.ISyncPostCommand> {
+public interface ISyncMessageBus<T, P extends ISyncMessageBus.ISyncPostCommand> extends PubSubSupport<T>{
 
-
-    /**
-     * Subscribe all listeners of the given message to receive message publications.
-     * Any message may only be subscribed once (subsequent subscriptions of an already subscribed
-     * message will be silently ignored)
-     *
-     * @param listener
-     */
-    void subscribe(Object listener);
-
-    /**
-     * Immediately remove all registered message handlers (if any) of the given listener. When this call returns all handlers
-     * have effectively been removed and will not receive any message publications (including asynchronously scheduled
-     * publications that have been published when the message listener was still subscribed).
-     * <p/>
-     * A call to this method passing null, an already unsubscribed listener or any object that does not define any message
-     * handlers will not have any effect and is silently ignored.
-     *
-     * @param listener
-     * @return true, if the listener was found and successfully removed
-     *         false otherwise
-     */
-    boolean unsubscribe(Object listener);
 
     /**
      * @param message

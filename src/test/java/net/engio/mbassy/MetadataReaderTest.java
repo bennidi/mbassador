@@ -1,7 +1,7 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.common.AssertSupport;
 import org.junit.Test;
-import net.engio.mbassy.common.UnitTest;
 import net.engio.mbassy.listener.Enveloped;
 import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.MessageListenerMetadata;
@@ -16,12 +16,11 @@ import java.util.Map;
 import static net.engio.mbassy.listener.MessageListenerMetadata.ForMessage;
 
 /**
- * Todo: Add javadoc
  *
  * @author bennidi
  *         Date: 12/16/12
  */
-public class MetadataReaderTest extends UnitTest {
+public class MetadataReaderTest extends AssertSupport {
 
     private MetadataReader reader = new MetadataReader();
 

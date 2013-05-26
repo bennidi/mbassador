@@ -43,6 +43,7 @@ public class ConcurrentExecutor {
 			returnValues.add(executor.submit(wrapper));
 		}
 
+
 		// wait until all tasks have been executed
 		try {
 			executor.shutdown();// tells the thread pool to execute all waiting tasks
@@ -51,6 +52,15 @@ public class ConcurrentExecutor {
 			// unlikely that this will happen
 			e.printStackTrace();
 		}
+
+        for(Future task : returnValues){
+            try {
+                task.get();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
 	}
 
 

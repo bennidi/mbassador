@@ -5,13 +5,9 @@ import org.junit.Assert;
 import java.lang.ref.WeakReference;
 
 /**
- * Created with IntelliJ IDEA.
  * @author bennidi
- * Date: 11/12/12
- * Time: 3:16 PM
- * To change this template use File | Settings | File Templates.
  */
-public class UnitTest {
+public class AssertSupport {
 
     // Internal state
     private Runtime runtime = Runtime.getRuntime();
@@ -31,7 +27,9 @@ public class UnitTest {
 
     public void runGC() {
         WeakReference ref = new WeakReference<Object>(new Object());
+        pause(100);
         while(ref.get() != null) {
+            pause(10);
             runtime.gc();
         }
     }

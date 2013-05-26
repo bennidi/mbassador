@@ -1,9 +1,9 @@
 package net.engio.mbassy;
 
 import junit.framework.Assert;
+import net.engio.mbassy.common.AssertSupport;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.IConcurrentSet;
-import net.engio.mbassy.common.UnitTest;
 import org.junit.Test;
 
 import java.util.*;
@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @author bennidi
  *         Date: 11/12/12
  */
-public abstract class ConcurrentSetTest extends UnitTest {
+public abstract class ConcurrentSetTest extends AssertSupport {
 
     // Shared state
     protected final int numberOfElements = 100000;
@@ -38,7 +38,7 @@ public abstract class ConcurrentSetTest extends UnitTest {
         final IConcurrentSet testSetWeak = createSet();
         Random rand = new Random();
 
-        // build set of distinct objects and list of duplicates
+        // getAll set of distinct objects and list of duplicates
         Object candidate = new Object();
         for (int i = 0; i < numberOfElements; i++) {
             if (rand.nextInt() % 3 == 0) {
@@ -72,7 +72,7 @@ public abstract class ConcurrentSetTest extends UnitTest {
         final HashSet<Object> toRemove = new HashSet<Object>();
 
         final IConcurrentSet testSetWeak = createSet();
-        // build set of distinct objects and mark a subset of those for removal
+        // getAll set of distinct objects and mark a subset of those for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
             source.add(candidate);
@@ -81,7 +81,7 @@ public abstract class ConcurrentSetTest extends UnitTest {
             }
         }
 
-        // build the test set from the set of candidates
+        // getAll the test set from the set of candidates
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
             public void run() {
@@ -119,7 +119,7 @@ public abstract class ConcurrentSetTest extends UnitTest {
         final HashSet<Object> toRemove = new HashSet<Object>();
 
         final IConcurrentSet testSetWeak = createSet();
-        // build set of candidates and mark subset for removal
+        // getAll set of candidates and mark subset for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
             source.add(candidate);
@@ -128,7 +128,7 @@ public abstract class ConcurrentSetTest extends UnitTest {
             }
         }
 
-        // build test set by adding the candidates
+        // getAll test set by adding the candidates
         // and subsequently removing those marked for removal
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
@@ -158,14 +158,14 @@ public abstract class ConcurrentSetTest extends UnitTest {
         final HashSet<Object> source = new HashSet<Object>();
         final IConcurrentSet testSetWeak = createSet();
 
-        // build set of candidates and mark subset for removal
+        // getAll set of candidates and mark subset for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
             source.add(candidate);
             testSetWeak.add(candidate);
         }
 
-        // build test set by adding the candidates
+        // getAll test set by adding the candidates
         // and subsequently removing those marked for removal
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override
@@ -190,14 +190,14 @@ public abstract class ConcurrentSetTest extends UnitTest {
         final HashSet<Object> source = new HashSet<Object>();
         final IConcurrentSet setUnderTest = createSet();
 
-        // build set of candidates and mark subset for removal
+        // getAll set of candidates and mark subset for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
             source.add(candidate);
             setUnderTest.add(candidate);
         }
 
-        // build test set by adding the candidates
+        // getAll test set by adding the candidates
         // and subsequently removing those marked for removal
         ConcurrentExecutor.runConcurrent(new Runnable() {
             @Override

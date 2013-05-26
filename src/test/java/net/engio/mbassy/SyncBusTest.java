@@ -1,21 +1,16 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.bus.*;
-import net.engio.mbassy.common.DeadMessage;
+import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
-import net.engio.mbassy.dispatch.HandlerInvocation;
-import net.engio.mbassy.messages.ITestMessage;
-import net.engio.mbassy.messages.SubTestMessage;
-import net.engio.mbassy.messages.TestMessage;
-import net.engio.mbassy.listener.*;
 import net.engio.mbassy.listeners.*;
-import net.engio.mbassy.messages.TestMessage3;
-import net.engio.mbassy.subscription.SubscriptionContext;
-import org.junit.Assert;
+import net.engio.mbassy.messages.MessageTypes;
+import net.engio.mbassy.messages.MultipartMessage;
+import net.engio.mbassy.messages.StandardMessage;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Test synchronous and asynchronous dispatch in single and multi-threaded scenario.
@@ -25,152 +20,117 @@ import java.util.List;
  */
 public abstract class SyncBusTest extends MessageBusTest {
 
-    // this value probably needs to be adjusted depending on the performance of the underlying plattform
-    // otherwise the tests will fail since asynchronous processing might not have finished when
-    // evaluation is run
-    private int processingTimeInMS = 4000;
 
+    protected abstract ISyncMessageBus getSyncMessageBus();
 
     @Test
     public void testSynchronousMessagePublication() throws Exception {
 
-        ISyncMessageBus bus = getSyncMessageBus();
-        ListenerFactory listenerFactory = new ListenerFactory()
-                .create(10000, MessageListener1.class)
-                .create(10000, MessageListener2.class)
-                .create(10000, MessageListener3.class)
-                .create(10000, Object.class)
-                .create(10000, NonListeningBean.class);
+        final ISyncMessageBus bus = getSyncMessageBus();
+        ListenerFactory listeners = new ListenerFactory()
+                .create(InstancesPerListener, IMessageListener.DefaultListener.class)
+                .create(InstancesPerListener, IMessageListener.DisabledListener.class)
+                .create(InstancesPerListener, MessagesListener.DefaultListener.class)
+                .create(InstancesPerListener, MessagesListener.DisabledListener.class)
+                .create(InstancesPerListener, Object.class);
 
-        List<Object> listeners = listenerFactory.build();
 
-        // this will subscribe the listeners concurrently to the bus
-        TestUtil.setup(bus, listeners, 10);
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
 
-        TestMessage message = new TestMessage();
-        TestMessage subMessage = new SubTestMessage();
+        Runnable publishAndCheck = new Runnable() {
+            @Override
+            public void run() {
+                StandardMessage standardMessage = new StandardMessage();
+                MultipartMessage multipartMessage = new MultipartMessage();
 
-        bus.post(message).now();
-        bus.post(subMessage).now();
+                bus.post(standardMessage).now();
+                bus.post(multipartMessage).now();
+                bus.post(MessageTypes.Simple).now();
+                bus.post(MessageTypes.Multipart).now();
 
-        pause(processingTimeInMS);
+                assertEquals(InstancesPerListener, standardMessage.getTimesHandled(IMessageListener.DefaultListener.class));
+                assertEquals(InstancesPerListener, multipartMessage.getTimesHandled(IMessageListener.DefaultListener.class));
+            }
+        };
 
-        assertEquals(30000, message.counter.get());
-        assertEquals(70000, subMessage.counter.get());
+        // single threaded
+        ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
 
+        // multi threaded
+        MessageTypes.resetAll();
+        ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.DefaultListener.class));
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Multipart.getTimesHandled(IMessageListener.DefaultListener.class));
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.DefaultListener.class));
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Multipart.getTimesHandled(MessagesListener.DefaultListener.class));
     }
-
-    @Test
-    public void testStrongListenerSubscription() throws Exception {
-
-        ISyncMessageBus bus = getSyncMessageBus();
-
-        for(int i = 0; i< 10000; i++){
-            bus.subscribe(new MessageListener2());
-        }
-
-        runGC();
-
-        TestMessage message = new TestMessage();
-        TestMessage subMessage = new SubTestMessage();
-
-        bus.post(message).now();
-        bus.post(subMessage).now();
-
-        pause(processingTimeInMS);
-
-        assertEquals(10000, message.counter.get());
-        assertEquals(20000, subMessage.counter.get());
-
-    }
-
-    protected abstract ISyncMessageBus getSyncMessageBus();
-
 
 
     @Test
-    public void testHandlerUsingInterface() {
-        MBassador<ITestMessage> bus = new MBassador<ITestMessage>(BusConfiguration.Default());
-        bus.subscribe(new InterfaceMessageListener());
-        bus.publish(new TestMessage3());
+    public void testExceptionInHandlerInvocation(){
+        final AtomicInteger exceptionCount = new AtomicInteger(0);
+        IPublicationErrorHandler ExceptionCounter = new IPublicationErrorHandler() {
+            @Override
+            public void handleError(PublicationError error) {
+                exceptionCount.incrementAndGet();
+            }
+        };
+
+        final ISyncMessageBus bus = getSyncMessageBus();
+        bus.addErrorHandler(ExceptionCounter);
+        ListenerFactory listeners = new ListenerFactory()
+                .create(InstancesPerListener, ExceptionThrowingListener.class);
+
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
+
+        Runnable publish = new Runnable() {
+            @Override
+            public void run() {
+                bus.post(new StandardMessage()).now();
+            }
+        };
+
+        // single threaded
+        ConcurrentExecutor.runConcurrent(publish, 1);
+
+        exceptionCount.set(0);
+
+        // multi threaded
+        ConcurrentExecutor.runConcurrent(publish, ConcurrentUnits);
+        assertEquals(InstancesPerListener * ConcurrentUnits, exceptionCount.get());
     }
 
-    @Listener(references = References.Strong)
-    static class InterfaceMessageListener{
-
-    @Handler
-    public void handleFoo(ITestMessage f) {
-        Assert.assertTrue(f instanceof TestMessage3);
-    }
-
-    @Handler
-    public void handleDead(DeadMessage d) {
-        Assert.fail("This class should handle this message appropriately!");
-    }
-
-    }
+    @Test
+    public void testCustomHandlerInvocation(){
+        final ISyncMessageBus bus = getSyncMessageBus();
+        ListenerFactory listeners = new ListenerFactory()
+                .create(InstancesPerListener, CustomInvocationListener.class)
+                .create(InstancesPerListener, Object.class);
 
 
-    public static class MessageListener1 {
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
 
-        // every event of type TestEvent or any subtype will be delivered
-        // to this listener
-        @Handler
-        public void handleTestEvent(TestMessage message) {
-            message.counter.incrementAndGet();
-        }
+        Runnable publishAndCheck = new Runnable() {
+            @Override
+            public void run() {
+                StandardMessage standardMessage = new StandardMessage();
+                MultipartMessage multipartMessage = new MultipartMessage();
 
-        // this handler will be invoked asynchronously
-        @Handler(priority = 0, invocation = HandleSubTestEventInvocation.class)
-        public void handleSubTestEvent(SubTestMessage message) {
-            message.counter.incrementAndGet();
-        }
+                bus.post(standardMessage).now();
+                bus.post(multipartMessage).now();
+                bus.post(MessageTypes.Simple).now();
 
-        // this handler will receive events of type SubTestEvent
-        // or any subtabe and that passes the given filter
-        @Handler(
-                priority = 10,
-                delivery = Invoke.Synchronously,
-                filters = {@Filter(Filters.RejectAll.class), @Filter(Filters.AllowAll.class)})
-        public void handleFiltered(SubTestMessage message) {
-            message.counter.incrementAndGet();
-        }
+                assertEquals(InstancesPerListener * 2, standardMessage.getTimesHandled(CustomInvocationListener.class));
+                assertEquals(0, multipartMessage.getTimesHandled(CustomInvocationListener.class));
+                assertEquals(0, MessageTypes.Simple.getTimesHandled(CustomInvocationListener.class));
+            }
+        };
 
+        // single threaded
+        ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
 
-    }
-
-    public static class HandleSubTestEventInvocation extends HandlerInvocation<MessageListener1, SubTestMessage> {
-
-        public HandleSubTestEventInvocation(SubscriptionContext context) {
-            super(context);
-        }
-
-        @Override
-        public void invoke(MessageListener1 listener, SubTestMessage message) {
-            listener.handleSubTestEvent(message);
-        }
-    }
-
-    @Listener(references = References.Strong)
-    public static class MessageListener2 extends net.engio.mbassy.listeners.EventingTestBean {
-
-        // redefine the configuration for this handler
-        @Handler(delivery = Invoke.Synchronously)
-        public void handleSubTestEvent(SubTestMessage message) {
-            super.handleSubTestEvent(message);
-        }
-
-    }
-
-    @Listener(references = References.Strong)
-    public static class MessageListener3 extends net.engio.mbassy.listeners.EventingTestBean2 {
-
-
-        // this handler will be invoked asynchronously
-        @Handler(priority = 0, delivery = Invoke.Synchronously)
-        public void handleSubTestEventAgain(SubTestMessage message) {
-            message.counter.incrementAndGet();
-        }
+        // multi threaded
+        ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
 
     }
 

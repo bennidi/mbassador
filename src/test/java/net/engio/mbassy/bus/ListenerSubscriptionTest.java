@@ -90,7 +90,7 @@ public class ListenerSubscriptionTest extends MessageBusTest{
                 .create(10000, Object.class)
                 .create(10000, NonListeningBean.class);
 
-        List<Object> listeners = listenerFactory.build();
+        List<Object> listeners = listenerFactory.getAll();
 
         // this will subscribe the listeners concurrently to the bus
         TestUtil.setup(bus, listeners, 10);

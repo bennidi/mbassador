@@ -1,5 +1,7 @@
 package net.engio.mbassy.bus;
 
+import net.engio.mbassy.PublicationError;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -43,6 +45,8 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
                             return;
+                        } catch(Throwable t){
+                            handlePublicationError(new PublicationError(t, "Error in asynchronous dispatch", null, null, null));
                         }
                     }
                 }
@@ -64,7 +68,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
         }
     }
 
-    // this method enqueues a message delivery request
+    // this method queues a message delivery request
     protected MessagePublication addAsynchronousDeliveryRequest(MessagePublication request, long timeout, TimeUnit unit) {
         try {
             return pendingMessages.offer(request, timeout, unit)

@@ -34,7 +34,6 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
         this.subscriptionManager = new SubscriptionManager(configuration.getMetadataReader(),
                 configuration.getSubscriptionFactory().setBus(this));
         this.publicationFactory = configuration.getMessagePublicationFactory();
-        addErrorHandler(new IPublicationErrorHandler.ConsoleLogger());
     }
 
     protected MessagePublication.Factory getPublicationFactory() {

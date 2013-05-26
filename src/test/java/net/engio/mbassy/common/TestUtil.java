@@ -1,8 +1,10 @@
 package net.engio.mbassy.common;
 
-import net.engio.mbassy.bus.IMessageBus;
 import net.engio.mbassy.bus.ISyncMessageBus;
+import net.engio.mbassy.listeners.ListenerFactory;
+import net.engio.mbassy.subscription.SubscriptionManager;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -13,6 +15,58 @@ import java.util.List;
  */
 public class TestUtil {
 
+
+    public static Runnable subscriber(final SubscriptionManager manager, final ListenerFactory listeners){
+        final Iterator source = listeners.iterator();
+        return new Runnable() {
+            @Override
+            public void run() {
+                Object next;
+                while((next = source.next()) != null){
+                    manager.subscribe(next);
+                }
+            }
+        };
+    }
+
+    public static Runnable unsubscriber(final SubscriptionManager manager, final ListenerFactory listeners){
+        final Iterator source = listeners.iterator();
+        return new Runnable() {
+            @Override
+            public void run() {
+                Object next;
+                while((next = source.next()) != null){
+                    manager.unsubscribe(next);
+                }
+            }
+        };
+    }
+
+    public static Runnable subscriber(final ISyncMessageBus bus, final ListenerFactory listeners){
+        final Iterator source = listeners.iterator();
+        return new Runnable() {
+            @Override
+            public void run() {
+                Object next;
+                while((next = source.next()) != null){
+                    bus.subscribe(next);
+                }
+            }
+        };
+    }
+
+    public static Runnable unsubscriber(final ISyncMessageBus bus, final ListenerFactory listeners){
+        final Iterator source = listeners.iterator();
+        return new Runnable() {
+            @Override
+            public void run() {
+                Object next;
+                while((next = source.next()) != null){
+                    bus.unsubscribe(next);
+                }
+            }
+        };
+    }
 
     public static void setup(final ISyncMessageBus bus, final List<Object> listeners, int numberOfThreads) {
         Runnable[] setupUnits = new Runnable[numberOfThreads];
