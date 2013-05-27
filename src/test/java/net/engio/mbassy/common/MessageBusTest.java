@@ -24,6 +24,7 @@ public abstract class MessageBusTest<Bus extends ISyncMessageBus> extends Assert
     protected static final int processingTimeInMS = 6000;
     protected static final int InstancesPerListener = 5000;
     protected static final int ConcurrentUnits = 10;
+    protected static final int IterationsPerThread = 100;
 
     protected static final IPublicationErrorHandler TestFailingHandler = new IPublicationErrorHandler() {
         @Override

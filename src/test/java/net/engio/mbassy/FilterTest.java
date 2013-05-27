@@ -9,7 +9,7 @@ import net.engio.mbassy.common.TestUtil;
 import net.engio.mbassy.messages.SubTestMessage;
 import net.engio.mbassy.messages.TestMessage;
 import net.engio.mbassy.listener.*;
-import net.engio.mbassy.listeners.ListenerFactory;
+import net.engio.mbassy.common.ListenerFactory;
 import org.junit.Test;
 
 import java.util.List;

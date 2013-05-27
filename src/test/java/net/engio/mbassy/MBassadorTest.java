@@ -7,7 +7,7 @@ import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
 import net.engio.mbassy.listeners.ExceptionThrowingListener;
 import net.engio.mbassy.listeners.IMessageListener;
-import net.engio.mbassy.listeners.ListenerFactory;
+import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.listeners.MessagesListener;
 import net.engio.mbassy.messages.MessageTypes;
 import net.engio.mbassy.messages.MultipartMessage;

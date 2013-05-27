@@ -1,6 +1,5 @@
 package net.engio.mbassy.common;
 
-import net.engio.mbassy.listeners.ListenerFactory;
 import net.engio.mbassy.subscription.Subscription;
 import net.engio.mbassy.subscription.SubscriptionManager;
 
