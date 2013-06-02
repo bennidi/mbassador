@@ -5,10 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * This implementation uses weak references to the elements. Iterators automatically perform cleanups of
- * garbage collected objects during iteration -> no dedicated maintenance operations need to be called or run in background.
- * <p/>
- * <p/>
+ * This implementation uses strong references to the elements.
  * <p/>
  *
  * @author bennidi
