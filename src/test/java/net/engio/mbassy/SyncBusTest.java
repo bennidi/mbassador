@@ -2,6 +2,7 @@ package net.engio.mbassy;
 
 import net.engio.mbassy.bus.*;
 import net.engio.mbassy.common.ConcurrentExecutor;
+import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
 import net.engio.mbassy.listeners.*;

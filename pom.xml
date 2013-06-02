@@ -148,6 +148,10 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <skipTests>false</skipTests>
+                    <excludes>
+                        <!-- exclude the suite which is a convenience class for running all tests from IDE or using scripts -->
+                        <exclude>AllTests.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 

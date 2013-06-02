@@ -1,6 +1,5 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.ListenerSubscriptionTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -19,9 +18,8 @@ import org.junit.runners.Suite;
         SyncBusTest.SyncMessageBusTest.class,
         FilterTest.class,
         MetadataReaderTest.class,
-        ListenerSubscriptionTest.class,
         MethodDispatchTest.class,
-        DeadEventTest.class,
+        DeadMessageTest.class,
         SynchronizedHandlerTest.class,
         SubscriptionManagerTest.class
 })

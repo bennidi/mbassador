@@ -1,4 +1,4 @@
-package net.engio.mbassy.listeners;
+package net.engio.mbassy.common;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

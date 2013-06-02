@@ -1,7 +1,6 @@
 package net.engio.mbassy.common;
 
 import net.engio.mbassy.bus.ISyncMessageBus;
-import net.engio.mbassy.listeners.ListenerFactory;
 import net.engio.mbassy.subscription.SubscriptionManager;
 
 import java.util.Iterator;
