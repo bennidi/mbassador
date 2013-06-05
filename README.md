@@ -2,13 +2,19 @@ MBassador
 =========
 
 MBassador is a very light-weight message (event) bus implementation following the publish subscribe pattern. It is designed
-for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. It uses a specialized
-data structure to allow high throughput for concurrent access.
+for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. The core of MBassador's
+high performance is a specialized data structure that minimizes lock contention such that performance degradation of concurrent access is minimal.
+The performance win of this design is illustrated in <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>.
+The benchmarking code can be found <a href="https://github.com/bennidi/eventbus-performance" target="_blank">here</a>
 
-Read this documentation to get an overview of its features. You can also check out the <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
-which also contains a partial list of the features of the compared implementations.
+Read this documentation to get an overview of MBassadors features. There is also some documentation in the Wiki - although admittedly
+not enough to make a developer happy (work is in progress). But usage of publish subscribe pattern at its core is pretty straight forward and the basic
+use cases are very easy to understand and implement.
 
 The current version is 1.1.7 and it is available from the Maven Central Repository. See the release notes for more details.
+
+There is also an extension available to support CDI-like transactional message sending in a Spring environment. It's beta but
+stable enough to give it a try. See <a href="https://github.com/bennidi/mbassador-spring" target="_blank">here</a>.
 
 Table of contents:
 + [Features](#features)
