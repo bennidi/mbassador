@@ -109,16 +109,17 @@ public class PublicationError {
      */
     @Override
     public String toString() {
+    	String newLine = System.getProperty("line.separator");
         return "PublicationError{" +
-                "\n" +
+                newLine +
                 "\tcause=" + cause +
-                "\n" +
+                newLine +
                 "\tmessage='" + message + '\'' +
-                "\n" +
+                newLine +
                 "\tlistener=" + listener +
-                "\n" +
+                newLine +
                 "\tlisteningObject=" + listeningObject +
-                "\n" +
+                newLine +
                 "\tpublishedObject=" + publishedObject +
                 '}';
     }
