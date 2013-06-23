@@ -1,5 +1,7 @@
 package net.engio.mbassy.common;
 
+import junit.framework.Assert;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ListenerFactory {
 
     private Map<Class, Integer> requiredBeans = new HashMap<Class, Integer>();
-    private List generatedListeners;
+    private volatile List generatedListeners;
     private int requiredSize = 0;
 
     public int getNumberOfListeners(Class listener){
@@ -29,35 +31,42 @@ public class ListenerFactory {
     }
 
 
-    public List<Object> getAll(){
-        generatedListeners = new ArrayList(requiredSize);
+    public synchronized List<Object> getAll(){
+        if(generatedListeners != null)
+            return generatedListeners;
+        List listeners = new ArrayList(requiredSize);
         try {
             for(Class clazz : requiredBeans.keySet()){
                 int numberOfRequiredBeans = requiredBeans.get(clazz);
                 for(int i = 0; i < numberOfRequiredBeans; i++){
-                    generatedListeners.add(clazz.newInstance());
+                    listeners.add(clazz.newInstance());
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            // if instantiation fails, counts will be incorrect
+            // -> fail early here
+            Assert.fail("There was a problem instantiating a listener " + e);
         }
-        Collections.shuffle(generatedListeners);
+        Collections.shuffle(listeners);
+        generatedListeners  = Collections.unmodifiableList(listeners);
         return generatedListeners;
     }
 
     // not thread-safe but not yet used concurrently
-    public void clear(){
+    public synchronized  void clear(){
         generatedListeners = null;
         requiredBeans.clear();
     }
 
     /**
      * Create a thread-safe read-only iterator
+     *
+     * NOTE: Iterator is not perfectly synchronized with mutator methods of the list of generated listeners
+     * In theory, it is possible that the list is changed while iterators are still running which should be avoided.
      * @return
      */
     public Iterator iterator(){
-        if(generatedListeners == null)getAll();
+        getAll();
         final AtomicInteger current = new AtomicInteger(0);
 
         return new Iterator() {
