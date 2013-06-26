@@ -2,13 +2,8 @@ package net.engio.mbassy;
 
 import net.engio.mbassy.bus.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.common.ConcurrentExecutor;
-import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.common.TestUtil;
-import net.engio.mbassy.listeners.ExceptionThrowingListener;
-import net.engio.mbassy.listeners.IMessageListener;
-import net.engio.mbassy.common.ListenerFactory;
-import net.engio.mbassy.listeners.MessagesListener;
+import net.engio.mbassy.common.*;
+import net.engio.mbassy.listeners.*;
 import net.engio.mbassy.messages.MessageTypes;
 import net.engio.mbassy.messages.MultipartMessage;
 import net.engio.mbassy.messages.StandardMessage;
@@ -26,20 +21,13 @@ public class MBassadorTest extends MessageBusTest {
 
 
     @Test
-    public void testSynchronousMessagePublication() throws Exception {
+    public void testSyncPublicationSyncHandlers() throws Exception {
 
-        final MBassador bus = getBus(new BusConfiguration());
         ListenerFactory listeners = new ListenerFactory()
-                .create(InstancesPerListener, IMessageListener.DefaultListener.class)
-                .create(InstancesPerListener, IMessageListener.AsyncListener.class)
-                .create(InstancesPerListener, IMessageListener.DisabledListener.class)
-                .create(InstancesPerListener, MessagesListener.DefaultListener.class)
-                .create(InstancesPerListener, MessagesListener.AsyncListener.class)
-                .create(InstancesPerListener, MessagesListener.DisabledListener.class)
-                .create(InstancesPerListener, Object.class);
+                .create(InstancesPerListener, Listeners.synchronous())
+                .create(InstancesPerListener, Listeners.noHandlers());
+        final MBassador bus = getBus(new BusConfiguration(), listeners);
 
-
-        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
 
         Runnable publishAndCheck = new Runnable() {
             @Override
@@ -51,74 +39,84 @@ public class MBassadorTest extends MessageBusTest {
                 bus.post(multipartMessage).now();
                 bus.post(MessageTypes.Simple).now();
 
-                pause(processingTimeInMS);
-
                 assertEquals(InstancesPerListener, standardMessage.getTimesHandled(IMessageListener.DefaultListener.class));
-                assertEquals(InstancesPerListener, standardMessage.getTimesHandled(IMessageListener.AsyncListener.class));
-
                 assertEquals(InstancesPerListener, multipartMessage.getTimesHandled(IMessageListener.DefaultListener.class));
-                assertEquals(InstancesPerListener, multipartMessage.getTimesHandled(IMessageListener.AsyncListener.class));
+            }
+        };
 
+        // test single-threaded
+        ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
+
+        // test multi-threaded
+        MessageTypes.resetAll();
+        ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.DefaultListener.class));
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.DefaultListener.class));
+    }
+
+
+    @Test
+    public void testSyncPublicationAsyncHandlers() throws Exception {
+        ListenerFactory listeners = new ListenerFactory()
+                .create(InstancesPerListener, Listeners.asynchronous())
+                .create(InstancesPerListener, Listeners.noHandlers());
+        final MBassador bus = getBus(new BusConfiguration(), listeners);
+
+        final MessageManager messageManager = new MessageManager();
+        Runnable publishAndCheck = new Runnable() {
+            @Override
+            public void run() {
+
+                StandardMessage standardMessage = messageManager.create(StandardMessage.class, InstancesPerListener, Listeners.join(Listeners.asynchronous(), Listeners.handlesStandardMessage()));
+                MultipartMessage multipartMessage = messageManager.create(MultipartMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class, IMultipartMessageListener.AsyncListener.class);
+
+                bus.post(standardMessage).now();
+                bus.post(multipartMessage).now();
+                bus.post(MessageTypes.Simple).now();
 
             }
         };
 
         ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
+        messageManager.waitForMessages(processingTimeInMS);
 
         MessageTypes.resetAll();
+        messageManager.register(MessageTypes.Simple, InstancesPerListener * ConcurrentUnits, IMessageListener.AsyncListener.class, MessagesListener.AsyncListener.class);
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.DefaultListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.AsyncListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.DefaultListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.AsyncListener.class));
+        messageManager.waitForMessages(processingTimeInMS);
     }
 
     @Test
     public void testAsynchronousMessagePublication() throws Exception {
 
-        final MBassador bus = getBus(new BusConfiguration());
         ListenerFactory listeners = new ListenerFactory()
-                .create(InstancesPerListener, IMessageListener.DefaultListener.class)
-                .create(InstancesPerListener, IMessageListener.AsyncListener.class)
-                .create(InstancesPerListener, IMessageListener.DisabledListener.class)
-                .create(InstancesPerListener, MessagesListener.DefaultListener.class)
-                .create(InstancesPerListener, MessagesListener.AsyncListener.class)
-                .create(InstancesPerListener, MessagesListener.DisabledListener.class)
-                .create(InstancesPerListener, Object.class);
+                .create(InstancesPerListener, Listeners.asynchronous())
+                .create(InstancesPerListener, Listeners.noHandlers());
+        final MBassador bus = getBus(new BusConfiguration(), listeners);
 
 
-        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
+        final MessageManager messageManager = new MessageManager();
 
         Runnable publishAndCheck = new Runnable() {
             @Override
             public void run() {
-                StandardMessage standardMessage = new StandardMessage();
-                MultipartMessage multipartMessage = new MultipartMessage();
+                StandardMessage standardMessage = messageManager.create(StandardMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class);
+                MultipartMessage multipartMessage = messageManager.create(MultipartMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class);
 
                 bus.post(standardMessage).asynchronously();
                 bus.post(multipartMessage).asynchronously();
                 bus.post(MessageTypes.Simple).asynchronously();
 
-                pause(processingTimeInMS);
-
-                assertEquals(InstancesPerListener, standardMessage.getTimesHandled(IMessageListener.DefaultListener.class));
-                assertEquals(InstancesPerListener, standardMessage.getTimesHandled(IMessageListener.AsyncListener.class));
-
-                assertEquals(InstancesPerListener, multipartMessage.getTimesHandled(IMessageListener.DefaultListener.class));
-                assertEquals(InstancesPerListener, multipartMessage.getTimesHandled(IMessageListener.AsyncListener.class));
-
-
             }
         };
 
         ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
+        messageManager.waitForMessages(processingTimeInMS);
 
         MessageTypes.resetAll();
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.DefaultListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.AsyncListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.DefaultListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.AsyncListener.class));
+        messageManager.waitForMessages(processingTimeInMS);
+
     }
 
 

@@ -24,8 +24,8 @@ public enum MessageTypes implements IMessage{
 
     @Override
     public void reset() {
-        lock.writeLock().lock();
         try {
+            lock.writeLock().lock();
             handledByListener.clear();
         }finally {
             lock.writeLock().unlock();
@@ -34,8 +34,8 @@ public enum MessageTypes implements IMessage{
 
     @Override
     public void handled(Class listener) {
-        lock.writeLock().lock();
         try {
+            lock.writeLock().lock();
             Integer count = handledByListener.get(listener);
             if(count == null){
                 handledByListener.put(listener, 1);
@@ -50,8 +50,8 @@ public enum MessageTypes implements IMessage{
 
     @Override
     public int getTimesHandled(Class listener) {
-        lock.readLock().lock();
         try {
+            lock.readLock().lock();
             return handledByListener.containsKey(listener)
                     ? handledByListener.get(listener)
                     : 0;

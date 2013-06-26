@@ -46,4 +46,11 @@ public abstract class MessageBusTest<Bus extends ISyncMessageBus> extends Assert
         return bus;
     }
 
+    public MBassador getBus(BusConfiguration configuration, ListenerFactory listeners) {
+        MBassador bus = new MBassador(configuration);
+        bus.addErrorHandler(TestFailingHandler);
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
+        return bus;
+    }
+
 }

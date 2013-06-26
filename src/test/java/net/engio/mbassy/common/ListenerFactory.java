@@ -30,6 +30,18 @@ public class ListenerFactory {
         return this;
     }
 
+    public ListenerFactory create(int numberOfInstances, Class[] classes){
+        for(Class clazz : classes)
+            create(numberOfInstances,clazz);
+        return this;
+    }
+
+    public ListenerFactory create(int numberOfInstances, Collection<Class> classes){
+        for(Class clazz : classes)
+            create(numberOfInstances,clazz);
+        return this;
+    }
+
 
     public synchronized List<Object> getAll(){
         if(generatedListeners != null)
