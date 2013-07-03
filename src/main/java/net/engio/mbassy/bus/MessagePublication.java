@@ -31,7 +31,7 @@ public class MessagePublication {
 
     private Object message;
 
-    private State state = State.Scheduled;
+    private State state = State.Initial;
 
     private boolean delivered = false;
 

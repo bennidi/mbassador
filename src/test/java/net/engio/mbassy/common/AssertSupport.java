@@ -1,6 +1,12 @@
 package net.engio.mbassy.common;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 
@@ -9,8 +15,25 @@ import java.lang.ref.WeakReference;
  */
 public class AssertSupport {
 
-    // Internal state
     private Runtime runtime = Runtime.getRuntime();
+    protected Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+    private long testExecutionStart;
+
+    @Rule
+    public TestName name = new TestName();
+
+
+    @Before
+    public void beforeTest(){
+        logger.info("Running test " + getTestName());
+        testExecutionStart = System.currentTimeMillis();
+    }
+
+    @After
+    public void afterTest(){
+        logger.info(String.format("Finished " + getTestName() + ": " + (System.currentTimeMillis() - testExecutionStart) + " ms"));
+    }
+
 
     public void pause(long ms) {
         try {
@@ -24,6 +47,9 @@ public class AssertSupport {
         pause(10);
     }
 
+    public String getTestName(){
+        return getClass().getSimpleName() + "." + name.getMethodName();
+    }
 
     public void runGC() {
         WeakReference ref = new WeakReference<Object>(new Object());
