@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This test ensures the correct behaviour of the set implementation that is the building
@@ -64,6 +65,47 @@ public abstract class ConcurrentSetTest extends AssertSupport {
             assertTrue(testSetWeak.contains(uniqueObject));
         }
     }
+
+    @Test
+    public void testIterationWithConcurrentRemoval() {
+        final IConcurrentSet<AtomicInteger> testSetWeak = createSet();
+        final Random rand = new Random();
+
+        for (int i = 0; i < numberOfElements; i++) {
+            testSetWeak.add(new AtomicInteger());
+        }
+
+        Runnable incrementer = new Runnable() {
+            @Override
+            public void run() {
+                while(testSetWeak.size() > 100){
+                    for(AtomicInteger element : testSetWeak)
+                        element.incrementAndGet();
+                }
+
+            }
+        };
+
+        Runnable remover = new Runnable() {
+            @Override
+            public void run() {
+                while(testSetWeak.size() > 100){
+                    for(AtomicInteger element : testSetWeak)
+                        if(rand.nextInt() % 3 == 0)
+                            testSetWeak.remove(element);
+                }
+            }
+        };
+
+        ConcurrentExecutor.runConcurrent(20, incrementer, incrementer, remover);
+
+        Set<Integer> counts = new HashSet<Integer>();
+        for (AtomicInteger count : testSetWeak) {
+            counts.add(count.get());
+        }
+        assertEquals(1, counts.size());
+    }
+
 
 
     @Test
@@ -248,7 +290,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
 
         // Adds and removes items
         // thus forcing constant rehashing of the backing hashtable
-        Runnable updatingThread = new Runnable() {
+        Runnable rehasher = new Runnable() {
             public void run() {
                 Random rand = new Random();
                 for(int times = 0; times < 1000 ; times++){
@@ -266,7 +308,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
             };
         };
 
-        Runnable lookupThread = new Runnable() {
+        Runnable lookup = new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < 10000; i++) {
@@ -280,7 +322,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
             }
         };
 
-        ConcurrentExecutor.runConcurrent(updatingThread, lookupThread, lookupThread, lookupThread);
+        ConcurrentExecutor.runConcurrent(rehasher, lookup, lookup, lookup);
         assertTrue("There where items temporarily unavailable: " + missing.size(), missing.size() == 0);
 
     }
@@ -297,5 +339,6 @@ public abstract class ConcurrentSetTest extends AssertSupport {
             result.remove(excluded);
         return result;
     }
+
 
 }

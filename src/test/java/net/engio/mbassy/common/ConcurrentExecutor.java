@@ -23,10 +23,21 @@ public class ConcurrentExecutor {
 			units[i] = unit;
 		}
 		runConcurrent(units);
-
 	}
 
-	public static void runConcurrent(final Runnable... units) {
+
+    public static void runConcurrent(int numberOfConcurrentExecutions, final Runnable... units) {
+        Runnable[] runnables = new Runnable[numberOfConcurrentExecutions * units.length];
+        // create the tasks and schedule for execution
+        for (int i = 0; i < numberOfConcurrentExecutions; i++) {
+            for(int k = 0; k < units.length; k++)
+                runnables[k * numberOfConcurrentExecutions +i] = units[k];
+        }
+        runConcurrent(runnables);
+    }
+
+
+    public static void runConcurrent(final Runnable... units) {
 		ExecutorService executor = Executors.newCachedThreadPool();
 		List<Future<Long>> returnValues = new ArrayList<Future<Long>>();
 

@@ -101,7 +101,7 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
                 } else {
                     ISetEntry<T> oldHead = head;
                     head = head.next();
-                    oldHead.clear(); // optimize for GC
+                    //oldHead.clear(); // optimize for GC not possible because of potentially running iterators
                 }
                 entries.remove(element);
             } finally {
@@ -137,8 +137,10 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
             } else if (next != null) {
                 next.predecessor = null;
             }
-            next = null;
-            predecessor = null;
+            // can not nullify references to help GC since running iterators might not see the entire set
+            // if this element is their current element
+            //next = null;
+            //predecessor = null;
         }
 
         @Override
