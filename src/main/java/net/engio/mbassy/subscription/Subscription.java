@@ -70,8 +70,8 @@ public class Subscription {
     public static final Comparator<Subscription> SubscriptionByPriorityDesc = new Comparator<Subscription>() {
         @Override
         public int compare(Subscription o1, Subscription o2) {
-            int result = o1.getPriority() - o2.getPriority();
-            return result == 0 ? o1.id.compareTo(o2.id) : result;
+            int byPriority = ((Integer)o1.getPriority()).compareTo(o2.getPriority());
+            return byPriority == 0 ? o1.id.compareTo(o2.id) : byPriority;
         }
     };
 

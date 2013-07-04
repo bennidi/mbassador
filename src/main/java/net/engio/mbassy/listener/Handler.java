@@ -6,7 +6,7 @@ import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
 import java.lang.annotation.*;
 
 /**
- * Mark any method of any object(=listener) as a message handler and configure the handler
+ * Mark any method of any class(=listener) as a message handler and configure the handler
  * using different properties.
  *
  * @author bennidi

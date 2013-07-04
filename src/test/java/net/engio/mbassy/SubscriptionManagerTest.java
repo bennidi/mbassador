@@ -12,6 +12,11 @@ import org.junit.Test;
 import java.util.Collection;
 
 /**
+ *
+ * Test the subscriptions as generated and organized by the subscription manager. Tests use different sets of listeners
+ * and corresponding expected set of subscriptions that should result from subscribing the listeners. The subscriptions
+ * are tested for the type of messages they should handle and
+ *
  * @author bennidi
  *         Date: 5/12/13
  */
@@ -166,7 +171,6 @@ public class SubscriptionManagerTest extends AssertSupport {
         SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory());
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 
-
         listeners.clear();
         runGC();
 
@@ -175,6 +179,7 @@ public class SubscriptionManagerTest extends AssertSupport {
         for(Subscription sub : subscriptions)
             assertEquals(InstancesPerListener,  sub.size());
     }
+
 
 
     private ListenerFactory listeners(Class ...listeners){
@@ -198,6 +203,7 @@ public class SubscriptionManagerTest extends AssertSupport {
 
         validator.validate(subscriptionManager);
     }
+
 
 
 
