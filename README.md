@@ -143,7 +143,7 @@ Beginning with version 1.1.0 MBassador is available from the Maven Central Repos
     <dependency>
         <groupId>net.engio</groupId>
         <artifactId>mbassador</artifactId>
-        <version>1.1.6</version>
+        <version>1.1.7</version>
     </dependency>
 ```
 
