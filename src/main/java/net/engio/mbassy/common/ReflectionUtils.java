@@ -86,7 +86,7 @@ public class ReflectionUtils {
         }
 
         Class[] superClassMethodParameters = superclassMethod.getParameterTypes();
-        Class[] subClassMethodParameters = superclassMethod.getParameterTypes();
+        Class[] subClassMethodParameters = subclassMethod.getParameterTypes();
         // method must specify the same number of parameters
         //the parameters must occur in the exact same order
         for (int i = 0; i < subClassMethodParameters.length; i++) {

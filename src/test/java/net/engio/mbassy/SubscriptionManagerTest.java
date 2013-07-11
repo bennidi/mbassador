@@ -180,7 +180,21 @@ public class SubscriptionManagerTest extends AssertSupport {
             assertEquals(InstancesPerListener,  sub.size());
     }
 
+    @Test
+    public void testOverloadedMessageHandlers(){
+        ListenerFactory listeners = listeners(
+                Overloading.ListenerBase.class,
+                Overloading.ListenerSub.class);
 
+        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory());
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
+
+        SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
+                .listener(Overloading.ListenerBase.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class)
+                .listener(Overloading.ListenerSub.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class, Overloading.TestMessageB.class);
+
+        runTestWith(listeners, expectedSubscriptions);
+    }
 
     private ListenerFactory listeners(Class ...listeners){
         ListenerFactory factory = new ListenerFactory();

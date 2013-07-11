@@ -15,8 +15,7 @@ public class SubscriptionValidator extends AssertSupport{
 
     private List<ValidationEntry> validations = new LinkedList<ValidationEntry>();
     private Set<Class> messageTypes = new HashSet<Class>();
-    private Set<Class> subscribers = new HashSet<Class>();
-    private ListenerFactory subscribedListener;
+    private ListenerFactory subscribedListener; // the subscribed listeners are used to assert the size of the subscriptions
 
     public SubscriptionValidator(ListenerFactory subscribedListener) {
         this.subscribedListener = subscribedListener;
@@ -29,7 +28,6 @@ public class SubscriptionValidator extends AssertSupport{
     private SubscriptionValidator expect(Class subscriber, Class messageType){
         validations.add(new ValidationEntry(messageType, subscriber));
         messageTypes.add(messageType);
-        subscribers.add(subscriber);
         return this;
     }
 
@@ -73,14 +71,7 @@ public class SubscriptionValidator extends AssertSupport{
         };
     }
 
-    private IPredicate<ValidationEntry> EntriesBySubscriberType(final Class subscriberType){
-        return new IPredicate<ValidationEntry>() {
-            @Override
-            public boolean apply(ValidationEntry target) {
-                return target.subscriber.equals(subscriberType);
-            }
-        };
-    }
+
 
     public class Expectation{
 
