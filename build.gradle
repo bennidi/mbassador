@@ -1,10 +1,18 @@
-usePlugin('java')
+apply plugin: 'java'
 
 group="org.mbassy"
 version="1.1.2"
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
-    addMavenRepo()
+
+    compile 'org.slf4j:slf4j-api:1.7.5'
+    compile 'com.lmax:disruptor:3.1.1'
 
     testCompile "junit:junit:4.10@jar"
+    testCompile 'org.slf4j:slf4j-jdk14:1.7.5'
+
 }
