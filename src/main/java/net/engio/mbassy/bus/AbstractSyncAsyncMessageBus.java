@@ -5,6 +5,7 @@ import net.engio.mbassy.PublicationError;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The base class for all async message bus implementations.
@@ -23,6 +24,8 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
     // all pending messages scheduled for asynchronous dispatch are queued here
     private final BlockingQueue<MessagePublication> pendingMessages;
 
+    private static final AtomicInteger threadID = new AtomicInteger();
+    
     public AbstractSyncAsyncMessageBus(BusConfiguration configuration) {
         super(configuration);
         this.executor = configuration.getExecutor();
@@ -52,6 +55,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
                 }
             });
             dispatcher.setDaemon(true); // do not prevent the JVM from exiting
+            dispatcher.setName("MBassyDispatch-" + threadID.incrementAndGet());
             dispatchers.add(dispatcher);
             dispatcher.start();
         }
@@ -89,7 +93,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
         for (Thread dispatcher : dispatchers) {
             dispatcher.interrupt();
         }
-        executor.shutdown();
+        if(executor != null) executor.shutdown();
     }
 
     public boolean hasPendingMessages() {
