@@ -17,7 +17,7 @@ import java.util.Collection;
  * @author bennidi
  *         Date: 11/16/12
  */
-public class MessagePublication {
+public class MessagePublication implements IMessagePublication {
 
     public static class Factory {
 
@@ -44,7 +44,8 @@ public class MessagePublication {
         this.state = initialState;
     }
 
-    public boolean add(Subscription subscription) {
+    @Override
+	public boolean add(Subscription subscription) {
         return subscriptions.add(subscription);
     }
 
@@ -65,23 +66,33 @@ public class MessagePublication {
         }
     }
 
-    public boolean isFinished() {
+    @Override
+	public boolean isFinished() {
         return state.equals(State.Finished);
     }
 
-    public boolean isRunning() {
+    @Override
+	public boolean isRunning() {
         return state.equals(State.Running);
     }
 
-    public boolean isScheduled() {
+    @Override
+	public boolean isScheduled() {
         return state.equals(State.Scheduled);
     }
+    
+    @Override
+    public boolean isError() {
+    	return state.equals(State.Error);
+    }
 
-    public void markDelivered() {
+    @Override
+	public void markDelivered() {
         delivered = true;
     }
 
-    public MessagePublication markScheduled() {
+    @Override
+	public MessagePublication markScheduled() {
         if (!state.equals(State.Initial)) {
             return this;
         }
@@ -89,16 +100,19 @@ public class MessagePublication {
         return this;
     }
 
-    public MessagePublication setError() {
+    @Override
+	public MessagePublication setError() {
         state = State.Error;
         return this;
     }
 
-    public boolean isDeadEvent() {
+    @Override
+	public boolean isDeadEvent() {
         return DeadMessage.class.isAssignableFrom(message.getClass());
     }
 
-    public boolean isFilteredEvent() {
+    @Override
+	public boolean isFilteredEvent() {
         return FilteredMessage.class.isAssignableFrom(message.getClass());
     }
 
