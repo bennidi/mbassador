@@ -20,15 +20,12 @@ import java.util.*;
  * @param <P>
  */
 public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncPostCommand> implements ISyncMessageBus<T, P> {
-
-
     // this handler will receive all errors that occur during message dispatch or message handling
     private final List<IPublicationErrorHandler> errorHandlers = new ArrayList<IPublicationErrorHandler>();
 
     private final MessagePublication.Factory publicationFactory;
 
     private final SubscriptionManager subscriptionManager;
-
 
     public AbstractSyncMessageBus(SyncBusConfiguration configuration) {
         this.subscriptionManager = new SubscriptionManager(configuration.getMetadataReader(),
@@ -61,7 +58,6 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
         }
     }
 
-
     protected MessagePublication createMessagePublication(T message) {
         Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
         if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass().equals(DeadMessage.class)) {
@@ -79,11 +75,9 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
         return subscriptionManager.getSubscriptionsByMessageType(messageType);
     }
 
-
-    public void handlePublicationError(PublicationError error) {
+    protected void handlePublicationError(PublicationError error) {
         for (IPublicationErrorHandler errorHandler : errorHandlers) {
             errorHandler.handleError(error);
         }
     }
-
 }

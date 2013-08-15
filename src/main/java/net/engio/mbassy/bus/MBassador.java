@@ -4,13 +4,11 @@ import net.engio.mbassy.PublicationError;
 
 import java.util.concurrent.TimeUnit;
 
-
-public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> {
+public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> implements IMBassador<T, SyncAsyncPostCommand<T>> {
 
     public MBassador(BusConfiguration configuration) {
         super(configuration);
     }
-
 
     public MessagePublication publishAsync(T message) {
         return addAsynchronousDeliveryRequest(createMessagePublication(message));
@@ -19,7 +17,6 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
     public MessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
         return addAsynchronousDeliveryRequest(createMessagePublication(message), timeout, unit);
     }
-
 
     /**
      * Synchronously publish a message to all registered listeners (this includes listeners defined for super types)
@@ -37,7 +34,6 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
                     .setCause(e)
                     .setPublishedObject(message));
         }
-
     }
 
 
