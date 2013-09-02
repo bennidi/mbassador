@@ -1,15 +1,16 @@
 package net.engio.mbassy.subscription;
 
+import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.MessageBusException;
-import net.engio.mbassy.bus.ISyncMessageBus;
+import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.common.WeakConcurrentSet;
 import net.engio.mbassy.dispatch.*;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 
 /**
  * The subscription factory is used to create an empty subscription for specific message handler.
@@ -17,16 +18,12 @@ import java.lang.reflect.Modifier;
  */
 public class SubscriptionFactory {
 
-    private ISyncMessageBus bus;
+    private static final String ErrorHandlers = "error.handlers";
 
-    public SubscriptionFactory setBus(ISyncMessageBus bus) {
-        this.bus = bus;
-        return this;
-    }
-
-    public Subscription createSubscription(MessageHandlerMetadata handlerMetadata) throws MessageBusException{
+    public Subscription createSubscription(BusRuntime runtime, MessageHandlerMetadata handlerMetadata) throws MessageBusException{
         try {
-            SubscriptionContext context = new SubscriptionContext(bus, handlerMetadata);
+            Collection<IPublicationErrorHandler> errorHandlers = runtime.get(ErrorHandlers);
+            SubscriptionContext context = new SubscriptionContext(runtime, handlerMetadata, errorHandlers);
             IHandlerInvocation invocation = buildInvocationForHandler(context);
             IMessageDispatcher dispatcher = buildDispatcher(context, invocation);
             return new Subscription(context, dispatcher, handlerMetadata.useStrongReferences()

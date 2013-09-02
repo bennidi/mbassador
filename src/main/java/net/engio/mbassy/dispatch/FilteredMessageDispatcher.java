@@ -36,7 +36,7 @@ public class FilteredMessageDispatcher extends DelegatingMessageDispatcher {
 
 
     @Override
-    public void dispatch(MessagePublication publication, Object message, Iterable listeners) {
+    public void dispatch(MessagePublication publication, Object message, Iterable listeners){
         if (passesFilter(message)) {
             getDelegate().dispatch(publication, message, listeners);
         }

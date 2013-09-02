@@ -1,28 +1,21 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.bus.ISyncMessageBus;
-import net.engio.mbassy.dispatch.ISubscriptionContextAware;
-
 /**
  * The base implementation for subscription context aware objects (mightily obvious :)
  *
  * @author bennidi
  *         Date: 3/1/13
  */
-public class AbstractSubscriptionContextAware<Bus extends ISyncMessageBus> implements ISubscriptionContextAware<Bus> {
+public class AbstractSubscriptionContextAware implements ISubscriptionContextAware {
 
-    private final SubscriptionContext<Bus> context;
+    private final SubscriptionContext context;
 
-    public AbstractSubscriptionContextAware(SubscriptionContext<Bus> context) {
+    public AbstractSubscriptionContextAware(SubscriptionContext context) {
         this.context = context;
     }
 
-    public SubscriptionContext<Bus> getContext() {
+    public SubscriptionContext getContext() {
         return context;
     }
 
-    @Override
-    public Bus getBus() {
-        return context.getOwningBus();
-    }
 }

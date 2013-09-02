@@ -1,12 +1,14 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.BusConfiguration;
+import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.*;
 import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listeners.IMessageListener;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.listeners.MessagesListener;
+import net.engio.mbassy.listeners.ObjectListener;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,6 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  *         Date: 1/18/13
  */
 public class DeadMessageTest extends MessageBusTest{
+
+    @Before
+    public void beforeTest(){
+        DeadMessagHandler.deadMessages.set(0);
+    }
 
 
     @Test
@@ -56,15 +63,52 @@ public class DeadMessageTest extends MessageBusTest{
         assertEquals(InstancesPerListener * IterationsPerThread * ConcurrentUnits, DeadMessagHandler.deadMessages.get());
     }
 
+
+
+    @Test
+    public void testUnsubscribingAllListeners() {
+        final MBassador bus = getBus(BusConfiguration.Default());
+        ListenerFactory deadMessageListener = new ListenerFactory()
+                .create(InstancesPerListener, DeadMessagHandler.class)
+                .create(InstancesPerListener, Object.class);
+        ListenerFactory objectListener = new ListenerFactory()
+                .create(InstancesPerListener, ObjectListener.class);
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, deadMessageListener), ConcurrentUnits);
+
+        // Only dead message handlers available
+        bus.post(new Object()).now();
+
+        // The message should be caught as dead message since there are no subscribed listeners
+        assertEquals(InstancesPerListener, DeadMessagHandler.deadMessages.get());
+
+        // Clear deadmessage for future tests
+        DeadMessagHandler.deadMessages.set(0);
+
+        // Add object listeners and publish again
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, objectListener), ConcurrentUnits);
+        bus.post(new Object()).now();
+
+        // verify that no dead message events were produced
+        assertEquals(0, DeadMessagHandler.deadMessages.get());
+
+        // Unsubscribe all object listeners
+        ConcurrentExecutor.runConcurrent(TestUtil.unsubscriber(bus, objectListener), ConcurrentUnits);
+
+        // Only dead message handlers available
+        bus.post(new Object()).now();
+
+        // The message should be caught, as it's the only listener
+        assertEquals(InstancesPerListener, DeadMessagHandler.deadMessages.get());
+    }
+
     public static class DeadMessagHandler {
 
         private static final AtomicInteger deadMessages = new AtomicInteger(0);
 
-
         @Handler
-         public void handle(DeadMessage message){
-             deadMessages.incrementAndGet();
-         }
+        public void handle(DeadMessage message){
+            deadMessages.incrementAndGet();
+        }
 
     }
 

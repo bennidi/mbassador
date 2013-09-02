@@ -19,26 +19,15 @@ import java.util.Collection;
  */
 public class MessagePublication {
 
-    public static class Factory {
+    private final Collection<Subscription> subscriptions;
+    private final Object message;
+    // message publications can be referenced by multiple threads to query publication progress
+    private volatile State state = State.Initial;
+    private volatile boolean delivered = false;
+    private final BusRuntime runtime;
 
-        public MessagePublication createPublication(ISyncMessageBus owningBus, Collection<Subscription> subscriptions, Object message) {
-            return new MessagePublication(owningBus, subscriptions, message, State.Initial);
-        }
-
-    }
-
-    private Collection<Subscription> subscriptions;
-
-    private Object message;
-
-    private State state = State.Initial;
-
-    private boolean delivered = false;
-
-    private ISyncMessageBus bus;
-
-    protected MessagePublication(ISyncMessageBus bus, Collection<Subscription> subscriptions, Object message, State initialState) {
-        this.bus = bus;
+    protected MessagePublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message, State initialState) {
+        this.runtime = runtime;
         this.subscriptions = subscriptions;
         this.message = message;
         this.state = initialState;
@@ -51,15 +40,15 @@ public class MessagePublication {
     protected void execute() {
         state = State.Running;
         for (Subscription sub : subscriptions) {
-            sub.publish(this, message);
+           sub.publish(this, message);
         }
         state = State.Finished;
         // if the message has not been marked delivered by the dispatcher
         if (!delivered) {
             if (!isFilteredEvent() && !isDeadEvent()) {
-                bus.post(new FilteredMessage(message)).now();
+                runtime.getProvider().publish(new FilteredMessage(message));
             } else if (!isDeadEvent()) {
-                bus.post(new DeadMessage(message)).now();
+                runtime.getProvider().publish(new DeadMessage(message));
             }
 
         }
@@ -82,17 +71,12 @@ public class MessagePublication {
     }
 
     public MessagePublication markScheduled() {
-        if (!state.equals(State.Initial)) {
-            return this;
+        if (state.equals(State.Initial)) {
+            state = State.Scheduled;
         }
-        state = State.Scheduled;
         return this;
     }
 
-    public MessagePublication setError() {
-        state = State.Error;
-        return this;
-    }
 
     public boolean isDeadEvent() {
         return DeadMessage.class.isAssignableFrom(message.getClass());
@@ -104,6 +88,14 @@ public class MessagePublication {
 
     private enum State {
         Initial, Scheduled, Running, Finished, Error
+    }
+
+    public static class Factory {
+
+        public MessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message) {
+            return new MessagePublication(runtime, subscriptions, message, State.Initial);
+        }
+
     }
 
 }

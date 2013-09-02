@@ -18,7 +18,7 @@
         while preserving resource efficiency and performance.
 
         It features:
-        declarative listener definition via annotations,
+        declarative handler definition via annotations,
         sync and/or async message delivery,
         weak-references,
         message filtering,

@@ -44,8 +44,9 @@ public class Subscription {
     }
 
 
-    public void publish(MessagePublication publication, Object message) {
-        dispatcher.dispatch(publication, message, listeners);
+    public void publish(MessagePublication publication, Object message){
+        if(listeners.size() > 0)
+            dispatcher.dispatch(publication, message, listeners);
     }
 
     public int getPriority() {

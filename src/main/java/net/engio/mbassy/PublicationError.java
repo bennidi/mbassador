@@ -12,34 +12,35 @@ import java.lang.reflect.Method;
  *         Date: 2/22/12
  *         Time: 4:59 PM
  */
-public class PublicationError {
+public class PublicationError{
 
     // Internal state
     private Throwable cause;
     private String message;
-    private Method listener;
-    private Object listeningObject;
+    private Method handler;
+    private Object listener;
     private Object publishedObject;
+
 
     /**
      * Compound constructor, creating a PublicationError from the supplied objects.
      *
      * @param cause           The Throwable giving rise to this PublicationError.
      * @param message         The message to send.
-     * @param listener        The method where the error was created.
-     * @param listeningObject The object in which the PublicationError was generated.
+     * @param handler        The method where the error was created.
+     * @param listener The object in which the PublicationError was generated.
      * @param publishedObject The published object which gave rise to the error.
      */
     public PublicationError(final Throwable cause,
                             final String message,
-                            final Method listener,
-                            final Object listeningObject,
+                            final Method handler,
+                            final Object listener,
                             final Object publishedObject) {
 
         this.cause = cause;
         this.message = message;
+        this.handler = handler;
         this.listener = listener;
-        this.listeningObject = listeningObject;
         this.publishedObject = publishedObject;
     }
 
@@ -77,21 +78,21 @@ public class PublicationError {
         return this;
     }
 
-    public Method getListener() {
-        return listener;
+    public Method getHandler() {
+        return handler;
     }
 
-    public PublicationError setListener(Method listener) {
-        this.listener = listener;
+    public PublicationError setHandler(Method handler) {
+        this.handler = handler;
         return this;
     }
 
-    public Object getListeningObject() {
-        return listeningObject;
+    public Object getListener() {
+        return listener;
     }
 
-    public PublicationError setListeningObject(Object listeningObject) {
-        this.listeningObject = listeningObject;
+    public PublicationError setListener(Object listener) {
+        this.listener = listener;
         return this;
     }
 
@@ -116,9 +117,9 @@ public class PublicationError {
                 newLine +
                 "\tmessage='" + message + '\'' +
                 newLine +
-                "\tlistener=" + listener +
+                "\thandler=" + handler +
                 newLine +
-                "\tlisteningObject=" + listeningObject +
+                "\tlistener=" + listener +
                 newLine +
                 "\tpublishedObject=" + publishedObject +
                 '}';

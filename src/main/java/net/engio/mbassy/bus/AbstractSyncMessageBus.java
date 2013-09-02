@@ -2,16 +2,16 @@ package net.engio.mbassy.bus;
 
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
-
+import net.engio.mbassy.bus.config.IBusConfiguration;
+import net.engio.mbassy.bus.publication.IPublicationCommand;
 import net.engio.mbassy.common.DeadMessage;
-
 import net.engio.mbassy.subscription.Subscription;
 import net.engio.mbassy.subscription.SubscriptionManager;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.*;
 
 /**
  * The base class for all message bus implementations.
@@ -19,7 +19,7 @@ import java.util.*;
  * @param <T>
  * @param <P>
  */
-public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncPostCommand> implements ISyncMessageBus<T, P> {
+public abstract class AbstractSyncMessageBus<T, P extends IPublicationCommand> implements ISyncMessageBus<T, P>{
 
 
     // this handler will receive all errors that occur during message dispatch or message handling
@@ -29,10 +29,14 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
 
     private final SubscriptionManager subscriptionManager;
 
+    private final BusRuntime runtime;
 
-    public AbstractSyncMessageBus(SyncBusConfiguration configuration) {
+
+    public AbstractSyncMessageBus(IBusConfiguration configuration) {
+        this.runtime = new BusRuntime(this);
+        this.runtime.add("error.handlers", getRegisteredErrorHandlers());
         this.subscriptionManager = new SubscriptionManager(configuration.getMetadataReader(),
-                configuration.getSubscriptionFactory().setBus(this));
+                configuration.getSubscriptionFactory(), runtime);
         this.publicationFactory = configuration.getMessagePublicationFactory();
     }
 
@@ -61,15 +65,19 @@ public abstract class AbstractSyncMessageBus<T, P extends ISyncMessageBus.ISyncP
         }
     }
 
+    @Override
+    public BusRuntime getRuntime() {
+        return runtime;
+    }
 
     protected MessagePublication createMessagePublication(T message) {
         Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
         if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass().equals(DeadMessage.class)) {
             // Dead Event
             subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
-            return getPublicationFactory().createPublication(this, subscriptions, new DeadMessage(message));
+            return getPublicationFactory().createPublication(runtime, subscriptions, new DeadMessage(message));
         } else {
-            return getPublicationFactory().createPublication(this, subscriptions, message);
+            return getPublicationFactory().createPublication(runtime, subscriptions, message);
         }
     }
 

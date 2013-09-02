@@ -1,6 +1,6 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.BusConfiguration;
+import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.*;
 import net.engio.mbassy.listeners.*;
@@ -26,7 +26,7 @@ public class MBassadorTest extends MessageBusTest {
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, Listeners.synchronous())
                 .create(InstancesPerListener, Listeners.noHandlers());
-        final MBassador bus = getBus(new BusConfiguration(), listeners);
+        final MBassador bus = getBus(BusConfiguration.Default(), listeners);
 
 
         Runnable publishAndCheck = new Runnable() {
@@ -60,7 +60,7 @@ public class MBassadorTest extends MessageBusTest {
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, Listeners.asynchronous())
                 .create(InstancesPerListener, Listeners.noHandlers());
-        final MBassador bus = getBus(new BusConfiguration(), listeners);
+        final MBassador bus = getBus(BusConfiguration.Default(), listeners);
 
         final MessageManager messageManager = new MessageManager();
         Runnable publishAndCheck = new Runnable() {
@@ -92,7 +92,7 @@ public class MBassadorTest extends MessageBusTest {
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, Listeners.asynchronous())
                 .create(InstancesPerListener, Listeners.noHandlers());
-        final MBassador bus = getBus(new BusConfiguration(), listeners);
+        final MBassador bus = getBus(BusConfiguration.Default(), listeners);
 
 
         final MessageManager messageManager = new MessageManager();
@@ -130,7 +130,7 @@ public class MBassadorTest extends MessageBusTest {
             }
         };
 
-        final MBassador bus = new MBassador(new BusConfiguration());
+        final MBassador bus = new MBassador(BusConfiguration.Default());
         bus.addErrorHandler(ExceptionCounter);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);

@@ -17,7 +17,7 @@ public class AssertSupport {
 
     private Runtime runtime = Runtime.getRuntime();
     protected Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-    private long testExecutionStart;
+    private volatile long testExecutionStart;
 
     @Rule
     public TestName name = new TestName();

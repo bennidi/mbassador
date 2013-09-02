@@ -1,6 +1,5 @@
 package net.engio.mbassy.dispatch;
 
-import net.engio.mbassy.bus.IMessageBus;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 
 /**
@@ -9,7 +8,7 @@ import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
  * @author bennidi
  *         Date: 3/31/13
  */
-public class SynchronizedHandlerInvocation extends AbstractSubscriptionContextAware<IMessageBus> implements IHandlerInvocation<Object,Object,IMessageBus>  {
+public class SynchronizedHandlerInvocation extends AbstractSubscriptionContextAware implements IHandlerInvocation<Object,Object>  {
 
     private IHandlerInvocation delegate;
 
@@ -22,7 +21,7 @@ public class SynchronizedHandlerInvocation extends AbstractSubscriptionContextAw
      * {@inheritDoc}
      */
     @Override
-    public void invoke(final Object listener, final Object message) {
+    public void invoke(final Object listener, final Object message){
         synchronized (listener){
             delegate.invoke(listener, message);
         }

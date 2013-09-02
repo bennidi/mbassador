@@ -1,6 +1,9 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.*;
+import net.engio.mbassy.bus.ISyncMessageBus;
+import net.engio.mbassy.bus.MBassador;
+import net.engio.mbassy.bus.SyncMessageBus;
+import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;
@@ -183,7 +186,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
         @Override
         protected ISyncMessageBus getSyncMessageBus() {
-            return new SyncMessageBus(new SyncBusConfiguration());
+            return new SyncMessageBus(BusConfiguration.Default());
         }
     }
 

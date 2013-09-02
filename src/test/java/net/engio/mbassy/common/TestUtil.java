@@ -1,6 +1,6 @@
 package net.engio.mbassy.common;
 
-import net.engio.mbassy.bus.ISyncMessageBus;
+import net.engio.mbassy.bus.PubSubSupport;
 import net.engio.mbassy.subscription.SubscriptionManager;
 
 import java.util.Iterator;
@@ -41,7 +41,7 @@ public class TestUtil {
         };
     }
 
-    public static Runnable subscriber(final ISyncMessageBus bus, final ListenerFactory listeners){
+    public static Runnable subscriber(final PubSubSupport bus, final ListenerFactory listeners){
         final Iterator source = listeners.iterator();
         return new Runnable() {
             @Override
@@ -54,7 +54,7 @@ public class TestUtil {
         };
     }
 
-    public static Runnable unsubscriber(final ISyncMessageBus bus, final ListenerFactory listeners){
+    public static Runnable unsubscriber(final PubSubSupport bus, final ListenerFactory listeners){
         final Iterator source = listeners.iterator();
         return new Runnable() {
             @Override
@@ -67,7 +67,7 @@ public class TestUtil {
         };
     }
 
-    public static void setup(final ISyncMessageBus bus, final List<Object> listeners, int numberOfThreads) {
+    public static void setup(final PubSubSupport bus, final List<Object> listeners, int numberOfThreads) {
         Runnable[] setupUnits = new Runnable[numberOfThreads];
         int partitionSize;
         if(listeners.size() >= numberOfThreads){

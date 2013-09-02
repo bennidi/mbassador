@@ -3,8 +3,7 @@ package net.engio.mbassy.common;
 import junit.framework.Assert;
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
-import net.engio.mbassy.bus.BusConfiguration;
-import net.engio.mbassy.bus.ISyncMessageBus;
+import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.messages.MessageTypes;
 import org.junit.Before;
@@ -16,7 +15,7 @@ import org.junit.Before;
  * @author bennidi
  *         Date: 3/2/13
  */
-public abstract class MessageBusTest<Bus extends ISyncMessageBus> extends AssertSupport {
+public abstract class MessageBusTest extends AssertSupport {
 
     // this value probably needs to be adjusted depending on the performance of the underlying plattform
     // otherwise the tests will fail since asynchronous processing might not have finished when

@@ -1,4 +1,7 @@
-package net.engio.mbassy.bus;
+package net.engio.mbassy.bus.publication;
+
+import net.engio.mbassy.bus.MBassador;
+import net.engio.mbassy.bus.MessagePublication;
 
 import java.util.concurrent.TimeUnit;
 
@@ -8,7 +11,7 @@ import java.util.concurrent.TimeUnit;
  * @author bennidi
  *         Date: 11/12/12
  */
-public class SyncAsyncPostCommand<T> implements IMessageBus.IPostCommand {
+public class SyncAsyncPostCommand<T> implements ISyncAsyncPublicationCommand {
 
     private T message;
     private MBassador<T> mBassador;

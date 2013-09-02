@@ -1,5 +1,6 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.common.*;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.listeners.*;
@@ -10,6 +11,7 @@ import net.engio.mbassy.subscription.SubscriptionManager;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  *
@@ -168,7 +170,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     @Test
     public void testStrongListenerSubscription() throws Exception {
         ListenerFactory listeners = listeners(CustomInvocationListener.class);
-        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory());
+        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 
         listeners.clear();
@@ -186,7 +188,7 @@ public class SubscriptionManagerTest extends AssertSupport {
                 Overloading.ListenerBase.class,
                 Overloading.ListenerSub.class);
 
-        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory());
+        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 
         SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
@@ -194,6 +196,12 @@ public class SubscriptionManagerTest extends AssertSupport {
                 .listener(Overloading.ListenerSub.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class, Overloading.TestMessageB.class);
 
         runTestWith(listeners, expectedSubscriptions);
+    }
+
+    private BusRuntime mockedRuntime(){
+        return new BusRuntime(null)
+                .add("error.handlers", Collections.EMPTY_SET)
+                .add("handler.async-service", null);
     }
 
     private ListenerFactory listeners(Class ...listeners){
@@ -205,7 +213,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     private void runTestWith(final ListenerFactory listeners, final SubscriptionValidator validator){
-        final SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory());
+        final SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
 
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 

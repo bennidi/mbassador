@@ -4,6 +4,7 @@ import junit.framework.Assert;
 import net.engio.mbassy.common.AssertSupport;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.IConcurrentSet;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
@@ -26,7 +27,14 @@ public abstract class ConcurrentSetTest extends AssertSupport {
     // Shared state
     protected final int numberOfElements = 100000;
     protected final int numberOfThreads = 50;
-    
+
+    protected Set gcProtector = new HashSet();
+
+    @Before
+    public void beforeTest(){
+        super.beforeTest();
+        gcProtector = new HashSet();
+    }
     
     protected abstract IConcurrentSet createSet();
 
@@ -36,7 +44,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         final LinkedList<Object> duplicates = new LinkedList<Object>();
         final HashSet<Object> distinct = new HashSet<Object>();
 
-        final IConcurrentSet testSetWeak = createSet();
+        final IConcurrentSet testSet = createSet();
         Random rand = new Random();
 
         // getAll set of distinct objects and list of duplicates
@@ -54,32 +62,34 @@ public abstract class ConcurrentSetTest extends AssertSupport {
             @Override
             public void run() {
                 for (Object src : duplicates) {
-                    testSetWeak.add(src);
+                    testSet.add(src);
                 }
             }
         }, numberOfThreads);
 
         // check that the control set and the test set contain the exact same elements
-        assertEquals(distinct.size(), testSetWeak.size());
+        assertEquals(distinct.size(), testSet.size());
         for (Object uniqueObject : distinct) {
-            assertTrue(testSetWeak.contains(uniqueObject));
+            assertTrue(testSet.contains(uniqueObject));
         }
     }
 
-    @Test
+    @Test()
     public void testIterationWithConcurrentRemoval() {
-        final IConcurrentSet<AtomicInteger> testSetWeak = createSet();
+        final IConcurrentSet<AtomicInteger> testSet = createSet();
         final Random rand = new Random();
 
         for (int i = 0; i < numberOfElements; i++) {
-            testSetWeak.add(new AtomicInteger());
+            AtomicInteger element = new AtomicInteger();
+            testSet.add(element);
+            gcProtector.add(element);
         }
 
         Runnable incrementer = new Runnable() {
             @Override
             public void run() {
-                while(testSetWeak.size() > 100){
-                    for(AtomicInteger element : testSetWeak)
+                while(testSet.size() > 100){
+                    for(AtomicInteger element : testSet)
                         element.incrementAndGet();
                 }
 
@@ -89,10 +99,10 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         Runnable remover = new Runnable() {
             @Override
             public void run() {
-                while(testSetWeak.size() > 100){
-                    for(AtomicInteger element : testSetWeak)
-                        if(rand.nextInt() % 3 == 0)
-                            testSetWeak.remove(element);
+                while(testSet.size() > 100){
+                    for(AtomicInteger element : testSet)
+                        if(rand.nextInt() % 3 == 0 && testSet.size() > 100)
+                            testSet.remove(element);
                 }
             }
         };
@@ -100,9 +110,13 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         ConcurrentExecutor.runConcurrent(20, incrementer, incrementer, remover);
 
         Set<Integer> counts = new HashSet<Integer>();
-        for (AtomicInteger count : testSetWeak) {
+        for (AtomicInteger count : testSet) {
             counts.add(count.get());
         }
+        // all atomic integers should have been visited by the the incrementer
+        // the same number of times
+        // in other words: they have either been removed at some point or incremented in each
+        // iteration such that all remaining atomic integers must share the same value
         assertEquals(1, counts.size());
     }
 
@@ -113,7 +127,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         final HashSet<Object> source = new HashSet<Object>();
         final HashSet<Object> toRemove = new HashSet<Object>();
 
-        final IConcurrentSet testSetWeak = createSet();
+        final IConcurrentSet testSet = createSet();
         // getAll set of distinct objects and mark a subset of those for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
@@ -128,7 +142,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
             @Override
             public void run() {
                 for (Object src : source) {
-                    testSetWeak.add(src);
+                    testSet.add(src);
                 }
             }
         }, numberOfThreads);
@@ -138,20 +152,20 @@ public abstract class ConcurrentSetTest extends AssertSupport {
             @Override
             public void run() {
                 for (Object src : toRemove) {
-                    testSetWeak.remove(src);
+                    testSet.remove(src);
                 }
             }
         }, numberOfThreads);
 
         // ensure that the test set does not contain any of the elements that have been removed from it
-        for (Object tar : testSetWeak) {
+        for (Object tar : testSet) {
             Assert.assertTrue(!toRemove.contains(tar));
         }
         // ensure that the test set still contains all objects from the source set that have not been marked
         // for removal
-        assertEquals(source.size() - toRemove.size(), testSetWeak.size());
+        assertEquals(source.size() - toRemove.size(), testSet.size());
         for (Object src : source) {
-            if (!toRemove.contains(src)) assertTrue(testSetWeak.contains(src));
+            if (!toRemove.contains(src)) assertTrue(testSet.contains(src));
         }
     }
 
@@ -160,7 +174,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         final HashSet<Object> source = new HashSet<Object>();
         final HashSet<Object> toRemove = new HashSet<Object>();
 
-        final IConcurrentSet testSetWeak = createSet();
+        final IConcurrentSet testSet = createSet();
         // getAll set of candidates and mark subset for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
@@ -176,35 +190,35 @@ public abstract class ConcurrentSetTest extends AssertSupport {
             @Override
             public void run() {
                 for (Object src : source) {
-                    testSetWeak.add(src);
+                    testSet.add(src);
                     if (toRemove.contains(src))
-                        testSetWeak.remove(src);
+                        testSet.remove(src);
                 }
             }
         }, numberOfThreads);
 
         // ensure that the test set does not contain any of the elements that have been removed from it
-        for (Object tar : testSetWeak) {
+        for (Object tar : testSet) {
             Assert.assertTrue(!toRemove.contains(tar));
         }
         // ensure that the test set still contains all objects from the source set that have not been marked
         // for removal
-        assertEquals(source.size() - toRemove.size(), testSetWeak.size());
+        assertEquals(source.size() - toRemove.size(), testSet.size());
         for (Object src : source) {
-            if (!toRemove.contains(src)) assertTrue(testSetWeak.contains(src));
+            if (!toRemove.contains(src)) assertTrue(testSet.contains(src));
         }
     }
 
     @Test
     public void testCompleteRemoval() {
         final HashSet<Object> source = new HashSet<Object>();
-        final IConcurrentSet testSetWeak = createSet();
+        final IConcurrentSet testSet = createSet();
 
         // getAll set of candidates and mark subset for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
             source.add(candidate);
-            testSetWeak.add(candidate);
+            testSet.add(candidate);
         }
 
         // getAll test set by adding the candidates
@@ -213,7 +227,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
             @Override
             public void run() {
                 for (Object src : source) {
-                    testSetWeak.remove(src);
+                    testSet.remove(src);
                 }
             }
         }, numberOfThreads);
@@ -221,9 +235,9 @@ public abstract class ConcurrentSetTest extends AssertSupport {
 
         // ensure that the test set still contains all objects from the source set that have not been marked
         // for removal
-        assertEquals(0, testSetWeak.size());
+        assertEquals(0, testSet.size());
         for(Object src : source){
-            assertFalse(testSetWeak.contains(src));
+            assertFalse(testSet.contains(src));
         }
     }
 
@@ -340,5 +354,8 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         return result;
     }
 
-
+    protected void protectFromGarbageCollector(Set elements){
+        for(Object element : elements)
+            gcProtector.add(element);
+    }
 }

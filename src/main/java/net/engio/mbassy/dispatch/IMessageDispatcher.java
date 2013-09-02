@@ -1,6 +1,7 @@
 package net.engio.mbassy.dispatch;
 
 import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.subscription.ISubscriptionContextAware;
 
 /**
  * A message dispatcher provides the functionality to deliver a single message

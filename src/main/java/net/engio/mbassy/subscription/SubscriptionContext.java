@@ -1,7 +1,11 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.bus.ISyncMessageBus;
+import net.engio.mbassy.IPublicationErrorHandler;
+import net.engio.mbassy.bus.BusRuntime;
+import net.engio.mbassy.bus.RuntimeProvider;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
+
+import java.util.Collection;
 
 /**
  * The subscription context holds all (meta)data/objects that are relevant to successfully publish
@@ -12,26 +16,22 @@ import net.engio.mbassy.listener.MessageHandlerMetadata;
  * @author bennidi
  *         Date: 11/23/12
  */
-public class SubscriptionContext<Bus extends ISyncMessageBus> {
+public class SubscriptionContext implements RuntimeProvider {
 
-    private Bus owningBus;
+    // the handler's metadata -> for each handler in a listener, a unique subscription context is created
+    private final MessageHandlerMetadata handlerMetadata;
 
-    private MessageHandlerMetadata handlerMetadata;
+    // error handling is first-class functionality
+    private final Collection<IPublicationErrorHandler> errorHandlers;
 
-    public SubscriptionContext(Bus owningBus, MessageHandlerMetadata handlerMetadata) {
-        this.owningBus = owningBus;
+    private BusRuntime runtime;
+
+    public SubscriptionContext(BusRuntime runtime, MessageHandlerMetadata handlerMetadata,
+                               Collection<IPublicationErrorHandler> errorHandlers) {
+        this.runtime = runtime;
         this.handlerMetadata = handlerMetadata;
+        this.errorHandlers = errorHandlers;
     }
-
-    /**
-     * Get a reference to the message bus this context belongs to
-     *
-     * @return
-     */
-    public Bus getOwningBus() {
-        return owningBus;
-    }
-
 
     /**
      * Get the meta data that specifies the characteristics of the message handler
@@ -41,6 +41,19 @@ public class SubscriptionContext<Bus extends ISyncMessageBus> {
      */
     public MessageHandlerMetadata getHandlerMetadata() {
         return handlerMetadata;
+    }
+
+    /**
+     * Get the error handlers registered with the enclosing bus.
+     * @return
+     */
+    public Collection<IPublicationErrorHandler> getErrorHandlers(){
+        return errorHandlers;
+    }
+
+    @Override
+    public BusRuntime getRuntime() {
+        return runtime;
     }
 
 }

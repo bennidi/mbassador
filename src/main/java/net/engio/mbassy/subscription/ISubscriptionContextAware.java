@@ -1,7 +1,4 @@
-package net.engio.mbassy.dispatch;
-
-import net.engio.mbassy.bus.ISyncMessageBus;
-import net.engio.mbassy.subscription.SubscriptionContext;
+package net.engio.mbassy.subscription;
 
 /**
  * This interface marks components that have access to the subscription context.
@@ -9,7 +6,7 @@ import net.engio.mbassy.subscription.SubscriptionContext;
  * @author bennidi
  *         Date: 3/1/13
  */
-public interface ISubscriptionContextAware<Bus extends ISyncMessageBus> extends IMessageBusAware<Bus> {
+public interface ISubscriptionContextAware{
 
     /**
      * Get the subscription context associated with this object

@@ -3,10 +3,12 @@ package net.engio.mbassy;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.common.WeakConcurrentSet;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 /**
  *
@@ -15,6 +17,10 @@ import java.util.Random;
  *         Date: 3/29/13
  */
 public class WeakConcurrentSetTest extends ConcurrentSetTest{
+
+
+
+
 
     @Override
     protected IConcurrentSet createSet() {

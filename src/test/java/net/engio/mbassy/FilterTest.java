@@ -1,6 +1,6 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.BusConfiguration;
+import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.DeadMessage;
 import net.engio.mbassy.common.FilteredMessage;
@@ -31,7 +31,7 @@ public class FilterTest extends MessageBusTest {
         FilteredEventCounter.set(0);
         DeadEventCounter.set(0);
 
-        MBassador bus = getBus(new BusConfiguration());
+        MBassador bus = getBus(BusConfiguration.Default());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, FilteredMessageListener.class);
 
@@ -56,7 +56,7 @@ public class FilterTest extends MessageBusTest {
         FilteredEventCounter.set(0);
         DeadEventCounter.set(0);
 
-        MBassador bus = getBus(new BusConfiguration());
+        MBassador bus = getBus(BusConfiguration.Default());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, FilteredMessageListener.class);
 

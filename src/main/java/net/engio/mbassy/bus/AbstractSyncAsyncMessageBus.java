@@ -1,11 +1,15 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.bus.config.IBusConfiguration;
+import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The base class for all async message bus implementations.
@@ -13,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @param <T>
  * @param <P>
  */
-public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPostCommand> extends AbstractSyncMessageBus<T, P> implements IMessageBus<T, P> {
+public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublicationCommand> extends AbstractSyncMessageBus<T, P> implements IMessageBus<T, P> {
 
     // executor for asynchronous message handlers
     private final ExecutorService executor;
@@ -24,23 +28,23 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
     // all pending messages scheduled for asynchronous dispatch are queued here
     private final BlockingQueue<MessagePublication> pendingMessages;
 
-    private static final AtomicInteger threadID = new AtomicInteger();
-    
-    public AbstractSyncAsyncMessageBus(BusConfiguration configuration) {
+    protected AbstractSyncAsyncMessageBus(IBusConfiguration configuration) {
         super(configuration);
-        this.executor = configuration.getExecutor();
-        pendingMessages = new LinkedBlockingQueue<MessagePublication>(configuration.getMaximumNumberOfPendingMessages());
-         dispatchers = new ArrayList<Thread>(configuration.getNumberOfMessageDispatchers());
-        initDispatcherThreads(configuration.getNumberOfMessageDispatchers());
+        this.executor = configuration.getExecutorForAsynchronousHandlers();
+        getRuntime().add("handler.async-service", executor);
+        pendingMessages = configuration.getPendingMessagesQueue();
+        dispatchers = new ArrayList<Thread>(configuration.getNumberOfMessageDispatchers());
+        initDispatcherThreads(configuration);
     }
 
 
     // initialize the dispatch workers
-    private void initDispatcherThreads(int numberOfThreads) {
-        for (int i = 0; i < numberOfThreads; i++) {
+    private void initDispatcherThreads(IBusConfiguration configuration) {
+        for (int i = 0; i < configuration.getNumberOfMessageDispatchers(); i++) {
             // each thread will run forever and process incoming
-            //dispatch requests
-            Thread dispatcher = new Thread(new Runnable() {
+            // message publication requests
+
+            Thread dispatcher = configuration.getThreadFactoryForAsynchronousMessageDispatch().newThread(new Runnable() {
                 public void run() {
                     while (true) {
                         try {
@@ -54,8 +58,6 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
                     }
                 }
             });
-            dispatcher.setDaemon(true); // do not prevent the JVM from exiting
-            dispatcher.setName("MBassyDispatch-" + threadID.incrementAndGet());
             dispatchers.add(dispatcher);
             dispatcher.start();
         }
@@ -68,7 +70,8 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
             pendingMessages.put(request);
             return request.markScheduled();
         } catch (InterruptedException e) {
-            return request.setError();
+            // TODO: publication error
+            return request;
         }
     }
 
@@ -77,9 +80,10 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
         try {
             return pendingMessages.offer(request, timeout, unit)
                     ? request.markScheduled()
-                    : request.setError();
+                    : request;
         } catch (InterruptedException e) {
-            return request.setError();
+            // TODO: publication error
+            return request;
         }
     }
 
@@ -89,6 +93,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
         super.finalize();
     }
 
+    @Override
     public void shutdown() {
         for (Thread dispatcher : dispatchers) {
             dispatcher.interrupt();
@@ -96,6 +101,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends IMessageBus.IPost
         if(executor != null) executor.shutdown();
     }
 
+    @Override
     public boolean hasPendingMessages() {
         return pendingMessages.size() > 0;
     }

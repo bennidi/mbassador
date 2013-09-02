@@ -1,5 +1,6 @@
 package net.engio.mbassy.subscription;
 
+import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.listener.MessageHandlerMetadata;
@@ -9,7 +10,9 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Todo: Add javadoc
+ * The subscription managers primary task is consistently handle new and existing subscriptions
+ * and to synchronize concurrent access to them efficiently. It takes care of properly registering and
+ * unregistering message listeners and is a core component of each bus implementation
  *
  * @author bennidi
  *         Date: 5/11/13
@@ -41,9 +44,12 @@ public class SubscriptionManager {
 
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
-    public SubscriptionManager(MetadataReader metadataReader, SubscriptionFactory subscriptionFactory) {
+    private final BusRuntime runtime;
+
+    public SubscriptionManager(MetadataReader metadataReader, SubscriptionFactory subscriptionFactory, BusRuntime runtime) {
         this.metadataReader = metadataReader;
         this.subscriptionFactory = subscriptionFactory;
+        this.runtime = runtime;
     }
 
 
@@ -91,7 +97,7 @@ public class SubscriptionManager {
                 // create subscriptions for all detected message handlers
                 for (MessageHandlerMetadata messageHandler : messageHandlers) {
                     // create the subscription
-                    subscriptionsByListener.add(subscriptionFactory.createSubscription(messageHandler));
+                    subscriptionsByListener.add(subscriptionFactory.createSubscription(runtime, messageHandler));
                 }
                 // this will acquire a write lock and handle the case when another thread already subscribed
                 // this particular listener in the mean-time
@@ -114,7 +120,9 @@ public class SubscriptionManager {
             readWriteLock.writeLock().lock();
             // basically this is a deferred double check
             // it's an ugly pattern but necessary because atomic upgrade from read to write lock
-            // is not possible and using a write lock from the beginning with will dramatically decrease performance
+            // is not possible
+            // the alternative of using a write lock from the beginning would decrease performance dramatically
+            // because of the huge number of reads compared to writes
             Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
 
             if (subscriptionsByListener == null) {
