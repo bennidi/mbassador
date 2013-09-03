@@ -41,13 +41,57 @@ public class BusConfiguration implements IBusConfiguration {
         }
     };
 
+    /**
+     * Creates a new instance, using the Default settings of 2 dispatchers, and
+     * asynchronous handlers with an initial count equal to the number of
+     * available processors in the machine, with maximum count equal to
+     * 2 * the number of available processors. Uses {@link Runtime#availableProcessors()} to
+     * determine the number of available processors
+     * 
+     * @return a Default BusConfiguration
+     */
     public static BusConfiguration Default() {
-        BusConfiguration defaultConfig = new BusConfiguration();
+    	return Default(2);
+    }
+
+    /**
+     * Creates a new instance, using the specified number of dispatchers, and
+     * asynchronous handlers with an initial count equal to the number of
+     * available processors in the machine, with maximum count equal to
+     * 2 * the number of available processors. Uses {@link Runtime#availableProcessors()} to
+     * determine the number of available processors
+     * 
+     * @return a Default BusConfiguration
+     */
+    public static BusConfiguration Default(int numberOfDispatchers) {
         int numberOfCoreThreads = Runtime.getRuntime().availableProcessors();
-        defaultConfig.setExecutorForAsynchronousHandlers(new ThreadPoolExecutor(numberOfCoreThreads, numberOfCoreThreads*2, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), AsynchronousHandlerThreadFactory));
+        return Default(numberOfDispatchers, numberOfCoreThreads, numberOfCoreThreads * 2);
+    }
+    
+    /**
+     * Creates a new instance, using the specified number of dispatchers, and
+     * asynchronous handlers with initial threads and maximum threads specified by the calling
+     * parameters.
+     * 
+     * @return a Default BusConfiguration
+     */
+    public static BusConfiguration Default(int numberOfDispatchers, int initialCoreThreads, int maximumCoreThreads) {
+    	ThreadPoolExecutor executor = new ThreadPoolExecutor(initialCoreThreads, maximumCoreThreads, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), AsynchronousHandlerThreadFactory);
+    	return Default(numberOfDispatchers, executor);
+    }
+    
+    /**
+     * Creates a new instance, using the specified number of dispatchers, and
+     * asynchronous handlers that use the provided ThreadPoolExecutor.
+     * 
+     * @return a Default BusConfiguration
+     */
+    public static BusConfiguration Default(int numberOfDispatchers, ThreadPoolExecutor executor) {
+        BusConfiguration defaultConfig = new BusConfiguration();
+        defaultConfig.setExecutorForAsynchronousHandlers(executor);
         defaultConfig.setMetadataReader(new MetadataReader());
         defaultConfig.setSubscriptionFactory(new SubscriptionFactory());
-        defaultConfig.setNumberOfMessageDispatchers(2);
+        defaultConfig.setNumberOfMessageDispatchers(numberOfDispatchers);
         defaultConfig.setMessagePublicationFactory(new MessagePublication.Factory());
         defaultConfig.setPendingMessagesQueue(new LinkedBlockingQueue<MessagePublication>(Integer.MAX_VALUE));
         defaultConfig.setThreadFactoryForAsynchronousMessageDispatch(DispatcherThreadFactory);
