@@ -4,6 +4,9 @@ import net.engio.mbassy.messages.IMessage;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Created with IntelliJ IDEA.
  * User: benjamin
@@ -12,6 +15,8 @@ import java.util.Collection;
  * To change this template use File | Settings | File Templates.
  */
 public class MessageManager {
+	private static final Logger LOG =
+			LoggerFactory.getLogger(MessageManager.class);
 
 
     private StrongConcurrentSet<MessageContext> messages = new StrongConcurrentSet();
@@ -90,7 +95,7 @@ public class MessageManager {
     }
 
    private void logSuccess(MessageContext mCtx){
-       System.out.println("Message " + mCtx.getMessage() + " was successfully handled " + mCtx.getExpectedCount() + " times by " + mCtx.printListeners());
+       LOG.info("Message " + mCtx.getMessage() + " was successfully handled " + mCtx.getExpectedCount() + " times by " + mCtx.printListeners());
    }
 
 
@@ -100,7 +105,7 @@ public class MessageManager {
         errorMessage.append("Failing messages:\n");
         for(MessageContext failingMessage : failing)
             errorMessage.append(failingMessage);
-        System.out.println(errorMessage.toString());
+        LOG.info(errorMessage.toString());
     }
 
     private class MessageContext{
