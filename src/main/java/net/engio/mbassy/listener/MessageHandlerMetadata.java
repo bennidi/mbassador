@@ -115,8 +115,11 @@ public class MessageHandlerMetadata {
         return acceptsSubtypes;
     }
 
-
     public boolean isEnabled() {
         return handlerConfig.enabled();
+    }
+    
+    public String[] getArguments() {
+    	return handlerConfig.arguments();
     }
 }
