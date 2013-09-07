@@ -62,5 +62,9 @@ public @interface Handler {
      */
     Class<? extends HandlerInvocation> invocation() default ReflectiveHandlerInvocation.class;
 
-
+    /**
+     * This doesn't do anything, but it allows adding fixed arguments to be passed into anything
+     * that wants to look at the metadata. Most typically, this would be in {@link IMessageFilter#accepts}. 
+     */
+    String[] arguments() default {};
 }
