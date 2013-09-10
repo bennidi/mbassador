@@ -3,6 +3,7 @@ package net.engio.mbassy.common;
 import junit.framework.Assert;
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.messages.MessageTypes;
@@ -33,6 +34,8 @@ public abstract class MessageBusTest extends AssertSupport {
     };
 
 
+    private StrongConcurrentSet<MessagePublication> issuedPublications = new StrongConcurrentSet<MessagePublication>();
+
     @Before
     public void setUp(){
         for(MessageTypes mes : MessageTypes.values())
@@ -50,6 +53,22 @@ public abstract class MessageBusTest extends AssertSupport {
         bus.addErrorHandler(TestFailingHandler);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
         return bus;
+    }
+
+    public void waitForPublications(long timeOutInMs){
+        long start = System.currentTimeMillis();
+        while(issuedPublications.size() > 0 && System.currentTimeMillis() - start < timeOutInMs){
+            for(MessagePublication pub : issuedPublications){
+                if(pub.isFinished())
+                    issuedPublications.remove(pub);
+            }
+        }
+        if(issuedPublications.size() > 0)
+            fail("Issued publications did not finish within specified timeout of " + timeOutInMs + " ms");
+    }
+
+    public void addPublication(MessagePublication publication){
+        issuedPublications.add(publication);
     }
 
 }
