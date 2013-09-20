@@ -10,7 +10,7 @@ import net.engio.mbassy.subscription.SubscriptionFactory;
  * @author bennidi
  *         Date: 3/29/13
  */
-public class SyncBusConfiguration<Config extends SyncBusConfiguration<Config>> {
+public class SyncBusConfiguration<C extends SyncBusConfiguration<C>> implements ISyncBusConfiguration {
 
     protected SubscriptionFactory subscriptionFactory;
     protected MetadataReader metadataReader;
@@ -34,17 +34,17 @@ public class SyncBusConfiguration<Config extends SyncBusConfiguration<Config>> {
         return metadataReader;
     }
 
-    public Config setMetadataReader(MetadataReader metadataReader) {
+    public C setMetadataReader(MetadataReader metadataReader) {
         this.metadataReader = metadataReader;
-        return (Config)this;
+        return (C) this;
     }
 
     public SubscriptionFactory getSubscriptionFactory() {
         return subscriptionFactory;
     }
 
-    public Config setSubscriptionFactory(SubscriptionFactory subscriptionFactory) {
+    public C setSubscriptionFactory(SubscriptionFactory subscriptionFactory) {
         this.subscriptionFactory = subscriptionFactory;
-        return (Config)this;
+        return (C) this;
     }
 }
