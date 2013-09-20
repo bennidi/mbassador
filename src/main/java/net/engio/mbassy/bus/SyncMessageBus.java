@@ -1,7 +1,7 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.PublicationError;
-import net.engio.mbassy.bus.config.IBusConfiguration;
+import net.engio.mbassy.bus.config.ISyncBusConfiguration;
 import net.engio.mbassy.bus.publication.IPublicationCommand;
 
 /**
@@ -14,7 +14,7 @@ import net.engio.mbassy.bus.publication.IPublicationCommand;
 public class SyncMessageBus<T> extends AbstractSyncMessageBus<T, SyncMessageBus.SyncPostCommand>{
 
 
-    public SyncMessageBus(IBusConfiguration configuration) {
+    public SyncMessageBus(ISyncBusConfiguration configuration) {
         super(configuration);
     }
 
