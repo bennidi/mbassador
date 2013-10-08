@@ -2,7 +2,7 @@ package net.engio.mbassy.bus;
 
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
-import net.engio.mbassy.bus.config.IBusConfiguration;
+import net.engio.mbassy.bus.config.ISyncBusConfiguration;
 import net.engio.mbassy.bus.publication.IPublicationCommand;
 import net.engio.mbassy.common.DeadMessage;
 import net.engio.mbassy.subscription.Subscription;
@@ -32,7 +32,7 @@ public abstract class AbstractSyncMessageBus<T, P extends IPublicationCommand> i
     private final BusRuntime runtime;
 
 
-    public AbstractSyncMessageBus(IBusConfiguration configuration) {
+    public AbstractSyncMessageBus(ISyncBusConfiguration configuration) {
         this.runtime = new BusRuntime(this);
         this.runtime.add("error.handlers", getRegisteredErrorHandlers());
         this.subscriptionManager = new SubscriptionManager(configuration.getMetadataReader(),
