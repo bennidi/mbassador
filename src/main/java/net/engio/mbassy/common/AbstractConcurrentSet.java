@@ -96,18 +96,28 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
                 if (listelement == null) {
                     return false; //removed by other thread
                 }
-                if (listelement != head) {
-                    listelement.remove();
-                } else {
-                    ISetEntry<T> oldHead = head;
-                    head = head.next();
-                    //oldHead.clear(); // optimize for GC not possible because of potentially running iterators
-                }
+                remove(listelement);
                 entries.remove(element);
             } finally {
                 writeLock.unlock();
             }
             return true;
+        }
+    }
+
+    protected void remove(final ISetEntry<T> listelement) {
+        Lock writeLock = lock.writeLock();
+        try {
+            writeLock.lock();
+            if (listelement != head) {
+                listelement.remove();
+            } else {
+                ISetEntry<T> oldHead = head;
+                head = head.next();
+                //oldHead.clear(); // optimize for GC not possible because of potentially running iterators
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
