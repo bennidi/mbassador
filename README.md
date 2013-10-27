@@ -11,7 +11,7 @@ Read this documentation to get an overview of MBassadors features. There is also
 not enough to make a developer happy (work is in progress). But usage of publish subscribe pattern at its core is pretty straight forward and the basic
 use cases are very easy to understand and implement.
 
-The current version is 1.1.7 and it is available from the Maven Central Repository. See the release notes for more details.
+The current version is 1.1.8 and it is available from the Maven Central Repository. See the release notes for more details.
 
 There is also an extension available to support CDI-like transactional message sending in a Spring environment. It's beta but
 stable enough to give it a try. See <a href="https://github.com/bennidi/mbassador-spring" target="_blank">here</a>.
@@ -157,6 +157,14 @@ to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
 
+<h3>1.1.8</h3>
+
+ + Internal refactorings and code improvements
+ + Fixed #44 #45 #47
+ + NOTE: This release has a known issue with weak references which introduces a memory leak. A fix is on its way for 1.1.9
+ to be released soon
+
+
 <h3>1.1.7</h3>
 
  + Console Logger not added to message bus instances by default -> use addErrorHandler(IPublicationErrorHandler.ConsoleLogger)
@@ -224,7 +232,12 @@ First stable release!
 
 
 <h2>Roadmap</h2>
-+ Spring integration with support for conditional message dispatch in transactional context (dispatch only after
+Check the issues marked with label enhancement. Comment if you would like to see the feature in a future release.
+Please understand that I have limited time to include new features and that I will focus on stability and cleaner APIs.
+Adding features only works well with well designed and thoroughly tested components especially with all this multi-threaded code
+and I am still not 100 percent happy with the existing test coverage.
+
+Planned for release:Spring integration with support for conditional message dispatch in transactional context (dispatch only after
 successful commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring">this</a> repository
 
 
