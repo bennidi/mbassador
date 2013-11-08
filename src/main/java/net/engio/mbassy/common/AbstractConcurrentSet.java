@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
 
     // Internal state
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final Map<T, ISetEntry<T>> entries; // maintain a map of entries for O(log n) lookup
     protected Entry<T> head; // reference to the first element
 

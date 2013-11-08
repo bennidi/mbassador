@@ -4,6 +4,7 @@ package net.engio.mbassy.common;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.WeakHashMap;
+import java.util.concurrent.locks.Lock;
 
 /**
  * This implementation uses weak references to the elements. Iterators automatically perform cleanups of
@@ -25,15 +26,36 @@ public class WeakConcurrentSet<T> extends AbstractConcurrentSet<T>{
     public Iterator<T> iterator() {
         return new Iterator<T>() {
 
+            // the current listelement of this iterator
+            // used to keep track of the iteration process
             private ISetEntry<T> current = head;
+
+            // this method will remove all orphaned entries
+            // until it finds the first entry whose value has not yet been garbage collected
+            // the method assumes that the current element is already orphaned and will remove it
+            private void removeOrphans(){
+                Lock writelock = lock.writeLock();
+                try{
+                    writelock.lock();
+                    do {
+                        ISetEntry orphaned = current;
+                        current = current.next();
+                        orphaned.remove();
+                    } while(current != null && current.getValue() == null);
+                }
+                finally {
+                    writelock.unlock();
+                }
+            }
+
 
             public boolean hasNext() {
                 if (current == null) return false;
-                if (current.getValue() == null) {    // auto-removal of orphan references
-                    do {
-                        remove();
-                    } while(current != null && current.getValue() == null);
-                    return hasNext();
+                if (current.getValue() == null) {
+                // trigger removal of orphan references
+                // because a null value indicates that the value has been garbage collected
+                    removeOrphans();
+                    return current != null; // if any entry is left then it will have a value
                 } else {
                     return true;
                 }
@@ -45,9 +67,7 @@ public class WeakConcurrentSet<T> extends AbstractConcurrentSet<T>{
                 }
                 T value = current.getValue();
                 if (value == null) {    // auto-removal of orphan references
-                    do {
-                        remove();
-                    } while(current != null && current.getValue() == null);
+                    removeOrphans();
                     return next();
                 } else {
                     current = current.next();
@@ -56,6 +76,7 @@ public class WeakConcurrentSet<T> extends AbstractConcurrentSet<T>{
             }
 
             public void remove() {
+                //throw new UnsupportedOperationException("Explicit removal of set elements is only allowed via the controlling set. Sorry!");
                 if (current == null) {
                     return;
                 }

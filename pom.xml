@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.engio</groupId>
     <artifactId>mbassador</artifactId>
-    <version>1.1.8-SNAPSHOT</version>
+    <version>1.1.10-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>mbassador</name>
     <description>
