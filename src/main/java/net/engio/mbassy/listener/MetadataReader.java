@@ -55,8 +55,8 @@ public class MetadataReader {
 
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
-    public MessageListenerMetadata getMessageListener(Class target) {
-        MessageListenerMetadata listenerMetadata = new MessageListenerMetadata(target);
+    public MessageListener getMessageListener(Class target) {
+        MessageListener listenerMetadata = new MessageListener(target);
         // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
         List<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
         // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
@@ -76,7 +76,7 @@ public class MetadataReader {
             }
             Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
             // if a handler is overwritten it inherits the configuration of its parent method
-            MessageHandlerMetadata handlerMetadata = new MessageHandlerMetadata(overriddenHandler == null ? handler : overriddenHandler,
+            MessageHandler handlerMetadata = new MessageHandler(overriddenHandler == null ? handler : overriddenHandler,
                     getFilter(handlerConfig), handlerConfig, listenerMetadata);
             listenerMetadata.addHandler(handlerMetadata);
 

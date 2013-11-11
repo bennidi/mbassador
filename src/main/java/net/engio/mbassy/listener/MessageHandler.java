@@ -7,10 +7,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * Any method in any class annotated with the @Handler annotation represents a message handler. The class that contains
+ * the handler defines the message listener and more generally, any class containing a message handler in its class hierarchy
+ * defines a message listener.
+ *
  * @author bennidi
  *         Date: 11/14/12
  */
-public class MessageHandlerMetadata {
+public class MessageHandler {
 
     private final Method handler;
 
@@ -26,14 +30,14 @@ public class MessageHandlerMetadata {
 
     private final boolean acceptsSubtypes;
 
-    private final MessageListenerMetadata listenerConfig;
+    private final MessageListener listenerConfig;
 
     private final boolean isSynchronized;
 
     private Class listeningClass;
 
 
-    public MessageHandlerMetadata(Method handler, IMessageFilter[] filter, Handler handlerConfig, MessageListenerMetadata listenerConfig) {
+    public MessageHandler(Method handler, IMessageFilter[] filter, Handler handlerConfig, MessageListener listenerConfig) {
         if(handler == null || handlerConfig == null){
             throw new IllegalArgumentException("The message handler configuration may not be null");
         }

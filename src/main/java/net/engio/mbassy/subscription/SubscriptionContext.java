@@ -3,7 +3,7 @@ package net.engio.mbassy.subscription;
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.bus.RuntimeProvider;
-import net.engio.mbassy.listener.MessageHandlerMetadata;
+import net.engio.mbassy.listener.MessageHandler;
 
 import java.util.Collection;
 
@@ -19,14 +19,14 @@ import java.util.Collection;
 public class SubscriptionContext implements RuntimeProvider {
 
     // the handler's metadata -> for each handler in a listener, a unique subscription context is created
-    private final MessageHandlerMetadata handlerMetadata;
+    private final MessageHandler handlerMetadata;
 
     // error handling is first-class functionality
     private final Collection<IPublicationErrorHandler> errorHandlers;
 
     private BusRuntime runtime;
 
-    public SubscriptionContext(BusRuntime runtime, MessageHandlerMetadata handlerMetadata,
+    public SubscriptionContext(BusRuntime runtime, MessageHandler handlerMetadata,
                                Collection<IPublicationErrorHandler> errorHandlers) {
         this.runtime = runtime;
         this.handlerMetadata = handlerMetadata;
@@ -39,7 +39,7 @@ public class SubscriptionContext implements RuntimeProvider {
      *
      * @return
      */
-    public MessageHandlerMetadata getHandlerMetadata() {
+    public MessageHandler getHandlerMetadata() {
         return handlerMetadata;
     }
 

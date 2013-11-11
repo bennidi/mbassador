@@ -17,5 +17,5 @@ public interface IMessageFilter {
      * @param message the message to be delivered
      * @return
      */
-    boolean accepts(Object message, MessageHandlerMetadata metadata);
+    boolean accepts(Object message, MessageHandler metadata);
 }

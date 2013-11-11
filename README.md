@@ -11,7 +11,7 @@ Read this documentation to get an overview of MBassadors features. There is also
 not enough to make a developer happy (work is in progress). But usage of publish subscribe pattern at its core is pretty straight forward and the basic
 use cases are very easy to understand and implement.
 
-The current version is 1.1.8 and it is available from the Maven Central Repository. See the release notes for more details.
+The current version is 1.1.9 and it is available from the Maven Central Repository. See the release notes for more details.
 
 There is also an extension available to support CDI-like transactional message sending in a Spring environment. It's beta but
 stable enough to give it a try. See <a href="https://github.com/bennidi/mbassador-spring" target="_blank">here</a>.
@@ -41,7 +41,7 @@ asynchronously. This is configurable for each handler via annotations. Message p
 blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch
 + <em><strong>Weak references</em></strong>: By default, MBassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister
 listeners that are not used anymore (of course it is also possible to explicitly unregister a listener if needed). This is very comfortable
-in certain environments where listeners are managed by frameworks, i.e. spring, guice etc. Just stuff everything into the message bus, it will
+in certain environments where listeners are managed by frameworks, i.e. Spring, Guice etc. Just stuff everything into the message bus, it will
 ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
 + <em><strong>Strong references</em></strong>: Instead of using weak references, a listener can be configured to be referenced using strong references using @Listener
 + <em><strong>Filtering</em></strong>: MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to
@@ -143,7 +143,7 @@ Beginning with version 1.1.0 MBassador is available from the Maven Central Repos
     <dependency>
         <groupId>net.engio</groupId>
         <artifactId>mbassador</artifactId>
-        <version>1.1.7</version>
+        <version>1.1.9</version>
     </dependency>
 ```
 
@@ -151,11 +151,15 @@ Beginning with version 1.1.0 MBassador is available from the Maven Central Repos
 Of course you can always clone the repository and build from source.
 
 <h2>Wiki</h2>
-There is ongoing afford to extend documentation and provide code samples and detailed explanations of how the message bus
+There is ongoing effort to extend documentation and provide code samples and detailed explanations of how the message bus
 works. Code samples can also be found in the various test cases. Please read about the terminology used in this project
 to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
+
+<h3>1.1.9</h3>
+
+ + Fixed memory leak reported in issue #53
 
 <h3>1.1.8</h3>
 
@@ -168,8 +172,8 @@ to avoid confusion and misunderstanding.
 <h3>1.1.7</h3>
 
  + Console Logger not added to message bus instances by default -> use addErrorHandler(IPublicationErrorHandler.ConsoleLogger)
- + Fixed race conditions in subscription and of WeakConcurrentSet.contains()
- + Improved message hierarchy handling: Now interfaces, enums , (abstract) classes all work in all combinations
+ + Fixed race conditions in net.engio.mbassy.subscription.Subscription and of WeakConcurrentSet.contains()
+ + Improved message hierarchy handling: Now interfaces, enums , (abstract) classes should work in all combinations
  + Prevented dispatcher threads from dying on exceptions
  + Improved test-infrastructure and increased test-coverage
  + Thanks for your feedback!
@@ -232,13 +236,14 @@ First stable release!
 
 
 <h2>Roadmap</h2>
-Check the issues marked with label enhancement. Comment if you would like to see the feature in a future release.
+Check the issues labeled 'enhancement'. Comment if you would like to see the feature in a future release and/or want to share
+your ideas on the feature (or a variation thereof).
 Please understand that I have limited time to include new features and that I will focus on stability and cleaner APIs.
-Adding features only works well with well designed and thoroughly tested components especially with all this multi-threaded code
-and I am still not 100 percent happy with the existing test coverage.
+Adding features only works with well designed and thoroughly tested components. This is especially true for multi-threaded code
+and I am still not 100 percent happy with the existing test design and some parts of the internal code layout.
 
 Planned for release:Spring integration with support for conditional message dispatch in transactional context (dispatch only after
-successful commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring">this</a> repository
+successful transaction commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring">this</a> repository
 
 
 <h2>Credits</h2>
