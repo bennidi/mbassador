@@ -165,8 +165,8 @@ to avoid confusion and misunderstanding.
 
  + Internal refactorings and code improvements
  + Fixed #44 #45 #47
- + NOTE: This release has a known issue with weak references which introduces a memory leak. A fix is on its way for 1.1.9
- to be released soon
+ + NOTE: This release has a known issue with weak references which introduces a memory leak and is fixed in 1.1.9. The
+ version 1.1.8 is not available from the central repository
 
 
 <h3>1.1.7</h3>
