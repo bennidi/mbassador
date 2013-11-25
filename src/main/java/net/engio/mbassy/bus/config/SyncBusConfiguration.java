@@ -2,7 +2,9 @@ package net.engio.mbassy.bus.config;
 
 import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.listener.MetadataReader;
+import net.engio.mbassy.subscription.ISubscriptionManagerProvider;
 import net.engio.mbassy.subscription.SubscriptionFactory;
+import net.engio.mbassy.subscription.SubscriptionManagerProvider;
 
 /**
  * Todo: Add javadoc
@@ -15,11 +17,13 @@ public class SyncBusConfiguration<C extends SyncBusConfiguration<C>> implements 
     protected SubscriptionFactory subscriptionFactory;
     protected MetadataReader metadataReader;
     protected MessagePublication.Factory messagePublicationFactory;
+    protected ISubscriptionManagerProvider subscriptionManagerProvider;
 
     public SyncBusConfiguration() {
         this.metadataReader = new MetadataReader();
         this.subscriptionFactory = new SubscriptionFactory();
         this.messagePublicationFactory = new MessagePublication.Factory();
+        this.subscriptionManagerProvider = new SubscriptionManagerProvider();
     }
 
     public MessagePublication.Factory getMessagePublicationFactory() {
@@ -46,5 +50,14 @@ public class SyncBusConfiguration<C extends SyncBusConfiguration<C>> implements 
     public C setSubscriptionFactory(SubscriptionFactory subscriptionFactory) {
         this.subscriptionFactory = subscriptionFactory;
         return (C) this;
+    }
+    
+    public ISubscriptionManagerProvider getSubscriptionManagerProvider() {
+    	return subscriptionManagerProvider;
+    }
+    
+    public C setSubscriptionManagerProvider(ISubscriptionManagerProvider subscriptionManagerProvider) {
+    	this.subscriptionManagerProvider = subscriptionManagerProvider;
+    	return (C) this;
     }
 }
