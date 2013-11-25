@@ -12,7 +12,7 @@ public class Filters {
     public static final class AllowAll implements IMessageFilter {
 
         @Override
-        public boolean accepts(Object event, MessageHandlerMetadata metadata) {
+        public boolean accepts(Object event, MessageHandler metadata) {
             return true;
         }
     }
@@ -20,7 +20,7 @@ public class Filters {
     public static final class RejectAll implements IMessageFilter {
 
         @Override
-        public boolean accepts(Object event, MessageHandlerMetadata metadata) {
+        public boolean accepts(Object event, MessageHandler metadata) {
             return false;
         }
     }
@@ -29,7 +29,7 @@ public class Filters {
     public static final class RejectSubtypes implements IMessageFilter {
 
         @Override
-        public boolean accepts(Object event, MessageHandlerMetadata metadata) {
+        public boolean accepts(Object event, MessageHandler metadata) {
             for (Class handledMessage : metadata.getHandledMessages()) {
                 if (handledMessage.equals(event.getClass())) {
                     return true;

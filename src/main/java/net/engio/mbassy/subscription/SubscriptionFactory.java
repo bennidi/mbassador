@@ -6,7 +6,7 @@ import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.common.WeakConcurrentSet;
 import net.engio.mbassy.dispatch.*;
-import net.engio.mbassy.listener.MessageHandlerMetadata;
+import net.engio.mbassy.listener.MessageHandler;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -20,7 +20,7 @@ public class SubscriptionFactory {
 
     private static final String ErrorHandlers = "error.handlers";
 
-    public Subscription createSubscription(BusRuntime runtime, MessageHandlerMetadata handlerMetadata) throws MessageBusException{
+    public Subscription createSubscription(BusRuntime runtime, MessageHandler handlerMetadata) throws MessageBusException{
         try {
             Collection<IPublicationErrorHandler> errorHandlers = runtime.get(ErrorHandlers);
             SubscriptionContext context = new SubscriptionContext(runtime, handlerMetadata, errorHandlers);

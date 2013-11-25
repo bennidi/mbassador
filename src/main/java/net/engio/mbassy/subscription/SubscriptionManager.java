@@ -3,16 +3,17 @@ package net.engio.mbassy.subscription;
 import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.common.StrongConcurrentSet;
-import net.engio.mbassy.listener.MessageHandlerMetadata;
+import net.engio.mbassy.listener.MessageHandler;
 import net.engio.mbassy.listener.MetadataReader;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * The subscription managers primary task is consistently handle new and existing subscriptions
- * and to synchronize concurrent access to them efficiently. It takes care of properly registering and
- * unregistering message listeners and is a core component of each bus implementation
+ * The subscription managers responsibility is to consistently handle and synchronize the message listener subscription process.
+ * It provides fast lookup of existing subscriptions when another instance of an already known
+ * listener is subscribed and takes care of creating new set of subscriptions for any unknown class that defines
+ * message handlers.
  *
  * @author bennidi
  *         Date: 5/11/13
@@ -42,6 +43,7 @@ public class SubscriptionManager {
     // it can be customized by implementing the getSubscriptionFactory() method
     private final SubscriptionFactory subscriptionFactory;
 
+    // synchronize read/write acces to the subscription maps
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     private final BusRuntime runtime;
@@ -88,14 +90,14 @@ public class SubscriptionManager {
             Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
             // a listener is either subscribed for the first time
             if (subscriptionsByListener == null) {
-                List<MessageHandlerMetadata> messageHandlers = metadataReader.getMessageListener(listener.getClass()).getHandlers();
+                List<MessageHandler> messageHandlers = metadataReader.getMessageListener(listener.getClass()).getHandlers();
                 if (messageHandlers.isEmpty()) {  // remember the class as non listening class if no handlers are found
                     nonListeners.add(listener.getClass());
                     return;
                 }
                 subscriptionsByListener = new ArrayList<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
                 // create subscriptions for all detected message handlers
-                for (MessageHandlerMetadata messageHandler : messageHandlers) {
+                for (MessageHandler messageHandler : messageHandlers) {
                     // create the subscription
                     subscriptionsByListener.add(subscriptionFactory.createSubscription(runtime, messageHandler));
                 }
@@ -157,26 +159,30 @@ public class SubscriptionManager {
     // Note: never returns null!
     public Collection<Subscription> getSubscriptionsByMessageType(Class messageType) {
         Set<Subscription> subscriptions = new TreeSet<Subscription>(Subscription.SubscriptionByPriorityDesc);
-        readWriteLock.readLock().lock();
-        if (subscriptionsPerMessage.get(messageType) != null) {
-            subscriptions.addAll(subscriptionsPerMessage.get(messageType));
-        }
-        for (Class eventSuperType : ReflectionUtils.getSuperclasses(messageType)) {
-            Collection<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
-            if (subs != null) {
-                for (Subscription sub : subs) {
-                    if (sub.handlesMessageType(messageType)) {
-                        subscriptions.add(sub);
+        try{
+            readWriteLock.readLock().lock();
+
+            if (subscriptionsPerMessage.get(messageType) != null) {
+                subscriptions.addAll(subscriptionsPerMessage.get(messageType));
+            }
+            for (Class eventSuperType : ReflectionUtils.getSuperclasses(messageType)) {
+                Collection<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
+                if (subs != null) {
+                    for (Subscription sub : subs) {
+                        if (sub.handlesMessageType(messageType)) {
+                            subscriptions.add(sub);
+                        }
                     }
                 }
             }
+        }finally{
+            readWriteLock.readLock().unlock();
         }
-        readWriteLock.readLock().unlock();
         return subscriptions;
     }
 
 
-    // associate a suscription with a message type
+    // associate a subscription with a message type
     // NOTE: Not thread-safe! must be synchronized in outer scope
     private void addMessageTypeSubscription(Class messageType, Subscription subscription) {
         Collection<Subscription> subscriptions = subscriptionsPerMessage.get(messageType);

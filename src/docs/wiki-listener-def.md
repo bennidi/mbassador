@@ -1,4 +1,4 @@
-MBassador allows a variety of message handler configurations that will affect how a message
+MBassador understands a variety of message handler configurations that will affect how a message
 is delivered to a specific listener. There are properties to control the handling of subclasses
 of the specified message (the method parameter), the execution order of handlers for the same message type,
 filters, delivery modes etc.

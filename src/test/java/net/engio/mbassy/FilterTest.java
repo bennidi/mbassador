@@ -105,7 +105,7 @@ public class FilterTest extends MessageBusTest {
     public static class RejectFilteredObjects implements IMessageFilter{
 
         @Override
-        public boolean accepts(Object message, MessageHandlerMetadata metadata) {
+        public boolean accepts(Object message, MessageHandler metadata) {
             if(message.getClass().equals(FilteredMessage.class) && ((FilteredMessage)message).getMessage().getClass().equals(Object.class)){
                 return false;
             }

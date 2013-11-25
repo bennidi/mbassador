@@ -1,10 +1,10 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.common.AssertSupport;
+import net.engio.mbassy.listener.MessageListener;
 import org.junit.Test;
 import net.engio.mbassy.listener.Enveloped;
 import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.MessageListenerMetadata;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.subscription.MessageEnvelope;
 
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.engio.mbassy.listener.MessageListenerMetadata.ForMessage;
+import static net.engio.mbassy.listener.MessageListener.ForMessage;
 
 /**
  *
@@ -26,7 +26,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testListenerWithoutInheritance() {
-        MessageListenerMetadata<MessageListener1> listener = reader.getMessageListener(MessageListener1.class);
+        MessageListener<MessageListener1> listener = reader.getMessageListener(MessageListener1.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(2, String.class)
                 .expectHandlers(2, Object.class)
@@ -37,7 +37,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testListenerWithInheritance() {
-        MessageListenerMetadata<MessageListener2> listener = reader.getMessageListener(MessageListener2.class);
+        MessageListener<MessageListener2> listener = reader.getMessageListener(MessageListener2.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(2, String.class)
                 .expectHandlers(2, Object.class)
@@ -47,7 +47,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testListenerWithInheritanceOverriding() {
-        MessageListenerMetadata<MessageListener3> listener = reader.getMessageListener(MessageListener3.class);
+        MessageListener<MessageListener3> listener = reader.getMessageListener(MessageListener3.class);
 
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(0, String.class)
@@ -58,7 +58,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testEnveloped() {
-        MessageListenerMetadata<EnvelopedListener> listener = reader.getMessageListener(EnvelopedListener.class);
+        MessageListener<EnvelopedListener> listener = reader.getMessageListener(EnvelopedListener.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(1, String.class)
                 .expectHandlers(2, Integer.class)
@@ -71,7 +71,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testEnvelopedSubclass() {
-        MessageListenerMetadata<EnvelopedListenerSubclass> listener = reader.getMessageListener(EnvelopedListenerSubclass.class);
+        MessageListener<EnvelopedListenerSubclass> listener = reader.getMessageListener(EnvelopedListenerSubclass.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(1, String.class)
                 .expectHandlers(2, Integer.class)
@@ -91,7 +91,7 @@ public class MetadataReaderTest extends AssertSupport {
             return this;
         }
 
-        public void check(MessageListenerMetadata listener){
+        public void check(MessageListener listener){
             for(Map.Entry<Class<?>, Integer> expectedHandler: handlers.entrySet()){
                 if(expectedHandler.getValue() > 0){
                     assertTrue(listener.handles(expectedHandler.getKey()));

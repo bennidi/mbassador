@@ -9,7 +9,16 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * A subscription is a thread safe container for objects that contain message handlers
+ * A subscription is a thread-safe container that manages exactly one message handler of all registered
+ * message listeners of the same class, i.e. all subscribed instances of a SingleMessageHandler.class
+ * will be referenced in the subscription created for SingleMessageHandler.class.
+ *
+ * There will be as many unique subscription objects per message listener class as there are message handlers
+ * defined in the message listeners class hierarchy.
+ *
+ * The subscription provides functionality for message publication by means of delegation to the respective
+ * message dispatcher.
+ *
  */
 public class Subscription {
 
@@ -27,14 +36,30 @@ public class Subscription {
         this.listeners = listeners;
     }
 
+    /**
+     * Check whether this subscription manages a message handler of the given message listener class
+     *
+     * @param listener
+     * @return
+     */
     public boolean belongsTo(Class listener){
         return context.getHandlerMetadata().isFromListener(listener);
     }
 
+    /**
+     * Check whether this subscriptions manages the given listener instance
+     * @param listener
+     * @return
+     */
     public boolean contains(Object listener){
         return listeners.contains(listener);
     }
 
+    /**
+     * Check whether this subscription manages a message handler
+     * @param messageType
+     * @return
+     */
     public boolean handlesMessageType(Class<?> messageType) {
         return context.getHandlerMetadata().handlesMessage(messageType);
     }
