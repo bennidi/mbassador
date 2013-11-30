@@ -2,7 +2,9 @@ package net.engio.mbassy.bus.config;
 
 import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.listener.MetadataReader;
+import net.engio.mbassy.subscription.ISubscriptionManagerProvider;
 import net.engio.mbassy.subscription.SubscriptionFactory;
+import net.engio.mbassy.subscription.SubscriptionManagerProvider;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -95,6 +97,7 @@ public class BusConfiguration implements IBusConfiguration {
         defaultConfig.setMessagePublicationFactory(new MessagePublication.Factory());
         defaultConfig.setPendingMessagesQueue(new LinkedBlockingQueue<MessagePublication>(Integer.MAX_VALUE));
         defaultConfig.setThreadFactoryForAsynchronousMessageDispatch(DispatcherThreadFactory);
+        defaultConfig.setSubscriptionManagerProvider(new SubscriptionManagerProvider());
         return defaultConfig;
     }
 
@@ -108,6 +111,7 @@ public class BusConfiguration implements IBusConfiguration {
     protected MetadataReader metadataReader;
     protected MessagePublication.Factory messagePublicationFactory;
     protected ThreadFactory dispatcherThreadFactory;
+    protected ISubscriptionManagerProvider subscriptionManagerProvider;
 
     public void setPendingMessagesQueue(BlockingQueue<MessagePublication> pendingMessagesQueue) {
         this.pendingMessagesQueue = pendingMessagesQueue;
@@ -184,4 +188,11 @@ public class BusConfiguration implements IBusConfiguration {
         return this;
     }
 
+    public ISubscriptionManagerProvider getSubscriptionManagerProvider() {
+    	return subscriptionManagerProvider;
+    }
+    
+    public void setSubscriptionManagerProvider(ISubscriptionManagerProvider subscriptionManagerProvider) {
+    	this.subscriptionManagerProvider = subscriptionManagerProvider;
+    }
 }

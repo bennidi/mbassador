@@ -35,7 +35,8 @@ public abstract class AbstractSyncMessageBus<T, P extends IPublicationCommand> i
     public AbstractSyncMessageBus(ISyncBusConfiguration configuration) {
         this.runtime = new BusRuntime(this);
         this.runtime.add("error.handlers", getRegisteredErrorHandlers());
-        this.subscriptionManager = new SubscriptionManager(configuration.getMetadataReader(),
+        this.subscriptionManager = configuration.getSubscriptionManagerProvider()
+        		.createManager(configuration.getMetadataReader(),
                 configuration.getSubscriptionFactory(), runtime);
         this.publicationFactory = configuration.getMessagePublicationFactory();
     }
