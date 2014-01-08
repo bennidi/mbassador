@@ -29,7 +29,7 @@ public class AbstractMessageListener {
 
     public static class NoSubtypesListener extends BaseListener {
 
-        @Handler(rejectSubtypes = true)
+        @Handler(rejectSubtypes = true, priority = 4)
         public void handle(AbstractMessage message){
             super.handle(message);
         }
@@ -38,7 +38,7 @@ public class AbstractMessageListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously)
+        @Handler(delivery = Invoke.Asynchronously, priority = Integer.MAX_VALUE)
         public void handle(AbstractMessage message){
             super.handle(message);
         }

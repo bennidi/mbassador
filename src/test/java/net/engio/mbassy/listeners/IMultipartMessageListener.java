@@ -29,7 +29,7 @@ public class IMultipartMessageListener {
 
     public static class NoSubtypesListener extends BaseListener {
 
-        @Handler(rejectSubtypes = true)
+        @Handler(rejectSubtypes = true, priority = Integer.MIN_VALUE)
         public void handle(IMultipartMessage message){
             super.handle(message);
         }
@@ -38,7 +38,7 @@ public class IMultipartMessageListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously)
+        @Handler(delivery = Invoke.Asynchronously, priority = Integer.MIN_VALUE)
         public void handle(IMultipartMessage message){
             super.handle(message);
         }
@@ -47,7 +47,7 @@ public class IMultipartMessageListener {
 
     public static class DisabledListener extends BaseListener {
 
-        @Handler(enabled = false)
+        @Handler(enabled = false , priority = 4)
         public void handle(IMultipartMessage message){
             super.handle(message);
         }

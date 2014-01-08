@@ -1,6 +1,5 @@
 package net.engio.mbassy.listeners;
 
-import net.engio.mbassy.common.DeadMessage;
 import net.engio.mbassy.listener.Handler;
 
 import java.util.Collections;
@@ -12,7 +11,7 @@ public class ObjectListener {
 
     private List handledMessages = Collections.synchronizedList(new LinkedList());
 
-    @Handler
+    @Handler(priority = Integer.MAX_VALUE)
     public void handle(Object message){
         handledMessages.add(message);
     }

@@ -10,7 +10,7 @@ import java.util.UUID;
 
 /**
  * A subscription is a thread-safe container that manages exactly one message handler of all registered
- * message listeners of the same class, i.e. all subscribed instances of a SingleMessageHandler.class
+ * message listeners of the same class, i.e. all subscribed instances (exlcuding subclasses) of a SingleMessageHandler.class
  * will be referenced in the subscription created for SingleMessageHandler.class.
  *
  * There will be as many unique subscription objects per message listener class as there are message handlers
@@ -96,8 +96,8 @@ public class Subscription {
     public static final Comparator<Subscription> SubscriptionByPriorityDesc = new Comparator<Subscription>() {
         @Override
         public int compare(Subscription o1, Subscription o2) {
-            int byPriority = ((Integer)o1.getPriority()).compareTo(o2.getPriority());
-            return byPriority == 0 ? o1.id.compareTo(o2.id) : byPriority;
+            int byPriority = ((Integer)o2.getPriority()).compareTo(o1.getPriority());
+            return byPriority == 0 ? o2.id.compareTo(o1.id) : byPriority;
         }
     };
 

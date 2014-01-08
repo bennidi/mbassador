@@ -13,7 +13,7 @@ public class StandardMessageListener {
 
     private static abstract class BaseListener {
 
-        @Handler
+        @Handler(priority = 3)
         public void handle(StandardMessage message){
             message.handled(this.getClass());
         }
@@ -29,7 +29,7 @@ public class StandardMessageListener {
 
     public static class NoSubtypesListener extends BaseListener {
 
-        @Handler(rejectSubtypes = true)
+        @Handler(rejectSubtypes = true, priority = 4)
         public void handle(StandardMessage message){
             super.handle(message);
         }
@@ -38,7 +38,7 @@ public class StandardMessageListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously)
+        @Handler(delivery = Invoke.Asynchronously, priority = -10)
         public void handle(StandardMessage message){
             super.handle(message);
         }

@@ -36,6 +36,7 @@ public class SubscriptionValidator extends AssertSupport{
     public void validate(SubscriptionManager manager){
         for(Class messageType : messageTypes){
             Collection<Subscription> subscriptions = manager.getSubscriptionsByMessageType(messageType);
+            ensureOrdering(subscriptions);
             Collection<ValidationEntry> validationEntries = getEntries(EntriesByMessageType(messageType));
             assertEquals(subscriptions.size(), validationEntries.size());
             for(ValidationEntry validationValidationEntry : validationEntries){
@@ -50,6 +51,14 @@ public class SubscriptionValidator extends AssertSupport{
                 assertNotNull(matchingSub);
                 assertEquals(subscribedListener.getNumberOfListeners(validationValidationEntry.subscriber), matchingSub.size());
             }
+        }
+    }
+
+    private void ensureOrdering(Collection<Subscription> subscriptions){
+        int lastPriority = Integer.MAX_VALUE;// highest priority possible
+        for(Subscription sub : subscriptions){
+            assertTrue("Subscriptions should be ordered by priority (DESC)", lastPriority >= sub.getPriority());
+            lastPriority = sub.getPriority();
         }
     }
 

@@ -2,6 +2,7 @@ package net.engio.mbassy;
 
 import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.common.*;
+import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.listeners.*;
 import net.engio.mbassy.messages.*;
@@ -198,6 +199,19 @@ public class SubscriptionManagerTest extends AssertSupport {
         runTestWith(listeners, expectedSubscriptions);
     }
 
+    @Test
+    public void testPrioritizedMessageHandlers(){
+        ListenerFactory listeners = listeners(PrioritizedListener.class);
+
+        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
+
+        SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
+                .listener(PrioritizedListener.class).handles(IMessage.class, IMessage.class, IMessage.class, IMessage.class);
+
+        runTestWith(listeners, expectedSubscriptions);
+    }
+
     private BusRuntime mockedRuntime(){
         return new BusRuntime(null)
                 .add("error.handlers", Collections.EMPTY_SET)
@@ -229,6 +243,30 @@ public class SubscriptionManagerTest extends AssertSupport {
 
 
 
+
+    public static class PrioritizedListener{
+
+
+        @Handler(priority = 1)
+        public void handlePrio1(IMessage message){
+            message.handled(this.getClass());
+        }
+
+        @Handler(priority = 2)
+        public void handlePrio2(IMessage message){
+            message.handled(this.getClass());
+        }
+
+        @Handler(priority = 3)
+        public void handlePrio3(IMessage message){
+            message.handled(this.getClass());
+        }
+
+        @Handler(priority = 4)
+        public void handlePrio4(IMessage message){
+            message.handled(this.getClass());
+        }
+    }
 
 
 }
