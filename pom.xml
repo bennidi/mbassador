@@ -196,6 +196,39 @@
                 </executions>
             </plugin>
 
+	<!-- 
+	These two plugins take care of building and publishing the javadoc, using
+		mvn clean javadoc:javadoc scm-publish:publish-scm
+	 --> 
+	<plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-javadoc-plugin</artifactId>
+	    <version>2.9.1</version>
+	    <configuration>
+		<aggregate>true</aggregate>
+		<show>public</show>
+		<nohelp>true</nohelp>
+		<header>mbassador, ${project.version}</header>
+		<footer>mbassador, ${project.version}</footer>
+		<doctitle>mbassador, ${project.version}</doctitle>
+		<links>
+		    <link>http://static.springsource.org/spring/docs/3.0.x/javadoc-api/</link>
+		</links>
+	    </configuration>
+	</plugin>
+	<plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-scm-publish-plugin</artifactId>
+	    <version>1.0-beta-2</version>
+	    <configuration>
+		<checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
+		<checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
+		<content>${project.reporting.outputDirectory}/apidocs</content>
+		<skipDeletedFiles>true</skipDeletedFiles>
+		<pubScmUrl>scm:git:git@github.com:bennidi/mbassador.git</pubScmUrl>
+		<scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
+	    </configuration>
+	</plugin>
         </plugins>
     </build>
 

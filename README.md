@@ -8,8 +8,8 @@ The performance win of this design is illustrated in <a href="http://codeblock.e
 The benchmarking code can be found <a href="https://github.com/bennidi/eventbus-performance" target="_blank">here</a>
 
 Read this documentation to get an overview of MBassadors features. There is also some documentation in the Wiki - although admittedly
-not enough to make a developer happy (work is in progress). But usage of publish subscribe pattern at its core is pretty straight forward and the basic
-use cases are very easy to understand and implement.
+not enough to make a developer happy (work is in progress). Additionally, you can browse the javadocs.
+[javadoc](http://bennidi.github.io/mbassador/)
 
 The current version is 1.1.9 and it is available from the Maven Central Repository. See the release notes for more details.
 
