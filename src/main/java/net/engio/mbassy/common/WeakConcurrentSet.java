@@ -81,10 +81,19 @@ public class WeakConcurrentSet<T> extends AbstractConcurrentSet<T>{
                     return;
                 }
                 ISetEntry<T> newCurrent = current.next();
-                WeakConcurrentSet.this.remove(current.getValue());
+                WeakConcurrentSet.this.remove(current.getValue(), current);
                 current = newCurrent;
             }
         };
+    }
+
+    private void remove(final T value, final ISetEntry<T> current) {
+        // if WeakHashMap entries or the WeakReference value have been
+        // garbage collected, the ISetEntry list entry will never be
+        // removed so remove it explicitly
+        if (!remove(value)) {
+            remove(current);
+        }
     }
 
     @Override
