@@ -212,7 +212,7 @@
 		<footer>mbassador, ${project.version}</footer>
 		<doctitle>mbassador, ${project.version}</doctitle>
 		<links>
-		    <link>http://static.springsource.org/spring/docs/3.0.x/javadoc-api/</link>
+		    <link></link>
 		</links>
 	    </configuration>
 	</plugin>
@@ -226,7 +226,7 @@
 		<content>${project.reporting.outputDirectory}/apidocs</content>
 		<skipDeletedFiles>true</skipDeletedFiles>
 		<pubScmUrl>scm:git:git@github.com:bennidi/mbassador.git</pubScmUrl>
-		<scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
+		<scmBranch>gh-pages</scmBranch> <!-- branch with static site on github-->
 	    </configuration>
 	</plugin>
         </plugins>

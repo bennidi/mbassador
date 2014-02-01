@@ -1,21 +1,40 @@
 package net.engio.mbassy.listener;
 
 /**
- * Message filters can be used to prevent certain messages to be delivered to a specific listener.
- * If a filter is used the message will only be delivered if it passes the filter(s)
- * <p/>
- * NOTE: A message filter must provide either a no-arg constructor.
+ * Message filters can be used to control what messages are delivered to a specific message handler.
+ * Filters are attached to message handler using the @Listener annotation.
+ * If a message handler specifies filters, the filters accepts(...) method will be checked before the actual handler is invoked.
+ * The handler will be invoked only if each filter accepted the message.
+ *
+ * Example:
+ *
+ * @Lister
+ * @Filters(Urlfilter.class)
+ * public void someHandler(String message){...}
+ *
+ * class Urlfilter implements IMessageFilter<String>{
+ *     public boolean accepts(String message, MessageHandler metadata){
+ *         return message.startsWith("http");
+ *     }
+ * }
+ *
+ * bus.post("http://www.infoq.com"); // will be delivered
+ * bus.post("www.stackoverflow.com"); // will not be delivered
+ *
+ * NOTE: A message filter must provide a no-arg constructor!!!
  *
  * @author bennidi
  *         Date: 2/8/12
  */
-public interface IMessageFilter {
+public interface IMessageFilter<M> {
 
     /**
-     * Evaluate the message to ensure that it matches the handler configuration
+     * Check the message for whatever criteria
      *
-     * @param message the message to be delivered
-     * @return
+     * @param message the message to be handled by the handler
+     * @param  metadata the metadata object which describes the message handler
+     * @return  true: if the message matches the criteria and should be delivered to the handler
+     *          false: otherwise
      */
-    boolean accepts(Object message, MessageHandler metadata);
+    boolean accepts(M message, MessageHandler metadata);
 }
