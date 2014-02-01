@@ -241,9 +241,10 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
 
-
-
-
+    /**
+     *  define handlers with different priorities which need to be executed
+     *  in their respective order
+     */
     public static class PrioritizedListener{
 
 
