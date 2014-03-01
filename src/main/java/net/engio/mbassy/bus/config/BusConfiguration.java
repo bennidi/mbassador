@@ -78,7 +78,8 @@ public class BusConfiguration implements IBusConfiguration {
      * @return a Default BusConfiguration
      */
     public static BusConfiguration Default(int numberOfDispatchers, int initialCoreThreads, int maximumCoreThreads) {
-    	ThreadPoolExecutor executor = new ThreadPoolExecutor(initialCoreThreads, maximumCoreThreads, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), AsynchronousHandlerThreadFactory);
+    	ThreadPoolExecutor executor = new ThreadPoolExecutor(initialCoreThreads, maximumCoreThreads, 1,
+                TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), AsynchronousHandlerThreadFactory);
     	return Default(numberOfDispatchers, executor);
     }
     
