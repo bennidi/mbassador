@@ -17,7 +17,8 @@ import java.util.concurrent.TimeUnit;
  * @param <T>
  * @param <P>
  */
-public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublicationCommand> extends AbstractSyncMessageBus<T, P> implements IMessageBus<T, P> {
+public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublicationCommand>
+        extends AbstractPubSubSupport<T> implements IMessageBus<T, P> {
 
     // executor for asynchronous message handlers
     private final ExecutorService executor;
@@ -47,13 +48,15 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
             Thread dispatcher = configuration.getThreadFactoryForAsynchronousMessageDispatch().newThread(new Runnable() {
                 public void run() {
                     while (true) {
+                        MessagePublication publication = null;
                         try {
-                            pendingMessages.take().execute();
+                            publication = pendingMessages.take();
+                            publication.execute();
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
                             return;
                         } catch(Throwable t){
-                            handlePublicationError(new PublicationError(t, "Error in asynchronous dispatch", null, null, null));
+                            handlePublicationError(new PublicationError(t, "Error in asynchronous dispatch",publication));
                         }
                     }
                 }
@@ -64,26 +67,26 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
     }
 
 
-    // this method enqueues a message delivery request
-    protected MessagePublication addAsynchronousDeliveryRequest(MessagePublication request) {
+    // this method queues a message delivery request
+    protected MessagePublication addAsynchronousPublication(MessagePublication publication) {
         try {
-            pendingMessages.put(request);
-            return request.markScheduled();
+            pendingMessages.put(publication);
+            return publication.markScheduled();
         } catch (InterruptedException e) {
-            // TODO: publication error
-            return request;
+            handlePublicationError(new PublicationError(e, "Error while adding an asynchronous message publication", publication));
+            return publication;
         }
     }
 
     // this method queues a message delivery request
-    protected MessagePublication addAsynchronousDeliveryRequest(MessagePublication request, long timeout, TimeUnit unit) {
+    protected MessagePublication addAsynchronousPublication(MessagePublication publication, long timeout, TimeUnit unit) {
         try {
-            return pendingMessages.offer(request, timeout, unit)
-                    ? request.markScheduled()
-                    : request;
+            return pendingMessages.offer(publication, timeout, unit)
+                    ? publication.markScheduled()
+                    : publication;
         } catch (InterruptedException e) {
-            // TODO: publication error
-            return request;
+            handlePublicationError(new PublicationError(e, "Error while adding an asynchronous message publication", publication));
+            return publication;
         }
     }
 

@@ -1,5 +1,7 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.bus.MessagePublication;
+
 import java.lang.reflect.Method;
 
 /**
@@ -43,6 +45,17 @@ public class PublicationError{
         this.listener = listener;
         this.publishedObject = publishedObject;
     }
+
+    public PublicationError(final Throwable cause,
+                            final String message,
+                            final MessagePublication publication) {
+        this.cause = cause;
+        this.message = message;
+        this.publishedObject = publication != null ? publication.getMessage() : null;
+    }
+
+
+
 
     /**
      * Default constructor.

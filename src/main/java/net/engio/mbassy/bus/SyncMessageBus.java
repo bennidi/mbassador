@@ -5,25 +5,18 @@ import net.engio.mbassy.bus.config.ISyncBusConfiguration;
 import net.engio.mbassy.bus.publication.IPublicationCommand;
 
 /**
- * Created with IntelliJ IDEA.
- * User: benjamin
- * Date: 4/3/13
- * Time: 9:02 AM
- * To change this template use File | Settings | File Templates.
+ * A message bus implementation that offers only synchronous message publication. Using this bus
+ * will not create any new threads.
+ *
  */
-public class SyncMessageBus<T> extends AbstractSyncMessageBus<T, SyncMessageBus.SyncPostCommand>{
+public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements ISyncMessageBus<T, SyncMessageBus.SyncPostCommand>{
 
 
     public SyncMessageBus(ISyncBusConfiguration configuration) {
         super(configuration);
     }
 
-    /**
-     * Synchronously publish a message to all registered listeners (this includes listeners defined for super types)
-     * The call blocks until every messageHandler has processed the message.
-     *
-     * @param message
-     */
+    @Override
     public void publish(T message) {
         try {
             MessagePublication publication = createMessagePublication(message);
@@ -34,7 +27,6 @@ public class SyncMessageBus<T> extends AbstractSyncMessageBus<T, SyncMessageBus.
                     .setCause(e)
                     .setPublishedObject(message));
         }
-
     }
 
     @Override
@@ -43,7 +35,6 @@ public class SyncMessageBus<T> extends AbstractSyncMessageBus<T, SyncMessageBus.
     }
 
     public class SyncPostCommand implements IPublicationCommand {
-
 
         private T message;
 

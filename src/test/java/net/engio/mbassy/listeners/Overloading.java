@@ -6,11 +6,9 @@ import net.engio.mbassy.listener.References;
 import net.engio.mbassy.messages.AbstractMessage;
 
 /**
- * Created with IntelliJ IDEA.
- * User: benjamin
- * Date: 7/11/13
- * Time: 10:11 AM
- * To change this template use File | Settings | File Templates.
+ * Some handlers and message types to test correct functioning of overloaded
+ * message handlers
+ *
  */
 public class Overloading {
 

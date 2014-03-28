@@ -1,31 +1,23 @@
 package net.engio.mbassy.listener;
 
 /**
- * Some sample filters that are not particularly useful in production environment
- * but illustrate how filters are meant to be used.
+ * A set of standard filters for common use cases.
  *
  * @author bennidi
  *         Date: 12/12/12
  */
 public class Filters {
 
-    public static final class AllowAll implements IMessageFilter {
-
-        @Override
-        public boolean accepts(Object event, MessageHandler metadata) {
-            return true;
-        }
-    }
-
-    public static final class RejectAll implements IMessageFilter {
-
-        @Override
-        public boolean accepts(Object event, MessageHandler metadata) {
-            return false;
-        }
-    }
 
 
+    /**
+     * This filter will only accept messages of the exact same type
+     * as specified for the handler. Subclasses (this includes interface implementations)
+     * will be rejected.
+     *
+     * NOTE: The same functionality (with better performance) is achieved using {@code rejectSubtypes = true}
+     * in the @Handler annotation
+     */
     public static final class RejectSubtypes implements IMessageFilter {
 
         @Override
@@ -38,4 +30,24 @@ public class Filters {
             return false;
         }
     }
+
+    /**
+     * This filter will only accept messages that are real subtypes
+     * of the specified message types handled by the message handler.
+     * Example: If the handler handles Object.class the filter accepts
+     * all objects except any direct instance of Object.class {@code new Object()}
+     */
+    public static final class SubtypesOnly implements IMessageFilter{
+
+        @Override
+        public boolean accepts(Object message, MessageHandler metadata) {
+            for(Class acceptedClasses : metadata.getHandledMessages()){
+                if(acceptedClasses.isAssignableFrom(message.getClass())
+                        && ! acceptedClasses.equals(message.getClass()))
+                    return true;
+            }
+            return false;
+        }
+    }
+
 }

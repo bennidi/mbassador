@@ -16,12 +16,12 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
 
     @Override
     public MessagePublication publishAsync(T message) {
-        return addAsynchronousDeliveryRequest(createMessagePublication(message));
+        return addAsynchronousPublication(createMessagePublication(message));
     }
 
     @Override
     public MessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
-        return addAsynchronousDeliveryRequest(createMessagePublication(message), timeout, unit);
+        return addAsynchronousPublication(createMessagePublication(message), timeout, unit);
     }
 
 

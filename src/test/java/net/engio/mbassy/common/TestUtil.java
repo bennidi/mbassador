@@ -1,5 +1,6 @@
 package net.engio.mbassy.common;
 
+import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.PubSubSupport;
 import net.engio.mbassy.subscription.SubscriptionManager;
 
@@ -100,4 +101,8 @@ public class TestUtil {
 
     }
 
+    public static void setup(MBassador bus, ListenerFactory listeners, int numberOfThreads) {
+        setup(bus, listeners.getAll(), numberOfThreads);
+
+    }
 }

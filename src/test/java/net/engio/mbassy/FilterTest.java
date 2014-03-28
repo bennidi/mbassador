@@ -1,15 +1,11 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.common.DeadMessage;
-import net.engio.mbassy.common.FilteredMessage;
-import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.common.TestUtil;
+import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.common.*;
+import net.engio.mbassy.listener.*;
 import net.engio.mbassy.messages.SubTestMessage;
 import net.engio.mbassy.messages.TestMessage;
-import net.engio.mbassy.listener.*;
-import net.engio.mbassy.common.ListenerFactory;
 import org.junit.Test;
 
 import java.util.List;
@@ -88,7 +84,7 @@ public class FilterTest extends MessageBusTest {
         }
 
         // will cause republication of a FilteredEvent
-        @Handler(filters = {@Filter(Filters.RejectAll.class)})
+        @Handler(filters = {@Filter(RejectAll.class)})
         public void handleNone(Object any){
             FilteredEventCounter.incrementAndGet();
         }
@@ -98,7 +94,34 @@ public class FilterTest extends MessageBusTest {
         public void handleDead(DeadMessage dead){
             DeadEventCounter.incrementAndGet();
         }
+    }
 
+    @Test
+    public void testSubtypesOnly(){
+        MBassador bus = getBus(BusConfiguration.Default());
+        ListenerFactory listeners = new ListenerFactory()
+                .create(100, TestMessageHandler.class);
+
+        // this will subscribe the listeners concurrently to the bus
+        TestUtil.setup(bus, listeners, 10);
+
+        TestMessage supertype = new TestMessage();
+        TestMessage subtype = new SubTestMessage();
+
+        bus.publish(supertype);
+        bus.publish(subtype);
+
+        assertEquals(100, subtype.counter.get());
+        assertEquals(0, supertype.counter.get());
+
+    }
+
+    public static class TestMessageHandler{
+
+        @Handler(filters = @Filter(Filters.SubtypesOnly.class))
+        public void handle(TestMessage message){
+            message.counter.incrementAndGet();
+        }
 
     }
 
@@ -110,6 +133,14 @@ public class FilterTest extends MessageBusTest {
                 return false;
             }
             return true;
+        }
+    }
+
+    public static final class RejectAll implements IMessageFilter {
+
+        @Override
+        public boolean accepts(Object event, MessageHandler metadata) {
+            return false;
         }
     }
 

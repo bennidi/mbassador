@@ -211,9 +211,6 @@
 		<header>mbassador, ${project.version}</header>
 		<footer>mbassador, ${project.version}</footer>
 		<doctitle>mbassador, ${project.version}</doctitle>
-		<links>
-		    <link></link>
-		</links>
 	    </configuration>
 	</plugin>
 	<plugin>

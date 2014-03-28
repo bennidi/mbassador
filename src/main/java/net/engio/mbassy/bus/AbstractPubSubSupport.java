@@ -3,7 +3,6 @@ package net.engio.mbassy.bus;
 import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.PublicationError;
 import net.engio.mbassy.bus.config.ISyncBusConfiguration;
-import net.engio.mbassy.bus.publication.IPublicationCommand;
 import net.engio.mbassy.common.DeadMessage;
 import net.engio.mbassy.subscription.Subscription;
 import net.engio.mbassy.subscription.SubscriptionManager;
@@ -17,9 +16,8 @@ import java.util.List;
  * The base class for all message bus implementations.
  *
  * @param <T>
- * @param <P>
  */
-public abstract class AbstractSyncMessageBus<T, P extends IPublicationCommand> implements ISyncMessageBus<T, P>{
+public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T>{
 
 
     // this handler will receive all errors that occur during message dispatch or message handling
@@ -32,7 +30,7 @@ public abstract class AbstractSyncMessageBus<T, P extends IPublicationCommand> i
     private final BusRuntime runtime;
 
 
-    public AbstractSyncMessageBus(ISyncBusConfiguration configuration) {
+    public AbstractPubSubSupport(ISyncBusConfiguration configuration) {
         this.runtime = new BusRuntime(this);
         this.runtime.add("error.handlers", getRegisteredErrorHandlers());
         this.subscriptionManager = configuration.getSubscriptionManagerProvider()
@@ -45,7 +43,7 @@ public abstract class AbstractSyncMessageBus<T, P extends IPublicationCommand> i
         return publicationFactory;
     }
 
-    @Override
+
     public Collection<IPublicationErrorHandler> getRegisteredErrorHandlers() {
         return Collections.unmodifiableCollection(errorHandlers);
     }

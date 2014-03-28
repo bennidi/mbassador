@@ -11,15 +11,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *         Date: 5/24/13
  */
 public enum MessageTypes implements IMessage{
-    Simple,Persistent,Multipart;
+
+    Simple,
+    Persistent,
+    Multipart;
+
+    private Map<Class, Integer> handledByListener = new HashMap<Class, Integer>();
+    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public static void resetAll(){
         for(MessageTypes m : values())
             m.reset();
     }
-
-    private Map<Class, Integer> handledByListener = new HashMap<Class, Integer>();
-    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 
     @Override
