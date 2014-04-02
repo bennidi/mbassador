@@ -1,6 +1,7 @@
-net.engio.mbassy
 net.engio.mbassy.bus
+net.engio.mbassy.bus.common
 net.engio.mbassy.bus.config
+net.engio.mbassy.bus.error
 net.engio.mbassy.bus.publication
 net.engio.mbassy.common
 net.engio.mbassy.dispatch
