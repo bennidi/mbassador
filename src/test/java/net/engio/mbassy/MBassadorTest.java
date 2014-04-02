@@ -1,7 +1,9 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.MBassador;
+import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.*;
 import net.engio.mbassy.listeners.*;
 import net.engio.mbassy.messages.MessageTypes;

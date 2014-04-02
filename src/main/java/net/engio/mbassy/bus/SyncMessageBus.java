@@ -1,7 +1,8 @@
 package net.engio.mbassy.bus;
 
-import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.bus.common.ISyncMessageBus;
 import net.engio.mbassy.bus.config.ISyncBusConfiguration;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.bus.publication.IPublicationCommand;
 
 /**
@@ -9,7 +10,7 @@ import net.engio.mbassy.bus.publication.IPublicationCommand;
  * will not create any new threads.
  *
  */
-public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements ISyncMessageBus<T, SyncMessageBus.SyncPostCommand>{
+public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements ISyncMessageBus<T, SyncMessageBus.SyncPostCommand> {
 
 
     public SyncMessageBus(ISyncBusConfiguration configuration) {

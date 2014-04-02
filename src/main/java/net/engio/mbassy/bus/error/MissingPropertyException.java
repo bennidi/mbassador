@@ -1,4 +1,4 @@
-package net.engio.mbassy.common;
+package net.engio.mbassy.bus.error;
 
 /**
  * This exception is thrown when a property value that is unavailable at runtime is accessed.

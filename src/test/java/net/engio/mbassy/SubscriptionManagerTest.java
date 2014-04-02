@@ -214,8 +214,8 @@ public class SubscriptionManagerTest extends AssertSupport {
 
     private BusRuntime mockedRuntime(){
         return new BusRuntime(null)
-                .add("error.handlers", Collections.EMPTY_SET)
-                .add("handler.async-service", null);
+                .add(BusRuntime.Properties.ErrorHandlers, Collections.EMPTY_SET)
+                .add(BusRuntime.Properties.AsynchronousHandlerExecutor, null);
     }
 
     private ListenerFactory listeners(Class ...listeners){

@@ -175,8 +175,9 @@ public class BusConfiguration implements IBusConfiguration {
         return metadataReader;
     }
 
-    public void setMetadataReader(MetadataReader metadataReader) {
+    public BusConfiguration setMetadataReader(MetadataReader metadataReader) {
         this.metadataReader = metadataReader;
+        return this;
     }
 
     @Override
@@ -193,7 +194,8 @@ public class BusConfiguration implements IBusConfiguration {
     	return subscriptionManagerProvider;
     }
     
-    public void setSubscriptionManagerProvider(ISubscriptionManagerProvider subscriptionManagerProvider) {
+    public BusConfiguration setSubscriptionManagerProvider(ISubscriptionManagerProvider subscriptionManagerProvider) {
     	this.subscriptionManagerProvider = subscriptionManagerProvider;
+        return this;
     }
 }

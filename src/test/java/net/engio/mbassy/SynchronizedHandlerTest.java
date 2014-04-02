@@ -1,8 +1,8 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.config.BusConfiguration;
-import net.engio.mbassy.bus.IMessageBus;
 import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.bus.common.IMessageBus;
+import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.Invoke;
@@ -66,6 +66,7 @@ public class SynchronizedHandlerTest extends MessageBusTest {
             bus.post(new Object()).asynchronously();
         }
 
+        // TODO: wait for publication
         pause(10000);
 
         for(SynchronizedWithAsynchronousDelivery handler : handlers){

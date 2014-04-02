@@ -1,10 +1,11 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.ISyncMessageBus;
+import net.engio.mbassy.bus.BusFactory;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.SyncMessageBus;
+import net.engio.mbassy.bus.common.ISyncMessageBus;
 import net.engio.mbassy.bus.config.BusConfiguration;
-import net.engio.mbassy.bus.config.SyncBusConfiguration;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;
@@ -17,7 +18,6 @@ import net.engio.mbassy.listeners.MessagesListener;
 import net.engio.mbassy.messages.MessageTypes;
 import net.engio.mbassy.messages.MultipartMessage;
 import net.engio.mbassy.messages.StandardMessage;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -188,7 +188,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
         @Override
         protected ISyncMessageBus getSyncMessageBus() {
-            return new SyncMessageBus(new SyncBusConfiguration());
+            return BusFactory.SynchronousOnly();
         }
     }
 

@@ -157,6 +157,16 @@ to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
 
+<h3>1.1.10</h3>
+ + Fixed broken sort order of prioritized handlers (see #58)
+ + Addressed issue #63 by making the constructor of `MessageHandler` use a map of properties and by replacing dependencies to
+  all MBassador specific annotations with Java primitives and simple interfaces
+ + Small refactorings (moved stuff around to have cleaner packaging)
+ + MessageBus.getExecutor() is now deprecated and will be removed with next release -> use the runtime to get access to it.
+ + Introduced BusFactory with convenience methods for creating bus instances for different message dispatching scenarios like
+ asynchronous FIFO (asynchronous message publications guaranteed to be delivered in the order they occurred)
+ + Renamed runtime property of `BusRuntime` "handler.async-service" to "handler.async.executor"
+
 <h3>1.1.9</h3>
 
  + Fixed memory leak reported in issue #53

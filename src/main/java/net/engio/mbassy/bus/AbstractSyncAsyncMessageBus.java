@@ -1,7 +1,8 @@
 package net.engio.mbassy.bus;
 
-import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.IBusConfiguration;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The base class for all async message bus implementations.
+ * The base class for all message bus implementations with support for asynchronous message dispatch
  *
  * @param <T>
  * @param <P>
@@ -32,7 +33,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
     protected AbstractSyncAsyncMessageBus(IBusConfiguration configuration) {
         super(configuration);
         this.executor = configuration.getExecutorForAsynchronousHandlers();
-        getRuntime().add("handler.async-service", executor);
+        getRuntime().add(BusRuntime.Properties.AsynchronousHandlerExecutor, executor);
         pendingMessages = configuration.getPendingMessagesQueue();
         dispatchers = new ArrayList<Thread>(configuration.getNumberOfMessageDispatchers());
         initDispatcherThreads(configuration);
@@ -61,6 +62,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
                     }
                 }
             });
+            dispatcher.setName("Message dispatcher");
             dispatchers.add(dispatcher);
             dispatcher.start();
         }
@@ -92,8 +94,8 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
 
     @Override
     protected void finalize() throws Throwable {
-        shutdown();
         super.finalize();
+        shutdown();
     }
 
     @Override

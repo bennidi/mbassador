@@ -1,6 +1,7 @@
 package net.engio.mbassy.bus;
 
-import net.engio.mbassy.common.MissingPropertyException;
+import net.engio.mbassy.bus.common.PubSubSupport;
+import net.engio.mbassy.bus.error.MissingPropertyException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,6 +17,13 @@ import java.util.Map;
  *
  */
 public class BusRuntime {
+
+    public static class Properties{
+
+        public static final String ErrorHandlers = "error.handlers";
+        public static final String AsynchronousHandlerExecutor = "handler.async.executor";
+
+    }
 
     private PubSubSupport provider;
 

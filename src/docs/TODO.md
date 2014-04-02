@@ -18,5 +18,6 @@ Add code examples Javadoc of main classes
 Describe 1-Thread FIFO scheme with async dispatch
 Explain how MBassador can be extended easily using delegation
 Refer to Spring integration component
+Creating bus hierarchies
 How to make sender part of the message publication
 How to add global filtering by means of delegation

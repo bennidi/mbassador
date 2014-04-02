@@ -5,7 +5,6 @@ import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.dispatch.IMessageDispatcher;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -64,7 +63,7 @@ public class Subscription {
         return context.getHandlerMetadata().handlesMessage(messageType);
     }
 
-    public List<Class<?>> getHandledMessageTypes(){
+    public Class[] getHandledMessageTypes(){
         return context.getHandlerMetadata().getHandledMessages();
     }
 

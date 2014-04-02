@@ -21,7 +21,8 @@ import org.junit.runners.Suite;
         MethodDispatchTest.class,
         DeadMessageTest.class,
         SynchronizedHandlerTest.class,
-        SubscriptionManagerTest.class
+        SubscriptionManagerTest.class,
+        AsyncFIFOBusTest.class
 })
 public class AllTests {
 }

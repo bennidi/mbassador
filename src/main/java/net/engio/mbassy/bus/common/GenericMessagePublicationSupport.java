@@ -1,4 +1,4 @@
-package net.engio.mbassy.bus;
+package net.engio.mbassy.bus.common;
 
 import net.engio.mbassy.bus.publication.IPublicationCommand;
 

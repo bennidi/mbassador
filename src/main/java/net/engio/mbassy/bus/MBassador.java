@@ -1,25 +1,24 @@
 package net.engio.mbassy.bus;
 
-import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.bus.publication.SyncAsyncPostCommand;
 
 import java.util.concurrent.TimeUnit;
 
 
-public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> implements IMBassador<T> {
+public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> implements IMessageBus<T, SyncAsyncPostCommand<T>> {
 
     public MBassador(BusConfiguration configuration) {
         super(configuration);
     }
 
 
-    @Override
     public MessagePublication publishAsync(T message) {
         return addAsynchronousPublication(createMessagePublication(message));
     }
 
-    @Override
     public MessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
         return addAsynchronousPublication(createMessagePublication(message), timeout, unit);
     }

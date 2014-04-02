@@ -1,8 +1,8 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.IPublicationErrorHandler;
-import net.engio.mbassy.MessageBusException;
 import net.engio.mbassy.bus.BusRuntime;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.MessageBusException;
 import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.common.WeakConcurrentSet;
 import net.engio.mbassy.dispatch.*;
@@ -18,11 +18,9 @@ import java.util.Collection;
  */
 public class SubscriptionFactory {
 
-    private static final String ErrorHandlers = "error.handlers";
-
     public Subscription createSubscription(BusRuntime runtime, MessageHandler handlerMetadata) throws MessageBusException{
         try {
-            Collection<IPublicationErrorHandler> errorHandlers = runtime.get(ErrorHandlers);
+            Collection<IPublicationErrorHandler> errorHandlers = runtime.get(BusRuntime.Properties.ErrorHandlers);
             SubscriptionContext context = new SubscriptionContext(runtime, handlerMetadata, errorHandlers);
             IHandlerInvocation invocation = buildInvocationForHandler(context);
             IMessageDispatcher dispatcher = buildDispatcher(context, invocation);

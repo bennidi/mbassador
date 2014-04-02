@@ -1,11 +1,11 @@
 package net.engio.mbassy.common;
 
 import junit.framework.Assert;
-import net.engio.mbassy.IPublicationErrorHandler;
-import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.bus.config.BusConfiguration;
-import net.engio.mbassy.bus.MBassador;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.messages.MessageTypes;
 import org.junit.Before;
 

@@ -1,4 +1,4 @@
-package net.engio.mbassy.bus;
+package net.engio.mbassy.bus.common;
 
 import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
 
@@ -70,14 +70,16 @@ public interface IMessageBus<T, P extends ISyncAsyncPublicationCommand>
      * Get the executor service that is used for asynchronous message publications.
      * The executor is passed to the message bus at creation time.
      *
+     * Note: The executor can be obtained from the run time. See
      * @return
      */
+    @Deprecated
     Executor getExecutor();
 
     /**
      * Check whether any asynchronous message publications are pending to be processed
      *
-     * @return
+     * @return true if any unfinished message publications are found
      */
     boolean hasPendingMessages();
 

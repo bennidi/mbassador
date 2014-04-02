@@ -1,6 +1,6 @@
-package net.engio.mbassy.bus;
+package net.engio.mbassy.bus.common;
 
-import net.engio.mbassy.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 
 import java.util.Collection;
 

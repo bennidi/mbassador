@@ -1,7 +1,7 @@
 package net.engio.mbassy.bus;
 
-import net.engio.mbassy.common.DeadMessage;
-import net.engio.mbassy.common.FilteredMessage;
+import net.engio.mbassy.bus.common.DeadMessage;
+import net.engio.mbassy.bus.common.FilteredMessage;
 import net.engio.mbassy.subscription.Subscription;
 
 import java.util.Collection;
@@ -79,11 +79,11 @@ public class MessagePublication {
 
 
     public boolean isDeadEvent() {
-        return DeadMessage.class.isAssignableFrom(message.getClass());
+        return DeadMessage.class.equals(message.getClass());
     }
 
     public boolean isFilteredEvent() {
-        return FilteredMessage.class.isAssignableFrom(message.getClass());
+        return FilteredMessage.class.equals(message.getClass());
     }
 
     public Object getMessage() {

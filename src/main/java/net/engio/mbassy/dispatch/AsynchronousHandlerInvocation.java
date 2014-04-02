@@ -1,5 +1,6 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 
 import java.util.concurrent.ExecutorService;
@@ -19,7 +20,7 @@ public class AsynchronousHandlerInvocation extends AbstractSubscriptionContextAw
     public AsynchronousHandlerInvocation(IHandlerInvocation delegate) {
         super(delegate.getContext());
         this.delegate = delegate;
-        this.executor = delegate.getContext().getRuntime().get("handler.async-service");
+        this.executor = delegate.getContext().getRuntime().get(BusRuntime.Properties.AsynchronousHandlerExecutor);
     }
 
     /**

@@ -1,8 +1,8 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.IPublicationErrorHandler;
 import net.engio.mbassy.bus.BusRuntime;
-import net.engio.mbassy.bus.RuntimeProvider;
+import net.engio.mbassy.bus.common.RuntimeProvider;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.listener.MessageHandler;
 
 import java.util.Collection;

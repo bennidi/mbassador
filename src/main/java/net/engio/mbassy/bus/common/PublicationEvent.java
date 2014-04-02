@@ -1,4 +1,4 @@
-package net.engio.mbassy.common;
+package net.engio.mbassy.bus.common;
 
 /**
  * A wrapped event is created when various conditions are matched (these depend on the concrete
@@ -9,13 +9,13 @@ package net.engio.mbassy.common;
  */
 public abstract class PublicationEvent {
 
-    private Object event;
+    private Object relatedMessage;
 
     public PublicationEvent(Object message) {
-        this.event = message;
+        this.relatedMessage = message;
     }
 
     public Object getMessage() {
-        return event;
+        return relatedMessage;
     }
 }

@@ -1,6 +1,6 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.IMessageBus;
+import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.Handler;

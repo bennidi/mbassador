@@ -76,8 +76,9 @@ public class MetadataReader {
             }
             Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
             // if a handler is overwritten it inherits the configuration of its parent method
-            MessageHandler handlerMetadata = new MessageHandler(overriddenHandler == null ? handler : overriddenHandler,
-                    getFilter(handlerConfig), handlerConfig, listenerMetadata);
+            Map<String, Object> handlerProperties = MessageHandler.Properties.Create(overriddenHandler == null ? handler : overriddenHandler,
+                    handlerConfig, getFilter(handlerConfig), listenerMetadata);
+            MessageHandler handlerMetadata = new MessageHandler(handlerProperties);
             listenerMetadata.addHandler(handlerMetadata);
 
         }

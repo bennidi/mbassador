@@ -1,7 +1,7 @@
-package net.engio.mbassy.common;
+package net.engio.mbassy.bus.common;
 
 /**
- * The DeadEvent is delivered to all subscribed handlers (if any) whenever no message
+ * The dead message event is published whenever no message
  * handlers could be found for a given message publication.
  *
  * @author bennidi

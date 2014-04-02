@@ -1,4 +1,4 @@
-package net.engio.mbassy.bus;
+package net.engio.mbassy.bus.common;
 
 /**
  * This interface defines the very basic message publication semantics according to the publish subscribe pattern.

@@ -1,6 +1,6 @@
 package net.engio.mbassy.dispatch;
 
-import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.subscription.SubscriptionContext;
 
 import java.lang.reflect.InvocationTargetException;

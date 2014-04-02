@@ -1,4 +1,4 @@
-package net.engio.mbassy;
+package net.engio.mbassy.bus.error;
 
 /**
  * Publication error handlers are provided with a publication error every time an

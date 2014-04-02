@@ -1,7 +1,7 @@
 package net.engio.mbassy.dispatch;
 
-import net.engio.mbassy.IPublicationErrorHandler;
-import net.engio.mbassy.PublicationError;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 import net.engio.mbassy.subscription.SubscriptionContext;
 
