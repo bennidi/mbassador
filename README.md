@@ -11,7 +11,7 @@ Read this documentation to get an overview of MBassadors features. There is also
 not enough to make a developer happy (work is in progress).
 Additionally, you can browse the [javadoc](http://bennidi.github.io/mbassador/)
 
-The current version is 1.1.9 and it is available from the Maven Central Repository. See the release notes for more details.
+The current version is 1.1.10 and it is available from the Maven Central Repository. See the release notes for more details.
 
 There is also an extension available to support CDI-like transactional message sending in a Spring environment. It's beta but
 stable enough to give it a try. See <a href="https://github.com/bennidi/mbassador-spring" target="_blank">here</a>.
@@ -143,7 +143,7 @@ Beginning with version 1.1.0 MBassador is available from the Maven Central Repos
     <dependency>
         <groupId>net.engio</groupId>
         <artifactId>mbassador</artifactId>
-        <version>1.1.9</version>
+        <version>1.1.10</version>
     </dependency>
 ```
 
