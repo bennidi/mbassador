@@ -37,7 +37,7 @@ public class ConditionTest extends MessageBusTest {
 
 	public static class ConditionalMessageListener {
 
-		@Handler(condition = "msg.type == \"TEST\"")
+		@Handler(condition = "msg.type == 'TEST'")
 		public void handleTypeMessage(TestEvent message) {
 			message.result = "handleTypeMessage";
 		}
@@ -52,7 +52,7 @@ public class ConditionTest extends MessageBusTest {
 			message.result = "handleCombinedEL";
 		}
 		
-		@Handler(condition = "msg.getType().equals(\"XYZ\") && msg.getSize() == 1")
+		@Handler(condition = "msg.getType().equals('XYZ') && msg.getSize() == 1")
 		public void handleMethodAccessEL(TestEvent message) {
 			message.result = "handleMethodAccessEL";
 		}
