@@ -1,6 +1,7 @@
 package net.engio.mbassy.dispatch;
 
 import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.dispatch.el.ElFilter;
 import net.engio.mbassy.listener.IMessageFilter;
 
 /**
@@ -37,9 +38,20 @@ public class FilteredMessageDispatcher extends DelegatingMessageDispatcher {
 
     @Override
     public void dispatch(MessagePublication publication, Object message, Iterable listeners){
-        if (passesFilter(message)) {
+        if (passesFilter(message) && passesELFilter(message)) {
             getDelegate().dispatch(publication, message, listeners);
         }
     }
 
+	/*************************************************************************
+	 * This will test the EL expression defined on the Handler annotation.
+	 * This is like a "parameterizable" filter.
+	 * @param me the message object to filter with the EL expression if there is one.
+	 * @return true if the event is allowed, false if it is rejected.
+	 ************************************************************************/
+        
+	private boolean passesELFilter(Object message) {
+		ElFilter filter = ElFilter.getInstance();
+		return filter != null && filter.accepts(message, getContext().getHandlerMetadata());
+	}
 }

@@ -21,6 +21,7 @@ public class MessageHandler {
         public static final String HandlerMethod = "handler";
         public static final String InvocationMode = "invocationMode";
         public static final String Filter = "filter";
+        public static final String Condition = "condition";
         public static final String Enveloped = "envelope";
         public static final String HandledMessages = "messages";
         public static final String IsSynchronized = "synchronized";
@@ -51,6 +52,7 @@ public class MessageHandler {
             Map<String, Object> properties = new HashMap<String, Object>();
             properties.put(HandlerMethod, handler);
             properties.put(Filter, filter != null ? filter : new IMessageFilter[]{});
+            properties.put(Condition, handlerConfig.condition());
             properties.put(Priority, handlerConfig.priority());
             properties.put(Invocation, handlerConfig.invocation());
             properties.put(InvocationMode, handlerConfig.delivery());
@@ -68,6 +70,8 @@ public class MessageHandler {
 
     private final IMessageFilter[] filter;
 
+	private String condition;
+    
     private final int priority;
 
     private final Class<? extends HandlerInvocation> invocation;
@@ -84,11 +88,13 @@ public class MessageHandler {
 
     private final boolean isSynchronized;
 
+
     public MessageHandler(Map<String, Object> properties){
         super();
         validate(properties);
         this.handler = (Method)properties.get(Properties.HandlerMethod);
         this.filter = (IMessageFilter[])properties.get(Properties.Filter);
+        this.condition = (String)properties.get(Properties.Condition);
         this.priority = (Integer)properties.get(Properties.Priority);
         this.invocation = (Class<? extends HandlerInvocation>)properties.get(Properties.Invocation);
         this.invocationMode = (Invoke)properties.get(Properties.InvocationMode);
@@ -105,6 +111,7 @@ public class MessageHandler {
                 new Object[]{Properties.Priority, Integer.class },
                 new Object[]{Properties.Invocation, Class.class },
                 new Object[]{Properties.Filter, IMessageFilter[].class },
+                new Object[]{Properties.Condition, String.class },
                 new Object[]{Properties.Enveloped, Boolean.class },
                 new Object[]{Properties.HandledMessages, Class[].class },
                 new Object[]{Properties.IsSynchronized, Boolean.class },
@@ -137,7 +144,7 @@ public class MessageHandler {
     }
 
     public boolean isFiltered() {
-        return filter.length > 0;
+        return filter.length > 0 || (condition != null && condition.trim().length() > 0);
     }
 
     public int getPriority() {
@@ -150,6 +157,10 @@ public class MessageHandler {
 
     public IMessageFilter[] getFilter() {
         return filter;
+    }
+    
+    public String getCondition() {
+    	return this.condition;
     }
 
     public Class[] getHandledMessages() {
