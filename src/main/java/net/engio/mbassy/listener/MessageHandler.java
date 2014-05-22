@@ -1,6 +1,7 @@
 package net.engio.mbassy.listener;
 
 import net.engio.mbassy.dispatch.HandlerInvocation;
+import net.engio.mbassy.dispatch.el.ElFilter;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -44,6 +45,9 @@ public class MessageHandler {
             if(handler == null){
                 throw new IllegalArgumentException("The message handler configuration may not be null");
             }
+            if(filter == null){
+                filter = new IMessageFilter[]{};
+            }
             net.engio.mbassy.listener.Enveloped enveloped = handler.getAnnotation(Enveloped.class);
             Class[] handledMessages = enveloped != null
                     ? enveloped.messages()
@@ -51,8 +55,21 @@ public class MessageHandler {
             handler.setAccessible(true);
             Map<String, Object> properties = new HashMap<String, Object>();
             properties.put(HandlerMethod, handler);
-            properties.put(Filter, filter != null ? filter : new IMessageFilter[]{});
-            properties.put(Condition, handlerConfig.condition());
+            // add EL filter if a condition is present
+            if(handlerConfig.condition() != null){
+                if (!ElFilter.isELAvailable()) {
+                    throw new IllegalStateException("A handler uses an EL filter but no EL implementation is available.");
+                }
+
+                IMessageFilter[] expandedFilter = new IMessageFilter[filter.length + 1];
+                for(int i = 0; i < filter.length ; i++){
+                   expandedFilter[i] = filter[i];
+                }
+                expandedFilter[filter.length] = new ElFilter();
+                filter = expandedFilter;
+            }
+            properties.put(Filter, filter);
+            properties.put(Condition, cleanEL(handlerConfig.condition()));
             properties.put(Priority, handlerConfig.priority());
             properties.put(Invocation, handlerConfig.invocation());
             properties.put(InvocationMode, handlerConfig.delivery());
@@ -62,6 +79,14 @@ public class MessageHandler {
             properties.put(IsSynchronized, handler.getAnnotation(Synchronized.class) != null);
             properties.put(HandledMessages, handledMessages);
             return properties;
+        }
+
+        private static String cleanEL(String expression) {
+
+            if (!expression.trim().startsWith("${") && !expression.trim().startsWith("#{")) {
+                expression = "${"+expression+"}";
+            }
+            return expression;
         }
     }
 

@@ -29,6 +29,7 @@ public abstract class MessageBusTest extends AssertSupport {
     protected static final IPublicationErrorHandler TestFailingHandler = new IPublicationErrorHandler() {
         @Override
         public void handleError(PublicationError error) {
+            error.getCause().printStackTrace();
             Assert.fail();
         }
     };
