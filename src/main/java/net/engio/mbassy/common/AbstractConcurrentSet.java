@@ -28,18 +28,16 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
     protected abstract Entry<T> createEntry(T value, Entry<T> next);
 
     @Override
-    public IConcurrentSet<T> add(T element) {
-        if (element == null) return this;
+    public void add(T element) {
+        if (element == null) return;
         Lock writeLock = lock.writeLock();
         writeLock.lock();
         if (element == null || entries.containsKey(element)) {
             writeLock.unlock();
-            return this;
         } else {
             insert(element);
             writeLock.unlock();
         }
-        return this;
     }
 
     @Override
@@ -69,7 +67,7 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
     }
 
     @Override
-    public IConcurrentSet<T> addAll(Iterable<T> elements) {
+    public void addAll(Iterable<T> elements) {
         Lock writeLock = lock.writeLock();
         try {
             writeLock.lock();
@@ -81,7 +79,6 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
         } finally {
             writeLock.unlock();
         }
-        return this;
     }
 
     @Override

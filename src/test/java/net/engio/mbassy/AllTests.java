@@ -22,7 +22,8 @@ import org.junit.runners.Suite;
         DeadMessageTest.class,
         SynchronizedHandlerTest.class,
         SubscriptionManagerTest.class,
-        AsyncFIFOBusTest.class
+        AsyncFIFOBusTest.class,
+        ConditionalHandlers.class
 })
 public class AllTests {
 }

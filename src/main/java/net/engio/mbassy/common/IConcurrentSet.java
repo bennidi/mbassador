@@ -8,13 +8,13 @@ package net.engio.mbassy.common;
  */
 public interface IConcurrentSet<T> extends Iterable<T> {
 
-    IConcurrentSet<T> add(T element);
+    void add(T element);
 
     boolean contains(T element);
 
     int size();
 
-    IConcurrentSet<T> addAll(Iterable<T> elements);
+    void addAll(Iterable<T> elements);
 
     boolean remove(T element);
 }

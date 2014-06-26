@@ -30,7 +30,7 @@ public class ListenerFactory {
         return this;
     }
 
-    public ListenerFactory create(int numberOfInstances, Class[] classes){
+    public ListenerFactory create(int numberOfInstances, Class ...classes){
         for(Class clazz : classes)
             create(numberOfInstances,clazz);
         return this;

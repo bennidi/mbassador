@@ -56,7 +56,7 @@ public class MessageHandler {
             Map<String, Object> properties = new HashMap<String, Object>();
             properties.put(HandlerMethod, handler);
             // add EL filter if a condition is present
-            if(handlerConfig.condition() != null){
+            if(handlerConfig.condition().length() > 0){
                 if (!ElFilter.isELAvailable()) {
                     throw new IllegalStateException("A handler uses an EL filter but no EL implementation is available.");
                 }
