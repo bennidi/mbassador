@@ -23,7 +23,7 @@ public class MessagePublication {
     private final Object message;
     // message publications can be referenced by multiple threads to query publication progress
     private volatile State state = State.Initial;
-    private volatile boolean delivered = false; // TODO: maybe replace with return value of subscription and dispatchers?
+    private volatile boolean delivered = false;
     private final BusRuntime runtime;
 
     protected MessagePublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message, State initialState) {
@@ -37,6 +37,9 @@ public class MessagePublication {
         return subscriptions.add(subscription);
     }
 
+    /*
+    TODO: document state transitions
+     */
     protected void execute() {
         state = State.Running;
         for (Subscription sub : subscriptions) {

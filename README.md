@@ -4,8 +4,8 @@ MBassador
 MBassador is a very light-weight message (event) bus implementation following the publish subscribe pattern. It is designed
 for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. The core of MBassador's
 high performance is a specialized data structure that minimizes lock contention such that performance degradation of concurrent access is minimal.
-The performance win of this design is illustrated in <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>.
-The benchmarking code can be found <a href="https://github.com/bennidi/eventbus-performance" target="_blank">here</a>
+The performance win of this design is illustrated in <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
+and more recently in the [eventbus-performance](https://github.com/bennidi/eventbus-performance) github repository.
 
 Read this documentation to get an overview of MBassadors features. There is also some documentation in the Wiki - although admittedly
 not enough to make a developer happy (work is in progress).
@@ -147,6 +147,7 @@ Beginning with version 1.1.0 MBassador is available from the Maven Central Repos
     </dependency>
 ```
 
+You can also download the latest binary release here: http://mvnrepository.com/artifact/net.engio/mbassador
 
 Of course you can always clone the repository and build from source.
 
@@ -156,6 +157,11 @@ works. Code samples can also be found in the various test cases. Please read abo
 to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
+
+<h3>1.1.11</h3>
+ + Added support for conditional handlers using Java EL. Thanks to Bernd Rosstauscher
+ for the initial implementation.
+
 
 <h3>1.1.10</h3>
  + Fixed broken sort order of prioritized handlers (see #58)
