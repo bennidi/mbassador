@@ -22,7 +22,7 @@ public class MetadataReader {
     private static final IPredicate<Method> AllMessageHandlers = new IPredicate<Method>() {
         @Override
         public boolean apply(Method target) {
-            return target.getAnnotation(Handler.class) != null;
+	        return ReflectionUtils.getAnnotation(target, Handler.class) != null;
         }
     };
 
@@ -52,7 +52,6 @@ public class MetadataReader {
         return filters;
     }
 
-
     // get all listeners defined by the given class (includes
     // listeners defined in super classes)
     public MessageListener getMessageListener(Class target) {
@@ -70,7 +69,7 @@ public class MetadataReader {
         // for each handler there will be no overriding method that specifies @Handler annotation
         // but an overriding method does inherit the listener configuration of the overwritten method
         for (Method handler : bottomMostHandlers) {
-            Handler handlerConfig = handler.getAnnotation(Handler.class);
+            Handler handlerConfig = ReflectionUtils.getAnnotation( handler, Handler.class);
             if (!handlerConfig.enabled() || !isValidMessageHandler(handler)) {
                 continue; // disabled or invalid listeners are ignored
             }
@@ -89,7 +88,7 @@ public class MetadataReader {
 
 
     private boolean isValidMessageHandler(Method handler) {
-        if (handler == null || handler.getAnnotation(Handler.class) == null) {
+        if (handler == null || ReflectionUtils.getAnnotation( handler, Handler.class) == null) {
             return false;
         }
         if (handler.getParameterTypes().length != 1) {
@@ -98,7 +97,7 @@ public class MetadataReader {
                     + "]. A messageHandler must define exactly one parameter");
             return false;
         }
-        Enveloped envelope = handler.getAnnotation(Enveloped.class);
+        Enveloped envelope = ReflectionUtils.getAnnotation( handler, Enveloped.class);
         if (envelope != null && !MessageEnvelope.class.isAssignableFrom(handler.getParameterTypes()[0])) {
             System.out.println("Message envelope configured but no subclass of MessageEnvelope found as parameter");
             return false;

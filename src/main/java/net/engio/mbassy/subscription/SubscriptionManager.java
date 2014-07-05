@@ -163,7 +163,7 @@ public class SubscriptionManager {
             readWriteLock.readLock().lock();
 
             if (subscriptionsPerMessage.get(messageType) != null) {
-                subscriptions.addAll(subscriptionsPerMessage.get(messageType));
+	            subscriptions.addAll(subscriptionsPerMessage.get(messageType));
             }
             for (Class eventSuperType : ReflectionUtils.getSuperclasses(messageType)) {
                 Collection<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
