@@ -1,5 +1,6 @@
 package net.engio.mbassy.listener;
 
+import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.dispatch.HandlerInvocation;
 import net.engio.mbassy.dispatch.el.ElFilter;
 
@@ -48,7 +49,7 @@ public class MessageHandler {
             if(filter == null){
                 filter = new IMessageFilter[]{};
             }
-            net.engio.mbassy.listener.Enveloped enveloped = handler.getAnnotation(Enveloped.class);
+            net.engio.mbassy.listener.Enveloped enveloped = ReflectionUtils.getAnnotation( handler, Enveloped.class );
             Class[] handledMessages = enveloped != null
                     ? enveloped.messages()
                     : handler.getParameterTypes();
@@ -76,7 +77,7 @@ public class MessageHandler {
             properties.put(Enveloped, enveloped != null);
             properties.put(AcceptSubtypes, !handlerConfig.rejectSubtypes());
             properties.put(Listener, listenerConfig);
-            properties.put(IsSynchronized, handler.getAnnotation(Synchronized.class) != null);
+            properties.put(IsSynchronized, ReflectionUtils.getAnnotation( handler, Synchronized.class) != null);
             properties.put(HandledMessages, handledMessages);
             return properties;
         }

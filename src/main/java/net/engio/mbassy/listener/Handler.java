@@ -14,7 +14,7 @@ import java.lang.annotation.*;
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Inherited
-@Target(value = {ElementType.METHOD})
+@Target(value = {ElementType.METHOD,ElementType.ANNOTATION_TYPE})
 public @interface Handler {
 
     /**

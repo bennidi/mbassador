@@ -13,7 +13,7 @@ import java.lang.annotation.*;
  * @author bennidi
  */
 @Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.TYPE})
+@Target(value = {ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Inherited
 public @interface Listener {
 

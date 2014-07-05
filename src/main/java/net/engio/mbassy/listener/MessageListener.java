@@ -1,6 +1,7 @@
 package net.engio.mbassy.listener;
 
 import net.engio.mbassy.common.IPredicate;
+import net.engio.mbassy.common.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +43,7 @@ public class MessageListener<T> {
 
     public MessageListener(Class<T> listenerDefinition) {
        this.listenerDefinition = listenerDefinition;
-       listenerAnnotation = listenerDefinition.getAnnotation(Listener.class);
+       listenerAnnotation = ReflectionUtils.getAnnotation( listenerDefinition, Listener.class );
     }
 
 
