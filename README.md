@@ -33,7 +33,7 @@ Table of contents:
 At its core MBassador offers the following features:
 
 + <em><strong>Annotation driven</em></strong>: To define and customize a message handler simply mark it with @Handler annotation
-+ <em><strong>Delivers everything</em></strong>: Messages must not implement any interface and can be of any type. It is
++ <em><strong>Delivers everything</em></strong>: Messages do not have to implement any interface and can be of any type. It is
 possible though to define an upper bound of the message type using generics. The class hierarchy of a message is considered during message delivery.
 This means that handlers will also receive subtypes of the message type they are listening for, e.g. a handler of Object.class receives everything.
 + <em><strong>Synchronous and asynchronous message delivery</em></strong>: A handler can be invoked to handle a message either synchronously or
