@@ -3,12 +3,12 @@ MBassador
 
 MBassador is a very light-weight message (event) bus implementation following the publish subscribe pattern. It is designed for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. The core of MBassador's high performance is a specialized data structure that minimizes lock contention such that performance degradation of concurrent access is minimal. The performance win of this design is illustrated in <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a> and more recently in the [eventbus-performance](https://github.com/bennidi/eventbus-performance) github repository.
 
-Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do), mark and configure your message handlers with `@Handler` annotations and finally register the listeners at any MBassador instance. Start sending messages to your listeners using one of MBassador's publication methods (sync or async). Done!
+Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do) ` bus = new MBassador(BusConfiguration.SyncAsync())`, mark and configure your message handlers with `@Handler` annotations and finally register the listeners at any MBassador instance `bus.subscribe(aListener)`. Start sending messages to your listeners using one of MBassador's publication methods `bus.post(message).now()` or `bus.post(message).asynchronously()`. Done!
 
 Read this documentation to get an overview of MBassadors features. There is also some documentation in the Wiki - although admittedly
 not enough to make a developer happy (work is in progress). Additionally, you can browse the [javadoc](http://bennidi.github.io/mbassador/)
 
-There is also a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. It's beta but stable enough to give it a try.
+There is a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. It's beta but stable enough to give it a try.
 
 Table of contents:
 + [Features](#features)
@@ -38,7 +38,9 @@ Table of contents:
 
 Messages do not need to implement any interface and can be of any type. It is possible though to define an upper bound of the message type using generics. The class hierarchy of a message is considered during message delivery, such that handlers will also receive subtypes of the message type they consume for - e.g. a handler of Object.class receives everything. Messages that do not match any handler result in the publication of a `DeadMessage` object which wraps the original message. DeadMessage events can be handled by registering listeners that handle DeadMessage.
 
-> Synchronous and asynchronous message delivery|A handler can be invoked to handle a message either synchronously or asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch|
+> Synchronous and asynchronous message delivery
+
+A handler can be invoked to handle a message either synchronously or asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch
 
 > Configurable reference types
 
@@ -125,7 +127,7 @@ Creation of message bus and registration of listeners:
 
         // create as many instances as necessary
         // bind it to any upper bound
-        MBassador<TestMessage> bus = new MBassador<TestMessage>(BusConfiguration.Default());
+        MBassador<TestMessage> bus = new MBassador<TestMessage>(BusConfiguration.SyncAsync());
         ListeningBean listener = new ListeningBean();
         // the listener will be registered using a weak-reference if not configured otherwise with @Listener
         bus.subscribe(listener);
