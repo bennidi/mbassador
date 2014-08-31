@@ -2,7 +2,8 @@ package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.DeadMessage;
 import net.engio.mbassy.bus.common.PubSubSupport;
-import net.engio.mbassy.bus.config.ISyncBusConfiguration;
+import net.engio.mbassy.bus.config.Feature;
+import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.subscription.Subscription;
@@ -31,13 +32,15 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     private final BusRuntime runtime;
 
 
-    public AbstractPubSubSupport(ISyncBusConfiguration configuration) {
+    public AbstractPubSubSupport(IBusConfiguration configuration) {
         this.runtime = new BusRuntime(this);
         this.runtime.add(BusRuntime.Properties.ErrorHandlers, getRegisteredErrorHandlers());
-        this.subscriptionManager = configuration.getSubscriptionManagerProvider()
-        		.createManager(configuration.getMetadataReader(),
-                configuration.getSubscriptionFactory(), runtime);
-        this.publicationFactory = configuration.getMessagePublicationFactory();
+        // configure the pub sub feature
+        Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
+        this.subscriptionManager = pubSubFeature.getSubscriptionManagerProvider()
+        		.createManager(pubSubFeature.getMetadataReader(),
+                        pubSubFeature.getSubscriptionFactory(), runtime);
+        this.publicationFactory = pubSubFeature.getPublicationFactory();
     }
 
     protected MessagePublication.Factory getPublicationFactory() {

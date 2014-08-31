@@ -3,7 +3,7 @@ package net.engio.mbassy.common;
 import junit.framework.Assert;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.MessagePublication;
-import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.messages.MessageTypes;
@@ -43,13 +43,13 @@ public abstract class MessageBusTest extends AssertSupport {
             mes.reset();
     }
 
-    public MBassador getBus(BusConfiguration configuration) {
+    public MBassador getBus(IBusConfiguration configuration) {
         MBassador bus = new MBassador(configuration);
         bus.addErrorHandler(TestFailingHandler);
         return bus;
     }
 
-    public MBassador getBus(BusConfiguration configuration, ListenerFactory listeners) {
+    public MBassador getBus(IBusConfiguration configuration, ListenerFactory listeners) {
         MBassador bus = new MBassador(configuration);
         bus.addErrorHandler(TestFailingHandler);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);

@@ -111,7 +111,7 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 
 	@Test
 	public void testMetaHandlerFiltering() {
-		MBassador bus = getBus( BusConfiguration.Default() );
+		MBassador bus = getBus( BusConfiguration.SyncAsync() );
 
 		NamedMessageListener listener = new NamedMessageListener();
 		bus.subscribe( listener );

@@ -1,26 +1,30 @@
 package net.engio.mbassy.bus.config;
 
-import net.engio.mbassy.bus.MessagePublication;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
-
 /**
- * Created with IntelliJ IDEA.
- * User: benjamin
- * Date: 8/16/13
- * Time: 9:56 AM
- * To change this template use File | Settings | File Templates.
+ * The configuration of message bus instances is feature driven, e.g. configuration parameters
+ * are grouped into {@link Feature}.
+ *
+ * Features can be added to a bus configuration to be used later in the instantiation process of the message bus.
+ * Each bus will look for the features it requires and configure them according to the provided configuration. If a required feature is not found the bus will publish a {@link ConfigurationError}
+ * to the {@link ConfigurationErrorHandler}
+ *
+ * @author bennidi.
  */
-public interface IBusConfiguration extends ISyncBusConfiguration {
+public interface IBusConfiguration{
 
-    int getNumberOfMessageDispatchers();
+    /**
+     * Get a registered feature by its type (class).
+     *
+     * @param feature
+     * @param <T>
+     * @return
+     */
+    <T extends Feature> T getFeature(Class<T> feature);
 
-    ExecutorService getExecutorForAsynchronousHandlers();
+    IBusConfiguration addFeature(Feature feature);
 
-    BlockingQueue<MessagePublication> getPendingMessagesQueue();
+    IBusConfiguration addErrorHandler(ConfigurationErrorHandler handler);
 
-    ThreadFactory getThreadFactoryForAsynchronousMessageDispatch();
+
 
 }

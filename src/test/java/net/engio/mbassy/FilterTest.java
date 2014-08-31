@@ -31,7 +31,7 @@ public class FilterTest extends MessageBusTest {
         FilteredEventCounter.set(0);
         DeadEventCounter.set(0);
 
-        MBassador bus = getBus(BusConfiguration.Default());
+        MBassador bus = getBus(BusConfiguration.SyncAsync());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, FilteredMessageListener.class);
 
@@ -56,7 +56,7 @@ public class FilterTest extends MessageBusTest {
         FilteredEventCounter.set(0);
         DeadEventCounter.set(0);
 
-        MBassador bus = getBus(BusConfiguration.Default());
+        MBassador bus = getBus(BusConfiguration.SyncAsync());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, FilteredMessageListener.class);
 
@@ -102,7 +102,7 @@ public class FilterTest extends MessageBusTest {
 
     @Test
     public void testSubtypesOnly(){
-        MBassador bus = getBus(BusConfiguration.Default());
+        MBassador bus = getBus(BusConfiguration.SyncAsync());
         ListenerFactory listeners = new ListenerFactory()
                 .create(100, TestMessageHandler.class);
 

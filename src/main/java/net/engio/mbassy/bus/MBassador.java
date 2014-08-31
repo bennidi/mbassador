@@ -1,7 +1,7 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.IMessageBus;
-import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.bus.publication.SyncAsyncPostCommand;
 
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> implements IMessageBus<T, SyncAsyncPostCommand<T>> {
 
-    public MBassador(BusConfiguration configuration) {
+    public MBassador(IBusConfiguration configuration) {
         super(configuration);
     }
 

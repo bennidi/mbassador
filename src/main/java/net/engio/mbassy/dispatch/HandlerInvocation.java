@@ -8,7 +8,7 @@ import net.engio.mbassy.subscription.SubscriptionContext;
 import java.util.Collection;
 
 /**
- * Todo: Add javadoc
+ * This is the base class for handler invocations that already implements all context related methods only leaving the implementation of the actual invocation mechanism to the concrete subclass.
  *
  * @author bennidi
  *         Date: 3/29/13

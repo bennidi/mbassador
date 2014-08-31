@@ -41,7 +41,7 @@ public class MethodDispatchTest extends MessageBusTest{
 
     @Test
     public void testDispatch1(){
-        IMessageBus bus = getBus(BusConfiguration.Default());
+        IMessageBus bus = getBus(BusConfiguration.SyncAsync());
         EventListener2 listener2 = new EventListener2();
         bus.subscribe(listener2);
         bus.post("jfndf").now();

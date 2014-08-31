@@ -34,18 +34,13 @@ At its core MBassador offers the following features:
 
 + <em><strong>Annotation driven</em></strong>: To define and customize a message handler simply mark it with @Handler annotation
 + <em><strong>Delivers everything</em></strong>: Messages must not implement any interface and can be of any type. It is
-possible though to define an upper bound of the message type using generics. The class hierarchy of a message is considered during message delivery.
-This means that handlers will also receive subtypes of the message type they are listening for, e.g. a handler of Object.class receives everything.
+possible though to define an upper bound of the message type using generics. The class hierarchy of a message is considered during message delivery, such that handlers will also receive subtypes of the message type they consume for, e.g. a handler of Object.class receives everything.
 + <em><strong>Synchronous and asynchronous message delivery</em></strong>: A handler can be invoked to handle a message either synchronously or
 asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method
 blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch
-+ <em><strong>Weak references</em></strong>: By default, MBassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister
-listeners that are not used anymore (of course it is also possible to explicitly unregister a listener if needed). This is very comfortable
-in certain environments where listeners are managed by frameworks, i.e. Spring, Guice etc. Just stuff everything into the message bus, it will
-ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
++ <em><strong>Weak references</em></strong>: By default, MBassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister listeners that are not used anymore (of course it is also possible to explicitly unregister a listener if needed). This is very comfortable in certain environments where listeners are managed by frameworks, i.e. Spring, Guice etc. Just stuff everything into the message bus, it will ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
 + <em><strong>Strong references</em></strong>: Instead of using weak references, a listener can be configured to be referenced using strong references using @Listener
-+ <em><strong>Filtering</em></strong>: MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to
-a single message handler
++ <em><strong>Filtering</em></strong>: MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to a single message handler
 + <em><strong>Message envelopes</em></strong>: Message handlers can declare to receive an enveloped message. The envelope can wrap different
 types of messages. This allows for a single handler to handle multiple, unrelated message types.
 + <em><strong>Handler priorities</em></strong>: A handler can be associated with a priority to influence the order in which messages are delivered when multiple matching handlers exist
@@ -55,12 +50,8 @@ can be handled by registering listeners that handle DeadMessage.
 + <em><strong>FilteredMessage event</em></strong>: Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message.
 FilteredMessage events can be handled by registering listeners that handle FilteredMessage.
 + <em><strong>Synchronization</em></strong>: It is possible to ensure that a handler is invoked non-concurrently,i.e. making it thread-safe by adding @Synchronized
-+ <em><strong>Extensibility</em></strong>:MBassador is designed to be extensible with custom implementations of various components like message
-dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different
- kinds of objects. A configuration object is used to customize the different configurable parts
-+ <em><strong>Ease of Use</em></strong>: Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do),
-mark and configure your message handlers with @Handler annotations and finally register the listeners at any MBassador instance. Start
-sending messages to your listeners using one of MBassador's publication methods (sync or async). Done!
++ <em><strong>Extensibility</em></strong>: MBassador is designed to be extensible with custom implementations of various components like message dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different kinds of objects. A configuration object is used to customize the different configurable parts (Features)
++ <em><strong>Ease of Use</em></strong>: Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do), mark and configure your message handlers with @Handler annotations and finally register the listeners at any MBassador instance. Start sending messages to your listeners using one of MBassador's publication methods (sync or async). Done!
 
 
 
@@ -138,18 +129,16 @@ Message publication:
         bus.post(subMessage).now(); // same as above
 
 <h2>Installation</h2>
-Beginning with version 1.1.0 MBassador is available from the Maven Central Repository using the following coordinates:
+MBassador is available from the Maven Central Repository using the following coordinates:
 ```xml
     <dependency>
         <groupId>net.engio</groupId>
         <artifactId>mbassador</artifactId>
-        <version>1.1.10</version>
+        <version>1.1.11</version>
     </dependency>
 ```
 
-You can also download the latest binary release here: http://mvnrepository.com/artifact/net.engio/mbassador
-
-Of course you can always clone the repository and build from source.
+You can also download the latest binary release from the official [maven repository](http://mvnrepository.com/artifact/net.engio/mbassador). Of course you can always clone the repository and build from source.
 
 <h2>Wiki</h2>
 There is ongoing effort to extend documentation and provide code samples and detailed explanations of how the message bus
@@ -161,6 +150,12 @@ to avoid confusion and misunderstanding.
 <h3>1.1.11</h3>
  + Added support for conditional handlers using Java EL. Thanks to Bernd Rosstauscher
  for the initial implementation.
+ + BREAKING CHANGES in BusConfiguration
+ ++ Complete redesign of configuration setup using Features instead of simple get/set parameters. This will allow
+ to flexibly combine features and still be able to exclude those not available in certain environments,for example, threading and reflection in GWT (this will be part of future releases)
+ ++ Properties formerly located in BusConfiguration now moved to their respective Feature class
+ ++ Removed all SyncXX related interfaces and config implementations. There is now only one `BusConfiguration`
+ with its corresponding interface which will be used for all types of message bus implementations
 
 
 <h3>1.1.10</h3>

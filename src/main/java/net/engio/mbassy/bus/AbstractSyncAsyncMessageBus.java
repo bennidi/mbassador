@@ -1,6 +1,7 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.IMessageBus;
+import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
@@ -32,21 +33,26 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
 
     protected AbstractSyncAsyncMessageBus(IBusConfiguration configuration) {
         super(configuration);
-        this.executor = configuration.getExecutorForAsynchronousHandlers();
+
+        // configure asynchronous message dispatch
+        Feature.AsynchronousMessageDispatch asyncDispatch = configuration.getFeature(Feature.AsynchronousMessageDispatch.class);
+        pendingMessages = asyncDispatch.getPendingMessages();
+        dispatchers = new ArrayList<Thread>(asyncDispatch.getNumberOfMessageDispatchers());
+        initDispatcherThreads(asyncDispatch);
+
+        // configure asynchronous handler invocation
+        Feature.AsynchronousHandlerInvocation asyncInvocation = configuration.getFeature(Feature.AsynchronousHandlerInvocation.class);
+        this.executor = asyncInvocation.getExecutor();
         getRuntime().add(BusRuntime.Properties.AsynchronousHandlerExecutor, executor);
-        pendingMessages = configuration.getPendingMessagesQueue();
-        dispatchers = new ArrayList<Thread>(configuration.getNumberOfMessageDispatchers());
-        initDispatcherThreads(configuration);
+
     }
 
-
     // initialize the dispatch workers
-    private void initDispatcherThreads(IBusConfiguration configuration) {
+    private void initDispatcherThreads(Feature.AsynchronousMessageDispatch configuration) {
         for (int i = 0; i < configuration.getNumberOfMessageDispatchers(); i++) {
             // each thread will run forever and process incoming
             // message publication requests
-
-            Thread dispatcher = configuration.getThreadFactoryForAsynchronousMessageDispatch().newThread(new Runnable() {
+            Thread dispatcher = configuration.getDispatcherThreadFactory().newThread(new Runnable() {
                 public void run() {
                     while (true) {
                         MessagePublication publication = null;

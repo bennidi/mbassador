@@ -1,7 +1,7 @@
 package net.engio.mbassy.bus.error;
 
 /**
- * Todo: Add javadoc
+ * The universal exception type for message bus implementations.
  *
  * @author bennidi
  *         Date: 3/29/13

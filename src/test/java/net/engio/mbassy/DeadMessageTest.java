@@ -32,7 +32,7 @@ public class DeadMessageTest extends MessageBusTest{
 
     @Test
     public void testDeadMessage(){
-        final MBassador bus = getBus(BusConfiguration.Default());
+        final MBassador bus = getBus(BusConfiguration.SyncAsync());
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
                 .create(InstancesPerListener, IMessageListener.AsyncListener.class)
@@ -70,7 +70,7 @@ public class DeadMessageTest extends MessageBusTest{
 
     @Test
     public void testUnsubscribingAllListeners() {
-        final MBassador bus = getBus(BusConfiguration.Default());
+        final MBassador bus = getBus(BusConfiguration.SyncAsync());
         ListenerFactory deadMessageListener = new ListenerFactory()
                 .create(InstancesPerListener, DeadMessagHandler.class)
                 .create(InstancesPerListener, Object.class);

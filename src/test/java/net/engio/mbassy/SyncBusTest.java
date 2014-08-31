@@ -178,7 +178,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
         @Override
         protected ISyncMessageBus getSyncMessageBus() {
-            return new MBassador(BusConfiguration.Default());
+            return new MBassador(BusConfiguration.SyncAsync());
         }
 
     }

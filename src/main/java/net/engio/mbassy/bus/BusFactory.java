@@ -3,7 +3,7 @@ package net.engio.mbassy.bus;
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.common.ISyncMessageBus;
 import net.engio.mbassy.bus.config.BusConfiguration;
-import net.engio.mbassy.bus.config.SyncBusConfiguration;
+import net.engio.mbassy.bus.config.Feature;
 
 /**
  * The bus factory provides convenient factory methods for the most common bus use cases.
@@ -21,7 +21,9 @@ public class BusFactory {
      * @return
      */
     public static ISyncMessageBus SynchronousOnly(){
-        return new SyncMessageBus(new SyncBusConfiguration());
+        BusConfiguration syncPubSubCfg = new BusConfiguration();
+        syncPubSubCfg.addFeature(Feature.SyncPubSub.Default());
+        return new SyncMessageBus(syncPubSubCfg);
     }
 
     /**
@@ -33,6 +35,10 @@ public class BusFactory {
      * @return
      */
     public static IMessageBus AsynchronousSequentialFIFO(){
-        return new MBassador(BusConfiguration.Default(1,1,1));
+        BusConfiguration asyncFIFOConfig = new BusConfiguration();
+        asyncFIFOConfig.addFeature(Feature.SyncPubSub.Default());
+        asyncFIFOConfig.addFeature(Feature.AsynchronousHandlerInvocation.Default(1, 1));
+        asyncFIFOConfig.addFeature(Feature.AsynchronousMessageDispatch.Default().setNumberOfMessageDispatchers(1));
+        return new MBassador(asyncFIFOConfig);
     }
 }
