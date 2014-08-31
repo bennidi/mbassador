@@ -3,18 +3,14 @@ MBassador
 
 MBassador is a very light-weight message (event) bus implementation following the publish subscribe pattern. It is designed
 for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. The core of MBassador's
-high performance is a specialized data structure that minimizes lock contention such that performance degradation of concurrent access is minimal.
-The performance win of this design is illustrated in <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a>
-and more recently in the [eventbus-performance](https://github.com/bennidi/eventbus-performance) github repository.
+high performance is a specialized data structure that minimizes lock contention such that performance degradation of concurrent access is minimal. The performance win of this design is illustrated in <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a> and more recently in the [eventbus-performance](https://github.com/bennidi/eventbus-performance) github repository.
+
+Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do), mark and configure your message handlers with `@Handler` annotations and finally register the listeners at any MBassador instance. Start sending messages to your listeners using one of MBassador's publication methods (sync or async). Done!
 
 Read this documentation to get an overview of MBassadors features. There is also some documentation in the Wiki - although admittedly
-not enough to make a developer happy (work is in progress).
-Additionally, you can browse the [javadoc](http://bennidi.github.io/mbassador/)
+not enough to make a developer happy (work is in progress). Additionally, you can browse the [javadoc](http://bennidi.github.io/mbassador/)
 
-The current version is 1.1.10 and it is available from the Maven Central Repository. See the release notes for more details.
-
-There is also an extension available to support CDI-like transactional message sending in a Spring environment. It's beta but
-stable enough to give it a try. See <a href="https://github.com/bennidi/mbassador-spring" target="_blank">here</a>.
+There is also a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. It's beta but stable enough to give it a try.
 
 Table of contents:
 + [Features](#features)
@@ -32,26 +28,25 @@ Table of contents:
 
 At its core MBassador offers the following features:
 
-+ <em><strong>Annotation driven</em></strong>: To define and customize a message handler simply mark it with @Handler annotation
-+ <em><strong>Delivers everything</em></strong>: Messages must not implement any interface and can be of any type. It is
-possible though to define an upper bound of the message type using generics. The class hierarchy of a message is considered during message delivery, such that handlers will also receive subtypes of the message type they consume for, e.g. a handler of Object.class receives everything.
-+ <em><strong>Synchronous and asynchronous message delivery</em></strong>: A handler can be invoked to handle a message either synchronously or
-asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method
-blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch
-+ <em><strong>Weak references</em></strong>: By default, MBassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister listeners that are not used anymore (of course it is also possible to explicitly unregister a listener if needed). This is very comfortable in certain environments where listeners are managed by frameworks, i.e. Spring, Guice etc. Just stuff everything into the message bus, it will ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.
-+ <em><strong>Strong references</em></strong>: Instead of using weak references, a listener can be configured to be referenced using strong references using @Listener
-+ <em><strong>Filtering</em></strong>: MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to a single message handler
-+ <em><strong>Message envelopes</em></strong>: Message handlers can declare to receive an enveloped message. The envelope can wrap different
-types of messages. This allows for a single handler to handle multiple, unrelated message types.
-+ <em><strong>Handler priorities</em></strong>: A handler can be associated with a priority to influence the order in which messages are delivered when multiple matching handlers exist
-+ <em><strong>Custom error handling</em></strong>: Errors during message delivery are sent to all registered error handlers which can be added to the bus as necessary.
-+ <em><strong>DeadMessage event</em></strong>: Messages that do not match any handler result in the publication of a DeadMessage object which wraps the original message. DeadMessage events
-can be handled by registering listeners that handle DeadMessage.
-+ <em><strong>FilteredMessage event</em></strong>: Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message.
-FilteredMessage events can be handled by registering listeners that handle FilteredMessage.
-+ <em><strong>Synchronization</em></strong>: It is possible to ensure that a handler is invoked non-concurrently,i.e. making it thread-safe by adding @Synchronized
-+ <em><strong>Extensibility</em></strong>: MBassador is designed to be extensible with custom implementations of various components like message dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different kinds of objects. A configuration object is used to customize the different configurable parts (Features)
-+ <em><strong>Ease of Use</em></strong>: Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do), mark and configure your message handlers with @Handler annotations and finally register the listeners at any MBassador instance. Start sending messages to your listeners using one of MBassador's publication methods (sync or async). Done!
+| Feature | Description | Components |
+|:-------------:|:-----:|:-----:|
+|Annotation driven|To define and customize a message handler simply mark it with @Handler annotation||
+|Delivers everything|Messages must not implement any interface and can be of any type. It is
+                     possible though to define an upper bound of the message type using generics. The class hierarchy of a message is considered during message delivery, such that handlers will also receive subtypes of the message type they consume for, e.g. a handler of Object.class receives everything.||
+|Synchronous and asynchronous message delivery|A handler can be invoked to handle a message either synchronously or
+                                               asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch||
+|Weak references|By default, MBassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister listeners that are not used anymore (of course it is also possible to explicitly unregister a listener if needed). This is very comfortable in certain environments where listeners are managed by frameworks, i.e. Spring, Guice etc. Just stuff everything into the message bus, it will ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.||
+|Strong references|Instead of using weak references, a listener can be configured to be referenced using strong references using @Listener||
+|Filtering|MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to a single message handler||
+|Enveloped messages|Message handlers can declare to receive an enveloped message. The envelope can wrap different
+                    types of messages. This allows for a single handler to handle multiple, unrelated message types.||
+|Handler priorities|A handler can be associated with a priority to influence the order in which messages are delivered when multiple matching handlers exist||
+|Custom error handling|Errors during message delivery are sent to all registered error handlers which can be added to the bus as necessary.||
+|DeadMessage event|Messages that do not match any handler result in the publication of a DeadMessage object which wraps the original message. DeadMessage events can be handled by registering listeners that handle DeadMessage.||
+|FilteredMessage event|Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message.FilteredMessage events can be handled by registering listeners that handle FilteredMessage.||
+|Synchronization|It is possible to ensure that a handler is invoked non-concurrently,i.e. making it thread-safe by adding @Synchronized||
+|Extensibility|MBassador is designed to be extensible with custom implementations of various components like message dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different kinds of objects. A configuration object is used to customize the different configurable parts (Features)||
+
 
 
 
@@ -147,7 +142,7 @@ to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
 
-<h3>1.1.11</h3>
+<h3>1.2.0</h3>
  + Added support for conditional handlers using Java EL. Thanks to Bernd Rosstauscher
  for the initial implementation.
  + BREAKING CHANGES in BusConfiguration
