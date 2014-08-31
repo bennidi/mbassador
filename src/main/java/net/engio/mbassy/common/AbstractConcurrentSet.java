@@ -84,6 +84,7 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
     @Override
     public boolean remove(T element) {
         if (!contains(element)) {
+            // return quickly
             return false;
         } else {
             Lock writeLock = lock.writeLock();
@@ -91,12 +92,12 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
                 writeLock.lock();
                 ISetEntry<T> listelement = entries.get(element);
                 if (listelement == null) {
-                    return false; //removed by other thread
+                    return false; //removed by other thread in the meantime
                 }
                 if (listelement != head) {
                     listelement.remove();
                 } else {
-                    ISetEntry<T> oldHead = head;
+                    // if it was second, now it's first
                     head = head.next();
                     //oldHead.clear(); // optimize for GC not possible because of potentially running iterators
                 }
