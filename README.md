@@ -31,15 +31,12 @@ At its core MBassador offers the following features:
 | Feature | Description | Components |
 |:-------------:|:-----:|:-----:|
 |Annotation driven|To define and customize a message handler simply mark it with @Handler annotation||
-|Delivers everything|Messages must not implement any interface and can be of any type. It is
-                     possible though to define an upper bound of the message type using generics. The class hierarchy of a message is considered during message delivery, such that handlers will also receive subtypes of the message type they consume for, e.g. a handler of Object.class receives everything.||
-|Synchronous and asynchronous message delivery|A handler can be invoked to handle a message either synchronously or
-                                               asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch||
+|Delivers everything|Messages must not implement any interface and can be of any type. It is possible though to define an upper bound of the message type using generics. The class hierarchy of a message is considered during message delivery, such that handlers will also receive subtypes of the message type they consume for, e.g. a handler of Object.class receives everything.||
+|Synchronous and asynchronous message delivery|A handler can be invoked to handle a message either synchronously or asynchronously. This is configurable for each handler via annotations. Message publication itself supports synchronous (method blocks until messages are delivered to all handlers) or asynchronous (fire and forget) dispatch||
 |Weak references|By default, MBassador uses weak references to all listening objects to relieve the programmer of the burden to explicitly unregister listeners that are not used anymore (of course it is also possible to explicitly unregister a listener if needed). This is very comfortable in certain environments where listeners are managed by frameworks, i.e. Spring, Guice etc. Just stuff everything into the message bus, it will ignore objects without message handlers and automatically clean-up orphaned weak references after the garbage collector has done its job.||
 |Strong references|Instead of using weak references, a listener can be configured to be referenced using strong references using @Listener||
 |Filtering|MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to a single message handler||
-|Enveloped messages|Message handlers can declare to receive an enveloped message. The envelope can wrap different
-                    types of messages. This allows for a single handler to handle multiple, unrelated message types.||
+|Enveloped messages|Message handlers can declare to receive an enveloped message. The envelope can wrap different types of messages. This allows for a single handler to handle multiple, unrelated message types.||
 |Handler priorities|A handler can be associated with a priority to influence the order in which messages are delivered when multiple matching handlers exist||
 |Custom error handling|Errors during message delivery are sent to all registered error handlers which can be added to the bus as necessary.||
 |DeadMessage event|Messages that do not match any handler result in the publication of a DeadMessage object which wraps the original message. DeadMessage events can be handled by registering listeners that handle DeadMessage.||
