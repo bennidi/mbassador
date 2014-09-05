@@ -282,6 +282,8 @@ Finally, I decided to create a custom implementation, which then matured to be s
 I want to thank the development team from friendsurance (www.friendsurance.de) for their support and feedback on the bus
 implementation and the management of friendsurance for allowing me to publish the component as an open source project.
 
+Many thanks also to ej-technologies for providing me with an open source license of [![JProfiler](http://www.ej-technologies.com/images/banners/jprofiler_small.png)](http://www.ej-technologies.com/products/jprofiler/overview.html)
+
 <h2>Contribute</h2>
 
 Any feature requests and feedback are more than welcome. You may suggest improvements either by submitting an
