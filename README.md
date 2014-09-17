@@ -155,7 +155,7 @@ MBassador is available from the Maven Central Repository using the following coo
     </dependency>
 ```
 
-You can also download the latest binary release from the official [maven repository](http://mvnrepository.com/artifact/net.engio/mbassador). Of course you can always clone the repository and build from source.
+You can also download binary release and javadoc from the [maven central repository](http://search.maven.org/#search|ga|1|mbassador). Of course you can always clone the repository and build from source.
 
 <h2>Wiki</h2>
 There is ongoing effort to extend documentation and provide code samples and detailed explanations of how the message bus works. Code samples can also be found in the various test cases. Please read about the terminology used in this project to avoid confusion and misunderstanding.
@@ -279,10 +279,9 @@ provided an event bus system. The main reason it proved to be unusable for our s
 to the listeners such that every object has to be explicitly unsubscribed. This was difficult in our Spring managed environment.
 Finally, I decided to create a custom implementation, which then matured to be stable, extensible and yet very efficient.
 
-I want to thank the development team from friendsurance (www.friendsurance.de) for their support and feedback on the bus
-implementation and the management of friendsurance for allowing me to publish the component as an open source project.
+I want to thank the development team from friendsurance (www.friendsurance.de) for their support and feedback on the bus implementation and the management of friendsurance for allowing me to publish the component as an open source project.
 
-Many thanks also to ej-technologies for providing me with an open source license of [![JProfiler](http://www.ej-technologies.com/images/banners/jprofiler_small.png)](http://www.ej-technologies.com/products/jprofiler/overview.html)
+Many thanks also to ej-technologies for providing me with an open source license of [![JProfiler](http://www.ej-technologies.com/images/banners/jprofiler_small.png)](http://www.ej-technologies.com/products/jprofiler/overview.html) and Jetbrains for a license of [IntelliJ IDEA](http://www.jetbrains.com/idea/)
 
 <h2>Contribute</h2>
 
