@@ -135,4 +135,17 @@ public class ReflectionUtils
 		return true;
 	}
 
+    public static <T> T getField(String filterRef, Class<T> intendedSubclass) {
+        int lastDot = filterRef.lastIndexOf('.');
+        if (lastDot == -1) throw new IllegalArgumentException("Field reference should be composed of <classname>.<fieldname>");
+        String className = filterRef.substring(0, lastDot);
+        String fieldName = filterRef.substring(lastDot+1);
+        try {
+            Class<?> clazz = Class.forName(className);
+            return intendedSubclass.cast(clazz.getField(fieldName).get(null));
+        } catch (ClassNotFoundException | IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+            throw new IllegalArgumentException("Unable to access field", e);
+        }
+    }
+
 }
