@@ -161,7 +161,8 @@ You can also download binary release and javadoc from the [maven central reposit
 There is ongoing effort to extend documentation and provide code samples and detailed explanations of how the message bus works. Code samples can also be found in the various test cases. Please read about the terminology used in this project to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
-<h3>1.2.1</h3>
+<h3>[1.2.1](milestones/1.2.1)</h3>
+ + Not yet released!
  + API-Changes: 
    + Removed deprecated method BusConfiguration.SyncAsync() -> use MBassador default constructor instead
    + Deleted interface ISyncMessageBus since it was merely an aggregation of existing interfaces -> replace with GenericMessagePublicationSupport
