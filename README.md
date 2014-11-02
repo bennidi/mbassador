@@ -127,7 +127,7 @@ Creation of message bus and registration of listeners:
 
         // create as many instances as necessary
         // bind it to any upper bound
-        MBassador<TestMessage> bus = new MBassador<TestMessage>(BusConfiguration.SyncAsync());
+        MBassador<TestMessage> bus = new MBassador<TestMessage>();
         ListeningBean listener = new ListeningBean();
         // the listener will be registered using a weak-reference if not configured otherwise with @Listener
         bus.subscribe(listener);
@@ -161,15 +161,19 @@ You can also download binary release and javadoc from the [maven central reposit
 There is ongoing effort to extend documentation and provide code samples and detailed explanations of how the message bus works. Code samples can also be found in the various test cases. Please read about the terminology used in this project to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
+<h3>1.2.1</h3>
+ + API-Changes: 
+   + Removed deprecated method BusConfiguration.SyncAsync() -> use MBassador default constructor instead
+   + Deleted interface ISyncMessageBus since it was merely an aggregation of existing interfaces -> replace with GenericMessagePublicationSupport
 
 <h3>1.2.0</h3>
  + Added support for conditional handlers using Java EL. Thanks to Bernd Rosstauscher
  for the initial implementation.
  + BREAKING CHANGES in BusConfiguration
- ++ Complete redesign of configuration setup using Features instead of simple get/set parameters. This will allow
+   + Complete redesign of configuration setup using Features instead of simple get/set parameters. This will allow
  to flexibly combine features and still be able to exclude those not available in certain environments,for example, threading and reflection in GWT (this will be part of future releases)
- ++ Properties formerly located in BusConfiguration now moved to their respective Feature class
- ++ Removed all SyncXX related interfaces and config implementations. There is now only one `BusConfiguration`
+   + Properties formerly located in BusConfiguration now moved to their respective Feature class
+   + Removed all SyncXX related interfaces and config implementations. There is now only one `BusConfiguration`
  with its corresponding interface which will be used for all types of message bus implementations
 
 

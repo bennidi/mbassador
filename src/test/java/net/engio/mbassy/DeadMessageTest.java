@@ -2,7 +2,6 @@ package net.engio.mbassy;
 
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.common.DeadMessage;
-import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;
@@ -32,7 +31,7 @@ public class DeadMessageTest extends MessageBusTest{
 
     @Test
     public void testDeadMessage(){
-        final MBassador bus = getBus(BusConfiguration.SyncAsync());
+        final MBassador bus = createBus(SyncAsync());
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
                 .create(InstancesPerListener, IMessageListener.AsyncListener.class)
@@ -70,7 +69,7 @@ public class DeadMessageTest extends MessageBusTest{
 
     @Test
     public void testUnsubscribingAllListeners() {
-        final MBassador bus = getBus(BusConfiguration.SyncAsync());
+        final MBassador bus = createBus(SyncAsync());
         ListenerFactory deadMessageListener = new ListenerFactory()
                 .create(InstancesPerListener, DeadMessagHandler.class)
                 .create(InstancesPerListener, Object.class);

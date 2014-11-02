@@ -4,6 +4,7 @@ import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.dispatch.HandlerInvocation;
 import net.engio.mbassy.dispatch.el.ElFilter;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class MessageHandler {
             if(filter == null){
                 filter = new IMessageFilter[]{};
             }
-            net.engio.mbassy.listener.Enveloped enveloped = ReflectionUtils.getAnnotation( handler, Enveloped.class );
+            Enveloped enveloped = ReflectionUtils.getAnnotation( handler, Enveloped.class );
             Class[] handledMessages = enveloped != null
                     ? enveloped.messages()
                     : handler.getParameterTypes();
@@ -96,7 +97,7 @@ public class MessageHandler {
 
     private final IMessageFilter[] filter;
 
-	private String condition;
+	private final String condition;
     
     private final int priority;
 
@@ -151,6 +152,10 @@ public class MessageHandler {
         }
 
 
+    }
+
+    public <A extends Annotation> A getAnnotation(Class<A> annotationType){
+        return ReflectionUtils.getAnnotation(handler,annotationType);
     }
 
     public boolean isSynchronized(){

@@ -9,7 +9,7 @@ import net.engio.mbassy.bus.publication.IPublicationCommand;
  * The parametrization of the IPostCommand influences which publication flavours are available.
  *
  */
-public interface GenericMessagePublicationSupport<T, P extends IPublicationCommand> {
+public interface GenericMessagePublicationSupport<T, P extends IPublicationCommand> extends PubSubSupport<T>, ErrorHandlingSupport{
 
     /**
      * Publish a message to the bus using on of its supported message publication mechanisms. The supported

@@ -1,7 +1,6 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.Enveloped;
 import net.engio.mbassy.listener.Handler;
@@ -94,7 +93,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testSimpleStringCondition() throws Exception {
-		MBassador bus = getBus(BusConfiguration.SyncAsync());
+		MBassador bus = createBus(SyncAsync());
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("TEST", 0);
@@ -110,7 +109,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testSimpleNumberCondition() throws Exception {
-		MBassador bus = getBus(BusConfiguration.SyncAsync());
+		MBassador bus = new MBassador();
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("", 5);
@@ -125,7 +124,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testHandleCombinedEL() throws Exception {
-		MBassador bus = getBus(BusConfiguration.SyncAsync());
+		MBassador bus = createBus(SyncAsync());
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("", 3);
@@ -140,7 +139,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testNotMatchingAnyCondition() throws Exception {
-		MBassador bus = getBus(BusConfiguration.SyncAsync());
+		MBassador bus = createBus(SyncAsync());
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("", 0);
@@ -154,7 +153,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testHandleMethodAccessEL() throws Exception {
-		MBassador bus = getBus(BusConfiguration.SyncAsync());
+		MBassador bus = createBus(SyncAsync());
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("XYZ", 1);

@@ -1,9 +1,7 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.listener.*;
 import net.engio.mbassy.subscription.MessageEnvelope;
 import org.junit.Test;
@@ -35,6 +33,17 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 		String[] value();
 	}
 
+    /**
+     * Handler annotation that adds a default filter on the NamedMessage.
+     * Enveloped is in no way required, but simply added to test a meta enveloped annotation.
+     */
+    @Retention(value = RetentionPolicy.RUNTIME)
+    @Inherited
+    @NamedMessageHandler("messageThree")
+    static @interface MessageThree {}
+
+
+
 	/**
 	 * Test enveloped meta annotation.
 	 */
@@ -59,16 +68,12 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 	{
 		@Override
 		public boolean accepts( NamedMessage message, MessageHandler metadata ) {
-			NamedMessageHandler namedMessageHandler =
-					ReflectionUtils.getAnnotation( metadata.getHandler(), NamedMessageHandler.class );
-
+			NamedMessageHandler namedMessageHandler = metadata.getAnnotation(NamedMessageHandler.class);
 			if ( namedMessageHandler != null ) {
 				return Arrays.asList( namedMessageHandler.value() ).contains( message.getName() );
 			}
 
-			EnvelopedNamedMessageHandler envelopedHandler =
-					ReflectionUtils.getAnnotation( metadata.getHandler(), EnvelopedNamedMessageHandler.class );
-
+			EnvelopedNamedMessageHandler envelopedHandler = metadata.getAnnotation(EnvelopedNamedMessageHandler.class);
 			return envelopedHandler != null && Arrays.asList( envelopedHandler.value() ).contains( message.getName() );
 
 		}
@@ -103,7 +108,7 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 			handledByTwo.add( (NamedMessage) envelope.getMessage() );
 		}
 
-		@NamedMessageHandler("messageThree")
+		@MessageThree
 		void handlerThree( NamedMessage message ) {
 			handledByThree.add( message );
 		}
@@ -111,7 +116,7 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 
 	@Test
 	public void testMetaHandlerFiltering() {
-		MBassador bus = getBus( BusConfiguration.SyncAsync() );
+		MBassador bus = createBus(SyncAsync());
 
 		NamedMessageListener listener = new NamedMessageListener();
 		bus.subscribe( listener );
@@ -124,16 +129,15 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 		bus.publish( messageTwo );
 		bus.publish( messageThree );
 
+        assertEquals(2, listener.handledByOne.size());
 		assertTrue( listener.handledByOne.contains( messageOne ) );
-		assertTrue( listener.handledByOne.contains( messageTwo ) );
-		assertFalse( listener.handledByOne.contains( messageThree ) );
+		assertTrue(listener.handledByOne.contains(messageTwo));
 
-		assertFalse( listener.handledByTwo.contains( messageOne ) );
+        assertEquals(2, listener.handledByTwo.size());
 		assertTrue( listener.handledByTwo.contains( messageTwo ) );
 		assertTrue( listener.handledByTwo.contains( messageThree ) );
 
-		assertFalse( listener.handledByThree.contains( messageOne ) );
-		assertFalse( listener.handledByThree.contains( messageTwo ) );
+        assertEquals(1, listener.handledByThree.size());
 		assertTrue( listener.handledByThree.contains( messageThree ) );
 	}
 }

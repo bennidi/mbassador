@@ -2,8 +2,7 @@ package net.engio.mbassy;
 
 import net.engio.mbassy.bus.BusFactory;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.common.ISyncMessageBus;
-import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.common.GenericMessagePublicationSupport;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.ConcurrentExecutor;
@@ -32,12 +31,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class SyncBusTest extends MessageBusTest {
 
 
-    protected abstract ISyncMessageBus getSyncMessageBus();
+    protected abstract GenericMessagePublicationSupport getSyncMessageBus();
 
     @Test
     public void testSynchronousMessagePublication() throws Exception {
 
-        final ISyncMessageBus bus = getSyncMessageBus();
+        final GenericMessagePublicationSupport bus = getSyncMessageBus();
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
                 .create(InstancesPerListener, IMessageListener.DisabledListener.class)
@@ -88,7 +87,7 @@ public abstract class SyncBusTest extends MessageBusTest {
             }
         };
 
-        final ISyncMessageBus bus = getSyncMessageBus();
+        final GenericMessagePublicationSupport bus = getSyncMessageBus();
         bus.addErrorHandler(ExceptionCounter);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);
@@ -114,7 +113,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
     @Test
     public void testCustomHandlerInvocation(){
-        final ISyncMessageBus bus = getSyncMessageBus();
+        final GenericMessagePublicationSupport bus = getSyncMessageBus();
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, CustomInvocationListener.class)
                 .create(InstancesPerListener, Object.class);
@@ -148,7 +147,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
     @Test
     public void testHandlerPriorities(){
-        final ISyncMessageBus bus = getSyncMessageBus();
+        final GenericMessagePublicationSupport bus = getSyncMessageBus();
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, PrioritizedListener.class)
                 .create(InstancesPerListener, Object.class);
@@ -177,8 +176,8 @@ public abstract class SyncBusTest extends MessageBusTest {
 
 
         @Override
-        protected ISyncMessageBus getSyncMessageBus() {
-            return new MBassador(BusConfiguration.SyncAsync());
+        protected GenericMessagePublicationSupport getSyncMessageBus() {
+            return new MBassador();
         }
 
     }
@@ -187,7 +186,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
 
         @Override
-        protected ISyncMessageBus getSyncMessageBus() {
+        protected GenericMessagePublicationSupport getSyncMessageBus() {
             return BusFactory.SynchronousOnly();
         }
     }

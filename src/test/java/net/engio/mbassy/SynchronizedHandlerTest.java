@@ -2,7 +2,6 @@ package net.engio.mbassy;
 
 import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.bus.common.IMessageBus;
-import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
@@ -30,10 +29,10 @@ public class SynchronizedHandlerTest extends MessageBusTest {
     @Test
     public void testSynchronizedWithSynchronousInvocation(){
         List<SynchronizedWithSynchronousDelivery> handlers = new LinkedList<SynchronizedWithSynchronousDelivery>();
-        IBusConfiguration config = BusConfiguration.SyncAsync();
+        IBusConfiguration config = SyncAsync();
         config.getFeature(Feature.AsynchronousMessageDispatch.class)
                 .setNumberOfMessageDispatchers(6);
-        IMessageBus bus = getBus(config);
+        IMessageBus bus = createBus(config);
         for(int i = 0; i < numberOfListeners; i++){
             SynchronizedWithSynchronousDelivery handler = new SynchronizedWithSynchronousDelivery();
             handlers.add(handler);
@@ -58,10 +57,10 @@ public class SynchronizedHandlerTest extends MessageBusTest {
     @Test
     public void testSynchronizedWithAsSynchronousInvocation(){
         List<SynchronizedWithAsynchronousDelivery> handlers = new LinkedList<SynchronizedWithAsynchronousDelivery>();
-        IBusConfiguration config = BusConfiguration.SyncAsync();
+        IBusConfiguration config = SyncAsync();
         config.getFeature(Feature.AsynchronousMessageDispatch.class)
                 .setNumberOfMessageDispatchers(6);
-        IMessageBus bus = getBus(config);
+        IMessageBus bus = createBus(config);
         for(int i = 0; i < numberOfListeners; i++){
             SynchronizedWithAsynchronousDelivery handler = new SynchronizedWithAsynchronousDelivery();
             handlers.add(handler);
@@ -69,10 +68,9 @@ public class SynchronizedHandlerTest extends MessageBusTest {
         }
 
         for(int i = 0; i < numberOfMessages; i++){
-            bus.post(new Object()).asynchronously();
+            track(bus.post(new Object()).asynchronously());
         }
 
-        // TODO: wait for publication to finish
         pause(10000);
 
         for(SynchronizedWithAsynchronousDelivery handler : handlers){
@@ -80,6 +78,8 @@ public class SynchronizedHandlerTest extends MessageBusTest {
         }
 
     }
+
+
 
     public static class SynchronizedWithSynchronousDelivery {
 

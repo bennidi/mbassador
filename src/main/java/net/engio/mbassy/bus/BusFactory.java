@@ -1,7 +1,6 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.IMessageBus;
-import net.engio.mbassy.bus.common.ISyncMessageBus;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
 
@@ -20,7 +19,7 @@ public class BusFactory {
      *
      * @return
      */
-    public static ISyncMessageBus SynchronousOnly(){
+    public static SyncMessageBus SynchronousOnly(){
         BusConfiguration syncPubSubCfg = new BusConfiguration();
         syncPubSubCfg.addFeature(Feature.SyncPubSub.Default());
         return new SyncMessageBus(syncPubSubCfg);

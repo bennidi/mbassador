@@ -3,6 +3,8 @@ package net.engio.mbassy.common;
 import junit.framework.Assert;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
@@ -39,21 +41,33 @@ public abstract class MessageBusTest extends AssertSupport {
 
     @Before
     public void setUp(){
+        issuedPublications = new StrongConcurrentSet<MessagePublication>();
         for(MessageTypes mes : MessageTypes.values())
             mes.reset();
     }
 
-    public MBassador getBus(IBusConfiguration configuration) {
+    public static IBusConfiguration SyncAsync() {
+        return new BusConfiguration()
+            .addFeature(Feature.SyncPubSub.Default())
+            .addFeature(Feature.AsynchronousHandlerInvocation.Default())
+            .addFeature(Feature.AsynchronousMessageDispatch.Default());
+    }
+
+    public MBassador createBus(IBusConfiguration configuration) {
         MBassador bus = new MBassador(configuration);
         bus.addErrorHandler(TestFailingHandler);
         return bus;
     }
 
-    public MBassador getBus(IBusConfiguration configuration, ListenerFactory listeners) {
+    public MBassador createBus(IBusConfiguration configuration, ListenerFactory listeners) {
         MBassador bus = new MBassador(configuration);
         bus.addErrorHandler(TestFailingHandler);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
         return bus;
+    }
+
+    protected void track(MessagePublication asynchronously) {
+        issuedPublications.add(asynchronously);
     }
 
     public void waitForPublications(long timeOutInMs){

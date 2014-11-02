@@ -58,7 +58,7 @@ import java.util.concurrent.Executor;
  * Date: 2/8/12
  */
 public interface IMessageBus<T, P extends ISyncAsyncPublicationCommand>
-        extends PubSubSupport<T>, ErrorHandlingSupport, GenericMessagePublicationSupport<T, P>, ISyncMessageBus<T,P> {
+        extends GenericMessagePublicationSupport<T, P>{
 
     /**
      * {@inheritDoc}

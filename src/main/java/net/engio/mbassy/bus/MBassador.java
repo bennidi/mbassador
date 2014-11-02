@@ -1,6 +1,8 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.IMessageBus;
+import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.bus.publication.SyncAsyncPostCommand;
@@ -12,6 +14,13 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
 
     public MBassador(IBusConfiguration configuration) {
         super(configuration);
+    }
+
+    public MBassador(){
+        super(new BusConfiguration()
+            .addFeature(Feature.SyncPubSub.Default())
+            .addFeature(Feature.AsynchronousHandlerInvocation.Default())
+            .addFeature(Feature.AsynchronousMessageDispatch.Default()));
     }
 
 

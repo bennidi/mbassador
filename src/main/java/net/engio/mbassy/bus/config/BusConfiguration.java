@@ -8,24 +8,6 @@ import java.util.Map;
  */
 public class BusConfiguration implements IBusConfiguration {
 
-    /**
-     * Creates a new instance, using the default settings of 2 dispatchers, and
-     * asynchronous handlers with an initial count equal to the number of
-     * available processors in the machine, with maximum count equal to
-     * 2 * the number of available processors. Uses {@link Runtime#availableProcessors()} to
-     * determine the number of available processors
-     *
-     * @deprecated Use feature driven configuration instead
-     **/
-    @Deprecated()
-    public static BusConfiguration SyncAsync() {
-        BusConfiguration defaultConfig = new BusConfiguration();
-        defaultConfig.addFeature(Feature.SyncPubSub.Default());
-        defaultConfig.addFeature(Feature.AsynchronousHandlerInvocation.Default());
-        defaultConfig.addFeature(Feature.AsynchronousMessageDispatch.Default());
-        return defaultConfig;
-    }
-
     // the registered features
     private Map<Class<? extends Feature>, Feature> features = new HashMap<Class<? extends Feature>, Feature>();
 
@@ -46,6 +28,6 @@ public class BusConfiguration implements IBusConfiguration {
 
     @Override
     public IBusConfiguration addErrorHandler(ConfigurationErrorHandler handler) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  // TODO: implement configuration validation
     }
 }

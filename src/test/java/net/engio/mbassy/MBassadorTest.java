@@ -28,7 +28,7 @@ public class MBassadorTest extends MessageBusTest {
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, Listeners.synchronous())
                 .create(InstancesPerListener, Listeners.noHandlers());
-        final MBassador bus = getBus(BusConfiguration.SyncAsync(), listeners);
+        final MBassador bus = createBus(SyncAsync(), listeners);
 
 
         Runnable publishAndCheck = new Runnable() {
@@ -62,7 +62,7 @@ public class MBassadorTest extends MessageBusTest {
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, Listeners.asynchronous())
                 .create(InstancesPerListener, Listeners.noHandlers());
-        final MBassador bus = getBus(BusConfiguration.SyncAsync(), listeners);
+        final MBassador bus = createBus(SyncAsync(), listeners);
 
         final MessageManager messageManager = new MessageManager();
         Runnable publishAndCheck = new Runnable() {
@@ -94,7 +94,7 @@ public class MBassadorTest extends MessageBusTest {
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, Listeners.asynchronous())
                 .create(InstancesPerListener, Listeners.noHandlers());
-        final MBassador bus = getBus(BusConfiguration.SyncAsync(), listeners);
+        final MBassador bus = createBus(SyncAsync(), listeners);
 
 
         final MessageManager messageManager = new MessageManager();
@@ -132,7 +132,7 @@ public class MBassadorTest extends MessageBusTest {
             }
         };
 
-        final MBassador bus = new MBassador(BusConfiguration.SyncAsync());
+        final MBassador bus = new MBassador(SyncAsync());
         bus.addErrorHandler(ExceptionCounter);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);

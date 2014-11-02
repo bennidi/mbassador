@@ -3,7 +3,6 @@ package net.engio.mbassy;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.common.DeadMessage;
 import net.engio.mbassy.bus.common.FilteredMessage;
-import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
@@ -31,7 +30,7 @@ public class FilterTest extends MessageBusTest {
         FilteredEventCounter.set(0);
         DeadEventCounter.set(0);
 
-        MBassador bus = getBus(BusConfiguration.SyncAsync());
+        MBassador bus = createBus(SyncAsync());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, FilteredMessageListener.class);
 
@@ -56,7 +55,7 @@ public class FilterTest extends MessageBusTest {
         FilteredEventCounter.set(0);
         DeadEventCounter.set(0);
 
-        MBassador bus = getBus(BusConfiguration.SyncAsync());
+        MBassador bus = createBus(SyncAsync());
         ListenerFactory listenerFactory = new ListenerFactory()
                 .create(100, FilteredMessageListener.class);
 
@@ -102,7 +101,7 @@ public class FilterTest extends MessageBusTest {
 
     @Test
     public void testSubtypesOnly(){
-        MBassador bus = getBus(BusConfiguration.SyncAsync());
+        MBassador bus = createBus(SyncAsync());
         ListenerFactory listeners = new ListenerFactory()
                 .create(100, TestMessageHandler.class);
 

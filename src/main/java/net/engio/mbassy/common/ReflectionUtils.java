@@ -56,7 +56,14 @@ public class ReflectionUtils
 		return null;
 	}
 
-	public static Set<Class> getSuperclasses( Class from ) {
+    /**
+     * Collect all directly and indirectly related super types (classes and interfaces) of
+     * a given class.
+     *
+     * @param from The root class to start with
+     * @return A set of classes, each representing a super type of the root class
+     */
+	public static Set<Class> getSuperTypes(Class from) {
 		Set<Class> superclasses = new HashSet<Class>();
 		collectInterfaces( from, superclasses );
 		while ( !from.equals( Object.class ) && !from.isInterface() ) {
@@ -83,43 +90,41 @@ public class ReflectionUtils
 		return false;
 	}
 
-	public static <A extends Annotation> A getAnnotation( Method method, Class<A> annotationType ) {
-		return getAnnotation( (AnnotatedElement) method, annotationType );
-	}
 
-	public static <A extends Annotation> A getAnnotation( Class from, Class<A> annotationType ) {
-		return getAnnotation( (AnnotatedElement) from, annotationType );
-	}
 
 	/**
 	 * Searches for an Annotation of the given type on the class.  Supports meta annotations.
 	 *
 	 * @param from AnnotatedElement (class, method...)
 	 * @param annotationType Annotation class to look for.
-	 * @param <A> Annotation class
+	 * @param <A> Class of annotation type
 	 * @return Annotation instance or null
 	 */
-	public static <A extends Annotation> A getAnnotation( AnnotatedElement from, Class<A> annotationType ) {
-		A ann = from.getAnnotation( annotationType );
-		if ( ann == null ) {
-			for ( Annotation metaAnn : from.getAnnotations() ) {
-				ann = metaAnn.annotationType().getAnnotation( annotationType );
-				if ( ann != null ) {
-					break;
-				}
-			}
-		}
-		return ann;
+	private static <A extends Annotation> A getAnnotation( AnnotatedElement from, Class<A> annotationType, Set<AnnotatedElement> visited) {
+		if( visited.contains(from) ) return null;
+        visited.add(from);
+        A ann = from.getAnnotation( annotationType );
+        if( ann != null) return ann;
+        for ( Annotation metaAnn : from.getAnnotations() ) {
+            ann = getAnnotation(metaAnn.annotationType(), annotationType, visited);
+            if ( ann != null ) {
+                return ann;
+            }
+        }
+        return null;
 	}
+
+    public static <A extends Annotation> A getAnnotation( AnnotatedElement from, Class<A> annotationType){
+       return getAnnotation(from, annotationType, new HashSet<AnnotatedElement>());
+    }
 
 	private static boolean isOverriddenBy( Method superclassMethod, Method subclassMethod ) {
 		// if the declaring classes are the same or the subclass method is not defined in the subclass
 		// hierarchy of the given superclass method or the method names are not the same then
 		// subclassMethod does not override superclassMethod
-		if ( superclassMethod.getDeclaringClass().equals(
-				subclassMethod.getDeclaringClass() ) || !superclassMethod.getDeclaringClass().isAssignableFrom(
-				subclassMethod.getDeclaringClass() ) || !superclassMethod.getName().equals(
-				subclassMethod.getName() ) ) {
+		if ( superclassMethod.getDeclaringClass().equals(subclassMethod.getDeclaringClass() )
+                || !superclassMethod.getDeclaringClass().isAssignableFrom( subclassMethod.getDeclaringClass() )
+                || !superclassMethod.getName().equals(subclassMethod.getName())) {
 			return false;
 		}
 

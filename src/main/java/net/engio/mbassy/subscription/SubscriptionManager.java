@@ -165,7 +165,7 @@ public class SubscriptionManager {
             if (subscriptionsPerMessage.get(messageType) != null) {
 	            subscriptions.addAll(subscriptionsPerMessage.get(messageType));
             }
-            for (Class eventSuperType : ReflectionUtils.getSuperclasses(messageType)) {
+            for (Class eventSuperType : ReflectionUtils.getSuperTypes(messageType)) {
                 Collection<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
                 if (subs != null) {
                     for (Subscription sub : subs) {
