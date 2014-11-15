@@ -1,6 +1,6 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
@@ -39,7 +39,7 @@ public class SynchronizedHandlerTest extends MessageBusTest {
             bus.subscribe(handler);
         }
 
-        MessagePublication publication = null;
+        IMessagePublication publication = null;
         for(int i = 0; i < numberOfMessages; i++){
            publication =  bus.post(new Object()).asynchronously();
         }

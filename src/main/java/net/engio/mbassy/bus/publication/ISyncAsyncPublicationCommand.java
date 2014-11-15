@@ -1,6 +1,6 @@
 package net.engio.mbassy.bus.publication;
 
-import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.bus.IMessagePublication;
 
 import java.util.concurrent.TimeUnit;
 
@@ -19,7 +19,7 @@ public interface ISyncAsyncPublicationCommand extends IPublicationCommand {
      *
      * @return A message publication that can be used to access information about the state of
      */
-    MessagePublication asynchronously();
+    IMessagePublication asynchronously();
 
     /**
      * Execute the message publication asynchronously. The behaviour of this method depends on the
@@ -31,5 +31,5 @@ public interface ISyncAsyncPublicationCommand extends IPublicationCommand {
      *
      * @return A message publication that wraps up the publication request
      */
-    MessagePublication asynchronously(long timeout, TimeUnit unit);
+    IMessagePublication asynchronously(long timeout, TimeUnit unit);
 }

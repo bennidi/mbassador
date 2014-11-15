@@ -24,11 +24,11 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
     }
 
 
-    public MessagePublication publishAsync(T message) {
+    public IMessagePublication publishAsync(T message) {
         return addAsynchronousPublication(createMessagePublication(message));
     }
 
-    public MessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
+    public IMessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
         return addAsynchronousPublication(createMessagePublication(message), timeout, unit);
     }
 
@@ -41,7 +41,7 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
      */
     public void publish(T message) {
         try {
-            MessagePublication publication = createMessagePublication(message);
+            IMessagePublication publication = createMessagePublication(message);
             publication.execute();
         } catch (Throwable e) {
             handlePublicationError(new PublicationError()

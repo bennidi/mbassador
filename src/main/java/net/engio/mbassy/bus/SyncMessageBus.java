@@ -22,7 +22,7 @@ public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements PubSu
     @Override
     public void publish(T message) {
         try {
-            MessagePublication publication = createMessagePublication(message);
+            IMessagePublication publication = createMessagePublication(message);
             publication.execute();
         } catch (Throwable e) {
             handlePublicationError(new PublicationError()

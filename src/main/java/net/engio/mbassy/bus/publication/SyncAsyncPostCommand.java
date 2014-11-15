@@ -1,7 +1,7 @@
 package net.engio.mbassy.bus.publication;
 
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.bus.IMessagePublication;
 
 import java.util.concurrent.TimeUnit;
 
@@ -27,12 +27,12 @@ public class SyncAsyncPostCommand<T> implements ISyncAsyncPublicationCommand {
     }
 
     @Override
-    public MessagePublication asynchronously() {
+    public IMessagePublication asynchronously() {
         return mBassador.publishAsync(message);
     }
 
     @Override
-    public MessagePublication asynchronously(long timeout, TimeUnit unit) {
+    public IMessagePublication asynchronously(long timeout, TimeUnit unit) {
         return mBassador.publishAsync(message, timeout, unit);
     }
 }
