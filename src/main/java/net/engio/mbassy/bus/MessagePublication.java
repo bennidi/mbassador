@@ -99,7 +99,7 @@ public class MessagePublication implements IMessagePublication {
 
     public static class Factory {
 
-        public MessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message) {
+        public IMessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message) {
             return new MessagePublication(runtime, subscriptions, message, State.Initial);
         }
 
