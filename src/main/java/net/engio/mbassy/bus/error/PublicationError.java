@@ -1,6 +1,6 @@
 package net.engio.mbassy.bus.error;
 
-import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.bus.IMessagePublication;
 
 import java.lang.reflect.Method;
 
@@ -48,7 +48,7 @@ public class PublicationError{
 
     public PublicationError(final Throwable cause,
                             final String message,
-                            final MessagePublication publication) {
+                            final IMessagePublication publication) {
         this.cause = cause;
         this.message = message;
         this.publishedObject = publication != null ? publication.getMessage() : null;

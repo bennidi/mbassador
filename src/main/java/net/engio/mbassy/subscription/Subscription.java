@@ -1,6 +1,6 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.dispatch.IMessageDispatcher;
 
@@ -68,7 +68,7 @@ public class Subscription {
     }
 
 
-    public void publish(MessagePublication publication, Object message){
+    public void publish(IMessagePublication publication, Object message){
         if(listeners.size() > 0)
             dispatcher.dispatch(publication, message, listeners);
     }

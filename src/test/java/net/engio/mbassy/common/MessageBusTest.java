@@ -2,7 +2,7 @@ package net.engio.mbassy.common;
 
 import junit.framework.Assert;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.MessagePublication;
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
@@ -37,11 +37,11 @@ public abstract class MessageBusTest extends AssertSupport {
     };
 
 
-    private StrongConcurrentSet<MessagePublication> issuedPublications = new StrongConcurrentSet<MessagePublication>();
+    private StrongConcurrentSet<IMessagePublication> issuedPublications = new StrongConcurrentSet<IMessagePublication>();
 
     @Before
     public void setUp(){
-        issuedPublications = new StrongConcurrentSet<MessagePublication>();
+        issuedPublications = new StrongConcurrentSet<IMessagePublication>();
         for(MessageTypes mes : MessageTypes.values())
             mes.reset();
     }
@@ -66,14 +66,14 @@ public abstract class MessageBusTest extends AssertSupport {
         return bus;
     }
 
-    protected void track(MessagePublication asynchronously) {
+    protected void track(IMessagePublication asynchronously) {
         issuedPublications.add(asynchronously);
     }
 
     public void waitForPublications(long timeOutInMs){
         long start = System.currentTimeMillis();
         while(issuedPublications.size() > 0 && System.currentTimeMillis() - start < timeOutInMs){
-            for(MessagePublication pub : issuedPublications){
+            for(IMessagePublication pub : issuedPublications){
                 if(pub.isFinished())
                     issuedPublications.remove(pub);
             }
@@ -82,7 +82,7 @@ public abstract class MessageBusTest extends AssertSupport {
             fail("Issued publications did not finish within specified timeout of " + timeOutInMs + " ms");
     }
 
-    public void addPublication(MessagePublication publication){
+    public void addPublication(IMessagePublication publication){
         issuedPublications.add(publication);
     }
 

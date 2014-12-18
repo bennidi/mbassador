@@ -17,7 +17,7 @@ import java.util.Collection;
  * @author bennidi
  *         Date: 11/16/12
  */
-public class MessagePublication {
+public class MessagePublication implements IMessagePublication {
 
     private final Collection<Subscription> subscriptions;
     private final Object message;
@@ -40,7 +40,7 @@ public class MessagePublication {
     /*
     TODO: document state transitions
      */
-    protected void execute() {
+    public void execute() {
         state = State.Running;
         for (Subscription sub : subscriptions) {
            sub.publish(this, message);
@@ -99,7 +99,7 @@ public class MessagePublication {
 
     public static class Factory {
 
-        public MessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message) {
+        public IMessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message) {
             return new MessagePublication(runtime, subscriptions, message, State.Initial);
         }
 

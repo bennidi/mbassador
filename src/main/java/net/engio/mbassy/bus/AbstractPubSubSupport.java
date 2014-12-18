@@ -38,7 +38,7 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
         // configure the pub sub feature
         Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
         this.subscriptionManager = pubSubFeature.getSubscriptionManagerProvider()
-        		.createManager(pubSubFeature.getMetadataReader(),
+                .createManager(pubSubFeature.getMetadataReader(),
                         pubSubFeature.getSubscriptionFactory(), runtime);
         this.publicationFactory = pubSubFeature.getPublicationFactory();
     }
@@ -73,7 +73,7 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
         return runtime;
     }
 
-    protected MessagePublication createMessagePublication(T message) {
+    protected IMessagePublication createMessagePublication(T message) {
         Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
         if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass().equals(DeadMessage.class)) {
             // Dead Event

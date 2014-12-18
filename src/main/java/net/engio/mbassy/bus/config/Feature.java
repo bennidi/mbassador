@@ -1,5 +1,6 @@
 package net.engio.mbassy.bus.config;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.subscription.ISubscriptionManagerProvider;
@@ -132,12 +133,12 @@ public interface Feature {
             return new AsynchronousMessageDispatch()
                 .setNumberOfMessageDispatchers(2)
                 .setDispatcherThreadFactory(MessageDispatchThreadFactory)
-                .setMessageQueue(new LinkedBlockingQueue<MessagePublication>(Integer.MAX_VALUE));
+                .setMessageQueue(new LinkedBlockingQueue<IMessagePublication>(Integer.MAX_VALUE));
         }
 
 
         private int numberOfMessageDispatchers;
-        private BlockingQueue<MessagePublication> pendingMessages;
+        private BlockingQueue<IMessagePublication> pendingMessages;
         private ThreadFactory dispatcherThreadFactory;
 
         public int getNumberOfMessageDispatchers() {
@@ -149,11 +150,11 @@ public interface Feature {
             return this;
         }
 
-        public BlockingQueue<MessagePublication> getPendingMessages() {
+        public BlockingQueue<IMessagePublication> getPendingMessages() {
             return pendingMessages;
         }
 
-        public AsynchronousMessageDispatch setMessageQueue(BlockingQueue<MessagePublication> pendingMessages) {
+        public AsynchronousMessageDispatch setMessageQueue(BlockingQueue<IMessagePublication> pendingMessages) {
             this.pendingMessages = pendingMessages;
             return this;
         }

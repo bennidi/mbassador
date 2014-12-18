@@ -29,7 +29,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
     private final List<Thread> dispatchers;
 
     // all pending messages scheduled for asynchronous dispatch are queued here
-    private final BlockingQueue<MessagePublication> pendingMessages;
+    private final BlockingQueue<IMessagePublication> pendingMessages;
 
     protected AbstractSyncAsyncMessageBus(IBusConfiguration configuration) {
         super(configuration);
@@ -55,7 +55,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
             Thread dispatcher = configuration.getDispatcherThreadFactory().newThread(new Runnable() {
                 public void run() {
                     while (true) {
-                        MessagePublication publication = null;
+                        IMessagePublication publication = null;
                         try {
                             publication = pendingMessages.take();
                             publication.execute();
@@ -76,7 +76,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
 
 
     // this method queues a message delivery request
-    protected MessagePublication addAsynchronousPublication(MessagePublication publication) {
+    protected IMessagePublication addAsynchronousPublication(IMessagePublication publication) {
         try {
             pendingMessages.put(publication);
             return publication.markScheduled();
@@ -87,7 +87,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
     }
 
     // this method queues a message delivery request
-    protected MessagePublication addAsynchronousPublication(MessagePublication publication, long timeout, TimeUnit unit) {
+    protected IMessagePublication addAsynchronousPublication(IMessagePublication publication, long timeout, TimeUnit unit) {
         try {
             return pendingMessages.offer(publication, timeout, unit)
                     ? publication.markScheduled()

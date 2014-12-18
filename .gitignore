@@ -13,8 +13,11 @@
 # root of compiled classes #
 target/**/*
 target/**
+classes/
+
 
 # the local maven repository #
+lib/
 mvn-local-repo/**/*
 release.properties
 /.classpath
