@@ -3,13 +3,13 @@ package net.engio.mbassy;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.engio.mbassy.annotations.Handler;
+import net.engio.mbassy.annotations.Synchronized;
 import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Synchronized;
 
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class SynchronizedHandlerTest extends MessageBusTest {
 
         IMessagePublication publication = null;
         for(int i = 0; i < numberOfMessages; i++){
-           publication =  bus.post(new Object()).asynchronously();
+           publication =  bus.publishAsync(new Object());
         }
         // wait for last publication
         while (!publication.isFinished()){

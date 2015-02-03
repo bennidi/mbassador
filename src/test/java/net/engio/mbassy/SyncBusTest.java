@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.engio.mbassy.bus.BusFactory;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.common.GenericMessagePublicationSupport;
+import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.ConcurrentExecutor;
@@ -30,12 +30,12 @@ import org.junit.Test;
 public abstract class SyncBusTest extends MessageBusTest {
 
 
-    protected abstract GenericMessagePublicationSupport getSyncMessageBus();
+    protected abstract IMessageBus getSyncMessageBus();
 
     @Test
     public void testSynchronousMessagePublication() throws Exception {
 
-        final GenericMessagePublicationSupport bus = getSyncMessageBus();
+        final IMessageBus bus = getSyncMessageBus();
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
                 .create(InstancesPerListener, IMessageListener.DisabledListener.class)
@@ -52,10 +52,10 @@ public abstract class SyncBusTest extends MessageBusTest {
                 StandardMessage standardMessage = new StandardMessage();
                 MultipartMessage multipartMessage = new MultipartMessage();
 
-                bus.post(standardMessage).now();
-                bus.post(multipartMessage).now();
-                bus.post(MessageTypes.Simple).now();
-                bus.post(MessageTypes.Multipart).now();
+                bus.publish(standardMessage);
+                bus.publish(multipartMessage);
+                bus.publish(MessageTypes.Simple);
+                bus.publish(MessageTypes.Multipart);
 
                 assertEquals(InstancesPerListener, standardMessage.getTimesHandled(IMessageListener.DefaultListener.class));
                 assertEquals(InstancesPerListener, multipartMessage.getTimesHandled(IMessageListener.DefaultListener.class));
@@ -86,7 +86,7 @@ public abstract class SyncBusTest extends MessageBusTest {
             }
         };
 
-        final GenericMessagePublicationSupport bus = getSyncMessageBus();
+        final IMessageBus bus = getSyncMessageBus();
         bus.addErrorHandler(ExceptionCounter);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);
@@ -96,7 +96,7 @@ public abstract class SyncBusTest extends MessageBusTest {
         Runnable publish = new Runnable() {
             @Override
             public void run() {
-                bus.post(new StandardMessage()).now();
+                bus.publish(new StandardMessage());
             }
         };
 
@@ -115,7 +115,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
 
         @Override
-        protected GenericMessagePublicationSupport getSyncMessageBus() {
+        protected IMessageBus getSyncMessageBus() {
             return new MBassador();
         }
 
@@ -125,7 +125,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
 
         @Override
-        protected GenericMessagePublicationSupport getSyncMessageBus() {
+        protected IMessageBus getSyncMessageBus() {
             return BusFactory.SynchronousOnly();
         }
     }

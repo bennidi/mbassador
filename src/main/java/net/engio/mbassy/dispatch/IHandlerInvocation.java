@@ -1,6 +1,6 @@
 package net.engio.mbassy.dispatch;
 
-import net.engio.mbassy.subscription.ISubscriptionContextAware;
+import java.lang.reflect.Method;
 
 /**
  * A handler invocation encapsulates the logic that is used to invoke a single
@@ -15,15 +15,16 @@ import net.engio.mbassy.subscription.ISubscriptionContextAware;
  * @author bennidi
  *         Date: 11/23/12
  */
-public interface IHandlerInvocation<HANDLER, MESSAGE> extends ISubscriptionContextAware {
+public interface IHandlerInvocation {
 
     /**
      * Invoke the message delivery logic of this handler
      *
-     * @param handler The listener that will receive the message. This can be a reference to a method object
+     * @param listener The listener that will receive the message. This can be a reference to a method object
      *                 from the java reflection api or any other wrapper that can be used to invoke the handler
      * @param message  The message to be delivered to the handler. This can be any object compatible with the object
      *                 type that the handler consumes
+     * @param handler  The handler (method) that will be called via reflection
      */
-    void invoke(HANDLER handler, MESSAGE message);
+    void invoke(Object listener, Object message, Method handler) throws Throwable;
 }

@@ -6,7 +6,7 @@ package net.engio.mbassy.bus.error;
  * i.e. one component is trying to access a feature of another component that does not
  * provide the feature (e.g. asynchronous functionality within a synchronous bus)
  */
-public class MissingPropertyException extends RuntimeException{
+public class MissingPropertyException extends RuntimeException {
 
     public MissingPropertyException(String message) {
         super(message);

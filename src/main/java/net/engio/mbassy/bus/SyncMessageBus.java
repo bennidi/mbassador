@@ -1,18 +1,18 @@
 package net.engio.mbassy.bus;
 
-import net.engio.mbassy.bus.common.ErrorHandlingSupport;
-import net.engio.mbassy.bus.common.GenericMessagePublicationSupport;
-import net.engio.mbassy.bus.common.PubSubSupport;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+
+import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.PublicationError;
-import net.engio.mbassy.bus.publication.IPublicationCommand;
 
 /**
  * A message bus implementation that offers only synchronous message publication. Using this bus
  * will not create any new threads.
  *
  */
-public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements PubSubSupport<T>, ErrorHandlingSupport, GenericMessagePublicationSupport<T, SyncMessageBus.SyncPostCommand>{
+public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements IMessageBus<T> {
 
 
     public SyncMessageBus(IBusConfiguration configuration) {
@@ -33,21 +33,28 @@ public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements PubSu
     }
 
     @Override
-    public SyncPostCommand post(T message) {
-        return new SyncPostCommand(message);
+    public IMessagePublication publishAsync(T message) {
+        publish(message);
+        return null;
     }
 
-    public class SyncPostCommand implements IPublicationCommand {
+    @Override
+    public IMessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
+        publish(message);
+        return null;
+    }
 
-        private T message;
+    @Override
+    public Executor getExecutor() {
+        return null;
+    }
 
-        public SyncPostCommand(T message) {
-            this.message = message;
-        }
+    @Override
+    public boolean hasPendingMessages() {
+        return false;
+    }
 
-        @Override
-        public void now() {
-            publish(message);
-        }
+    @Override
+    public void shutdown() {
     }
 }

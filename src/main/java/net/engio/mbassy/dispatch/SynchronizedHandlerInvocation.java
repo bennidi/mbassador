@@ -1,6 +1,6 @@
 package net.engio.mbassy.dispatch;
 
-import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
+import java.lang.reflect.Method;
 
 /**
  * Synchronizes message handler invocations for all handlers that specify @Synchronized
@@ -8,12 +8,11 @@ import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
  * @author bennidi
  *         Date: 3/31/13
  */
-public class SynchronizedHandlerInvocation extends AbstractSubscriptionContextAware implements IHandlerInvocation<Object,Object>  {
+public class SynchronizedHandlerInvocation implements IHandlerInvocation {
 
     private IHandlerInvocation delegate;
 
     public SynchronizedHandlerInvocation(IHandlerInvocation delegate) {
-        super(delegate.getContext());
         this.delegate = delegate;
     }
 
@@ -21,9 +20,9 @@ public class SynchronizedHandlerInvocation extends AbstractSubscriptionContextAw
      * {@inheritDoc}
      */
     @Override
-    public void invoke(final Object listener, final Object message){
+    public void invoke(final Object listener, final Object message, Method handler) throws Throwable {
         synchronized (listener){
-            delegate.invoke(listener, message);
+            this.delegate.invoke(listener, message, handler);
         }
     }
 

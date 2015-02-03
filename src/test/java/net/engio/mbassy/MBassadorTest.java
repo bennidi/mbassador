@@ -44,9 +44,9 @@ public class MBassadorTest extends MessageBusTest {
                 StandardMessage standardMessage = new StandardMessage();
                 MultipartMessage multipartMessage = new MultipartMessage();
 
-                bus.post(standardMessage).now();
-                bus.post(multipartMessage).now();
-                bus.post(MessageTypes.Simple).now();
+                bus.publish(standardMessage);
+                bus.publish(multipartMessage);
+                bus.publish(MessageTypes.Simple);
 
                 assertEquals(InstancesPerListener, standardMessage.getTimesHandled(IMessageListener.DefaultListener.class));
                 assertEquals(InstancesPerListener, multipartMessage.getTimesHandled(IMessageListener.DefaultListener.class));
@@ -78,7 +78,7 @@ public class MBassadorTest extends MessageBusTest {
             @Override
             public void run() {
 
-                bus.post(MessageTypes.Simple).asynchronously();
+                bus.publishAsync(MessageTypes.Simple);
 
             }
         };
@@ -112,7 +112,7 @@ public class MBassadorTest extends MessageBusTest {
         Runnable publishAndCheck = new Runnable() {
             @Override
             public void run() {
-                bus.post(new StandardMessage()).asynchronously();
+                bus.publishAsync(new StandardMessage());
 
             }
         };

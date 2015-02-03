@@ -9,8 +9,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import net.engio.mbassy.bus.BusRuntime;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.MessageBusException;
 import net.engio.mbassy.common.ReflectionUtils;
+import net.engio.mbassy.common.WeakConcurrentSet;
+import net.engio.mbassy.dispatch.IHandlerInvocation;
+import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
+import net.engio.mbassy.dispatch.SynchronizedHandlerInvocation;
 import net.engio.mbassy.listener.MessageHandler;
 import net.engio.mbassy.listener.MetadataReader;
 
@@ -24,8 +29,6 @@ import net.engio.mbassy.listener.MetadataReader;
  *         Date: 5/11/13
  */
 public class SubscriptionManager {
-
-    private static final Object setObject = new Object();
 
     // the metadata reader that is used to inspect objects passed to the subscribe method
     private final MetadataReader metadataReader;
@@ -46,19 +49,15 @@ public class SubscriptionManager {
     // remember already processed classes that do not contain any message handlers
     private final ConcurrentHashMap<Class<?>, Object> nonListeners = new ConcurrentHashMap<Class<?>, Object>();
 
-    // this factory is used to create specialized subscriptions based on the given message handler configuration
-    // it can be customized by implementing the getSubscriptionFactory() method
-    private final SubscriptionFactory subscriptionFactory;
-
     // synchronize read/write acces to the subscription maps
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
-    private final BusRuntime runtime;
+    // error handling is first-class functionality
+    private final Collection<IPublicationErrorHandler> errorHandlers;
 
-    public SubscriptionManager(MetadataReader metadataReader, SubscriptionFactory subscriptionFactory, BusRuntime runtime) {
+    public SubscriptionManager(MetadataReader metadataReader, Collection<IPublicationErrorHandler> errorHandlers) {
         this.metadataReader = metadataReader;
-        this.subscriptionFactory = subscriptionFactory;
-        this.runtime = runtime;
+        this.errorHandlers = errorHandlers;
     }
 
 
@@ -110,7 +109,19 @@ public class SubscriptionManager {
                 // create subscriptions for all detected message handlers
                 for (MessageHandler messageHandler : messageHandlers) {
                     // create the subscription
-                    subscriptionsByListener.add(this.subscriptionFactory.createSubscription(this.runtime, messageHandler));
+
+                    try {
+                        IHandlerInvocation invocation = new ReflectiveHandlerInvocation();
+
+                        if (messageHandler.isSynchronized()){
+                            invocation = new SynchronizedHandlerInvocation(invocation);
+                        }
+
+                        Subscription subscription = new Subscription(messageHandler, this.errorHandlers, invocation, new WeakConcurrentSet<Object>());
+                        subscriptionsByListener.add(subscription);
+                    } catch (Exception e) {
+                        throw new MessageBusException(e);
+                    }
                 }
 
                 // this will acquire a write lock and handle the case when another thread already subscribed

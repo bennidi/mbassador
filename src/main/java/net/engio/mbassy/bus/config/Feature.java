@@ -1,14 +1,17 @@
 package net.engio.mbassy.bus.config;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.listener.MetadataReader;
-import net.engio.mbassy.subscription.ISubscriptionManagerProvider;
-import net.engio.mbassy.subscription.SubscriptionFactory;
-import net.engio.mbassy.subscription.SubscriptionManagerProvider;
-
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A feature defines the configuration of a specific functionality of a message bus.
@@ -19,38 +22,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public interface Feature {
 
 
-    class SyncPubSub implements Feature{
+    class SyncPubSub implements Feature {
 
         public static final SyncPubSub Default(){
             return new SyncPubSub()
                     .setMetadataReader(new MetadataReader())
-                    .setPublicationFactory(new MessagePublication.Factory())
-                    .setSubscriptionFactory(new SubscriptionFactory())
-                    .setSubscriptionManagerProvider(new SubscriptionManagerProvider());
+                    .setPublicationFactory(new MessagePublication.Factory());
         }
 
         private MessagePublication.Factory publicationFactory;
         private MetadataReader metadataReader;
-        private SubscriptionFactory subscriptionFactory;
-        private ISubscriptionManagerProvider subscriptionManagerProvider;
 
-        public ISubscriptionManagerProvider getSubscriptionManagerProvider() {
-            return subscriptionManagerProvider;
-        }
-
-        public SyncPubSub setSubscriptionManagerProvider(ISubscriptionManagerProvider subscriptionManagerProvider) {
-            this.subscriptionManagerProvider = subscriptionManagerProvider;
-            return this;
-        }
-
-        public SubscriptionFactory getSubscriptionFactory() {
-            return subscriptionFactory;
-        }
-
-        public SyncPubSub setSubscriptionFactory(SubscriptionFactory subscriptionFactory) {
-            this.subscriptionFactory = subscriptionFactory;
-            return this;
-        }
 
         public MetadataReader getMetadataReader() {
             return metadataReader;
@@ -76,7 +58,7 @@ public interface Feature {
         }
     }
 
-    class AsynchronousHandlerInvocation implements Feature{
+    class AsynchronousHandlerInvocation implements Feature {
 
         protected static final ThreadFactory MessageHandlerThreadFactory = new ThreadFactory() {
 
@@ -114,7 +96,7 @@ public interface Feature {
         }
     }
 
-    class AsynchronousMessageDispatch implements Feature{
+    class AsynchronousMessageDispatch implements Feature {
 
         protected static final ThreadFactory MessageDispatchThreadFactory = new ThreadFactory() {
 

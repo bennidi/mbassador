@@ -17,17 +17,13 @@ public class BusConfiguration implements IBusConfiguration {
 
     @Override
     public <T extends Feature> T getFeature(Class<T> feature) {
-        return (T)features.get(feature);
+        return (T)this.features.get(feature);
     }
 
     @Override
     public IBusConfiguration addFeature(Feature feature) {
-        features.put(feature.getClass(), feature);
+        this.features.put(feature.getClass(), feature);
         return this;
     }
 
-    @Override
-    public IBusConfiguration addErrorHandler(ConfigurationErrorHandler handler) {
-        return null;  // TODO: implement configuration validation
-    }
 }

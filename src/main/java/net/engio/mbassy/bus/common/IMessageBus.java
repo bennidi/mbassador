@@ -1,7 +1,5 @@
 package net.engio.mbassy.bus.common;
 
-import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
-
 import java.util.concurrent.Executor;
 
 /**
@@ -57,14 +55,7 @@ import java.util.concurrent.Executor;
  * @Author bennidi
  * Date: 2/8/12
  */
-public interface IMessageBus<T, P extends ISyncAsyncPublicationCommand>
-        extends GenericMessagePublicationSupport<T, P>{
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    P post(T message);
+public interface IMessageBus<T> extends PubSubSupport<T>, ErrorHandlingSupport {
 
     /**
      * Get the executor service that is used for asynchronous message publications.
@@ -89,6 +80,4 @@ public interface IMessageBus<T, P extends ISyncAsyncPublicationCommand>
      * to further use the message bus.
      */
     void shutdown();
-
-
 }

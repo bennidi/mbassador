@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.common.ReflectionUtils;
 
 /**

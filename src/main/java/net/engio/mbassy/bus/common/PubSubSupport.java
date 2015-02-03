@@ -1,12 +1,16 @@
 package net.engio.mbassy.bus.common;
 
+import java.util.concurrent.TimeUnit;
+
+import net.engio.mbassy.bus.IMessagePublication;
+
 /**
  * This interface defines the very basic message publication semantics according to the publish subscribe pattern.
  * Listeners can be subscribed and unsubscribed using the corresponding methods. When a listener is subscribed its
  * handlers will be registered and start to receive matching message publications.
  *
  */
-public interface PubSubSupport<T> extends RuntimeProvider{
+public interface PubSubSupport<T> {
 
     /**
      * Subscribe all handlers of the given listener. Any listener is only subscribed once
@@ -38,4 +42,28 @@ public interface PubSubSupport<T> extends RuntimeProvider{
      * @param message
      */
     void publish(T message);
+
+
+    /**
+     * Execute the message publication asynchronously. The behaviour of this method depends on the
+     * configured queuing strategy:
+     * <p/>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call might block until the message can be placed in the queue.
+     *
+     * @return A message publication that can be used to access information about it's state
+     */
+    IMessagePublication publishAsync(T message);
+
+    /**
+     * Execute the message publication asynchronously. The behaviour of this method depends on the
+     * configured queuing strategy:
+     * <p/>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call will block until the message can be placed in the queue
+     * or the timeout is reached.
+     *
+     * @return A message publication that wraps up the publication request
+     */
+    IMessagePublication publishAsync(T message, long timeout, TimeUnit unit);
 }

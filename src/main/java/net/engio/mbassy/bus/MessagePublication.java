@@ -3,6 +3,7 @@ package net.engio.mbassy.bus;
 import java.util.Collection;
 
 import net.engio.mbassy.bus.common.DeadMessage;
+import net.engio.mbassy.bus.common.PubSubSupport;
 import net.engio.mbassy.subscription.Subscription;
 
 /**
@@ -23,10 +24,10 @@ public class MessagePublication implements IMessagePublication {
     // message publications can be referenced by multiple threads to query publication progress
     private volatile State state = State.Initial;
     private volatile boolean delivered = false;
-    private final BusRuntime runtime;
+    private PubSubSupport pubSub;
 
-    protected MessagePublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message, State initialState) {
-        this.runtime = runtime;
+    protected MessagePublication(PubSubSupport pubSub, Collection<Subscription> subscriptions, Object message, State initialState) {
+        this.pubSub = pubSub;
         this.subscriptions = subscriptions;
         this.message = message;
         this.state = initialState;
@@ -50,7 +51,7 @@ public class MessagePublication implements IMessagePublication {
         // if the message has not been marked delivered by the dispatcher
         if (!this.delivered) {
             if (!isDeadEvent()) {
-                this.runtime.getProvider().publish(new DeadMessage(this.message));
+                this.pubSub.publish(new DeadMessage(this.message));
             }
         }
     }
@@ -100,8 +101,8 @@ public class MessagePublication implements IMessagePublication {
 
     public static class Factory {
 
-        public IMessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message) {
-            return new MessagePublication(runtime, subscriptions, message, State.Initial);
+        public IMessagePublication createPublication(PubSubSupport pubSub, Collection<Subscription> subscriptions, Object message) {
+            return new MessagePublication(pubSub, subscriptions, message, State.Initial);
         }
 
     }

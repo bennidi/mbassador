@@ -1,16 +1,15 @@
 package net.engio.mbassy.bus;
 
+import java.util.concurrent.TimeUnit;
+
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.PublicationError;
-import net.engio.mbassy.bus.publication.SyncAsyncPostCommand;
-
-import java.util.concurrent.TimeUnit;
 
 
-public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> implements IMessageBus<T, SyncAsyncPostCommand<T>> {
+public class MBassador<T> extends AbstractSyncAsyncMessageBus<T> implements IMessageBus<T> {
 
     public MBassador(IBusConfiguration configuration) {
         super(configuration);
@@ -23,22 +22,13 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
             .addFeature(Feature.AsynchronousMessageDispatch.Default()));
     }
 
-
-    public IMessagePublication publishAsync(T message) {
-        return addAsynchronousPublication(createMessagePublication(message));
-    }
-
-    public IMessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
-        return addAsynchronousPublication(createMessagePublication(message), timeout, unit);
-    }
-
-
     /**
      * Synchronously publish a message to all registered listeners (this includes listeners defined for super types)
      * The call blocks until every messageHandler has processed the message.
      *
      * @param message
      */
+    @Override
     public void publish(T message) {
         try {
             IMessagePublication publication = createMessagePublication(message);
@@ -49,13 +39,34 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
                     .setCause(e)
                     .setPublishedObject(message));
         }
-
     }
 
 
-    @Override
-    public SyncAsyncPostCommand<T> post(T message) {
-        return new SyncAsyncPostCommand<T>(this, message);
+    /**
+     * Execute the message publication asynchronously. The behaviour of this method depends on the
+     * configured queuing strategy:
+     * <p/>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call might block until the message can be placed in the queue.
+     *
+     * @return A message publication that can be used to access information about it's state
+     */
+    public IMessagePublication publishAsync(T message) {
+        return addAsynchronousPublication(createMessagePublication(message));
     }
 
+
+    /**
+     * Execute the message publication asynchronously. The behaviour of this method depends on the
+     * configured queuing strategy:
+     * <p/>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call will block until the message can be placed in the queue
+     * or the timeout is reached.
+     *
+     * @return A message publication that wraps up the publication request
+     */
+    public IMessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
+        return addAsynchronousPublication(createMessagePublication(message), timeout, unit);
+    }
 }

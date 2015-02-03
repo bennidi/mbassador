@@ -22,9 +22,4 @@ public interface IBusConfiguration{
     <T extends Feature> T getFeature(Class<T> feature);
 
     IBusConfiguration addFeature(Feature feature);
-
-    IBusConfiguration addErrorHandler(ConfigurationErrorHandler handler);
-
-
-
 }

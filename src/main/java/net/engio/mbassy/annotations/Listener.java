@@ -1,4 +1,4 @@
-package net.engio.mbassy.listener;
+package net.engio.mbassy.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

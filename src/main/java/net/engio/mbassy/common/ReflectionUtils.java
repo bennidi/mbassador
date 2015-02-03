@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import net.engio.mbassy.listener.Handler;
+import net.engio.mbassy.annotations.Handler;
 
 /**
  * @author bennidi

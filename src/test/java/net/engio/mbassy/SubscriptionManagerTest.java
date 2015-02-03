@@ -2,7 +2,7 @@ package net.engio.mbassy;
 
 import java.util.Collections;
 
-import net.engio.mbassy.bus.BusRuntime;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.common.AssertSupport;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
@@ -24,7 +24,6 @@ import net.engio.mbassy.messages.IMultipartMessage;
 import net.engio.mbassy.messages.MessageTypes;
 import net.engio.mbassy.messages.MultipartMessage;
 import net.engio.mbassy.messages.StandardMessage;
-import net.engio.mbassy.subscription.SubscriptionFactory;
 import net.engio.mbassy.subscription.SubscriptionManager;
 
 import org.junit.Test;
@@ -167,7 +166,7 @@ public class SubscriptionManagerTest extends AssertSupport {
                 Overloading.ListenerBase.class,
                 Overloading.ListenerSub.class);
 
-        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
+        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), Collections.<IPublicationErrorHandler>emptyList());
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 
         SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
@@ -177,22 +176,16 @@ public class SubscriptionManagerTest extends AssertSupport {
         runTestWith(listeners, expectedSubscriptions);
     }
 
-    private BusRuntime mockedRuntime(){
-        return new BusRuntime(null)
-                .add(BusRuntime.Properties.ErrorHandlers, Collections.EMPTY_SET)
-                .add(BusRuntime.Properties.AsynchronousHandlerExecutor, null);
-    }
-
-    private ListenerFactory listeners(Class ...listeners){
+    private ListenerFactory listeners(Class<?> ...listeners){
         ListenerFactory factory = new ListenerFactory();
-        for(Class listener : listeners){
+        for (Class<?> listener : listeners){
             factory.create(InstancesPerListener, listener);
         }
         return factory;
     }
 
     private void runTestWith(final ListenerFactory listeners, final SubscriptionValidator validator){
-        final SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
+        final SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), Collections.<IPublicationErrorHandler>emptyList());
 
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 

@@ -3,6 +3,8 @@ package net.engio.mbassy.listener;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import net.engio.mbassy.annotations.Handler;
+import net.engio.mbassy.annotations.Synchronized;
 import net.engio.mbassy.common.ReflectionUtils;
 
 /**

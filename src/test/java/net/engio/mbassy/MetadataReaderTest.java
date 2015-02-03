@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.common.AssertSupport;
-import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.MessageListener;
 import net.engio.mbassy.listener.MetadataReader;
 

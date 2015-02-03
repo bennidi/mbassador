@@ -8,10 +8,10 @@ import java.lang.annotation.Target;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.engio.mbassy.annotations.Handler;
+import net.engio.mbassy.annotations.Synchronized;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Synchronized;
 
 import org.junit.Test;
 
