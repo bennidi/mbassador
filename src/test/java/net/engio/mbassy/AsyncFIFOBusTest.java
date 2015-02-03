@@ -1,14 +1,14 @@
 package net.engio.mbassy;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import net.engio.mbassy.bus.BusFactory;
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Invoke;
-import org.junit.Test;
 
-import java.util.LinkedList;
-import java.util.List;
+import org.junit.Test;
 
 /**
  *
@@ -35,11 +35,13 @@ public class AsyncFIFOBusTest extends MessageBusTest {
              messages[i] = i;
         }
         // publish in ascending order
-        for(Integer message : messages)
+        for(Integer message : messages) {
             fifoBUs.post(message).asynchronously();
+        }
 
-        while(fifoBUs.hasPendingMessages())
+        while(fifoBUs.hasPendingMessages()) {
             pause(1000);
+        }
 
         for(SyncListener listener : listeners){
             assertEquals(messages.length, listener.receivedSync.size());
@@ -69,19 +71,18 @@ public class AsyncFIFOBusTest extends MessageBusTest {
             messages[i] = i;
         }
         // publish in ascending order
-        for(Integer message : messages)
+        for(Integer message : messages) {
             fifoBUs.post(message).asynchronously();
+        }
 
-        while(fifoBUs.hasPendingMessages())
+        while(fifoBUs.hasPendingMessages()) {
             pause(2000);
+        }
 
         for(SyncAsyncListener listener : listeners){
             assertEquals(messages.length, listener.receivedSync.size());
-            assertEquals(listener.receivedSync.size(), listener.receivedAsync.size());
-            for(int i=0; i < listener.receivedAsync.size(); i++){
+            for(int i=0; i < messages.length; i++){
                 assertEquals(messages[i], listener.receivedSync.get(i));
-                // sync and async in same order
-                assertEquals(listener.receivedSync.get(i), listener.receivedAsync.get(i));
             }
         }
 
@@ -137,7 +138,7 @@ public class AsyncFIFOBusTest extends MessageBusTest {
 
         @Handler
         public void handleSync(Integer message){
-            receivedSync.add(message);
+            this.receivedSync.add(message);
         }
 
     }
@@ -145,18 +146,11 @@ public class AsyncFIFOBusTest extends MessageBusTest {
     public static class SyncAsyncListener {
 
         private List<Integer> receivedSync = new LinkedList<Integer>();
-        private List<Integer> receivedAsync = new LinkedList<Integer>();
 
         @Handler
         public void handleSync(Integer message){
-            receivedSync.add(message);
+            this.receivedSync.add(message);
         }
-
-        @Handler(delivery = Invoke.Asynchronously)
-        public void handleASync(Integer message){
-            receivedAsync.add(message);
-        }
-
     }
 
 }

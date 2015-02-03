@@ -1,17 +1,24 @@
 package net.engio.mbassy;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
-import net.engio.mbassy.common.*;
-import net.engio.mbassy.listeners.*;
+import net.engio.mbassy.common.ConcurrentExecutor;
+import net.engio.mbassy.common.ListenerFactory;
+import net.engio.mbassy.common.MessageBusTest;
+import net.engio.mbassy.common.MessageManager;
+import net.engio.mbassy.common.TestUtil;
+import net.engio.mbassy.listeners.ExceptionThrowingListener;
+import net.engio.mbassy.listeners.IMessageListener;
+import net.engio.mbassy.listeners.Listeners;
+import net.engio.mbassy.listeners.MessagesListener;
 import net.engio.mbassy.messages.MessageTypes;
 import net.engio.mbassy.messages.MultipartMessage;
 import net.engio.mbassy.messages.StandardMessage;
-import org.junit.Test;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.Test;
 
 /**
  * Test synchronous and asynchronous dispatch in single and multi-threaded scenario.
@@ -58,41 +65,9 @@ public class MBassadorTest extends MessageBusTest {
 
 
     @Test
-    public void testSyncPublicationAsyncHandlers() throws Exception {
-        ListenerFactory listeners = new ListenerFactory()
-                .create(InstancesPerListener, Listeners.asynchronous())
-                .create(InstancesPerListener, Listeners.noHandlers());
-        final MBassador bus = createBus(SyncAsync(), listeners);
-
-        final MessageManager messageManager = new MessageManager();
-        Runnable publishAndCheck = new Runnable() {
-            @Override
-            public void run() {
-
-                StandardMessage standardMessage = messageManager.create(StandardMessage.class, InstancesPerListener, Listeners.join(Listeners.asynchronous(), Listeners.handlesStandardMessage()));
-                MultipartMessage multipartMessage = messageManager.create(MultipartMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class, IMultipartMessageListener.AsyncListener.class);
-
-                bus.post(standardMessage).now();
-                bus.post(multipartMessage).now();
-                bus.post(MessageTypes.Simple).now();
-
-            }
-        };
-
-        ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
-        messageManager.waitForMessages(processingTimeInMS);
-
-        MessageTypes.resetAll();
-        messageManager.register(MessageTypes.Simple, InstancesPerListener * ConcurrentUnits, IMessageListener.AsyncListener.class, MessagesListener.AsyncListener.class);
-        ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
-        messageManager.waitForMessages(processingTimeInMS);
-    }
-
-    @Test
     public void testAsynchronousMessagePublication() throws Exception {
 
         ListenerFactory listeners = new ListenerFactory()
-                .create(InstancesPerListener, Listeners.asynchronous())
                 .create(InstancesPerListener, Listeners.noHandlers());
         final MBassador bus = createBus(SyncAsync(), listeners);
 
@@ -102,11 +77,7 @@ public class MBassadorTest extends MessageBusTest {
         Runnable publishAndCheck = new Runnable() {
             @Override
             public void run() {
-                StandardMessage standardMessage = messageManager.create(StandardMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class);
-                MultipartMessage multipartMessage = messageManager.create(MultipartMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class);
 
-                bus.post(standardMessage).asynchronously();
-                bus.post(multipartMessage).asynchronously();
                 bus.post(MessageTypes.Simple).asynchronously();
 
             }

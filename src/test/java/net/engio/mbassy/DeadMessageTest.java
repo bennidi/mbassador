@@ -1,5 +1,7 @@
 package net.engio.mbassy;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.common.DeadMessage;
 import net.engio.mbassy.common.ConcurrentExecutor;
@@ -10,10 +12,9 @@ import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listeners.IMessageListener;
 import net.engio.mbassy.listeners.MessagesListener;
 import net.engio.mbassy.listeners.ObjectListener;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Verify correct behaviour in case of message publications that do not have any matching subscriptions
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DeadMessageTest extends MessageBusTest{
 
+    @Override
     @Before
     public void beforeTest(){
         DeadMessagHandler.deadMessages.set(0);
@@ -34,10 +36,8 @@ public class DeadMessageTest extends MessageBusTest{
         final MBassador bus = createBus(SyncAsync());
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
-                .create(InstancesPerListener, IMessageListener.AsyncListener.class)
                 .create(InstancesPerListener, IMessageListener.DisabledListener.class)
                 .create(InstancesPerListener, MessagesListener.DefaultListener.class)
-                .create(InstancesPerListener, MessagesListener.AsyncListener.class)
                 .create(InstancesPerListener, MessagesListener.DisabledListener.class)
                 .create(InstancesPerListener, DeadMessagHandler.class)
                 .create(InstancesPerListener, Object.class);

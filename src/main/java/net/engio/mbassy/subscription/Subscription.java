@@ -4,9 +4,6 @@ import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.dispatch.IMessageDispatcher;
 
-import java.util.Comparator;
-import java.util.UUID;
-
 /**
  * A subscription is a thread-safe container that manages exactly one message handler of all registered
  * message listeners of the same class, i.e. all subscribed instances (exlcuding subclasses) of a SingleMessageHandler.class
@@ -20,8 +17,6 @@ import java.util.UUID;
  *
  */
 public class Subscription {
-
-    private final UUID id = UUID.randomUUID();
 
     protected final IConcurrentSet<Object> listeners;
 
@@ -41,8 +36,8 @@ public class Subscription {
      * @param listener
      * @return
      */
-    public boolean belongsTo(Class listener){
-        return context.getHandlerMetadata().isFromListener(listener);
+    public boolean belongsTo(Class<?> listener){
+        return this.context.getHandlerMetadata().isFromListener(listener);
     }
 
     /**
@@ -51,7 +46,7 @@ public class Subscription {
      * @return
      */
     public boolean contains(Object listener){
-        return listeners.contains(listener);
+        return this.listeners.contains(listener);
     }
 
     /**
@@ -60,46 +55,30 @@ public class Subscription {
      * @return
      */
     public boolean handlesMessageType(Class<?> messageType) {
-        return context.getHandlerMetadata().handlesMessage(messageType);
+        return this.context.getHandlerMetadata().handlesMessage(messageType);
     }
 
-    public Class[] getHandledMessageTypes(){
-        return context.getHandlerMetadata().getHandledMessages();
+    public Class<?>[] getHandledMessageTypes(){
+        return this.context.getHandlerMetadata().getHandledMessages();
     }
 
 
     public void publish(IMessagePublication publication, Object message){
-        if(listeners.size() > 0)
-            dispatcher.dispatch(publication, message, listeners);
+        if(this.listeners.size() > 0) {
+            this.dispatcher.dispatch(publication, message, this.listeners);
+        }
     }
-
-    public int getPriority() {
-        return context.getHandlerMetadata().getPriority();
-    }
-
 
     public void subscribe(Object o) {
-        listeners.add(o);
+        this.listeners.add(o);
     }
 
 
     public boolean unsubscribe(Object existingListener) {
-        return listeners.remove(existingListener);
+        return this.listeners.remove(existingListener);
     }
 
     public int size() {
-        return listeners.size();
+        return this.listeners.size();
     }
-
-
-    public static final Comparator<Subscription> SubscriptionByPriorityDesc = new Comparator<Subscription>() {
-        @Override
-        public int compare(Subscription o1, Subscription o2) {
-            int byPriority = ((Integer)o2.getPriority()).compareTo(o1.getPriority());
-            return byPriority == 0 ? o2.id.compareTo(o1.id) : byPriority;
-        }
-    };
-
-
-
 }

@@ -1,14 +1,17 @@
 package net.engio.mbassy.common;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import junit.framework.Assert;
-import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.IMessagePublication;
+import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.messages.MessageTypes;
+
 import org.junit.Before;
 
 /**
@@ -36,14 +39,15 @@ public abstract class MessageBusTest extends AssertSupport {
         }
     };
 
-
-    private StrongConcurrentSet<IMessagePublication> issuedPublications = new StrongConcurrentSet<IMessagePublication>();
+    private static final Object mapObject = new Object();
+    private ConcurrentHashMap<IMessagePublication, Object> issuedPublications = new ConcurrentHashMap<IMessagePublication, Object>();
 
     @Before
     public void setUp(){
-        issuedPublications = new StrongConcurrentSet<IMessagePublication>();
-        for(MessageTypes mes : MessageTypes.values())
+        this.issuedPublications = new ConcurrentHashMap<IMessagePublication, Object>();
+        for(MessageTypes mes : MessageTypes.values()) {
             mes.reset();
+        }
     }
 
     public static IBusConfiguration SyncAsync() {
@@ -67,23 +71,25 @@ public abstract class MessageBusTest extends AssertSupport {
     }
 
     protected void track(IMessagePublication asynchronously) {
-        issuedPublications.add(asynchronously);
+        this.issuedPublications.put(asynchronously, mapObject);
     }
 
     public void waitForPublications(long timeOutInMs){
         long start = System.currentTimeMillis();
-        while(issuedPublications.size() > 0 && System.currentTimeMillis() - start < timeOutInMs){
-            for(IMessagePublication pub : issuedPublications){
-                if(pub.isFinished())
-                    issuedPublications.remove(pub);
+        while(this.issuedPublications.size() > 0 && System.currentTimeMillis() - start < timeOutInMs){
+            for(IMessagePublication pub : this.issuedPublications.keySet()){
+                if(pub.isFinished()) {
+                    this.issuedPublications.remove(pub);
+                }
             }
         }
-        if(issuedPublications.size() > 0)
+        if(this.issuedPublications.size() > 0) {
             fail("Issued publications did not finish within specified timeout of " + timeOutInMs + " ms");
+        }
     }
 
     public void addPublication(IMessagePublication publication){
-        issuedPublications.add(publication);
+        this.issuedPublications.put(publication, mapObject);
     }
 
 }

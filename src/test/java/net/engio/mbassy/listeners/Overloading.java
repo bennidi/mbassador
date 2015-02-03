@@ -2,7 +2,6 @@ package net.engio.mbassy.listeners;
 
 import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.Listener;
-import net.engio.mbassy.listener.References;
 import net.engio.mbassy.messages.AbstractMessage;
 
 /**
@@ -25,7 +24,7 @@ public class Overloading {
 
     }
 
-    @Listener(references = References.Strong)
+    @Listener()
     public static class ListenerBase {
 
 

@@ -1,10 +1,9 @@
 package net.engio.mbassy.bus;
 
-import net.engio.mbassy.bus.common.DeadMessage;
-import net.engio.mbassy.bus.common.FilteredMessage;
-import net.engio.mbassy.subscription.Subscription;
-
 import java.util.Collection;
+
+import net.engio.mbassy.bus.common.DeadMessage;
+import net.engio.mbassy.subscription.Subscription;
 
 /**
  * A message publication is created for each asynchronous message dispatch. It reflects the state
@@ -33,64 +32,66 @@ public class MessagePublication implements IMessagePublication {
         this.state = initialState;
     }
 
+    @Override
     public boolean add(Subscription subscription) {
-        return subscriptions.add(subscription);
+        return this.subscriptions.add(subscription);
     }
 
     /*
     TODO: document state transitions
      */
+    @Override
     public void execute() {
-        state = State.Running;
-        for (Subscription sub : subscriptions) {
-           sub.publish(this, message);
+        this.state = State.Running;
+        for (Subscription sub : this.subscriptions) {
+           sub.publish(this, this.message);
         }
-        state = State.Finished;
+        this.state = State.Finished;
         // if the message has not been marked delivered by the dispatcher
-        if (!delivered) {
-            if (!isFilteredEvent() && !isDeadEvent()) {
-                runtime.getProvider().publish(new FilteredMessage(message));
-            } else if (!isDeadEvent()) {
-                runtime.getProvider().publish(new DeadMessage(message));
+        if (!this.delivered) {
+            if (!isDeadEvent()) {
+                this.runtime.getProvider().publish(new DeadMessage(this.message));
             }
-
         }
     }
 
+    @Override
     public boolean isFinished() {
-        return state.equals(State.Finished);
+        return this.state.equals(State.Finished);
     }
 
+    @Override
     public boolean isRunning() {
-        return state.equals(State.Running);
+        return this.state.equals(State.Running);
     }
 
+    @Override
     public boolean isScheduled() {
-        return state.equals(State.Scheduled);
+        return this.state.equals(State.Scheduled);
     }
 
+    @Override
     public void markDelivered() {
-        delivered = true;
+        this.delivered = true;
     }
 
+    @Override
     public MessagePublication markScheduled() {
-        if (state.equals(State.Initial)) {
-            state = State.Scheduled;
+        if (this.state.equals(State.Initial)) {
+            this.state = State.Scheduled;
         }
         return this;
     }
 
 
+    @Override
     public boolean isDeadEvent() {
-        return DeadMessage.class.equals(message.getClass());
+        return DeadMessage.class.equals(this.message.getClass());
     }
 
-    public boolean isFilteredEvent() {
-        return FilteredMessage.class.equals(message.getClass());
-    }
-
+    @Override
     public Object getMessage() {
-        return message;
+        return this.message;
     }
 
     private enum State {

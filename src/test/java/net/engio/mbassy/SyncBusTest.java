@@ -1,5 +1,7 @@
 package net.engio.mbassy;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import net.engio.mbassy.bus.BusFactory;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.common.GenericMessagePublicationSupport;
@@ -9,18 +11,15 @@ import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listeners.CustomInvocationListener;
 import net.engio.mbassy.listeners.ExceptionThrowingListener;
 import net.engio.mbassy.listeners.IMessageListener;
 import net.engio.mbassy.listeners.MessagesListener;
 import net.engio.mbassy.messages.MessageTypes;
 import net.engio.mbassy.messages.MultipartMessage;
 import net.engio.mbassy.messages.StandardMessage;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Test synchronous and asynchronous dispatch in single and multi-threaded scenario.
@@ -111,66 +110,6 @@ public abstract class SyncBusTest extends MessageBusTest {
         assertEquals(InstancesPerListener * ConcurrentUnits, exceptionCount.get());
     }
 
-    @Test
-    public void testCustomHandlerInvocation(){
-        final GenericMessagePublicationSupport bus = getSyncMessageBus();
-        ListenerFactory listeners = new ListenerFactory()
-                .create(InstancesPerListener, CustomInvocationListener.class)
-                .create(InstancesPerListener, Object.class);
-
-
-        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
-
-        Runnable publishAndCheck = new Runnable() {
-            @Override
-            public void run() {
-                StandardMessage standardMessage = new StandardMessage();
-                MultipartMessage multipartMessage = new MultipartMessage();
-
-                bus.post(standardMessage).now();
-                bus.post(multipartMessage).now();
-                bus.post(MessageTypes.Simple).now();
-
-                assertEquals(InstancesPerListener * 2, standardMessage.getTimesHandled(CustomInvocationListener.class));
-                assertEquals(0, multipartMessage.getTimesHandled(CustomInvocationListener.class));
-                assertEquals(0, MessageTypes.Simple.getTimesHandled(CustomInvocationListener.class));
-            }
-        };
-
-        // single threaded
-        ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
-
-        // multi threaded
-        ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
-
-    }
-
-    @Test
-    public void testHandlerPriorities(){
-        final GenericMessagePublicationSupport bus = getSyncMessageBus();
-        ListenerFactory listeners = new ListenerFactory()
-                .create(InstancesPerListener, PrioritizedListener.class)
-                .create(InstancesPerListener, Object.class);
-
-        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
-
-        Runnable publishAndCheck = new Runnable() {
-            @Override
-            public void run() {
-
-                bus.post(new IncrementingMessage()).now();
-
-            }
-        };
-
-        // single threaded
-        ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
-
-        // multi threaded
-        ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
-
-    }
-
 
     public static class MBassadorTest extends SyncBusTest {
 
@@ -199,37 +138,12 @@ public abstract class SyncBusTest extends MessageBusTest {
 
         public void markHandled(int newVal){
             // only transitions by the next handler are allowed
-            if(count == newVal || count + 1 == newVal) count = newVal;
-            else Assert.fail("Message was handled out of order");
+            if(this.count == newVal || this.count + 1 == newVal) {
+                this.count = newVal;
+            } else {
+                Assert.fail("Message was handled out of order");
+            }
         }
     }
-
-
-    public static class PrioritizedListener{
-
-        @Handler(priority = Integer.MIN_VALUE)
-        public void handle1(IncrementingMessage message) {
-            message.markHandled(1);
-        }
-
-        @Handler(priority = -2)
-        public void handle2(IncrementingMessage message) {
-            message.markHandled(2);
-        }
-
-        @Handler
-        public void handle3(IncrementingMessage message) {
-            message.markHandled(3);
-        }
-
-        @Handler(priority = Integer.MAX_VALUE)
-        public void handle4(IncrementingMessage message) {
-            message.markHandled(4);
-        }
-
-
-    }
-
-
 
 }

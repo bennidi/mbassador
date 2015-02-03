@@ -1,17 +1,17 @@
 package net.engio.mbassy;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Invoke;
 import net.engio.mbassy.listener.Synchronized;
-import org.junit.Test;
 
-import java.util.LinkedList;
-import java.util.List;
+import org.junit.Test;
 
 /**
  * Todo: Add javadoc
@@ -54,33 +54,6 @@ public class SynchronizedHandlerTest extends MessageBusTest {
 
     }
 
-    @Test
-    public void testSynchronizedWithAsSynchronousInvocation(){
-        List<SynchronizedWithAsynchronousDelivery> handlers = new LinkedList<SynchronizedWithAsynchronousDelivery>();
-        IBusConfiguration config = SyncAsync();
-        config.getFeature(Feature.AsynchronousMessageDispatch.class)
-                .setNumberOfMessageDispatchers(6);
-        IMessageBus bus = createBus(config);
-        for(int i = 0; i < numberOfListeners; i++){
-            SynchronizedWithAsynchronousDelivery handler = new SynchronizedWithAsynchronousDelivery();
-            handlers.add(handler);
-            bus.subscribe(handler);
-        }
-
-        for(int i = 0; i < numberOfMessages; i++){
-            track(bus.post(new Object()).asynchronously());
-        }
-
-        pause(10000);
-
-        for(SynchronizedWithAsynchronousDelivery handler : handlers){
-            assertEquals(incrementsPerMessage * numberOfMessages, handler.counter);
-        }
-
-    }
-
-
-
     public static class SynchronizedWithSynchronousDelivery {
 
         private int counter = 0;
@@ -89,22 +62,8 @@ public class SynchronizedHandlerTest extends MessageBusTest {
         @Synchronized
         public void handleMessage(Object o){
            for(int i = 0; i < incrementsPerMessage; i++){
-               counter++;
+               this.counter++;
            }
-        }
-
-    }
-
-    public static class SynchronizedWithAsynchronousDelivery {
-
-        private int counter = 0;
-
-        @Handler(delivery = Invoke.Asynchronously)
-        @Synchronized
-        public void handleMessage(Object o){
-            for(int i = 0; i < incrementsPerMessage; i++){
-                counter++;
-            }
         }
 
     }

@@ -34,7 +34,5 @@ public interface IMessagePublication {
 
     public boolean isDeadEvent();
 
-    public boolean isFilteredEvent();
-
     public Object getMessage();
 }

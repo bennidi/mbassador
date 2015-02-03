@@ -1,16 +1,20 @@
 package net.engio.mbassy.subscription;
 
-import net.engio.mbassy.bus.BusRuntime;
-import net.engio.mbassy.bus.error.IPublicationErrorHandler;
-import net.engio.mbassy.bus.error.MessageBusException;
-import net.engio.mbassy.common.StrongConcurrentSet;
-import net.engio.mbassy.common.WeakConcurrentSet;
-import net.engio.mbassy.dispatch.*;
-import net.engio.mbassy.listener.MessageHandler;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+
+import net.engio.mbassy.bus.BusRuntime;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.MessageBusException;
+import net.engio.mbassy.common.WeakConcurrentSet;
+import net.engio.mbassy.dispatch.HandlerInvocation;
+import net.engio.mbassy.dispatch.IHandlerInvocation;
+import net.engio.mbassy.dispatch.IMessageDispatcher;
+import net.engio.mbassy.dispatch.MessageDispatcher;
+import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
+import net.engio.mbassy.dispatch.SynchronizedHandlerInvocation;
+import net.engio.mbassy.listener.MessageHandler;
 
 /**
  * The subscription factory is used to create an empty subscription for specific message handler.
@@ -24,9 +28,7 @@ public class SubscriptionFactory {
             SubscriptionContext context = new SubscriptionContext(runtime, handlerMetadata, errorHandlers);
             IHandlerInvocation invocation = buildInvocationForHandler(context);
             IMessageDispatcher dispatcher = buildDispatcher(context, invocation);
-            return new Subscription(context, dispatcher, handlerMetadata.useStrongReferences()
-                ? new StrongConcurrentSet<Object>()
-                : new WeakConcurrentSet<Object>());
+            return new Subscription(context, dispatcher, new WeakConcurrentSet<Object>());
         } catch (Exception e) {
             throw new MessageBusException(e);
         }
@@ -37,25 +39,18 @@ public class SubscriptionFactory {
         if(context.getHandlerMetadata().isSynchronized()){
             invocation = new SynchronizedHandlerInvocation(invocation);
         }
-        if (context.getHandlerMetadata().isAsynchronous()) {
-            invocation = new AsynchronousHandlerInvocation(invocation);
-        }
+
         return invocation;
     }
 
     protected IMessageDispatcher buildDispatcher(SubscriptionContext context, IHandlerInvocation invocation) {
         IMessageDispatcher dispatcher = new MessageDispatcher(context, invocation);
-        if (context.getHandlerMetadata().isEnveloped()) {
-            dispatcher = new EnvelopedMessageDispatcher(dispatcher);
-        }
-        if (context.getHandlerMetadata().isFiltered()) {
-            dispatcher = new FilteredMessageDispatcher(dispatcher);
-        }
+
         return dispatcher;
     }
 
     protected IHandlerInvocation createBaseHandlerInvocation(SubscriptionContext context) throws MessageBusException {
-        Class<? extends HandlerInvocation> invocation = context.getHandlerMetadata().getHandlerInvocation();
+        Class<? extends HandlerInvocation> invocation = ReflectiveHandlerInvocation.class;
         if(invocation.isMemberClass() && !Modifier.isStatic(invocation.getModifiers())){
             throw new MessageBusException("The handler invocation must be top level class or nested STATIC inner class");
         }

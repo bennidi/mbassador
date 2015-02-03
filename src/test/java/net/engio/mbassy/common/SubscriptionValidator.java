@@ -1,9 +1,13 @@
 package net.engio.mbassy.common;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import net.engio.mbassy.subscription.Subscription;
 import net.engio.mbassy.subscription.SubscriptionManager;
-
-import java.util.*;
 
 /**
 *
@@ -26,18 +30,17 @@ public class SubscriptionValidator extends AssertSupport{
     }
 
     private SubscriptionValidator expect(Class subscriber, Class messageType){
-        validations.add(new ValidationEntry(messageType, subscriber));
-        messageTypes.add(messageType);
+        this.validations.add(new ValidationEntry(messageType, subscriber));
+        this.messageTypes.add(messageType);
         return this;
     }
 
     // match subscriptions with existing validation entries
     // for each tuple of subscriber and message type the specified number of listeners must exist
     public void validate(SubscriptionManager manager){
-        for(Class messageType : messageTypes){
+        for(Class messageType : this.messageTypes){
             Collection<Subscription> subscriptions = manager.getSubscriptionsByMessageType(messageType);
-            ensureOrdering(subscriptions);
-            Collection<ValidationEntry> validationEntries = getEntries(EntriesByMessageType(messageType));
+            Collection<ValidationEntry> validationEntries = getEntries(messageType);
             assertEquals(subscriptions.size(), validationEntries.size());
             for(ValidationEntry validationValidationEntry : validationEntries){
                 Subscription matchingSub = null;
@@ -49,37 +52,22 @@ public class SubscriptionValidator extends AssertSupport{
                     }
                 }
                 assertNotNull(matchingSub);
-                assertEquals(subscribedListener.getNumberOfListeners(validationValidationEntry.subscriber), matchingSub.size());
+                assertEquals(this.subscribedListener.getNumberOfListeners(validationValidationEntry.subscriber), matchingSub.size());
             }
         }
     }
 
-    private void ensureOrdering(Collection<Subscription> subscriptions){
-        int lastPriority = Integer.MAX_VALUE;// highest priority possible
-        for(Subscription sub : subscriptions){
-            assertTrue("Subscriptions should be ordered by priority (DESC)", lastPriority >= sub.getPriority());
-            lastPriority = sub.getPriority();
-        }
-    }
 
 
-    private Collection<ValidationEntry> getEntries(IPredicate<ValidationEntry> filter){
+    private Collection<ValidationEntry> getEntries(Class messageType){
         Collection<ValidationEntry> matching = new LinkedList<ValidationEntry>();
-        for (ValidationEntry validationValidationEntry : validations){
-            if(filter.apply(validationValidationEntry))matching.add(validationValidationEntry);
+        for (ValidationEntry validationValidationEntry : this.validations){
+            if (validationValidationEntry.messageType.equals(messageType)) {
+                matching.add(validationValidationEntry);
+            }
         }
         return matching;
     }
-
-    private IPredicate<ValidationEntry> EntriesByMessageType(final Class messageType){
-        return new IPredicate<ValidationEntry>() {
-            @Override
-            public boolean apply(ValidationEntry target) {
-                return target.messageType.equals(messageType);
-            }
-        };
-    }
-
 
 
     public class Expectation{
@@ -91,8 +79,9 @@ public class SubscriptionValidator extends AssertSupport{
         }
 
         public SubscriptionValidator handles(Class ...messages){
-            for(Class message : messages)
-                expect(listener, message);
+            for(Class message : messages) {
+                expect(this.listener, message);
+            }
             return SubscriptionValidator.this;
         }
     }

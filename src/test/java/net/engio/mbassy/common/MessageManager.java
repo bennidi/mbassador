@@ -1,8 +1,9 @@
 package net.engio.mbassy.common;
 
-import net.engio.mbassy.messages.IMessage;
-
 import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
+
+import net.engio.mbassy.messages.IMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +16,11 @@ import org.slf4j.LoggerFactory;
  * To change this template use File | Settings | File Templates.
  */
 public class MessageManager {
-	private static final Logger LOG =
-			LoggerFactory.getLogger(MessageManager.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(MessageManager.class);
 
-
-    private StrongConcurrentSet<MessageContext> messages = new StrongConcurrentSet();
+    private static final Object mapObject = new Object();
+    private ConcurrentHashMap<MessageContext, Object> messages = new ConcurrentHashMap<MessageContext, Object>();
 
 
     public <T extends IMessage> T create(Class<T> messageType, int expectedCount, Class ...listeners){
@@ -46,7 +47,7 @@ public class MessageManager {
 
     public <T extends IMessage> void register(T message, int expectedCount, Class ...listeners){
         try {
-            messages.add(new MessageContext(expectedCount, message, listeners));
+            this.messages.put(new MessageContext(expectedCount, message, listeners), mapObject);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -54,7 +55,7 @@ public class MessageManager {
 
     public <T extends IMessage> void register(T message, int expectedCount, Collection<Class> listeners){
         try {
-            messages.add(new MessageContext(expectedCount, message, listeners));
+            this.messages.put(new MessageContext(expectedCount, message, listeners), mapObject);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -62,9 +63,9 @@ public class MessageManager {
 
     public void waitForMessages(int timeoutInMs){
         long start = System.currentTimeMillis();
-        while(System.currentTimeMillis() - start < timeoutInMs && messages.size() > 0){
+        while(System.currentTimeMillis() - start < timeoutInMs && this.messages.size() > 0){
             // check each created message once
-            for(MessageContext messageCtx : messages){
+            for(MessageContext messageCtx : this.messages.keySet()){
                 boolean handledCompletely = true;
                 for(Class listener : messageCtx.getListeners()){
                     handledCompletely &= messageCtx.getMessage().getTimesHandled(listener) == messageCtx.getExpectedCount();
@@ -72,14 +73,14 @@ public class MessageManager {
                 // remove the ones that were handled as expected
                 if(handledCompletely){
                     logSuccess(messageCtx);
-                    messages.remove(messageCtx);
+                    this.messages.remove(messageCtx);
                 }
 
             }
             pause(100);
         }
-        if(messages.size() > 0){
-            logFailingMessages(messages);
+        if(this.messages.size() > 0){
+            logFailingMessages(this.messages);
             throw new RuntimeException("Message were not fully processed in given time");
         }
 
@@ -100,11 +101,12 @@ public class MessageManager {
 
 
 
-    private void logFailingMessages(StrongConcurrentSet<MessageContext> failing){
+    private void logFailingMessages(ConcurrentHashMap<MessageContext, Object> failing){
         StringBuilder errorMessage = new StringBuilder();
         errorMessage.append("Failing messages:\n");
-        for(MessageContext failingMessage : failing)
+        for(MessageContext failingMessage : failing.keySet()) {
             errorMessage.append(failingMessage);
+        }
         LOG.info(errorMessage.toString());
     }
 
@@ -127,20 +129,20 @@ public class MessageManager {
         }
 
         private long getExpectedCount() {
-            return expectedCount;
+            return this.expectedCount;
         }
 
         private IMessage getMessage() {
-            return message;
+            return this.message;
         }
 
         private Class[] getListeners() {
-            return listeners;
+            return this.listeners;
         }
 
         private String printListeners(){
             StringBuilder listenersAsString = new StringBuilder();
-            for(Class listener : listeners){
+            for(Class listener : this.listeners){
                 listenersAsString.append(listener.getName());
                 listenersAsString.append(",");
             }
@@ -150,8 +152,8 @@ public class MessageManager {
         @Override
         public String toString() {
             // TODO: actual count of listeners
-            return message.getClass().getSimpleName() + "{" +
-                    "expectedCount=" + expectedCount +
+            return this.message.getClass().getSimpleName() + "{" +
+                    "expectedCount=" + this.expectedCount +
                     ", listeners=" + printListeners() +
                     '}';
         }
