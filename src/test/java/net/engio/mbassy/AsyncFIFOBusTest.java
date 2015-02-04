@@ -3,9 +3,7 @@ package net.engio.mbassy;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.engio.mbassy._misc.BusFactory;
 import net.engio.mbassy.annotations.Handler;
-import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.common.MessageBusTest;
 
 import org.junit.Test;

@@ -1,6 +1,8 @@
-package net.engio.mbassy.bus.common;
+package net.engio.mbassy;
 
 import java.util.concurrent.Executor;
+
+import net.engio.mbassy.bus.error.ErrorHandlingSupport;
 
 /**
  * A message bus offers facilities for publishing messages to the message handlers of registered listeners.

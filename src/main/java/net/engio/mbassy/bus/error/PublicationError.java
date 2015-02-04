@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
  *         Date: 2/22/12
  *         Time: 4:59 PM
  */
-public class PublicationError{
+public class PublicationError {
 
     // Internal state
     private Throwable cause;
@@ -37,11 +37,10 @@ public class PublicationError{
                             final Object listener,
                             final Object publishedObject) {
 
-        this.cause = cause;
-        this.message = message;
+        this(cause, message, publishedObject);
+
         this.handler = handler;
         this.listener = listener;
-        this.publishedObject = publishedObject;
     }
 
     public PublicationError(final Throwable cause,

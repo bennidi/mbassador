@@ -1,6 +1,4 @@
-package net.engio.mbassy.bus.common;
-
-import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+package net.engio.mbassy.bus.error;
 
 import java.util.Collection;
 
@@ -16,6 +14,9 @@ public interface ErrorHandlingSupport {
      * @param errorHandler
      */
     void addErrorHandler(IPublicationErrorHandler errorHandler);
+
+    void handlePublicationError(PublicationError error);
+
 
     /**
      * Returns an immutable collection containing all the registered error handlers

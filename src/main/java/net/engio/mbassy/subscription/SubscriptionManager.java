@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.MessageBusException;
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.common.WeakConcurrentSet;
@@ -52,12 +51,9 @@ public class SubscriptionManager {
     // synchronize read/write acces to the subscription maps
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
-    // error handling is first-class functionality
-    private final Collection<IPublicationErrorHandler> errorHandlers;
 
-    public SubscriptionManager(MetadataReader metadataReader, Collection<IPublicationErrorHandler> errorHandlers) {
+    public SubscriptionManager(MetadataReader metadataReader) {
         this.metadataReader = metadataReader;
-        this.errorHandlers = errorHandlers;
     }
 
 
@@ -117,7 +113,7 @@ public class SubscriptionManager {
                             invocation = new SynchronizedHandlerInvocation(invocation);
                         }
 
-                        Subscription subscription = new Subscription(messageHandler, this.errorHandlers, invocation, new WeakConcurrentSet<Object>());
+                        Subscription subscription = new Subscription(messageHandler, invocation, new WeakConcurrentSet<Object>());
                         subscriptionsByListener.add(subscription);
                     } catch (Exception e) {
                         throw new MessageBusException(e);

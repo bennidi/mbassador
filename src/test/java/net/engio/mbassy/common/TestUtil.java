@@ -1,7 +1,7 @@
 package net.engio.mbassy.common;
 
+import net.engio.mbassy.PubSubSupport;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.common.PubSubSupport;
 import net.engio.mbassy.subscription.SubscriptionManager;
 
 import java.util.Iterator;

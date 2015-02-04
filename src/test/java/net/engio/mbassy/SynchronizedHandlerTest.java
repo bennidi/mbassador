@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.annotations.Synchronized;
-import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;

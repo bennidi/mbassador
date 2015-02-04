@@ -3,7 +3,7 @@ package net.engio.mbassy.bus;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import net.engio.mbassy.bus.common.IMessageBus;
+import net.engio.mbassy.IMessageBus;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.PublicationError;
 

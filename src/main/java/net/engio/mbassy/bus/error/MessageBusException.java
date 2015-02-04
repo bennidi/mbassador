@@ -6,7 +6,7 @@ package net.engio.mbassy.bus.error;
  * @author bennidi
  *         Date: 3/29/13
  */
-public class MessageBusException extends Exception{
+public class MessageBusException extends Exception {
 
     public MessageBusException() {
     }

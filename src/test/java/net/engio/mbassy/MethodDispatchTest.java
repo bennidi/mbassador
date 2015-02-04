@@ -1,7 +1,6 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.annotations.Handler;
-import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.common.MessageBusTest;
 
 import org.junit.Test;

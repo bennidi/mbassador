@@ -5,9 +5,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import net.engio.mbassy.bus.common.PubSubSupport;
+import net.engio.mbassy.PubSubSupport;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
+import net.engio.mbassy.bus.error.ErrorHandlingSupport;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.subscription.Subscription;
@@ -18,9 +19,9 @@ import net.engio.mbassy.subscription.SubscriptionManager;
  *
  * @param <T>
  */
-public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
+public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T>, ErrorHandlingSupport {
 
-
+    // error handling is first-class functionality
     // this handler will receive all errors that occur during message dispatch or message handling
     private final List<IPublicationErrorHandler> errorHandlers = new ArrayList<IPublicationErrorHandler>();
 
@@ -30,9 +31,10 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     public AbstractPubSubSupport(IBusConfiguration configuration) {
         // configure the pub sub feature
         Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
-        this.subscriptionManager = new SubscriptionManager(pubSubFeature.getMetadataReader(), getRegisteredErrorHandlers());
+        this.subscriptionManager = new SubscriptionManager(pubSubFeature.getMetadataReader());
     }
 
+    @Override
     public Collection<IPublicationErrorHandler> getRegisteredErrorHandlers() {
         return Collections.unmodifiableCollection(this.errorHandlers);
     }
@@ -49,8 +51,9 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     }
 
 
+    @Override
     public final void addErrorHandler(IPublicationErrorHandler handler) {
-        synchronized (this){
+        synchronized (this.errorHandlers) {
             this.errorHandlers.add(handler);
         }
     }
@@ -65,13 +68,13 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
             DeadMessage deadMessage = new DeadMessage(message);
 
             for (Subscription sub : subscriptions) {
-                sub.publishToSubscription(deadMessage);
+                sub.publishToSubscription(this, deadMessage);
             }
         } else {
             boolean delivered = false;
             boolean success = false;
             for (Subscription sub : subscriptions) {
-                delivered = sub.publishToSubscription(message);
+                delivered = sub.publishToSubscription(this, message);
                 if (delivered) {
                     success = true;
                 }
@@ -85,7 +88,7 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
                     DeadMessage deadMessage = new DeadMessage(message);
 
                     for (Subscription sub : subscriptions) {
-                        sub.publishToSubscription(deadMessage);
+                        sub.publishToSubscription(this, deadMessage);
                     }
                 }
             }
@@ -104,10 +107,10 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     }
 
 
-    public void handlePublicationError(PublicationError error) {
+    @Override
+    public final void handlePublicationError(PublicationError error) {
         for (IPublicationErrorHandler errorHandler : this.errorHandlers) {
             errorHandler.handleError(error);
         }
     }
-
 }

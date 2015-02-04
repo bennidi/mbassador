@@ -2,9 +2,8 @@ package net.engio.mbassy.subscription;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
 
-import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.ErrorHandlingSupport;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.dispatch.IHandlerInvocation;
@@ -27,18 +26,11 @@ public class Subscription {
     // the handler's metadata -> for each handler in a listener, a unique subscription context is created
     private final MessageHandler handlerMetadata;
 
-    // error handling is first-class functionality
-    private final Collection<IPublicationErrorHandler> errorHandlers;
-
     private final IHandlerInvocation invocation;
-
     protected final IConcurrentSet<Object> listeners;
 
-    Subscription(MessageHandler handler, Collection<IPublicationErrorHandler> errorHandlers,
-                 IHandlerInvocation invocation, IConcurrentSet<Object> listeners) {
-
+    Subscription(MessageHandler handler, IHandlerInvocation invocation, IConcurrentSet<Object> listeners) {
         this.handlerMetadata = handler;
-        this.errorHandlers = errorHandlers;
         this.invocation = invocation;
         this.listeners = listeners;
     }
@@ -78,7 +70,7 @@ public class Subscription {
    /**
     * @return TRUE if there were listeners/handlers available to publish to
     */
-    public boolean publishToSubscription(Object message){
+    public boolean publishToSubscription(ErrorHandlingSupport errorHandler, Object message){
         if (this.listeners.size() > 0) {
 
             /**
@@ -96,20 +88,20 @@ public class Subscription {
                 try {
                     this.invocation.invoke(listener, message, handler);
                 } catch (IllegalAccessException e) {
-                    handlePublicationError(new PublicationError(e, "Error during invocation of message handler. " +
+                    errorHandler.handlePublicationError(new PublicationError(e, "Error during invocation of message handler. " +
                                     "The class or method is not accessible",
                                     handler, listener, message));
                 } catch (IllegalArgumentException e) {
-                    handlePublicationError(new PublicationError(e, "Error during invocation of message handler. " +
+                    errorHandler.handlePublicationError(new PublicationError(e, "Error during invocation of message handler. " +
                                     "Wrong arguments passed to method. Was: " + message.getClass()
                                     + "Expected: " + handler.getParameterTypes()[0],
                                     handler, listener, message));
                 } catch (InvocationTargetException e) {
-                    handlePublicationError( new PublicationError(e, "Error during invocation of message handler. " +
+                    errorHandler.handlePublicationError( new PublicationError(e, "Error during invocation of message handler. " +
                                     "Message handler threw exception",
                                     handler, listener, message));
                 } catch (Throwable e) {
-                    handlePublicationError( new PublicationError(e, "Error during invocation of message handler. " +
+                    errorHandler.handlePublicationError( new PublicationError(e, "Error during invocation of message handler. " +
                                     "The handler code threw an exception",
                                     handler, listener, message));
                 }
@@ -119,13 +111,6 @@ public class Subscription {
         }
 
         return false;
-    }
-
-
-    private final void handlePublicationError(PublicationError error) {
-        for (IPublicationErrorHandler handler : this.errorHandlers) {
-            handler.handleError(error);
-        }
     }
 
     public void subscribe(Object o) {

@@ -1,4 +1,4 @@
-package net.engio.mbassy.bus.common;
+package net.engio.mbassy;
 
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +43,7 @@ public interface PubSubSupport<T> {
 
 
     /**
-     * Execute the message publication asynchronously. The behaviour of this method depends on the
+     * Execute the message publication asynchronously. The behavior of this method depends on the
      * configured queuing strategy:
      * <p/>
      * If an unbound queuing strategy is used the call returns immediately.
@@ -52,7 +52,7 @@ public interface PubSubSupport<T> {
     void publishAsync(T message);
 
     /**
-     * Execute the message publication asynchronously. The behaviour of this method depends on the
+     * Execute the message publication asynchronously. The behavior of this method depends on the
      * configured queuing strategy:
      * <p/>
      * If an unbound queuing strategy is used the call returns immediately.

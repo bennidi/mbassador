@@ -1,8 +1,5 @@
 package net.engio.mbassy;
 
-import java.util.Collections;
-
-import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.common.AssertSupport;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
@@ -166,7 +163,7 @@ public class SubscriptionManagerTest extends AssertSupport {
                 Overloading.ListenerBase.class,
                 Overloading.ListenerSub.class);
 
-        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), Collections.<IPublicationErrorHandler>emptyList());
+        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader());
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 
         SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
@@ -185,7 +182,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     private void runTestWith(final ListenerFactory listeners, final SubscriptionValidator validator){
-        final SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), Collections.<IPublicationErrorHandler>emptyList());
+        final SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader());
 
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 
