@@ -4,7 +4,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.bus.DeadMessage;
-import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;
@@ -33,7 +32,7 @@ public class DeadMessageTest extends MessageBusTest{
 
     @Test
     public void testDeadMessage(){
-        final MBassador bus = createBus(SyncAsync());
+        final MBassador bus = createBus();
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
                 .create(InstancesPerListener, IMessageListener.DisabledListener.class)
@@ -69,7 +68,7 @@ public class DeadMessageTest extends MessageBusTest{
 
     @Test
     public void testUnsubscribingAllListeners() {
-        final MBassador bus = createBus(SyncAsync());
+        final MBassador bus = createBus();
         ListenerFactory deadMessageListener = new ListenerFactory()
                 .create(InstancesPerListener, DeadMessagHandler.class)
                 .create(InstancesPerListener, Object.class);

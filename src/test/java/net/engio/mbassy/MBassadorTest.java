@@ -2,7 +2,6 @@ package net.engio.mbassy;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.ConcurrentExecutor;
@@ -35,7 +34,7 @@ public class MBassadorTest extends MessageBusTest {
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, Listeners.synchronous())
                 .create(InstancesPerListener, Listeners.noHandlers());
-        final MBassador bus = createBus(SyncAsync(), listeners);
+        final MBassador bus = createBus(listeners);
 
 
         Runnable publishAndCheck = new Runnable() {
@@ -69,7 +68,7 @@ public class MBassadorTest extends MessageBusTest {
 
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, Listeners.noHandlers());
-        final MBassador bus = createBus(SyncAsync(), listeners);
+        final MBassador bus = createBus(listeners);
 
 
         final MessageManager messageManager = new MessageManager();
@@ -103,7 +102,7 @@ public class MBassadorTest extends MessageBusTest {
             }
         };
 
-        final MBassador bus = new MBassador(SyncAsync());
+        final MBassador bus = new MBassador();
         bus.addErrorHandler(ExceptionCounter);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);

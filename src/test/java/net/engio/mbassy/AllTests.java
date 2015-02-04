@@ -14,7 +14,6 @@ import org.junit.runners.Suite;
         WeakConcurrentSetTest.class,
         MBassadorTest.class,
         SyncBusTest.MBassadorTest.class,
-        SyncBusTest.SyncMessageBusTest.class,
         MetadataReaderTest.class,
         MethodDispatchTest.class,
         DeadMessageTest.class,

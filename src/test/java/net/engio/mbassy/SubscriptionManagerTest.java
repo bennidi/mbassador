@@ -5,7 +5,6 @@ import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.SubscriptionValidator;
 import net.engio.mbassy.common.TestUtil;
-import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.listeners.AbstractMessageListener;
 import net.engio.mbassy.listeners.ICountableListener;
 import net.engio.mbassy.listeners.IMessageListener;
@@ -163,7 +162,7 @@ public class SubscriptionManagerTest extends AssertSupport {
                 Overloading.ListenerBase.class,
                 Overloading.ListenerSub.class);
 
-        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader());
+        SubscriptionManager subscriptionManager = new SubscriptionManager();
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 
         SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
@@ -182,7 +181,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     private void runTestWith(final ListenerFactory listeners, final SubscriptionValidator validator){
-        final SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader());
+        final SubscriptionManager subscriptionManager = new SubscriptionManager();
 
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
 

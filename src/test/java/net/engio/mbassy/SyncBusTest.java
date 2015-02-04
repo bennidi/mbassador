@@ -2,7 +2,6 @@ package net.engio.mbassy;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.ConcurrentExecutor;
@@ -118,17 +117,6 @@ public abstract class SyncBusTest extends MessageBusTest {
         }
 
     }
-
-    public static class SyncMessageBusTest extends SyncBusTest {
-
-
-        @Override
-        protected IMessageBus getSyncMessageBus() {
-            return BusFactory.SynchronousOnly();
-        }
-    }
-
-
 
     static class IncrementingMessage{
 

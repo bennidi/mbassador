@@ -30,7 +30,7 @@ import net.engio.mbassy.listener.MetadataReader;
 public class SubscriptionManager {
 
     // the metadata reader that is used to inspect objects passed to the subscribe method
-    private final MetadataReader metadataReader;
+    private final MetadataReader metadataReader = new MetadataReader();
 
     // all subscriptions per message type
     // this is the primary list for dispatching a specific message
@@ -52,8 +52,7 @@ public class SubscriptionManager {
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
 
-    public SubscriptionManager(MetadataReader metadataReader) {
-        this.metadataReader = metadataReader;
+    public SubscriptionManager() {
     }
 
 

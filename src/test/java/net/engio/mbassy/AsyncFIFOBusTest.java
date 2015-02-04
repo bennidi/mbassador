@@ -18,11 +18,11 @@ public class AsyncFIFOBusTest extends MessageBusTest {
     @Test
     public void testSingleThreadedSyncFIFO(){
         // create a fifo bus with 1000 concurrently subscribed listeners
-        IMessageBus fifoBUs = BusFactory.AsynchronousSequentialFIFO();
+        IMessageBus<Integer> fifoBUs = new MBassador<Integer>();
 
-        List<SyncListener> listeners = new LinkedList<SyncListener>();
+        List<Listener> listeners = new LinkedList<Listener>();
         for(int i = 0; i < 1000 ; i++){
-            SyncListener listener = new SyncListener();
+            Listener listener = new Listener();
             listeners.add(listener);
             fifoBUs.subscribe(listener);
         }
@@ -34,14 +34,14 @@ public class AsyncFIFOBusTest extends MessageBusTest {
         }
         // publish in ascending order
         for(Integer message : messages) {
-            fifoBUs.publishAsync(message);
+            fifoBUs.publish(message);
         }
 
         while(fifoBUs.hasPendingMessages()) {
             pause(1000);
         }
 
-        for(SyncListener listener : listeners){
+        for(Listener listener : listeners){
             assertEquals(messages.length, listener.receivedSync.size());
             for(int i=0; i < messages.length; i++){
                 assertEquals(messages[i], listener.receivedSync.get(i));
@@ -50,15 +50,14 @@ public class AsyncFIFOBusTest extends MessageBusTest {
 
     }
 
-    // NOTE: Can fail due to timing issues.
     @Test
     public void testSingleThreadedSyncAsyncFIFO(){
         // create a fifo bus with 1000 concurrently subscribed listeners
-        IMessageBus fifoBUs = BusFactory.AsynchronousSequentialFIFO();
+        IMessageBus<Integer> fifoBUs = new MBassador<Integer>(1);
 
-        List<SyncAsyncListener> listeners = new LinkedList<SyncAsyncListener>();
+        List<Listener> listeners = new LinkedList<Listener>();
         for(int i = 0; i < 1000 ; i++){
-            SyncAsyncListener listener = new SyncAsyncListener();
+            Listener listener = new Listener();
             listeners.add(listener);
             fifoBUs.subscribe(listener);
         }
@@ -69,42 +68,38 @@ public class AsyncFIFOBusTest extends MessageBusTest {
             messages[i] = i;
         }
         // publish in ascending order
-        for(Integer message : messages) {
+        for (Integer message : messages) {
             fifoBUs.publishAsync(message);
         }
 
-        while(fifoBUs.hasPendingMessages()) {
+        while (fifoBUs.hasPendingMessages()) {
             pause(2000);
         }
 
-        for(SyncAsyncListener listener : listeners){
-            assertEquals(messages.length, listener.receivedSync.size());
-            for(int i=0; i < messages.length; i++){
-                assertEquals(messages[i], listener.receivedSync.get(i));
+        for(Listener listener : listeners) {
+            List<Integer> receivedSync = listener.receivedSync;
+
+            synchronized (receivedSync) {
+                assertEquals(messages.length, receivedSync.size());
+
+                for(int i=0; i < messages.length; i++){
+                    assertEquals(messages[i], receivedSync.get(i));
+                }
             }
         }
 
     }
 
-    public static class SyncListener {
+    public static class Listener {
 
         private List<Integer> receivedSync = new LinkedList<Integer>();
 
         @Handler
         public void handleSync(Integer message){
-            this.receivedSync.add(message);
+            synchronized (this.receivedSync) {
+                this.receivedSync.add(message);
+            }
         }
 
     }
-
-    public static class SyncAsyncListener {
-
-        private List<Integer> receivedSync = new LinkedList<Integer>();
-
-        @Handler
-        public void handleSync(Integer message){
-            this.receivedSync.add(message);
-        }
-    }
-
 }

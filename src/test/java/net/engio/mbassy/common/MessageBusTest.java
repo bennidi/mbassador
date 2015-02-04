@@ -1,10 +1,7 @@
 package net.engio.mbassy.common;
 
 import junit.framework.Assert;
-import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.config.BusConfiguration;
-import net.engio.mbassy.bus.config.Feature;
-import net.engio.mbassy.bus.config.IBusConfiguration;
+import net.engio.mbassy.MBassador;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.messages.MessageTypes;
@@ -45,21 +42,15 @@ public abstract class MessageBusTest extends AssertSupport {
         }
     }
 
-    public static IBusConfiguration SyncAsync() {
-        return new BusConfiguration()
-            .addFeature(Feature.SyncPubSub.Default())
-            .addFeature(Feature.AsynchronousHandlerInvocation.Default())
-            .addFeature(Feature.AsynchronousMessageDispatch.Default());
-    }
 
-    public MBassador createBus(IBusConfiguration configuration) {
-        MBassador bus = new MBassador(configuration);
+    public MBassador createBus() {
+        MBassador bus = new MBassador();
         bus.addErrorHandler(TestFailingHandler);
         return bus;
     }
 
-    public MBassador createBus(IBusConfiguration configuration, ListenerFactory listeners) {
-        MBassador bus = new MBassador(configuration);
+    public MBassador createBus(ListenerFactory listeners) {
+        MBassador bus = new MBassador();
         bus.addErrorHandler(TestFailingHandler);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
         return bus;

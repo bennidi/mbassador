@@ -24,7 +24,6 @@ public class MessageHandler {
 
     private final boolean isSynchronized;
 
-
     public MessageHandler(Method handler, Handler handlerConfig, MessageListener listenerMetadata){
         super();
 

@@ -10,7 +10,6 @@ package net.engio.mbassy.bus.error;
  * @author bennidi
  *         Date: 2/22/12
  */
-@SuppressWarnings("PMD.UnusedModifier")
 public interface IPublicationErrorHandler {
 
     /**

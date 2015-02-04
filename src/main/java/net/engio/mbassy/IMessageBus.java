@@ -1,7 +1,5 @@
 package net.engio.mbassy;
 
-import java.util.concurrent.Executor;
-
 import net.engio.mbassy.bus.error.ErrorHandlingSupport;
 
 /**
@@ -58,16 +56,6 @@ import net.engio.mbassy.bus.error.ErrorHandlingSupport;
  * Date: 2/8/12
  */
 public interface IMessageBus<T> extends PubSubSupport<T>, ErrorHandlingSupport {
-
-    /**
-     * Get the executor service that is used for asynchronous message publications.
-     * The executor is passed to the message bus at creation time.
-     *
-     * Note: The executor can be obtained from the run time. See
-     * @return
-     */
-    @Deprecated
-    Executor getExecutor();
 
     /**
      * Check whether any asynchronous message publications are pending to be processed

@@ -7,6 +7,7 @@ package net.engio.mbassy.bus.error;
  *         Date: 3/29/13
  */
 public class MessageBusException extends Exception {
+    private static final long serialVersionUID = 1L;
 
     public MessageBusException() {
     }

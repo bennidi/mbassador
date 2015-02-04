@@ -10,7 +10,6 @@ import java.util.Set;
 
 import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.annotations.Synchronized;
-import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.MessageBusTest;
 
 import org.junit.Test;
@@ -95,7 +94,7 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 
     @Test
     public void testMetaHandlerFiltering() {
-        MBassador bus = createBus(SyncAsync());
+        MBassador bus = createBus();
 
         NamedMessageListener listener = new NamedMessageListener();
         bus.subscribe( listener );

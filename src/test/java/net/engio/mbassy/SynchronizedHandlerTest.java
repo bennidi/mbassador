@@ -6,8 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.annotations.Synchronized;
-import net.engio.mbassy.bus.config.Feature;
-import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
 
 import org.junit.Test;
@@ -27,10 +25,8 @@ public class SynchronizedHandlerTest extends MessageBusTest {
     @Test
     public void testSynchronizedWithSynchronousInvocation(){
         List<SynchronizedWithSynchronousDelivery> handlers = new LinkedList<SynchronizedWithSynchronousDelivery>();
-        IBusConfiguration config = SyncAsync();
-        config.getFeature(Feature.AsynchronousMessageDispatch.class).setNumberOfMessageDispatchers(6);
 
-        IMessageBus bus = createBus(config);
+        IMessageBus bus = createBus();
         for(int i = 0; i < numberOfListeners; i++){
             SynchronizedWithSynchronousDelivery handler = new SynchronizedWithSynchronousDelivery();
             handlers.add(handler);

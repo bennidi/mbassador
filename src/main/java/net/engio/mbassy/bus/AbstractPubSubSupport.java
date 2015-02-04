@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 import net.engio.mbassy.PubSubSupport;
-import net.engio.mbassy.bus.config.Feature;
-import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.ErrorHandlingSupport;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
@@ -28,10 +26,8 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T>, Erro
     private final SubscriptionManager subscriptionManager;
 
 
-    public AbstractPubSubSupport(IBusConfiguration configuration) {
-        // configure the pub sub feature
-        Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
-        this.subscriptionManager = new SubscriptionManager(pubSubFeature.getMetadataReader());
+    public AbstractPubSubSupport() {
+        this.subscriptionManager = new SubscriptionManager();
     }
 
     @Override
