@@ -2,7 +2,7 @@ package net.engio.mbassy;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.engio.mbassy.bus.BusFactory;
+import net.engio.mbassy._misc.BusFactory;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;

@@ -1,6 +1,5 @@
 package net.engio.mbassy.bus.config;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -9,8 +8,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.engio.mbassy.bus.IMessagePublication;
-import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.listener.MetadataReader;
 
 /**
@@ -26,11 +23,9 @@ public interface Feature {
 
         public static final SyncPubSub Default(){
             return new SyncPubSub()
-                    .setMetadataReader(new MetadataReader())
-                    .setPublicationFactory(new MessagePublication.Factory());
+                    .setMetadataReader(new MetadataReader());
         }
 
-        private MessagePublication.Factory publicationFactory;
         private MetadataReader metadataReader;
 
 
@@ -40,20 +35,6 @@ public interface Feature {
 
         public SyncPubSub setMetadataReader(MetadataReader metadataReader) {
             this.metadataReader = metadataReader;
-            return this;
-        }
-
-        /**
-         * The message publication factory is used to wrap a published message
-         * in a {@link MessagePublication} for processing.
-         * @return The factory to be used by the bus to create the publications
-         */
-        public MessagePublication.Factory getPublicationFactory() {
-            return publicationFactory;
-        }
-
-        public SyncPubSub setPublicationFactory(MessagePublication.Factory publicationFactory) {
-            this.publicationFactory = publicationFactory;
             return this;
         }
     }
@@ -114,13 +95,11 @@ public interface Feature {
         public static final AsynchronousMessageDispatch Default(){
             return new AsynchronousMessageDispatch()
                 .setNumberOfMessageDispatchers(2)
-                .setDispatcherThreadFactory(MessageDispatchThreadFactory)
-                .setMessageQueue(new LinkedBlockingQueue<IMessagePublication>(Integer.MAX_VALUE));
+                .setDispatcherThreadFactory(MessageDispatchThreadFactory);
         }
 
 
         private int numberOfMessageDispatchers;
-        private BlockingQueue<IMessagePublication> pendingMessages;
         private ThreadFactory dispatcherThreadFactory;
 
         public int getNumberOfMessageDispatchers() {
@@ -132,14 +111,6 @@ public interface Feature {
             return this;
         }
 
-        public BlockingQueue<IMessagePublication> getPendingMessages() {
-            return pendingMessages;
-        }
-
-        public AsynchronousMessageDispatch setMessageQueue(BlockingQueue<IMessagePublication> pendingMessages) {
-            this.pendingMessages = pendingMessages;
-            return this;
-        }
 
         public ThreadFactory getDispatcherThreadFactory() {
             return dispatcherThreadFactory;

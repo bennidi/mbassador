@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import net.engio.mbassy.bus.common.DeadMessage;
 import net.engio.mbassy.bus.common.PubSubSupport;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
@@ -25,8 +24,6 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     // this handler will receive all errors that occur during message dispatch or message handling
     private final List<IPublicationErrorHandler> errorHandlers = new ArrayList<IPublicationErrorHandler>();
 
-    private final MessagePublication.Factory publicationFactory;
-
     private final SubscriptionManager subscriptionManager;
 
 
@@ -34,13 +31,7 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
         // configure the pub sub feature
         Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
         this.subscriptionManager = new SubscriptionManager(pubSubFeature.getMetadataReader(), getRegisteredErrorHandlers());
-        this.publicationFactory = pubSubFeature.getPublicationFactory();
     }
-
-    protected MessagePublication.Factory getPublicationFactory() {
-        return this.publicationFactory;
-    }
-
 
     public Collection<IPublicationErrorHandler> getRegisteredErrorHandlers() {
         return Collections.unmodifiableCollection(this.errorHandlers);
@@ -64,18 +55,47 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
         }
     }
 
-    protected IMessagePublication createMessagePublication(T message) {
+    protected void publishMessage(T message) {
         Class<? extends Object> class1 = message.getClass();
         Collection<Subscription> subscriptions = getSubscriptionsByMessageType(class1);
 
-        if ((subscriptions == null || subscriptions.isEmpty()) && !class1.equals(DeadMessage.class)) {
+        if (subscriptions == null || subscriptions.isEmpty()) {
             // Dead Event
             subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
-            return getPublicationFactory().createPublication(this, subscriptions, new DeadMessage(message));
+            DeadMessage deadMessage = new DeadMessage(message);
+
+            for (Subscription sub : subscriptions) {
+                sub.publishToSubscription(deadMessage);
+            }
         } else {
-            return getPublicationFactory().createPublication(this, subscriptions, message);
+            boolean delivered = false;
+            boolean success = false;
+            for (Subscription sub : subscriptions) {
+                delivered = sub.publishToSubscription(message);
+                if (delivered) {
+                    success = true;
+                }
+            }
+
+            // if the message did not have any listener/handler accept it
+            if (!success) {
+                if (!isDeadEvent(message)) {
+                    // Dead Event
+                    subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
+                    DeadMessage deadMessage = new DeadMessage(message);
+
+                    for (Subscription sub : subscriptions) {
+                        sub.publishToSubscription(deadMessage);
+                    }
+                }
+            }
         }
     }
+
+    private final boolean isDeadEvent(Object message) {
+        return DeadMessage.class.equals(message.getClass());
+    }
+
 
     // obtain the set of subscriptions for the given message type
     // Note: never returns null!

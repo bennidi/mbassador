@@ -22,8 +22,7 @@ public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements IMess
     @Override
     public void publish(T message) {
         try {
-            IMessagePublication publication = createMessagePublication(message);
-            publication.execute();
+            publishMessage(message);
         } catch (Throwable e) {
             handlePublicationError(new PublicationError()
                     .setMessage("Error during publication of message")
@@ -33,15 +32,13 @@ public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements IMess
     }
 
     @Override
-    public IMessagePublication publishAsync(T message) {
+    public void publishAsync(T message) {
         publish(message);
-        return null;
     }
 
     @Override
-    public IMessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
+    public void publishAsync(T message, long timeout, TimeUnit unit) {
         publish(message);
-        return null;
     }
 
     @Override

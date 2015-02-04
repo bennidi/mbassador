@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import net.engio.mbassy.bus.common.IMessageBus;
@@ -14,9 +15,6 @@ import net.engio.mbassy.bus.error.PublicationError;
 
 /**
  * The base class for all message bus implementations with support for asynchronous message dispatch
- *
- * @param <T>
- * @param <P>
  */
 public abstract class AbstractSyncAsyncMessageBus<T>
         extends AbstractPubSubSupport<T> implements IMessageBus<T> {
@@ -28,14 +26,13 @@ public abstract class AbstractSyncAsyncMessageBus<T>
     private final List<Thread> dispatchers;
 
     // all pending messages scheduled for asynchronous dispatch are queued here
-    private final BlockingQueue<IMessagePublication> pendingMessages;
+    private final BlockingQueue<T> pendingMessages = new LinkedBlockingQueue<T>(Integer.MAX_VALUE/16);
 
     protected AbstractSyncAsyncMessageBus(IBusConfiguration configuration) {
         super(configuration);
 
         // configure asynchronous message dispatch
         Feature.AsynchronousMessageDispatch asyncDispatch = configuration.getFeature(Feature.AsynchronousMessageDispatch.class);
-        this.pendingMessages = asyncDispatch.getPendingMessages();
         this.dispatchers = new ArrayList<Thread>(asyncDispatch.getNumberOfMessageDispatchers());
         initDispatcherThreads(asyncDispatch);
 
@@ -52,16 +49,16 @@ public abstract class AbstractSyncAsyncMessageBus<T>
             Thread dispatcher = configuration.getDispatcherThreadFactory().newThread(new Runnable() {
                 @Override
                 public void run() {
+                    T message = null;
                     while (true) {
-                        IMessagePublication publication = null;
                         try {
-                            publication = AbstractSyncAsyncMessageBus.this.pendingMessages.take();
-                            publication.execute();
+                            message = AbstractSyncAsyncMessageBus.this.pendingMessages.take();
+                            publishMessage(message);
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
                             return;
                         } catch(Throwable t){
-                            handlePublicationError(new PublicationError(t, "Error in asynchronous dispatch",publication));
+                            handlePublicationError(new PublicationError(t, "Error in asynchronous dispatch", message));
                         }
                     }
                 }
@@ -74,25 +71,20 @@ public abstract class AbstractSyncAsyncMessageBus<T>
 
 
     // this method queues a message delivery request
-    protected IMessagePublication addAsynchronousPublication(IMessagePublication publication) {
+    protected void addAsynchronousPublication(T message) {
         try {
-            this.pendingMessages.put(publication);
-            return publication.markScheduled();
+            this.pendingMessages.put(message);
         } catch (InterruptedException e) {
-            handlePublicationError(new PublicationError(e, "Error while adding an asynchronous message publication", publication));
-            return publication;
+            handlePublicationError(new PublicationError(e, "Error while adding an asynchronous message publication", message));
         }
     }
 
     // this method queues a message delivery request
-    protected IMessagePublication addAsynchronousPublication(IMessagePublication publication, long timeout, TimeUnit unit) {
+    protected void addAsynchronousPublication(T message, long timeout, TimeUnit unit) {
         try {
-            return this.pendingMessages.offer(publication, timeout, unit)
-                    ? publication.markScheduled()
-                    : publication;
+            this.pendingMessages.offer(message, timeout, unit);
         } catch (InterruptedException e) {
-            handlePublicationError(new PublicationError(e, "Error while adding an asynchronous message publication", publication));
-            return publication;
+            handlePublicationError(new PublicationError(e, "Error while adding an asynchronous message publication", message));
         }
     }
 

@@ -31,8 +31,7 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T> implements IMes
     @Override
     public void publish(T message) {
         try {
-            IMessagePublication publication = createMessagePublication(message);
-            publication.execute();
+            publishMessage(message);
         } catch (Throwable e) {
             handlePublicationError(new PublicationError()
                     .setMessage("Error during publication of message")
@@ -51,8 +50,9 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T> implements IMes
      *
      * @return A message publication that can be used to access information about it's state
      */
-    public IMessagePublication publishAsync(T message) {
-        return addAsynchronousPublication(createMessagePublication(message));
+    @Override
+    public void publishAsync(T message) {
+        addAsynchronousPublication(message);
     }
 
 
@@ -66,7 +66,8 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T> implements IMes
      *
      * @return A message publication that wraps up the publication request
      */
-    public IMessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
-        return addAsynchronousPublication(createMessagePublication(message), timeout, unit);
+    @Override
+    public void publishAsync(T message, long timeout, TimeUnit unit) {
+        addAsynchronousPublication(message, timeout, unit);
     }
 }

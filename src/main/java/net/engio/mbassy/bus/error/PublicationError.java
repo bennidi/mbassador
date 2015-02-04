@@ -1,7 +1,5 @@
 package net.engio.mbassy.bus.error;
 
-import net.engio.mbassy.bus.IMessagePublication;
-
 import java.lang.reflect.Method;
 
 /**
@@ -48,10 +46,10 @@ public class PublicationError{
 
     public PublicationError(final Throwable cause,
                             final String message,
-                            final IMessagePublication publication) {
+                            final Object messageObject) {
         this.cause = cause;
         this.message = message;
-        this.publishedObject = publication != null ? publication.getMessage() : null;
+        this.publishedObject = messageObject;
     }
 
 
@@ -68,7 +66,7 @@ public class PublicationError{
      * @return The Throwable giving rise to this PublicationError.
      */
     public Throwable getCause() {
-        return cause;
+        return this.cause;
     }
 
     /**
@@ -83,7 +81,7 @@ public class PublicationError{
     }
 
     public String getMessage() {
-        return message;
+        return this.message;
     }
 
     public PublicationError setMessage(String message) {
@@ -92,7 +90,7 @@ public class PublicationError{
     }
 
     public Method getHandler() {
-        return handler;
+        return this.handler;
     }
 
     public PublicationError setHandler(Method handler) {
@@ -101,7 +99,7 @@ public class PublicationError{
     }
 
     public Object getListener() {
-        return listener;
+        return this.listener;
     }
 
     public PublicationError setListener(Object listener) {
@@ -110,7 +108,7 @@ public class PublicationError{
     }
 
     public Object getPublishedObject() {
-        return publishedObject;
+        return this.publishedObject;
     }
 
     public PublicationError setPublishedObject(Object publishedObject) {
@@ -123,18 +121,18 @@ public class PublicationError{
      */
     @Override
     public String toString() {
-    	String newLine = System.getProperty("line.separator");
+        String newLine = System.getProperty("line.separator");
         return "PublicationError{" +
                 newLine +
-                "\tcause=" + cause +
+                "\tcause=" + this.cause +
                 newLine +
-                "\tmessage='" + message + '\'' +
+                "\tmessage='" + this.message + '\'' +
                 newLine +
-                "\thandler=" + handler +
+                "\thandler=" + this.handler +
                 newLine +
-                "\tlistener=" + listener +
+                "\tlistener=" + this.listener +
                 newLine +
-                "\tpublishedObject=" + publishedObject +
+                "\tpublishedObject=" + this.publishedObject +
                 '}';
     }
 }

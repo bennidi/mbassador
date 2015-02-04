@@ -1,9 +1,6 @@
 package net.engio.mbassy.common;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import junit.framework.Assert;
-import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
@@ -40,11 +37,9 @@ public abstract class MessageBusTest extends AssertSupport {
     };
 
     private static final Object mapObject = new Object();
-    private ConcurrentHashMap<IMessagePublication, Object> issuedPublications = new ConcurrentHashMap<IMessagePublication, Object>();
 
     @Before
     public void setUp(){
-        this.issuedPublications = new ConcurrentHashMap<IMessagePublication, Object>();
         for(MessageTypes mes : MessageTypes.values()) {
             mes.reset();
         }
@@ -69,27 +64,4 @@ public abstract class MessageBusTest extends AssertSupport {
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
         return bus;
     }
-
-    protected void track(IMessagePublication asynchronously) {
-        this.issuedPublications.put(asynchronously, mapObject);
-    }
-
-    public void waitForPublications(long timeOutInMs){
-        long start = System.currentTimeMillis();
-        while(this.issuedPublications.size() > 0 && System.currentTimeMillis() - start < timeOutInMs){
-            for(IMessagePublication pub : this.issuedPublications.keySet()){
-                if(pub.isFinished()) {
-                    this.issuedPublications.remove(pub);
-                }
-            }
-        }
-        if(this.issuedPublications.size() > 0) {
-            fail("Issued publications did not finish within specified timeout of " + timeOutInMs + " ms");
-        }
-    }
-
-    public void addPublication(IMessagePublication publication){
-        this.issuedPublications.put(publication, mapObject);
-    }
-
 }

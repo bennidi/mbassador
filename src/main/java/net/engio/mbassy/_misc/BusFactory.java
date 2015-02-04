@@ -1,5 +1,7 @@
-package net.engio.mbassy.bus;
+package net.engio.mbassy._misc;
 
+import net.engio.mbassy.bus.MBassador;
+import net.engio.mbassy.bus.SyncMessageBus;
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;

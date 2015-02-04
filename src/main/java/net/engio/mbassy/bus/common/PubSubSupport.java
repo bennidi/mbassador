@@ -2,8 +2,6 @@ package net.engio.mbassy.bus.common;
 
 import java.util.concurrent.TimeUnit;
 
-import net.engio.mbassy.bus.IMessagePublication;
-
 /**
  * This interface defines the very basic message publication semantics according to the publish subscribe pattern.
  * Listeners can be subscribed and unsubscribed using the corresponding methods. When a listener is subscribed its
@@ -50,10 +48,8 @@ public interface PubSubSupport<T> {
      * <p/>
      * If an unbound queuing strategy is used the call returns immediately.
      * If a bounded queue is used the call might block until the message can be placed in the queue.
-     *
-     * @return A message publication that can be used to access information about it's state
      */
-    IMessagePublication publishAsync(T message);
+    void publishAsync(T message);
 
     /**
      * Execute the message publication asynchronously. The behaviour of this method depends on the
@@ -62,8 +58,6 @@ public interface PubSubSupport<T> {
      * If an unbound queuing strategy is used the call returns immediately.
      * If a bounded queue is used the call will block until the message can be placed in the queue
      * or the timeout is reached.
-     *
-     * @return A message publication that wraps up the publication request
      */
-    IMessagePublication publishAsync(T message, long timeout, TimeUnit unit);
+    void publishAsync(T message, long timeout, TimeUnit unit);
 }

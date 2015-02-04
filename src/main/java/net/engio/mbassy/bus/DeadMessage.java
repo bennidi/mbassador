@@ -1,4 +1,6 @@
-package net.engio.mbassy.bus.common;
+package net.engio.mbassy.bus;
+
+import net.engio.mbassy.bus.common.PublicationEvent;
 
 /**
  * The dead message event is published whenever no message
@@ -9,8 +11,7 @@ package net.engio.mbassy.bus.common;
  */
 public final class DeadMessage extends PublicationEvent {
 
-    public DeadMessage(Object message) {
+    DeadMessage(Object message) {
         super(message);
     }
-
 }

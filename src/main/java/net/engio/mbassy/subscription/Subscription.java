@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
-import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.IConcurrentSet;
@@ -76,9 +75,11 @@ public class Subscription {
         return this.handlerMetadata.getHandledMessages();
     }
 
-    public void publish(IMessagePublication publication, Object message){
+   /**
+    * @return TRUE if there were listeners/handlers available to publish to
+    */
+    public boolean publishToSubscription(Object message){
         if (this.listeners.size() > 0) {
-            publication.markDelivered();
 
             /**
              * Delivers the given message to the given set of listeners.
@@ -113,7 +114,11 @@ public class Subscription {
                                     handler, listener, message));
                 }
             }
+
+            return true;
         }
+
+        return false;
     }
 
 
