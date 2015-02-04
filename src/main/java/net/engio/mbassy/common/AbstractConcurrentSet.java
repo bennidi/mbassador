@@ -29,24 +29,25 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
 
     @Override
     public void add(T element) {
-        if (element == null) return;
-        Lock writeLock = lock.writeLock();
+        if (element == null) {
+            return;
+        }
+        Lock writeLock = this.lock.writeLock();
         writeLock.lock();
-        if (element == null || entries.containsKey(element)) {
-            writeLock.unlock();
+        if (this.entries.containsKey(element)) {
         } else {
             insert(element);
-            writeLock.unlock();
         }
+        writeLock.unlock();
     }
 
     @Override
     public boolean contains(T element) {
-        Lock readLock = lock.readLock();
+        Lock readLock = this.lock.readLock();
         ISetEntry<T> entry;
         try {
             readLock.lock();
-            entry = entries.get(element);
+            entry = this.entries.get(element);
 
         } finally {
             readLock.unlock();
@@ -55,20 +56,20 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
     }
 
     private void insert(T element) {
-        if (!entries.containsKey(element)) {
-            head = createEntry(element, head);
-            entries.put(element, head);
+        if (!this.entries.containsKey(element)) {
+            this.head = createEntry(element, this.head);
+            this.entries.put(element, this.head);
         }
     }
 
     @Override
     public int size() {
-        return entries.size();
+        return this.entries.size();
     }
 
     @Override
     public void addAll(Iterable<T> elements) {
-        Lock writeLock = lock.writeLock();
+        Lock writeLock = this.lock.writeLock();
         try {
             writeLock.lock();
             for (T element : elements) {
@@ -87,21 +88,21 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
             // return quickly
             return false;
         } else {
-            Lock writeLock = lock.writeLock();
+            Lock writeLock = this.lock.writeLock();
             try {
                 writeLock.lock();
-                ISetEntry<T> listelement = entries.get(element);
+                ISetEntry<T> listelement = this.entries.get(element);
                 if (listelement == null) {
                     return false; //removed by other thread in the meantime
                 }
-                if (listelement != head) {
+                if (listelement != this.head) {
                     listelement.remove();
                 } else {
                     // if it was second, now it's first
-                    head = head.next();
+                    this.head = this.head.next();
                     //oldHead.clear(); // optimize for GC not possible because of potentially running iterators
                 }
-                entries.remove(element);
+                this.entries.remove(element);
             } finally {
                 writeLock.unlock();
             }
@@ -127,13 +128,13 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
         // not thread-safe! must be synchronized in enclosing context
         @Override
         public void remove() {
-            if (predecessor != null) {
-                predecessor.next = next;
-                if (next != null) {
-                    next.predecessor = predecessor;
+            if (this.predecessor != null) {
+                this.predecessor.next = this.next;
+                if (this.next != null) {
+                    this.next.predecessor = this.predecessor;
                 }
-            } else if (next != null) {
-                next.predecessor = null;
+            } else if (this.next != null) {
+                this.next.predecessor = null;
             }
             // can not nullify references to help GC since running iterators might not see the entire set
             // if this element is their current element
@@ -143,12 +144,12 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
 
         @Override
         public Entry<T> next() {
-            return next;
+            return this.next;
         }
 
         @Override
         public void clear() {
-            next = null;
+            this.next = null;
         }
     }
 }
