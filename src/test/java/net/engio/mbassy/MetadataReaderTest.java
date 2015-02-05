@@ -1,19 +1,23 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.common.AssertSupport;
-import net.engio.mbassy.listener.MessageListener;
-import org.junit.Test;
-import net.engio.mbassy.listener.Enveloped;
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.MetadataReader;
-import net.engio.mbassy.subscription.MessageEnvelope;
+import static net.engio.mbassy.listener.MessageListener.ForMessage;
 
 import java.io.BufferedReader;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static net.engio.mbassy.listener.MessageListener.ForMessage;
+import net.engio.mbassy.common.AssertSupport;
+import net.engio.mbassy.common.IPredicate;
+import net.engio.mbassy.listener.Enveloped;
+import net.engio.mbassy.listener.Handler;
+import net.engio.mbassy.listener.MessageHandler;
+import net.engio.mbassy.listener.MessageListener;
+import net.engio.mbassy.listener.MetadataReader;
+import net.engio.mbassy.subscription.MessageEnvelope;
+
+import org.junit.Test;
 
 /**
  *
@@ -26,7 +30,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testListenerWithoutInheritance() {
-        MessageListener<MessageListener1> listener = reader.getMessageListener(MessageListener1.class);
+        MessageListener<MessageListener1> listener = this.reader.getMessageListener(MessageListener1.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(2, String.class)
                 .expectHandlers(2, Object.class)
@@ -45,7 +49,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testListenerWithInheritance() {
-        MessageListener<MessageListener2> listener = reader.getMessageListener(MessageListener2.class);
+        MessageListener<MessageListener2> listener = this.reader.getMessageListener(MessageListener2.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(2, String.class)
                 .expectHandlers(2, Object.class)
@@ -55,7 +59,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testListenerWithInheritanceOverriding() {
-        MessageListener<MessageListener3> listener = reader.getMessageListener(MessageListener3.class);
+        MessageListener<MessageListener3> listener = this.reader.getMessageListener(MessageListener3.class);
 
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(0, String.class)
@@ -66,7 +70,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testEnveloped() {
-        MessageListener<EnvelopedListener> listener = reader.getMessageListener(EnvelopedListener.class);
+        MessageListener<EnvelopedListener> listener = this.reader.getMessageListener(EnvelopedListener.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(1, String.class)
                 .expectHandlers(2, Integer.class)
@@ -79,7 +83,7 @@ public class MetadataReaderTest extends AssertSupport {
 
     @Test
     public void testEnvelopedSubclass() {
-        MessageListener<EnvelopedListenerSubclass> listener = reader.getMessageListener(EnvelopedListenerSubclass.class);
+        MessageListener<EnvelopedListenerSubclass> listener = this.reader.getMessageListener(EnvelopedListenerSubclass.class);
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(1, String.class)
                 .expectHandlers(2, Integer.class)
@@ -95,24 +99,35 @@ public class MetadataReaderTest extends AssertSupport {
         private Map<Class<?>, Integer> handlers = new HashMap<Class<?>, Integer>();
 
         public ListenerValidator expectHandlers(Integer count, Class<?> messageType){
-            handlers.put(messageType, count);
+            this.handlers.put(messageType, count);
             return this;
         }
 
         public void check(MessageListener listener){
-            for(Map.Entry<Class<?>, Integer> expectedHandler: handlers.entrySet()){
+            for(Map.Entry<Class<?>, Integer> expectedHandler: this.handlers.entrySet()){
+                Class<?> key = expectedHandler.getKey();
+
                 if(expectedHandler.getValue() > 0){
-                    assertTrue(listener.handles(expectedHandler.getKey()));
+                    assertTrue(!getHandlers(listener, ForMessage(key)).isEmpty());
                 }
                 else{
-                    assertFalse(listener.handles(expectedHandler.getKey()));
+                    assertFalse(!getHandlers(listener, ForMessage(key)).isEmpty());
                 }
-                assertEquals(expectedHandler.getValue(), listener.getHandlers(ForMessage(expectedHandler.getKey())).size());
+                assertEquals(expectedHandler.getValue(), getHandlers(listener, ForMessage(key)).size());
             }
         }
 
     }
 
+    public List<MessageHandler> getHandlers(MessageListener<MessageHandler> listener, IPredicate<MessageHandler> filter) {
+        List<MessageHandler> matching = new LinkedList<MessageHandler>();
+        for (MessageHandler handler : listener.getHandlers()) {
+            if (filter.apply(handler)) {
+                matching.add(handler);
+            }
+        }
+        return matching;
+    }
 
 
 
@@ -141,6 +156,7 @@ public class MetadataReaderTest extends AssertSupport {
     public class MessageListener2 extends MessageListener1 {
 
         // redefine handler implementation (not configuration)
+        @Override
         public void handleString(String s) {
 
         }
@@ -150,11 +166,13 @@ public class MetadataReaderTest extends AssertSupport {
     public class MessageListener3 extends MessageListener2 {
 
         // narrow the handler
+        @Override
         @Handler(rejectSubtypes = true)
         public void handleAny(Object o) {
 
         }
 
+        @Override
         @Handler(enabled = false)
         public void handleString(String s) {
 
@@ -182,6 +200,7 @@ public class MetadataReaderTest extends AssertSupport {
     public class EnvelopedListenerSubclass extends EnvelopedListener{
 
         // narrow to integer
+        @Override
         @Handler
         @Enveloped(messages = Integer.class)
         public void handleEnveloped2(MessageEnvelope o) {

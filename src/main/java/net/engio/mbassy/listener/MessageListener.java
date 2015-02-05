@@ -68,20 +68,6 @@ public class MessageListener<T> {
         return handlers;
     }
 
-    public List<MessageHandler> getHandlers(IPredicate<MessageHandler> filter) {
-        List<MessageHandler> matching = new LinkedList<MessageHandler>();
-        for (MessageHandler handler : handlers) {
-            if (filter.apply(handler)) {
-                matching.add(handler);
-            }
-        }
-        return matching;
-    }
-
-    public boolean handles(Class<?> messageType) {
-        return !getHandlers(ForMessage(messageType)).isEmpty();
-    }
-
     public Class<T> getListerDefinition() {
         return listenerDefinition;
     }
