@@ -15,7 +15,7 @@ import net.engio.mbassy.bus.error.PublicationError;
 /**
  * The base class for all message bus implementations with support for asynchronous message dispatch
  */
-public class MBassador<T> extends AbstractPubSubSupport<T> implements IMessageBus<T> {
+public class MBassador extends AbstractPubSubSupport implements IMessageBus {
 
     private final int numberOfMessageDispatchers;
 
@@ -23,7 +23,7 @@ public class MBassador<T> extends AbstractPubSubSupport<T> implements IMessageBu
     private final List<Thread> dispatchers;
 
     // all pending messages scheduled for asynchronous dispatch are queued here
-    private final BlockingQueue<T> pendingMessages = new LinkedBlockingQueue<T>(Integer.MAX_VALUE / 16);
+    private final BlockingQueue<Object> pendingMessages = new LinkedBlockingQueue<Object>(Integer.MAX_VALUE / 16);
 
     protected static final ThreadFactory MessageDispatchThreadFactory = new ThreadFactory() {
 
@@ -59,7 +59,7 @@ public class MBassador<T> extends AbstractPubSubSupport<T> implements IMessageBu
             Thread dispatcher = MessageDispatchThreadFactory.newThread(new Runnable() {
                 @Override
                 public void run() {
-                    T message = null;
+                    Object message = null;
                     while (true) {
                         try {
                             message = MBassador.this.pendingMessages.take();
@@ -87,7 +87,7 @@ public class MBassador<T> extends AbstractPubSubSupport<T> implements IMessageBu
      * @param message
      */
     @Override
-    public void publish(T message) {
+    public void publish(Object message) {
         try {
             publishMessage(message);
         } catch (Throwable e) {
@@ -108,7 +108,7 @@ public class MBassador<T> extends AbstractPubSubSupport<T> implements IMessageBu
      * @return A message publication that can be used to access information about it's state
      */
     @Override
-    public void publishAsync(T message) {
+    public void publishAsync(Object message) {
         try {
             this.pendingMessages.put(message);
         } catch (InterruptedException e) {
@@ -127,7 +127,7 @@ public class MBassador<T> extends AbstractPubSubSupport<T> implements IMessageBu
      * @return A message publication that wraps up the publication request
      */
     @Override
-    public void publishAsync(T message, long timeout, TimeUnit unit) {
+    public void publishAsync(Object message, long timeout, TimeUnit unit) {
         try {
             this.pendingMessages.offer(message, timeout, unit);
         } catch (InterruptedException e) {

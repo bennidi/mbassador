@@ -18,7 +18,7 @@ public class AsyncFIFOBusTest extends MessageBusTest {
     @Test
     public void testSingleThreadedSyncFIFO(){
         // create a fifo bus with 1000 concurrently subscribed listeners
-        IMessageBus<Integer> fifoBUs = new MBassador<Integer>();
+        IMessageBus fifoBUs = new MBassador();
 
         List<Listener> listeners = new LinkedList<Listener>();
         for(int i = 0; i < 1000 ; i++){
@@ -53,7 +53,7 @@ public class AsyncFIFOBusTest extends MessageBusTest {
     @Test
     public void testSingleThreadedSyncAsyncFIFO(){
         // create a fifo bus with 1000 concurrently subscribed listeners
-        IMessageBus<Integer> fifoBUs = new MBassador<Integer>(1);
+        IMessageBus fifoBUs = new MBassador(1);
 
         List<Listener> listeners = new LinkedList<Listener>();
         for(int i = 0; i < 1000 ; i++){

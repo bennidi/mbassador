@@ -36,7 +36,7 @@ public class MetadataReader {
         // but an overriding method does inherit the listener configuration of the overwritten method
         for (Method handler : bottomMostHandlers) {
             Handler handlerConfig = ReflectionUtils.getAnnotation( handler, Handler.class);
-            if (!handlerConfig.enabled() || !isValidMessageHandler(handler)) {
+            if (handlerConfig == null || !handlerConfig.enabled()) {
                 continue; // disabled or invalid listeners are ignored
             }
 
@@ -52,22 +52,4 @@ public class MetadataReader {
         }
         return listenerMetadata;
     }
-
-
-
-//TODO: change this to support MORE THAN ONE object in the signature
-    private boolean isValidMessageHandler(Method handler) {
-        if (handler == null || ReflectionUtils.getAnnotation( handler, Handler.class) == null) {
-            return false;
-        }
-        if (handler.getParameterTypes().length != 1) {
-            // a messageHandler only defines one parameter (the message)
-            System.out.println("Found no or more than one parameter in messageHandler [" + handler.getName()
-                    + "]. A messageHandler must define exactly one parameter");
-            return false;
-        }
-
-        return true;
-    }
-
 }

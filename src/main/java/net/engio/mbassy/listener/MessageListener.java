@@ -2,7 +2,6 @@ package net.engio.mbassy.listener;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -42,22 +41,8 @@ public class MessageListener {
         return this.handlers.add(messageHandler);
     }
 
-    public List<MessageHandler> getHandlers(){
+    public List<MessageHandler> getHandlers() {
         return this.handlers;
-    }
-
-    public List<MessageHandler> getHandlers(Class<?> messageType) {
-        List<MessageHandler> matching = new LinkedList<MessageHandler>();
-        for (MessageHandler handler : this.handlers) {
-            if (handler.handlesMessage(messageType)) {
-                matching.add(handler);
-            }
-        }
-        return matching;
-    }
-
-    public boolean handles(Class<?> messageType) {
-        return !getHandlers(messageType).isEmpty();
     }
 
     public Class<?> getListerDefinition() {

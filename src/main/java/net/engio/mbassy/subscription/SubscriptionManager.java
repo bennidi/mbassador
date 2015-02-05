@@ -35,15 +35,15 @@ public class SubscriptionManager {
     // all subscriptions per message type
     // this is the primary list for dispatching a specific message
     // write access is synchronized and happens only when a listener of a specific class is registered the first time
-    private final Map<Class<?>, Collection<Subscription>> subscriptionsPerMessage
-            = new HashMap<Class<?>, Collection<Subscription>>(50);
+//    private final Map<Class<?>, Collection<Subscription>> subscriptionsPerMessage = new HashMap<Class<?>, Collection<Subscription>>(50);
+    private final Map<Class<?>, Collection<Subscription>> subscriptionsPerMessage = new HashMap<Class<?>, Collection<Subscription>>(50);
+
 
     // all subscriptions per messageHandler type
     // this map provides fast access for subscribing and unsubscribing
     // write access is synchronized and happens very infrequently
     // once a collection of subscriptions is stored it does not change
-    private final Map<Class<?>, Collection<Subscription>> subscriptionsPerListener
-            = new HashMap<Class<?>, Collection<Subscription>>(50);
+    private final Map<Class<?>, Collection<Subscription>> subscriptionsPerListener = new HashMap<Class<?>, Collection<Subscription>>(50);
 
     // remember already processed classes that do not contain any message handlers
     private final ConcurrentHashMap<Class<?>, Object> nonListeners = new ConcurrentHashMap<Class<?>, Object>();
@@ -88,23 +88,26 @@ public class SubscriptionManager {
             Class<? extends Object> listenerClass = listener.getClass();
 
             if (this.nonListeners.contains(listenerClass)) {
-                return; // early reject of known classes that do not define message handlers
+                // early reject of known classes that do not define message handlers
+                return;
             }
 
             Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
             // a listener is either subscribed for the first time
             if (subscriptionsByListener == null) {
                 List<MessageHandler> messageHandlers = this.metadataReader.getMessageListener(listenerClass).getHandlers();
-                if (messageHandlers.isEmpty()) {  // remember the class as non listening class if no handlers are found
+                if (messageHandlers.isEmpty()) {
+                    // remember the class as non listening class if no handlers are found
                     this.nonListeners.put(listenerClass, this.nonListeners);
                     return;
                 }
-                subscriptionsByListener = new ArrayList<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
+
+                // it's safe to use non-concurrent collection here (read only)
+                subscriptionsByListener = new ArrayList<Subscription>(messageHandlers.size());
 
                 // create subscriptions for all detected message handlers
                 for (MessageHandler messageHandler : messageHandlers) {
                     // create the subscription
-
                     try {
                         IHandlerInvocation invocation = new ReflectiveHandlerInvocation();
 
@@ -122,13 +125,13 @@ public class SubscriptionManager {
                 // this will acquire a write lock and handle the case when another thread already subscribed
                 // this particular listener in the mean-time
                 subscribe(listener, subscriptionsByListener);
-            } // or the subscriptions already exist and must only be updated
+            }
             else {
+                // or the subscriptions already exist and must only be updated
                 for (Subscription sub : subscriptionsByListener) {
                     sub.subscribe(listener);
                 }
             }
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -164,9 +167,13 @@ public class SubscriptionManager {
         } finally {
             this.readWriteLock.writeLock().unlock();
         }
-
-
     }
+
+
+
+
+
+    // TODO: convert this to have N number of message types
 
     // obtain the set of subscriptions for the given message type
     // Note: never returns null!

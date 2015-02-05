@@ -14,10 +14,8 @@ import net.engio.mbassy.subscription.SubscriptionManager;
 
 /**
  * The base class for all message bus implementations.
- *
- * @param <T>
  */
-public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T>, ErrorHandlingSupport {
+public abstract class AbstractPubSubSupport implements PubSubSupport, ErrorHandlingSupport {
 
     // error handling is first-class functionality
     // this handler will receive all errors that occur during message dispatch or message handling
@@ -54,9 +52,11 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T>, Erro
         }
     }
 
-    protected void publishMessage(T message) {
-        Class<? extends Object> class1 = message.getClass();
-        Collection<Subscription> subscriptions = getSubscriptionsByMessageType(class1);
+    protected void publishMessage(Object message) {
+        Class<? extends Object> messageClass = message.getClass();
+
+        // TODO: convert this to have N number of message types
+        Collection<Subscription> subscriptions = getSubscriptionsByMessageType(messageClass);
 
         if (subscriptions == null || subscriptions.isEmpty()) {
             // Dead Event
@@ -78,7 +78,7 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T>, Erro
 
             // if the message did not have any listener/handler accept it
             if (!success) {
-                if (!isDeadEvent(message)) {
+                if (!DeadMessage.class.equals(messageClass.getClass())) {
                     // Dead Event
                     subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
                     DeadMessage deadMessage = new DeadMessage(message);
@@ -91,10 +91,8 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T>, Erro
         }
     }
 
-    private final boolean isDeadEvent(Object message) {
-        return DeadMessage.class.equals(message.getClass());
-    }
 
+    // TODO: convert this to have N number of message types
 
     // obtain the set of subscriptions for the given message type
     // Note: never returns null!

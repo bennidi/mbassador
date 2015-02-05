@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
  * handlers will be registered and start to receive matching message publications.
  *
  */
-public interface PubSubSupport<T> {
+public interface PubSubSupport {
 
     /**
      * Subscribe all handlers of the given listener. Any listener is only subscribed once
@@ -39,7 +39,7 @@ public interface PubSubSupport<T> {
      *
      * @param message
      */
-    void publish(T message);
+    void publish(Object message);
 
 
     /**
@@ -49,7 +49,7 @@ public interface PubSubSupport<T> {
      * If an unbound queuing strategy is used the call returns immediately.
      * If a bounded queue is used the call might block until the message can be placed in the queue.
      */
-    void publishAsync(T message);
+    void publishAsync(Object message);
 
     /**
      * Execute the message publication asynchronously. The behavior of this method depends on the
@@ -59,5 +59,5 @@ public interface PubSubSupport<T> {
      * If a bounded queue is used the call will block until the message can be placed in the queue
      * or the timeout is reached.
      */
-    void publishAsync(T message, long timeout, TimeUnit unit);
+    void publishAsync(Object message, long timeout, TimeUnit unit);
 }

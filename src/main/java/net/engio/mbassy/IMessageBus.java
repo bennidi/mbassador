@@ -55,7 +55,7 @@ import net.engio.mbassy.bus.error.ErrorHandlingSupport;
  * @Author bennidi
  * Date: 2/8/12
  */
-public interface IMessageBus<T> extends PubSubSupport<T>, ErrorHandlingSupport {
+public interface IMessageBus extends PubSubSupport, ErrorHandlingSupport {
 
     /**
      * Check whether any asynchronous message publications are pending to be processed
