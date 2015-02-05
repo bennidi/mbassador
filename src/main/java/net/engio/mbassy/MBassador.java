@@ -80,12 +80,6 @@ public class MBassador extends AbstractPubSubSupport implements IMessageBus {
     }
 
 
-    /**
-     * Synchronously publish a message to all registered listeners (this includes listeners defined for super types)
-     * The call blocks until every messageHandler has processed the message.
-     *
-     * @param message
-     */
     @Override
     public void publish(Object message) {
         try {
@@ -98,15 +92,6 @@ public class MBassador extends AbstractPubSubSupport implements IMessageBus {
         }
     }
 
-    /**
-     * Execute the message publication asynchronously. The behavior of this method depends on the
-     * configured queuing strategy:
-     * <p/>
-     * If an unbound queuing strategy is used the call returns immediately.
-     * If a bounded queue is used the call might block until the message can be placed in the queue.
-     *
-     * @return A message publication that can be used to access information about it's state
-     */
     @Override
     public void publishAsync(Object message) {
         try {
@@ -116,18 +101,8 @@ public class MBassador extends AbstractPubSubSupport implements IMessageBus {
         }
     }
 
-    /**
-     * Execute the message publication asynchronously. The behaviour of this method depends on the
-     * configured queuing strategy:
-     * <p/>
-     * If an unbound queuing strategy is used the call returns immediately.
-     * If a bounded queue is used the call will block until the message can be placed in the queue
-     * or the timeout is reached.
-     *
-     * @return A message publication that wraps up the publication request
-     */
     @Override
-    public void publishAsync(Object message, long timeout, TimeUnit unit) {
+    public void publishAsync(long timeout, TimeUnit unit, Object message) {
         try {
             this.pendingMessages.offer(message, timeout, unit);
         } catch (InterruptedException e) {
