@@ -52,7 +52,7 @@ public abstract class AbstractPubSubSupport implements PubSubSupport, ErrorHandl
         }
     }
 
-    protected void publishMessage(Object message) {
+    public void publishMessage(Object message) {
         Class<? extends Object> messageClass = message.getClass();
 
         // TODO: convert this to have N number of message types
