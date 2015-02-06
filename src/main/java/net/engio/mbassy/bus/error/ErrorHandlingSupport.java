@@ -1,6 +1,5 @@
 package net.engio.mbassy.bus.error;
 
-import java.util.Collection;
 
 
 public interface ErrorHandlingSupport {
@@ -10,19 +9,8 @@ public interface ErrorHandlingSupport {
      * may not be accessible due to security constraints or is not annotated properly.
      * In any of all possible cases a publication error is created and passed to each of the registered error handlers.
      * A call to this method will add the given error handler to the chain
-     *
-     * @param errorHandler
      */
     void addErrorHandler(IPublicationErrorHandler errorHandler);
 
     void handlePublicationError(PublicationError error);
-
-
-    /**
-     * Returns an immutable collection containing all the registered error handlers
-     *
-     * @return
-     */
-    Collection<IPublicationErrorHandler> getRegisteredErrorHandlers();
-
 }

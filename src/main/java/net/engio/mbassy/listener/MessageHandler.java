@@ -22,6 +22,7 @@ public class MessageHandler {
     private final boolean acceptsSubtypes;
     private final MessageListener listenerConfig;
 
+    private final boolean acceptsVarArg;
     private final boolean isSynchronized;
 
     public MessageHandler(Method handler, Handler handlerConfig, MessageListener listenerMetadata){
@@ -37,6 +38,7 @@ public class MessageHandler {
         this.handler         = handler;
         this.acceptsSubtypes = !handlerConfig.rejectSubtypes();
         this.listenerConfig  = listenerMetadata;
+        this.acceptsVarArg   = handlerConfig.vararg();
         this.isSynchronized  = ReflectionUtils.getAnnotation(handler, Synchronized.class) != null;
         this.handledMessages = handledMessages;
     }
@@ -62,261 +64,6 @@ public class MessageHandler {
     }
 
     // todo: have 1, 2, 3 versions
-//    /**
-//     * @return true if the message types are handled
-//     */
-//    public boolean handlesMessage(Class<?> requiredMessageType, Class<?>... optionalMessageTypes) {
-//        // have to check ALL of the handled messages
-//
-//        Class<?>[] handledMessages = this.handledMessages;
-//        // handle var-args
-//        if (handledMessages.length == 1 && handledMessages[0].isArray()) {
-//            Class<?> componentType = handledMessages[0].getComponentType();
-//
-//            // is requiredMessageType var-arg?
-//            if ((optionalMessageTypes == null || optionalMessageTypes.length == 0) &&
-//                requiredMessageType.isArray()) {
-//
-//                // only var-arg -> var-arg
-//                return requiredMessageType.getComponentType() == componentType;
-//            }
-//
-//            // otherwise, it's not a var-arg (but it still might be an array!)
-//
-//            // fast exit
-//            if (requiredMessageType != componentType) {
-//                return false;
-//            }
-//
-//            // only using 1 arg
-//            if (optionalMessageTypes == null || optionalMessageTypes.length == 0) {
-//                return true;
-//            }
-//
-//            // are the OPTIONAL arrays of same type??
-//            if (optionalMessageTypes[0] != componentType) {
-//                return false;
-//            }
-//
-//            boolean ofSameType = true;
-//            Class<?> typeCheck = optionalMessageTypes[0];
-//            for (int i = 1; i < optionalMessageTypes.length; i++) {
-//                Class<?> t1 = optionalMessageTypes[i];
-//                if (t1 != typeCheck) {
-//                    ofSameType = false;
-//                    break;
-//                }
-//            }
-//
-//            return ofSameType && typeCheck == componentType;
-//        } else {
-//            // is requiredMessageType var-arg?
-//            if ((optionalMessageTypes == null || optionalMessageTypes.length == 0) &&
-//                requiredMessageType.isArray()) {
-//
-//                // only var-arg -> var-arg (handler var-arg is first check)
-//                return false;
-//            }
-//
-//            // otherwise, it's not a var-arg (but it still might be an array!)
-//
-//
-//            // fast exit
-//            if (requiredMessageType != this.handledMessages[0]) {
-//                return false;
-//            }
-//
-//            int length = this.handledMessages.length;
-//            // is arg2 var-arg?
-//            if (length == 2 && this.handledMessages[1].isArray()) {
-//                Class<?> componentType = handledMessages[1].getComponentType();
-//
-//                // are they BOTH arrays of same type??
-//                if (optionalMessageTypes.length == 1) {
-//                    return optionalMessageTypes[0] == componentType;
-//                }
-//
-//                boolean ofSameType = true;
-//                Class<?> typeCheck = optionalMessageTypes[0];
-//                for (int i = 1; i < optionalMessageTypes.length; i++) {
-//                    Class<?> t1 = optionalMessageTypes[i];
-//                    if (t1 != typeCheck) {
-//                        ofSameType = false;
-//                        break;
-//                    }
-//                }
-//
-//                return ofSameType && typeCheck == componentType;
-//            }
-//
-//            // fast exit (check arg2)
-//            if (optionalMessageTypes.length + 1 != length) {
-//                return false;
-//            }
-//
-//            // slow check
-//            if (this.acceptsSubtypes) {
-//                for (int i = 0; i < optionalMessageTypes.length; i++) {
-//                    Class<?> messageType = optionalMessageTypes[i];
-//                    Class<?> handledMessage = this.handledMessages[i+1];
-//
-//                    if (!handledMessage.isAssignableFrom(messageType)) {
-//                        return false;
-//                    }
-//                }
-//
-//                return true;
-//            } else {
-//                for (int i = 0; i < optionalMessageTypes.length; i++) {
-//                    Class<?> messageType = optionalMessageTypes[i];
-//                    Class<?> handledMessage = this.handledMessages[i+1];
-//
-//                    if (handledMessage != messageType) {
-//                        return false;
-//                    }
-//                }
-//
-//                return true;
-//            }
-//        }
-//    }
-
-//    /**
-//     * @return true if the message types are handled
-//     */
-//    public boolean handlesMessage(Class<?>... messageTypes) {
-//        // have to check ALL of the handled messages
-//
-//        Class<?>[] handledMessages = this.handledMessages;
-//        // handle var-args
-//        int length = handledMessages.length;
-//
-//        if (length == 1 && handledMessages[0].isArray()) {
-//            Class<?> componentType = handledMessages[0].getComponentType();
-//
-//            // are they BOTH arrays of same type??
-//            if (messageTypes.length == 1) {
-//                return messageTypes[0].getComponentType() == componentType;
-//            }
-//
-//            boolean ofSameType = true;
-//            Class<?> typeCheck = messageTypes[0];
-//            for (int i = 1; i < messageTypes.length; i++) {
-//                Class<?> t1 = messageTypes[i];
-//                if (t1 != typeCheck) {
-//                    ofSameType = false;
-//                    break;
-//                }
-//            }
-//
-//            return ofSameType && typeCheck == componentType;
-//        } else {
-//            // is the last handler a var-arg?
-//            if (handledMessages[length-1].isArray()) {
-//
-//                // handler var-arg starting position
-//                int handlerVA_startsAt = length-1;
-//
-//                // do they match up to the point var-args start?
-//                if (messageTypes.length >= handlerVA_startsAt) {
-//                    if (this.acceptsSubtypes) {
-//                        for (int i = 1; i < length-1; i++) {
-//                            Class<?> messageType = messageTypes[i];
-//                            Class<?> handledMessage = handledMessages[i];
-//
-//                            if (!handledMessage.isAssignableFrom(messageType)) {
-//                                return false;
-//                            }
-//                        }
-//                    } else {
-//                        for (int i = 1; i < length-1; i++) {
-//                            Class<?> messageType = messageTypes[i];
-//                            Class<?> handledMessage = handledMessages[i];
-//
-//                            if (handledMessage != messageType) {
-//                                return false;
-//                            }
-//                        }
-//                    }
-//
-//                    // they matched so far, do we have something for the handler var-arg?
-//                    if (messageTypes.length == handlerVA_startsAt) {
-//                        // nothing for var-arg check
-//                        return true;
-//                    }
-//
-//                    // need var-arg check
-//
-//                    // how many vars in the messageType need to be checked?
-//
-//
-//                    Class<?> varArgCheckType = handledMessages[length-1].getComponentType();
-//
-//                    // are they BOTH arrays of same type??
-//                    if (messageTypes.length messageTypes[handlerVA_startsAt].isArray()) {
-//                        return messageTypes[handlerVA_startsAt].getComponentType() == varArgCheckType;
-//                    }
-//
-//                    boolean ofSameType = true;
-//                    Class<?> typeCheck = messageTypes[0];
-//                    for (int i = 1; i < messageTypes.length; i++) {
-//                        Class<?> t1 = messageTypes[i];
-//                        if (t1 != typeCheck) {
-//                            ofSameType = false;
-//                            break;
-//                        }
-//                    }
-//
-//                    return ofSameType && typeCheck == varArgCheckType;
-//
-//                }
-//
-//
-//
-//
-//
-//
-//
-//
-//            }
-//
-//
-//            // fast exit
-//            if (messageTypes.length != length) {
-//                return false;
-//            }
-//
-//            // fast check
-//            if (Arrays.equals(handledMessages, messageTypes)) {
-//                return true;
-//            }
-//
-//            // slow check
-//            if (this.acceptsSubtypes) {
-//                for (int i = 0; i < length; i++) {
-//                    Class<?> handledMessage = handledMessages[i];
-//                    Class<?> messageType = messageTypes[i];
-//
-//                    if (!handledMessage.isAssignableFrom(messageType)) {
-//                        return false;
-//                    }
-//                }
-//
-//                return true;
-//            } else {
-//                for (int i = 0; i < length; i++) {
-//                    Class<?> handledMessage = handledMessages[i];
-//                    Class<?> messageType = messageTypes[i];
-//
-//                    if (handledMessage != messageType) {
-//                        return false;
-//                    }
-//                }
-//
-//                return true;
-//            }
-//        }
-//    }
 
 
     /**
@@ -425,8 +172,8 @@ public class MessageHandler {
         }
     }
 
-
-    public boolean acceptsSubtypes() {
-        return this.acceptsSubtypes;
+    /** Check if this handler permits sending objects as a VarArg (variable argument) */
+    public boolean isVarArg() {
+        return this.acceptsVarArg;
     }
 }

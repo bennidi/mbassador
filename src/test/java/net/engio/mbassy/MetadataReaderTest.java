@@ -1,5 +1,6 @@
 package net.engio.mbassy;
 
+import java.io.BufferedReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,45 +24,45 @@ public class MetadataReaderTest extends AssertSupport {
 
     private MetadataReader reader = new MetadataReader();
 
-//    @Test
-//    public void testListenerWithoutInheritance() {
-//        MessageListener listener = this.reader.getMessageListener(MessageListener1.class);
-//        ListenerValidator validator = new ListenerValidator()
-//                .expectHandlers(2, String.class)
-//                .expectHandlers(2, Object.class)
-//                .expectHandlers(1, BufferedReader.class);
-//        validator.check(listener);
-//    }
-//
-//    /*
-//    public void testInterfaced() {
-//        MessageListener listener = reader.getMessageListener(InterfacedListener.class);
-//        ListenerValidator validator = new ListenerValidator()
-//                .expectHandlers(1, Object.class);
-//        validator.check(listener);
-//    }  WIP */
-//
-//
-//    @Test
-//    public void testListenerWithInheritance() {
-//        MessageListener listener = this.reader.getMessageListener(MessageListener2.class);
-//        ListenerValidator validator = new ListenerValidator()
-//                .expectHandlers(2, String.class)
-//                .expectHandlers(2, Object.class)
-//                .expectHandlers(1, BufferedReader.class);
-//        validator.check(listener);
-//    }
-//
-//    @Test
-//    public void testListenerWithInheritanceOverriding() {
-//        MessageListener listener = this.reader.getMessageListener(MessageListener3.class);
-//
-//        ListenerValidator validator = new ListenerValidator()
-//                .expectHandlers(0, String.class)
-//                .expectHandlers(2, Object.class)
-//                .expectHandlers(0, BufferedReader.class);
-//        validator.check(listener);
-//    }
+    @Test
+    public void testListenerWithoutInheritance() {
+        MessageListener listener = this.reader.getMessageListener(MessageListener1.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(2, String.class)
+                .expectHandlers(2, Object.class)
+                .expectHandlers(1, BufferedReader.class);
+        validator.check(listener);
+    }
+
+    /*
+    public void testInterfaced() {
+        MessageListener listener = reader.getMessageListener(InterfacedListener.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, Object.class);
+        validator.check(listener);
+    }  WIP */
+
+
+    @Test
+    public void testListenerWithInheritance() {
+        MessageListener listener = this.reader.getMessageListener(MessageListener2.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(2, String.class)
+                .expectHandlers(2, Object.class)
+                .expectHandlers(1, BufferedReader.class);
+        validator.check(listener);
+    }
+
+    @Test
+    public void testListenerWithInheritanceOverriding() {
+        MessageListener listener = this.reader.getMessageListener(MessageListener3.class);
+
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(0, String.class)
+                .expectHandlers(2, Object.class)
+                .expectHandlers(0, BufferedReader.class);
+        validator.check(listener);
+    }
 
     public static class NClasses {
         final Class<?>[] messageTypes;

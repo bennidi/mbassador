@@ -39,27 +39,26 @@ public interface PubSubSupport {
      */
     void publish(Object message);
 
-//    /**
-//     * Synchronously publish <b>TWO</b> messages to all registered listeners (that match the signature). This includes listeners
-//     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-//     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
-//     */
-//    void publish(Object message1, Object message2);
-//
-//    /**
-//     * Synchronously publish <b>THREE</b> messages to all registered listeners (that match the signature). This includes listeners
-//     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-//     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
-//     */
-//    void publish(Object message1, Object message2, Object message3);
-//
-//    /**
-//     * Synchronously publish <b>ARBITRARY</b> messages to all registered listeners (that match the signature). This includes listeners
-//     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-//     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
-//     */
-//    void publish(Object... messages);
+    /**
+     * Synchronously publish <b>TWO</b> messages to all registered listeners (that match the signature). This includes listeners
+     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
+     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
+     */
+    void publish(Object message1, Object message2);
 
+    /**
+     * Synchronously publish <b>THREE</b> messages to all registered listeners (that match the signature). This includes listeners
+     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
+     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
+     */
+    void publish(Object message1, Object message2, Object message3);
+
+    /**
+     * Synchronously publish <b>ARBITRARY</b> messages to all registered listeners (that match the signature). This includes listeners
+     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
+     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
+     */
+    void publish(Object... messages);
 
 
 

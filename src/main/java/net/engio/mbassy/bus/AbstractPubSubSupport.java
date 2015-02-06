@@ -1,8 +1,8 @@
 package net.engio.mbassy.bus;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import net.engio.mbassy.PubSubSupport;
@@ -29,8 +29,10 @@ public abstract class AbstractPubSubSupport implements PubSubSupport, ErrorHandl
     }
 
     @Override
-    public Collection<IPublicationErrorHandler> getRegisteredErrorHandlers() {
-        return Collections.unmodifiableCollection(this.errorHandlers);
+    public final void handlePublicationError(PublicationError error) {
+        for (IPublicationErrorHandler errorHandler : this.errorHandlers) {
+            errorHandler.handleError(error);
+        }
     }
 
     @Override
@@ -53,35 +55,39 @@ public abstract class AbstractPubSubSupport implements PubSubSupport, ErrorHandl
     }
 
     public void publishMessage(Object message) {
-        Class<? extends Object> messageClass = message.getClass();
+        Class<?> messageClass = message.getClass();
 
-        // TODO: convert this to have N number of message types
-        Collection<Subscription> subscriptions = getSubscriptionsByMessageType(messageClass);
+        SubscriptionManager manager = this.subscriptionManager;
+        Collection<Subscription> subscriptions = manager.getSubscriptionsByMessageType(messageClass);
 
         if (subscriptions == null || subscriptions.isEmpty()) {
             // Dead Event
-            subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
-            DeadMessage deadMessage = new DeadMessage(message);
+            subscriptions = manager.getSubscriptionsByMessageType(DeadMessage.class);
+            DeadMessage deadMessage = new DeadMessage(new Object[] {message});
 
             for (Subscription sub : subscriptions) {
                 sub.publishToSubscription(this, deadMessage);
             }
         } else {
-            boolean delivered = false;
-            boolean success = false;
             for (Subscription sub : subscriptions) {
-                delivered = sub.publishToSubscription(this, message);
-                if (delivered) {
-                    success = true;
+                Object msg = message;
+                if (sub.isVarArg()) {
+                    if (!message.getClass().isArray()) {
+                        // messy, but the ONLY way to do it.
+                        Object[] vararg = (Object[]) Array.newInstance(message.getClass(), 1);
+                        vararg[0] = message;
+                        msg = vararg;
+                    }
                 }
+                sub.publishToSubscription(this, msg);
             }
 
             // if the message did not have any listener/handler accept it
-            if (!success) {
+            if (subscriptions.isEmpty()) {
                 if (!DeadMessage.class.equals(messageClass.getClass())) {
                     // Dead Event
-                    subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
-                    DeadMessage deadMessage = new DeadMessage(message);
+                    subscriptions = manager.getSubscriptionsByMessageType(DeadMessage.class);
+                    DeadMessage deadMessage = new DeadMessage(new Object[] {message});
 
                     for (Subscription sub : subscriptions) {
                         sub.publishToSubscription(this, deadMessage);
@@ -91,20 +97,149 @@ public abstract class AbstractPubSubSupport implements PubSubSupport, ErrorHandl
         }
     }
 
+    // cannot have DeadMessage published to this!
+    public void publishMessage(Object message1, Object message2) {
+        Class<?> messageClass1 = message1.getClass();
+        Class<?> messageClass2 = message2.getClass();
 
-    // TODO: convert this to have N number of message types
+        SubscriptionManager manager = this.subscriptionManager;
+        Collection<Subscription> subscriptions = manager.getSubscriptionsByMessageType(messageClass1, messageClass2);
 
-    // obtain the set of subscriptions for the given message type
-    // Note: never returns null!
-    protected Collection<Subscription> getSubscriptionsByMessageType(Class<?> messageType) {
-        return this.subscriptionManager.getSubscriptionsByMessageType(messageType);
+        if (subscriptions == null || subscriptions.isEmpty()) {
+            // Dead Event
+            subscriptions = manager.getSubscriptionsByMessageType(DeadMessage.class);
+            DeadMessage deadMessage = new DeadMessage(new Object[] {message1, message2});
+
+            for (Subscription sub : subscriptions) {
+                sub.publishToSubscription(this, deadMessage);
+            }
+        } else {
+            for (Subscription sub : subscriptions) {
+                boolean handled = false;
+                if (sub.isVarArg()) {
+                    Class<?> class1 = message1.getClass();
+                    Class<?> class2 = message2.getClass();
+                    if (!class1.isArray() && class1 == class2) {
+                        // messy, but the ONLY way to do it.
+                        Object[] vararg = (Object[]) Array.newInstance(class1.getClass(), 2);
+                        vararg[0] = message1;
+                        vararg[1] = message2;
+
+                        handled = true;
+                        sub.publishToSubscription(this, vararg);
+                    }
+                }
+
+                if (!handled) {
+                    sub.publishToSubscription(this, message1, message2);
+                }
+            }
+
+            // if the message did not have any listener/handler accept it
+            if (subscriptions.isEmpty()) {
+                // cannot have DeadMessage published to this, so no extra check necessary
+                // Dead Event
+                subscriptions = manager.getSubscriptionsByMessageType(DeadMessage.class);
+                DeadMessage deadMessage = new DeadMessage(new Object[] {message1, message2});
+
+                for (Subscription sub : subscriptions) {
+                    sub.publishToSubscription(this, deadMessage);
+                }
+            }
+        }
     }
 
+    // cannot have DeadMessage published to this!
+    public void publishMessage(Object message1, Object message2, Object message3) {
+        Class<?> messageClass1 = message1.getClass();
+        Class<?> messageClass2 = message2.getClass();
+        Class<?> messageClass3 = message3.getClass();
 
-    @Override
-    public final void handlePublicationError(PublicationError error) {
-        for (IPublicationErrorHandler errorHandler : this.errorHandlers) {
-            errorHandler.handleError(error);
+        SubscriptionManager manager = this.subscriptionManager;
+        Collection<Subscription> subscriptions = manager.getSubscriptionsByMessageType(messageClass1, messageClass2, messageClass3);
+
+        if (subscriptions == null || subscriptions.isEmpty()) {
+            // Dead Event
+            subscriptions = manager.getSubscriptionsByMessageType(DeadMessage.class);
+            DeadMessage deadMessage = new DeadMessage(new Object[] {message1, message2, message3});
+
+            for (Subscription sub : subscriptions) {
+                sub.publishToSubscription(this, deadMessage);
+            }
+        } else {
+            for (Subscription sub : subscriptions) {
+                boolean handled = false;
+                if (sub.isVarArg()) {
+                    Class<?> class1 = message1.getClass();
+                    Class<?> class2 = message2.getClass();
+                    Class<?> class3 = message3.getClass();
+                    if (!class1.isArray() && class1 == class2 && class2 == class3) {
+                        // messy, but the ONLY way to do it.
+                        Object[] vararg = (Object[]) Array.newInstance(class1.getClass(), 3);
+                        vararg[0] = message1;
+                        vararg[1] = message2;
+                        vararg[2] = message3;
+
+                        handled = true;
+                        sub.publishToSubscription(this, vararg);
+                    }
+                }
+
+                if (!handled) {
+                    sub.publishToSubscription(this, message1, message2, message3);
+                }
+            }
+
+            // if the message did not have any listener/handler accept it
+            if (subscriptions.isEmpty()) {
+                // cannot have DeadMessage published to this, so no extra check necessary
+                // Dead Event
+                subscriptions = manager.getSubscriptionsByMessageType(DeadMessage.class);
+                DeadMessage deadMessage = new DeadMessage(new Object[] {message1, message2});
+
+                for (Subscription sub : subscriptions) {
+                    sub.publishToSubscription(this, deadMessage);
+                }
+            }
+        }
+    }
+
+    // cannot have DeadMessage published to this!
+    public void publishMessage(Object... messages) {
+        int size = messages.length;
+        Class<?>[] messageClasses = new Class[size];
+        for (int i=0;i<size;i++) {
+            messageClasses[i] = messages[i].getClass();
+        }
+
+        SubscriptionManager manager = this.subscriptionManager;
+        Collection<Subscription> subscriptions = manager.getSubscriptionsByMessageType(messageClasses);
+
+        if (subscriptions == null || subscriptions.isEmpty()) {
+            // Dead Event
+            subscriptions = manager.getSubscriptionsByMessageType(DeadMessage.class);
+            DeadMessage deadMessage = new DeadMessage(messages);
+
+            for (Subscription sub : subscriptions) {
+                sub.publishToSubscription(this, deadMessage);
+            }
+        } else {
+            for (Subscription sub : subscriptions) {
+                sub.publishToSubscription(this, messages);
+            }
+
+            // if the message did not have any listener/handler accept it
+            if (subscriptions.isEmpty()) {
+                // cannot have DeadMessage published to this, so no extra check necessary
+                // Dead Event
+
+                subscriptions = manager.getSubscriptionsByMessageType(DeadMessage.class);
+                DeadMessage deadMessage = new DeadMessage(messages);
+
+                for (Subscription sub : subscriptions) {
+                    sub.publishToSubscription(this, deadMessage);
+                }
+            }
         }
     }
 }

@@ -10,14 +10,14 @@ package net.engio.mbassy.bus;
  */
 public final class DeadMessage {
 
-    private Object relatedMessage;
+    private Object[] relatedMessages;
 
 
-    DeadMessage(Object message) {
-        this.relatedMessage = message;
+    DeadMessage(Object[] messages) {
+        this.relatedMessages = messages;
     }
 
-    public Object getMessage() {
-        return this.relatedMessage;
+    public Object[] getMessages() {
+        return this.relatedMessages;
     }
 }

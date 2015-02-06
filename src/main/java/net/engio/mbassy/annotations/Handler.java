@@ -24,11 +24,20 @@ public @interface Handler {
      */
     boolean rejectSubtypes() default false;
 
-
     /**
      * Enable or disable the handler. Disabled handlers do not receive any messages.
      * This property is useful for quick changes in configuration and necessary to disable
      * handlers that have been declared by a superclass but do not apply to the subclass
      */
     boolean enabled() default true;
+
+    /**
+     * Var-Arg. Should this handler accept variable arguments?
+     * <p>
+     * IE: should <b>foo</b> get dispatched to a handler registered as: <b>blah(String... args){}</b>
+     * <p>
+     * <p>
+     * <b>Normally</b> the only message to be received would be <b>new String[]{"boo", "bar"}</b>
+     */
+    boolean vararg() default false;
 }

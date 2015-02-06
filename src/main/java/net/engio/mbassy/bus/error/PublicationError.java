@@ -1,6 +1,7 @@
 package net.engio.mbassy.bus.error;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * Publication errors are created when object publication fails
@@ -19,39 +20,7 @@ public class PublicationError {
     private String message;
     private Method handler;
     private Object listener;
-    private Object publishedObject;
-
-
-    /**
-     * Compound constructor, creating a PublicationError from the supplied objects.
-     *
-     * @param cause           The Throwable giving rise to this PublicationError.
-     * @param message         The message to send.
-     * @param handler        The method where the error was created.
-     * @param listener The object in which the PublicationError was generated.
-     * @param publishedObject The published object which gave rise to the error.
-     */
-    public PublicationError(final Throwable cause,
-                            final String message,
-                            final Method handler,
-                            final Object listener,
-                            final Object publishedObject) {
-
-        this(cause, message, publishedObject);
-
-        this.handler = handler;
-        this.listener = listener;
-    }
-
-    public PublicationError(final Throwable cause,
-                            final String message,
-                            final Object messageObject) {
-        this.cause = cause;
-        this.message = message;
-        this.publishedObject = messageObject;
-    }
-
-
+    private Object[] publishedObjects;
 
 
     /**
@@ -106,12 +75,12 @@ public class PublicationError {
         return this;
     }
 
-    public Object getPublishedObject() {
-        return this.publishedObject;
+    public Object[] getPublishedObject() {
+        return this.publishedObjects;
     }
 
-    public PublicationError setPublishedObject(Object publishedObject) {
-        this.publishedObject = publishedObject;
+    public PublicationError setPublishedObject(Object[] publishedObjects) {
+        this.publishedObjects = publishedObjects;
         return this;
     }
 
@@ -131,7 +100,7 @@ public class PublicationError {
                 newLine +
                 "\tlistener=" + this.listener +
                 newLine +
-                "\tpublishedObject=" + this.publishedObject +
+                "\tpublishedObject=" + Arrays.deepToString(this.publishedObjects) +
                 '}';
     }
 }

@@ -68,6 +68,7 @@ public class ReflectionUtils
     public static Set<Class<?>> getSuperTypes(Class<?> from) {
         Set<Class<?>> superclasses = new HashSet<Class<?>>();
         collectInterfaces( from, superclasses );
+
         while ( !from.equals( Object.class ) && !from.isInterface() ) {
             superclasses.add( from.getSuperclass() );
             from = from.getSuperclass();

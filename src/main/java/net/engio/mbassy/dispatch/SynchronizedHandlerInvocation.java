@@ -16,14 +16,31 @@ public class SynchronizedHandlerInvocation implements IHandlerInvocation {
         this.delegate = delegate;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void invoke(final Object listener, final Object message, Method handler) throws Throwable {
-        synchronized (listener){
-            this.delegate.invoke(listener, message, handler);
+    public void invoke(final Object listener, Method handler, final Object message) throws Throwable {
+        synchronized (listener) {
+            this.delegate.invoke(listener, handler, message);
         }
     }
 
+    @Override
+    public void invoke(final Object listener, Method handler, final Object message1, final Object message2) throws Throwable {
+        synchronized (listener) {
+            this.delegate.invoke(listener, handler, message1, message2);
+        }
+    }
+
+    @Override
+    public void invoke(final Object listener, Method handler, final Object message1, final Object message2, final Object message3) throws Throwable {
+        synchronized (listener) {
+            this.delegate.invoke(listener, handler, message1, message2, message3);
+        }
+    }
+
+    @Override
+    public void invoke(final Object listener, Method handler, final Object... messages) throws Throwable {
+        synchronized (listener) {
+            this.delegate.invoke(listener, handler, messages);
+        }
+    }
 }

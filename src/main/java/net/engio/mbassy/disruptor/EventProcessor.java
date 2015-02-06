@@ -23,7 +23,10 @@ public class EventProcessor implements EventHandler<MessageHolder> {
             try {
                 this.publisher.publishMessage(event.message);
             } catch (Throwable t) {
-                this.publisher.handlePublicationError(new PublicationError(t, "Error in asynchronous dispatch", event.message));
+                this.publisher.handlePublicationError(new PublicationError()
+                                                            .setMessage("Error in asynchronous dispatch")
+                                                            .setCause(t)
+                                                            .setPublishedObject(new Object[] {event.message}));
             }
             event.message = null; // cleanup
         }

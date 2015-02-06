@@ -15,7 +15,22 @@ public class ReflectiveHandlerInvocation implements IHandlerInvocation {
     }
 
     @Override
-    public void invoke(final Object listener, final Object message, Method handler) throws Throwable {
+    public void invoke(final Object listener, Method handler, final Object message) throws Throwable {
         handler.invoke(listener, message);
+    }
+
+    @Override
+    public void invoke(final Object listener, Method handler, final Object message1, final Object message2) throws Throwable {
+        handler.invoke(listener, message1, message2);
+    }
+
+    @Override
+    public void invoke(final Object listener, Method handler, final Object message1, final Object message2, final Object message3) throws Throwable {
+        handler.invoke(listener, message1, message2, message3);
+    }
+
+    @Override
+    public void invoke(final Object listener, Method handler, final Object... messages) throws Throwable {
+        handler.invoke(listener, messages);
     }
 }

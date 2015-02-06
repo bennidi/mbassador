@@ -20,6 +20,8 @@ import org.junit.runners.Suite;
         SynchronizedHandlerTest.class,
         SubscriptionManagerTest.class,
         AsyncFIFOBusTest.class,
+        ObjectTreeTest.class,
+        MultiMessageTest.class,
 })
 public class AllTests {
 }

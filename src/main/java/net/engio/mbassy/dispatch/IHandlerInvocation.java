@@ -26,5 +26,38 @@ public interface IHandlerInvocation {
      *                 type that the handler consumes
      * @param handler  The handler (method) that will be called via reflection
      */
-    void invoke(Object listener, Object message, Method handler) throws Throwable;
+    void invoke(Object listener, Method handler, Object message) throws Throwable;
+
+    /**
+     * Invoke the message delivery logic of this handler
+     *
+     * @param listener The listener that will receive the message. This can be a reference to a method object
+     *                 from the java reflection api or any other wrapper that can be used to invoke the handler
+     * @param message  The message to be delivered to the handler. This can be any object compatible with the object
+     *                 type that the handler consumes
+     * @param handler  The handler (method) that will be called via reflection
+     */
+    void invoke(Object listener, Method handler, Object message1, Object message2) throws Throwable;
+
+    /**
+     * Invoke the message delivery logic of this handler
+     *
+     * @param listener The listener that will receive the message. This can be a reference to a method object
+     *                 from the java reflection api or any other wrapper that can be used to invoke the handler
+     * @param message  The message to be delivered to the handler. This can be any object compatible with the object
+     *                 type that the handler consumes
+     * @param handler  The handler (method) that will be called via reflection
+     */
+    void invoke(Object listener, Method handler, Object message1, Object message2, Object message3) throws Throwable;
+
+    /**
+     * Invoke the message delivery logic of this handler
+     *
+     * @param listener The listener that will receive the message. This can be a reference to a method object
+     *                 from the java reflection api or any other wrapper that can be used to invoke the handler
+     * @param message  The message to be delivered to the handler. This can be any object compatible with the object
+     *                 type that the handler consumes
+     * @param handler  The handler (method) that will be called via reflection
+     */
+    void invoke(Object listener, Method handler, Object... message) throws Throwable;
 }
