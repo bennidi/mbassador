@@ -24,15 +24,12 @@ import org.junit.Test;
  * @author bennidi
  *         Date: 2/8/12
  */
-public abstract class SyncBusTest extends MessageBusTest {
-
-
-    protected abstract IMessageBus getSyncMessageBus();
+public class SyncBusTest extends MessageBusTest {
 
     @Test
     public void testSynchronousMessagePublication() throws Exception {
 
-        final IMessageBus bus = getSyncMessageBus();
+        final IMessageBus bus = new MBassador().start();
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
                 .create(InstancesPerListener, IMessageListener.DisabledListener.class)
@@ -69,6 +66,8 @@ public abstract class SyncBusTest extends MessageBusTest {
         assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Multipart.getTimesHandled(IMessageListener.DefaultListener.class));
         assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.DefaultListener.class));
         assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Multipart.getTimesHandled(MessagesListener.DefaultListener.class));
+
+        bus.shutdown();
     }
 
 
@@ -83,7 +82,7 @@ public abstract class SyncBusTest extends MessageBusTest {
             }
         };
 
-        final IMessageBus bus = getSyncMessageBus();
+        final IMessageBus bus = new MBassador().start();
         bus.addErrorHandler(ExceptionCounter);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);
@@ -105,18 +104,10 @@ public abstract class SyncBusTest extends MessageBusTest {
         // multi threaded
         ConcurrentExecutor.runConcurrent(publish, ConcurrentUnits);
         assertEquals(InstancesPerListener * ConcurrentUnits, exceptionCount.get());
+
+        bus.shutdown();
     }
 
-
-    public static class MBassadorTest extends SyncBusTest {
-
-
-        @Override
-        protected IMessageBus getSyncMessageBus() {
-            return new MBassador().start();
-        }
-
-    }
 
     static class IncrementingMessage{
 

@@ -41,6 +41,166 @@ public class ObjectTree<KEY, VALUE> {
         WRITE.unlock();
     }
 
+    public void removeValue() {
+        Lock WRITE = this.lock.writeLock();
+        WRITE.lock();  // upgrade to the write lock, at this point blocks other readers
+
+        this.value = null;
+
+        WRITE.unlock();
+    }
+
+    /**
+     * Removes a branch from the tree, and cleans up, if necessary
+     */
+    public void remove(KEY key) {
+        if (key == null) {
+            removeLeaf(key);
+        }
+    }
+
+    /**
+     * Removes a branch from the tree, and cleans up, if necessary
+     */
+    public void remove(KEY key1, KEY key2) {
+        if (key1 == null || key2 == null) {
+            return;
+        }
+
+        Lock UPDATE = this.lock.updateLock();
+        UPDATE.lock(); // allows other readers, blocks others from acquiring update or write locks
+
+        ObjectTree<KEY, VALUE> leaf = null;
+        if (this.children != null) {
+            leaf = this.children.get(key1);
+
+            if (leaf != null) {
+                // promote to writelock and try again - Concurrency in Practice,16.4.2, last sentence on page. Careful for stale state
+                Lock WRITE = this.lock.writeLock();
+                WRITE.lock();  // upgrade to the write lock, at this point blocks other readers
+
+                leaf.removeLeaf(key2);
+                this.children.remove(key1);
+
+                if (this.children.isEmpty()) {
+                    this.children = null;
+                }
+                WRITE.unlock();
+            }
+        }
+
+        UPDATE.unlock();
+    }
+
+    /**
+     * Removes a branch from the tree, and cleans up, if necessary
+     */
+    public void remove(KEY key1, KEY key2, KEY key3) {
+        if (key1 == null || key2 == null) {
+            return;
+        }
+
+        Lock UPDATE = this.lock.updateLock();
+        UPDATE.lock(); // allows other readers, blocks others from acquiring update or write locks
+
+        ObjectTree<KEY, VALUE> leaf = null;
+        if (this.children != null) {
+            leaf = this.children.get(key1);
+
+            if (leaf != null) {
+                // promote to writelock and try again - Concurrency in Practice,16.4.2, last sentence on page. Careful for stale state
+                Lock WRITE = this.lock.writeLock();
+                WRITE.lock();  // upgrade to the write lock, at this point blocks other readers
+
+                leaf.remove(key2, key3);
+                this.children.remove(key1);
+
+                if (this.children.isEmpty()) {
+                    this.children = null;
+                }
+                WRITE.unlock();
+            }
+        }
+
+        UPDATE.unlock();
+    }
+
+
+    /**
+     * Removes a branch from the tree, and cleans up, if necessary
+     */
+    @SuppressWarnings("unchecked")
+    public void remove(KEY... keys) {
+        if (keys == null) {
+            return;
+        }
+
+        removeLeaf(0, keys);
+    }
+
+    /**
+     * Removes a branch from the tree, and cleans up, if necessary
+     */
+    private final void removeLeaf(KEY key) {
+        if (key != null) {
+            // promote to writelock and try again - Concurrency in Practice,16.4.2, last sentence on page. Careful for stale state
+            Lock WRITE = this.lock.writeLock();
+            WRITE.lock();  // upgrade to the write lock, at this point blocks other readers
+
+            if (this.children != null) {
+                ObjectTree<KEY, VALUE> leaf = this.children.get(key);
+                if (leaf != null) {
+                    if (leaf.children == null && leaf.value == null) {
+                        this.children.remove(key);
+                    }
+
+                    if (this.children.isEmpty()) {
+                        this.children = null;
+                    }
+                }
+            }
+            WRITE.unlock();
+        }
+    }
+
+    // keys CANNOT be null here!
+    private final void removeLeaf(int index, KEY[] keys) {
+        Lock UPDATE = this.lock.updateLock();
+        UPDATE.lock(); // allows other readers, blocks others from acquiring update or write locks
+
+        if (index == keys.length) {
+            // promote to writelock and try again - Concurrency in Practice,16.4.2, last sentence on page. Careful for stale state
+            Lock WRITE = this.lock.writeLock();
+            WRITE.lock();  // upgrade to the write lock, at this point blocks other readers
+
+            // we have reached the leaf to remove!
+            this.value = null;
+            this.children = null;
+
+            WRITE.unlock();
+        } else if (this.children != null) {
+            // promote to writelock and try again - Concurrency in Practice,16.4.2, last sentence on page. Careful for stale state
+            Lock WRITE = this.lock.writeLock();
+            WRITE.lock();  // upgrade to the write lock, at this point blocks other readers
+
+            if (this.children != null) {
+                ObjectTree<KEY, VALUE> leaf = this.children.get(keys[index]);
+                if (leaf != null) {
+                    leaf.removeLeaf(index+1, keys);
+                    if (leaf.children == null && leaf.value == null) {
+                        this.children.remove(keys[index]);
+                    }
+
+                    if (this.children.isEmpty()) {
+                        this.children = null;
+                    }
+                }
+            }
+            WRITE.unlock();
+        }
+
+        UPDATE.unlock();
+    }
 
     /**
      * BACKWARDS, because our signature must allow for N keys...
@@ -101,7 +261,7 @@ public class ObjectTree<KEY, VALUE> {
      * BACKWARDS, because our signature must allow for N keys...
      */
     @SuppressWarnings("unchecked")
-    public ObjectTree<KEY, VALUE> createLeaves(KEY... keys) {
+    public ObjectTree<KEY, VALUE> createLeaf(KEY... keys) {
         if (keys == null) {
             return this;
         }
@@ -210,7 +370,7 @@ public class ObjectTree<KEY, VALUE> {
         return returnValue;
     }
 
-    public VALUE get(KEY key1, KEY key2) {
+    public VALUE getValue(KEY key1, KEY key2) {
         ObjectTree<KEY, VALUE> tree = null;
         // get value from our children
         tree = getLeaf(key1);
@@ -230,7 +390,7 @@ public class ObjectTree<KEY, VALUE> {
         return returnValue;
     }
 
-    public VALUE get(KEY key1, KEY key2, KEY key3) {
+    public VALUE getValue(KEY key1, KEY key2, KEY key3) {
         ObjectTree<KEY, VALUE> tree = null;
         // get value from our children
         tree = getLeaf(key1);
@@ -254,7 +414,7 @@ public class ObjectTree<KEY, VALUE> {
     }
 
     @SuppressWarnings("unchecked")
-    public VALUE get(KEY... keys) {
+    public VALUE getValue(KEY... keys) {
         ObjectTree<KEY, VALUE> tree = null;
         // get value from our children
         tree = getLeaf(keys[0]);
@@ -297,6 +457,66 @@ public class ObjectTree<KEY, VALUE> {
         }
 
         READ.unlock();
+
+        return tree;
+    }
+
+    public final ObjectTree<KEY, VALUE> getLeaf(KEY key1, KEY key2) {
+        ObjectTree<KEY, VALUE> tree = null;
+        // get value from our children
+        tree = getLeaf(key1);
+        if (tree != null) {
+            tree = tree.getLeaf(key2);
+        }
+
+        if (tree == null) {
+            return null;
+        }
+
+        return tree;
+    }
+
+    public final ObjectTree<KEY, VALUE> getLeaf(KEY key1, KEY key2, KEY key3) {
+        ObjectTree<KEY, VALUE> tree = null;
+        // get value from our children
+        tree = getLeaf(key1);
+        if (tree != null) {
+            tree = tree.getLeaf(key2);
+        }
+        if (tree != null) {
+            tree = tree.getLeaf(key3);
+        }
+
+        if (tree == null) {
+            return null;
+        }
+
+        return tree;
+    }
+
+    @SuppressWarnings("unchecked")
+    public final ObjectTree<KEY, VALUE> getLeaf(KEY... keys) {
+        int size = keys.length;
+
+        if (size == 0) {
+            return null;
+        }
+
+        ObjectTree<KEY, VALUE> tree = null;
+        // get value from our children
+        tree = getLeaf(keys[0]);
+
+        for (int i=1;i<size;i++) {
+            if (tree != null) {
+                tree = tree.getLeaf(keys[i]);
+            } else {
+                return null;
+            }
+        }
+
+        if (tree == null) {
+            return null;
+        }
 
         return tree;
     }

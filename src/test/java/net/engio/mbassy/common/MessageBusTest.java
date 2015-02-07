@@ -33,8 +33,6 @@ public abstract class MessageBusTest extends AssertSupport {
         }
     };
 
-    private static final Object mapObject = new Object();
-
     @Before
     public void setUp(){
         for(MessageTypes mes : MessageTypes.values()) {

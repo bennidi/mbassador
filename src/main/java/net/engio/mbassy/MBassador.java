@@ -51,15 +51,17 @@ public class MBassador implements IMessageBus {
     private final Disruptor<MessageHolder> disruptor;
     private final RingBuffer<MessageHolder> ringBuffer;
 
+    private WorkerPool<MessageHolder> workerPool;
+
 
     public MBassador() {
-        this(Runtime.getRuntime().availableProcessors() - 1);
+        this(Runtime.getRuntime().availableProcessors() * 2 - 1);
     }
 
 
     public MBassador(int numberOfThreads) {
         if (numberOfThreads < 1) {
-            numberOfThreads = 1; // at LEAST 1 thread.
+            numberOfThreads = 1; // at LEAST 1 threads
         }
         this.subscriptionManager = new SubscriptionManager();
 
@@ -74,16 +76,16 @@ public class MBassador implements IMessageBus {
             handlers[i] = new EventProcessor(this);
         }
 
-        WorkerPool<MessageHolder> workerPool = new WorkerPool<MessageHolder>(this.ringBuffer,
-                                                                             this.ringBuffer.newBarrier(),
-                                                                             loggingExceptionHandler,
-                                                                             handlers);
+        this.workerPool = new WorkerPool<MessageHolder>(this.ringBuffer,
+                                                   this.ringBuffer.newBarrier(),
+                                                   loggingExceptionHandler,
+                                                   handlers);
 
-        this.ringBuffer.addGatingSequences(workerPool.getWorkerSequences());
+        this.ringBuffer.addGatingSequences(this.workerPool.getWorkerSequences());
     }
 
     public final MBassador start() {
-//        workerPool.start(this.executor); ??
+        this.workerPool.start(this.executor);
         this.disruptor.start();
         return this;
     }
@@ -104,8 +106,8 @@ public class MBassador implements IMessageBus {
     }
 
     @Override
-    public boolean unsubscribe(Object listener) {
-        return this.subscriptionManager.unsubscribe(listener);
+    public void unsubscribe(Object listener) {
+        this.subscriptionManager.unsubscribe(listener);
     }
 
 

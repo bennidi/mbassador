@@ -13,7 +13,6 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         WeakConcurrentSetTest.class,
         MBassadorTest.class,
-        SyncBusTest.MBassadorTest.class,
         MetadataReaderTest.class,
         MethodDispatchTest.class,
         DeadMessageTest.class,

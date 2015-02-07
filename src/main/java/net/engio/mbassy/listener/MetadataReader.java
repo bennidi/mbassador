@@ -1,8 +1,8 @@
 package net.engio.mbassy.listener;
 
 import java.lang.reflect.Method;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Collection;
 
 import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.common.ReflectionUtils;
@@ -20,10 +20,10 @@ public class MetadataReader {
     public MessageListener getMessageListener(Class<?> target) {
 
         // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
-        List<Method> allHandlers = ReflectionUtils.getMethods(target);
+        Collection<Method> allHandlers = ReflectionUtils.getMethods(target);
 
         // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
-        List<Method> bottomMostHandlers = new LinkedList<Method>();
+        Collection<Method> bottomMostHandlers = new ArrayDeque<Method>();
         for (Method handler : allHandlers) {
             if (!ReflectionUtils.containsOverridingMethod(allHandlers, handler)) {
                 bottomMostHandlers.add(handler);

@@ -47,7 +47,7 @@ public class AsyncFIFOBusTest extends MessageBusTest {
                 assertEquals(messages[i], listener.receivedSync.get(i));
             }
         }
-
+        fifoBUs.shutdown();
     }
 
     @Test
@@ -76,7 +76,7 @@ public class AsyncFIFOBusTest extends MessageBusTest {
             pause(2000);
         }
 
-        for(Listener listener : listeners) {
+        for (Listener listener : listeners) {
             List<Integer> receivedSync = listener.receivedSync;
 
             synchronized (receivedSync) {
@@ -88,6 +88,7 @@ public class AsyncFIFOBusTest extends MessageBusTest {
             }
         }
 
+        fifoBUs.shutdown();
     }
 
     public static class Listener {

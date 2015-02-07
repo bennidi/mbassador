@@ -29,17 +29,17 @@ public class ObjectTreeTest extends AssertSupport {
 
     public void test(ObjectTree<Class<?>, String> tree, String string, Class<?> clazz1, Class<?> clazz2) {
         tree.put(string, clazz1, clazz2);
-        assertEquals(string, tree.get(clazz1, clazz2));
+        assertEquals(string, tree.getValue(clazz1, clazz2));
     }
 
     public void test(ObjectTree<Class<?>, String> tree, String string, Class<?> clazz1, Class<?> clazz2, Class<?> clazz3) {
         tree.put(string, clazz1, clazz2, clazz3);
-        assertEquals(string, tree.get(clazz1, clazz2, clazz3));
+        assertEquals(string, tree.getValue(clazz1, clazz2, clazz3));
     }
 
     public void test(ObjectTree<Class<?>, String> tree, String string, Class<?>... clazzes) {
         tree.put(string, clazzes);
-        assertEquals(string, tree.get(clazzes));
+        assertEquals(string, tree.getValue(clazzes));
     }
 
     @Test
@@ -58,5 +58,15 @@ public class ObjectTreeTest extends AssertSupport {
 
         test(tree, "ssss", String.class, String.class, String.class, String.class);
         test(tree, "oosif", Object.class, Object.class, String.class, Integer.class, Float.class);
+
+
+        // now make sure we can REMOVE the tree elements
+        tree.remove(Object.class, Object.class, String.class, Integer.class, Float.class);
+        ObjectTree<Class<?>, String> leaf = tree.getLeaf(Object.class, Object.class, String.class, Integer.class);
+        assertNull(leaf);
+        leaf = tree.getLeaf(Object.class, Object.class);
+        assertNotNull(leaf);
+
+        assertEquals("xo", leaf.getValue());
     }
 }

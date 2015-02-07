@@ -5,7 +5,10 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import net.engio.mbassy.common.IConcurrentSet;
+import net.engio.mbassy.common.WeakConcurrentSet;
 import net.engio.mbassy.dispatch.IHandlerInvocation;
+import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
+import net.engio.mbassy.dispatch.SynchronizedHandlerInvocation;
 import net.engio.mbassy.error.ErrorHandlingSupport;
 import net.engio.mbassy.error.PublicationError;
 import net.engio.mbassy.listener.MessageHandler;
@@ -33,10 +36,16 @@ public class Subscription {
     private final IHandlerInvocation invocation;
     protected final IConcurrentSet<Object> listeners;
 
-    Subscription(MessageHandler handler, IHandlerInvocation invocation, IConcurrentSet<Object> listeners) {
+    Subscription(MessageHandler handler) {
+        this.listeners = new WeakConcurrentSet<Object>();
         this.handlerMetadata = handler;
+
+        IHandlerInvocation invocation = new ReflectiveHandlerInvocation();
+        if (handler.isSynchronized()){
+            invocation = new SynchronizedHandlerInvocation(invocation);
+        }
+
         this.invocation = invocation;
-        this.listeners = listeners;
     }
 
     /**
@@ -95,12 +104,16 @@ public class Subscription {
         return this.handlerMetadata.getHandledMessages();
     }
 
-    public void subscribe(Object o) {
-        this.listeners.add(o);
+    public void subscribe(Object listener) {
+        this.listeners.add(listener);
     }
 
 
+    /**
+     * @return TRUE if there are no listeners subscribed
+     */
     public boolean unsubscribe(Object existingListener) {
+        // TRUE if there are no more elements (aka: this set is empty)
         return this.listeners.remove(existingListener);
     }
 
@@ -336,5 +349,35 @@ public class Subscription {
                 }
             }
         }
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (this.handlerMetadata == null ? 0 : this.handlerMetadata.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Subscription other = (Subscription) obj;
+        if (this.handlerMetadata == null) {
+            if (other.handlerMetadata != null) {
+                return false;
+            }
+        } else if (!this.handlerMetadata.equals(other.handlerMetadata)) {
+            return false;
+        }
+        return true;
     }
 }

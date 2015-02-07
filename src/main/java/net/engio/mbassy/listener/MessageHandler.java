@@ -2,6 +2,7 @@ package net.engio.mbassy.listener;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.annotations.Synchronized;
@@ -34,7 +35,7 @@ public class MessageHandler {
     private final MessageListener listenerConfig;
 
     // if ONE of the handled messages is of type array, then we configure it to ALSO accept var args!
-    private final boolean acceptsVarArg;
+    private final boolean isVarArg;
     private final boolean isSynchronized;
 
     public MessageHandler(Method handler, Handler handlerConfig, MessageListener listenerMetadata){
@@ -55,7 +56,7 @@ public class MessageHandler {
 
 
         // if ONE of the handled messages is of type array, then we configure it to ALSO accept var args!
-        this.acceptsVarArg = handledMessages.length == 1 && handledMessages[0].isArray();
+        this.isVarArg = handledMessages.length == 1 && handledMessages[0].isArray();
     }
 
     public <A extends Annotation> A getAnnotation(Class<A> annotationType){
@@ -82,6 +83,10 @@ public class MessageHandler {
      * @author dorkbox, llc
      *         Date: 2/2/15
      */
+    /** Check if this handler permits sending objects as a VarArg (variable argument) */
+    public boolean isVarArg() {
+        return this.isVarArg;
+    }
 
     /**
      * @return true if the message types are handled
@@ -279,8 +284,49 @@ public class MessageHandler {
         }
     }
 
-    /** Check if this handler permits sending objects as a VarArg (variable argument) */
-    public boolean isVarArg() {
-        return this.acceptsVarArg;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (this.acceptsSubtypes ? 1231 : 1237);
+        result = prime * result + (this.isVarArg ? 1231 : 1237);
+        result = prime * result + Arrays.hashCode(this.handledMessages);
+        result = prime * result + (this.handler == null ? 0 : this.handler.hashCode());
+        result = prime * result + (this.isSynchronized ? 1231 : 1237);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        MessageHandler other = (MessageHandler) obj;
+        if (this.acceptsSubtypes != other.acceptsSubtypes) {
+            return false;
+        }
+        if (this.isVarArg != other.isVarArg) {
+            return false;
+        }
+        if (!Arrays.equals(this.handledMessages, other.handledMessages)) {
+            return false;
+        }
+        if (this.handler == null) {
+            if (other.handler != null) {
+                return false;
+            }
+        } else if (!this.handler.equals(other.handler)) {
+            return false;
+        }
+        if (this.isSynchronized != other.isSynchronized) {
+            return false;
+        }
+        return true;
     }
 }

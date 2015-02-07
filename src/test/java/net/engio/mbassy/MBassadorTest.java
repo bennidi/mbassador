@@ -128,6 +128,7 @@ public class MBassadorTest extends MessageBusTest {
         pause(processingTimeInMS);
         assertEquals(InstancesPerListener * ConcurrentUnits, exceptionCount.get());
 
+        bus.shutdown();
     }
 
 

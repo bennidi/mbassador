@@ -3,9 +3,9 @@ package net.engio.mbassy.common;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import net.engio.mbassy.annotations.Handler;
@@ -19,8 +19,8 @@ public class ReflectionUtils
 {
 
     // modified by dorkbox, llc 2015
-    public static List<Method> getMethods(Class<?> target) {
-        List<Method> methods = new LinkedList<Method>();
+    public static Collection<Method> getMethods(Class<?> target) {
+        Collection<Method> methods = new ArrayDeque<Method>();
         try {
             for (Method method : target.getDeclaredMethods()) {
                 if (getAnnotation(method, Handler.class) != null) {
@@ -85,7 +85,7 @@ public class ReflectionUtils
     }
 
     //
-    public static boolean containsOverridingMethod(final List<Method> allMethods, final Method methodToCheck) {
+    public static boolean containsOverridingMethod(final Collection<Method> allMethods, final Method methodToCheck) {
         for (Method method : allMethods) {
             if (isOverriddenBy(methodToCheck, method)) {
                 return true;

@@ -22,8 +22,9 @@ public class MultiMessageTest extends MessageBusTest {
     public void testMultiMessageSending(){
         IMessageBus bus = new MBassador().start();
 
-        Listener listener = new Listener();
-        bus.subscribe(listener);
+        Listener listener1 = new Listener();
+        bus.subscribe(listener1);
+        bus.unsubscribe(listener1);
 
         bus.publish("s");
         bus.publish("s", "s");
@@ -33,7 +34,22 @@ public class MultiMessageTest extends MessageBusTest {
         bus.publish(1, 2, 3, 4, 5, 6);
         bus.publish(new Integer[] {1, 2, 3, 4, 5, 6});
 
-        assertEquals(count.get(), 10);
+        assertEquals(0, count.get());
+
+        bus.subscribe(listener1);
+
+        bus.publish("s");
+        bus.publish("s", "s");
+        bus.publish("s", "s", "s");
+        bus.publish("s", "s", "s", "s");
+        bus.publish(1, 2, "s");
+        bus.publish(1, 2, 3, 4, 5, 6);
+        bus.publish(new Integer[] {1, 2, 3, 4, 5, 6});
+
+        assertEquals(10, count.get());
+
+
+        bus.shutdown();
     }
 
     @SuppressWarnings("unused")
@@ -47,31 +63,31 @@ public class MultiMessageTest extends MessageBusTest {
         @Handler
         public void handleSync(String o1, String o2) {
             count.getAndIncrement();
-            System.err.println("match String, String");
+//            System.err.println("match String, String");
         }
 
         @Handler
         public void handleSync(String o1, String o2, String o3) {
             count.getAndIncrement();
-            System.err.println("match String, String, String");
+//            System.err.println("match String, String, String");
         }
 
         @Handler
         public void handleSync(Integer o1, Integer o2, String o3) {
             count.getAndIncrement();
-            System.err.println("match Integer, Integer, String");
+//            System.err.println("match Integer, Integer, String");
         }
 
         @Handler
         public void handleSync(String... o) {
             count.getAndIncrement();
-            System.err.println("match String[]");
+//            System.err.println("match String[]");
         }
 
         @Handler
         public void handleSync(Integer... o) {
             count.getAndIncrement();
-            System.err.println("match Integer[]");
+//            System.err.println("match Integer[]");
         }
     }
 }

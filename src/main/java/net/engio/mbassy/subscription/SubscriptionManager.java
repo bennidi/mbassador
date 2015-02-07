@@ -1,25 +1,22 @@
 package net.engio.mbassy.subscription;
 
 import java.lang.reflect.Array;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.engio.mbassy.common.ObjectTree;
 import net.engio.mbassy.common.ReflectionUtils;
-import net.engio.mbassy.common.WeakConcurrentSet;
-import net.engio.mbassy.dispatch.IHandlerInvocation;
-import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
-import net.engio.mbassy.dispatch.SynchronizedHandlerInvocation;
 import net.engio.mbassy.error.MessageBusException;
 import net.engio.mbassy.listener.MessageHandler;
 import net.engio.mbassy.listener.MetadataReader;
+
+import com.googlecode.concurentlocks.ReentrantReadWriteUpdateLock;
 
 /**
  * The subscription managers responsibility is to consistently handle and synchronize the message listener subscription process.
@@ -55,40 +52,93 @@ public class SubscriptionManager {
     private final ConcurrentHashMap<Class<?>, Object> nonListeners = new ConcurrentHashMap<Class<?>, Object>();
 
     // synchronize read/write acces to the subscription maps
-    private final ReentrantReadWriteLock LOCK = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteUpdateLock LOCK = new ReentrantReadWriteUpdateLock();
 
 
     public SubscriptionManager() {
     }
 
 
-    public boolean unsubscribe(Object listener) {
+    public void unsubscribe(Object listener) {
         if (listener == null) {
-            return false;
+            return;
         }
-        Collection<Subscription> subscriptions = getSubscriptionsByListener(listener);
-        if (subscriptions == null) {
-            return false;
-        }
-        boolean isRemoved = true;
-        for (Subscription subscription : subscriptions) {
-            isRemoved &= subscription.unsubscribe(listener);
-        }
-        return isRemoved;
-    }
 
-
-    private Collection<Subscription> getSubscriptionsByListener(Object listener) {
+        boolean nothingLeft = true;
         Collection<Subscription> subscriptions;
         try {
-            this.LOCK.readLock().lock();
-            subscriptions = this.subscriptionsPerListener.get(listener.getClass());
+            this.LOCK.writeLock().lock();
+            Class<? extends Object> listenerClass = listener.getClass();
+            subscriptions = this.subscriptionsPerListener.get(listenerClass);
+
+            if (subscriptions != null) {
+                for (Subscription subscription : subscriptions) {
+                    boolean isEmpty = subscription.unsubscribe(listener);
+
+                    if (isEmpty) {
+                        // single or multi?
+                        Class<?>[] handledMessageTypes = subscription.getHandledMessageTypes();
+                        int size = handledMessageTypes.length;
+                        if (size == 1) {
+                            // single
+                            Class<?> clazz = handledMessageTypes[0];
+
+                            // NOTE: Not thread-safe! must be synchronized in outer scope
+                            Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(clazz);
+                            if (subs != null) {
+                                subs.remove(subscription);
+
+                                if (subs.isEmpty()) {
+                                    // remove element
+                                    this.subscriptionsPerMessageSingle.remove(clazz);
+                                }
+                            }
+                        } else {
+                            // multi (is thread safe)
+                            ObjectTree<Class<?>, Collection<Subscription>> tree;
+
+                            switch (size) {
+                                case 2: tree = this.subscriptionsPerMessageMulti.getLeaf(handledMessageTypes[0], handledMessageTypes[1]); break;
+                                case 3: tree = this.subscriptionsPerMessageMulti.getLeaf(handledMessageTypes[1], handledMessageTypes[1], handledMessageTypes[2]); break;
+                                default: tree = this.subscriptionsPerMessageMulti.getLeaf(handledMessageTypes); break;
+                            }
+
+                            if (tree != null) {
+                                Collection<Subscription> subs = tree.getValue();
+                                if (subs != null) {
+                                    subs.remove(subscription);
+
+                                    if (subs.isEmpty()) {
+                                        // remove tree element
+                                        switch (size) {
+                                            case 2: this.subscriptionsPerMessageMulti.remove(handledMessageTypes[0], handledMessageTypes[1]); break;
+                                            case 3: this.subscriptionsPerMessageMulti.remove(handledMessageTypes[1], handledMessageTypes[1], handledMessageTypes[2]); break;
+                                            default: this.subscriptionsPerMessageMulti.remove(handledMessageTypes); break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    nothingLeft &= isEmpty;
+                }
+            }
+
+            if (nothingLeft) {
+                // now we have to clean up
+                this.subscriptionsPerListener.remove(listenerClass);
+            }
+
         } finally {
-            this.LOCK.readLock().unlock();
+            this.LOCK.writeLock().unlock();
         }
-        return subscriptions;
+
+        return;
     }
 
+
+    // when a class is subscribed, the registrations for that class are permanent in the "subscriptionsPerListener"?
     public void subscribe(Object listener) {
         try {
             Class<? extends Object> listenerClass = listener.getClass();
@@ -98,112 +148,102 @@ public class SubscriptionManager {
                 return;
             }
 
-            Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
-            // a listener is either subscribed for the first time
-            if (subscriptionsByListener == null) {
-                List<MessageHandler> messageHandlers = this.metadataReader.getMessageListener(listenerClass).getHandlers();
-                if (messageHandlers.isEmpty()) {
-                    // remember the class as non listening class if no handlers are found
-                    this.nonListeners.put(listenerClass, this.nonListeners);
-                    return;
-                }
+            Collection<Subscription> subscriptions;
+            try {
+                this.LOCK.updateLock().lock();
+                boolean hasSubs = false;
+                subscriptions = this.subscriptionsPerListener.get(listenerClass);
 
-                // it's safe to use non-concurrent collection here (read only)
-                subscriptionsByListener = new ArrayList<Subscription>(messageHandlers.size());
-
-                // create subscriptions for all detected message handlers
-                for (MessageHandler messageHandler : messageHandlers) {
-                    // create the subscription
+                if (subscriptions != null) {
+                    hasSubs = true;
+                } else {
+                    // a listener is either subscribed for the first time
                     try {
-                        IHandlerInvocation invocation = new ReflectiveHandlerInvocation();
+                        this.LOCK.writeLock().lock(); // upgrade updatelock to write lock, Avoid DCL
 
-                        if (messageHandler.isSynchronized()){
-                            invocation = new SynchronizedHandlerInvocation(invocation);
+                        subscriptions = this.subscriptionsPerListener.get(listenerClass);
+
+                        if (subscriptions != null) {
+                            hasSubs = true;
+                        } else {
+                            // a listener is either subscribed for the first time
+                            List<MessageHandler> messageHandlers = this.metadataReader.getMessageListener(listenerClass).getHandlers();
+                            if (messageHandlers.isEmpty()) {
+                                // remember the class as non listening class if no handlers are found
+                                this.nonListeners.put(listenerClass, this.nonListeners);
+                                return;
+                            }
+
+                            // it's SAFE to use non-concurrent collection here (read only). Same thread LOCKS on this with a write lock
+                            subscriptions = new ArrayList<Subscription>(messageHandlers.size());
+
+                            // create subscriptions for all detected message handlers
+                            for (MessageHandler messageHandler : messageHandlers) {
+                                // create the subscription
+                                try {
+                                    Subscription subscription = new Subscription(messageHandler);
+                                    subscriptions.add(subscription);
+                                } catch (Exception e) {
+                                    throw new MessageBusException(e);
+                                }
+                            }
+
+                            for (Subscription sub : subscriptions) {
+                                sub.subscribe(listener);
+
+                                // single or multi?
+                                Class<?>[] handledMessageTypes = sub.getHandledMessageTypes();
+                                int size = handledMessageTypes.length;
+                                if (size == 1) {
+                                    // single
+                                    Class<?> clazz = handledMessageTypes[0];
+
+                                    // NOTE: Not thread-safe! must be synchronized in outer scope
+                                    Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(clazz);
+                                    if (subs == null) {
+                                        subs = new ArrayDeque<Subscription>();
+                                        this.subscriptionsPerMessageSingle.put(clazz, subs);
+                                    }
+                                    subs.add(sub);
+                                } else {
+                                    // multi (is thread safe)
+                                    ObjectTree<Class<?>, Collection<Subscription>> tree;
+
+                                    switch (size) {
+                                        case 2: tree = this.subscriptionsPerMessageMulti.createLeaf(handledMessageTypes[0], handledMessageTypes[1]); break;
+                                        case 3: tree = this.subscriptionsPerMessageMulti.createLeaf(handledMessageTypes[1], handledMessageTypes[1], handledMessageTypes[2]); break;
+                                        default: tree = this.subscriptionsPerMessageMulti.createLeaf(handledMessageTypes); break;
+                                    }
+
+                                    Collection<Subscription> subs = tree.getValue();
+                                    if (subs == null) {
+                                        subs = new ArrayDeque<Subscription>();
+                                        tree.putValue(subs);
+                                    }
+                                    subs.add(sub);
+                                }
+                            }
+
+                            this.subscriptionsPerListener.put(listenerClass, subscriptions);
                         }
-
-                        Subscription subscription = new Subscription(messageHandler, invocation, new WeakConcurrentSet<Object>());
-                        subscriptionsByListener.add(subscription);
-                    } catch (Exception e) {
-                        throw new MessageBusException(e);
+                    } finally {
+                        this.LOCK.writeLock().unlock();
                     }
                 }
 
-                // this will acquire a write lock and handle the case when another thread already subscribed
-                // this particular listener in the mean-time
-                subscribe(listener, subscriptionsByListener);
-            }
-            else {
-                // or the subscriptions already exist and must only be updated
-                for (Subscription sub : subscriptionsByListener) {
-                    sub.subscribe(listener);
+                if (hasSubs) {
+                    // or the subscriptions already exist and must only be updated
+                    for (Subscription sub : subscriptions) {
+                        sub.subscribe(listener);
+                    }
                 }
+            } finally {
+                this.LOCK.updateLock().unlock();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
-
-    private void subscribe(Object listener, Collection<Subscription> subscriptions) {
-        try {
-            this.LOCK.writeLock().lock();
-            // basically this is a deferred double check
-            // it's an ugly pattern but necessary because atomic upgrade from read to write lock
-            // is not possible
-            // the alternative of using a write lock from the beginning would decrease performance dramatically
-            // because of the huge number of reads compared to writes
-            Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
-
-            if (subscriptionsByListener == null) {
-                for (Subscription subscription : subscriptions) {
-                    subscription.subscribe(listener);
-
-                    // single or multi?
-                    Class<?>[] handledMessageTypes = subscription.getHandledMessageTypes();
-                    int size = handledMessageTypes.length;
-                    if (size == 1) {
-                        // single
-                        Class<?> clazz = handledMessageTypes[0];
-
-                        // NOTE: Not thread-safe! must be synchronized in outer scope
-                        Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(clazz);
-                        if (subs == null) {
-                            subs = new LinkedList<Subscription>();
-                            this.subscriptionsPerMessageSingle.put(clazz, subs);
-                        }
-                        subs.add(subscription);
-                    } else {
-                        // multi (is thread safe)
-                        ObjectTree<Class<?>, Collection<Subscription>> tree = this.subscriptionsPerMessageMulti.createLeaves(handledMessageTypes);
-                        Collection<Subscription> subs = tree.getValue();
-                        if (subs == null) {
-                            subs = new LinkedList<Subscription>();
-                            tree.putValue(subs);
-                        }
-                        subs.add(subscription);
-                    }
-                }
-                this.subscriptionsPerListener.put(listener.getClass(), subscriptions);
-            }
-            // the rare case when multiple threads concurrently subscribed the same class for the first time
-            // one will be first, all others will have to subscribe to the existing instead the generated subscriptions
-            else {
-                for (Subscription existingSubscription : subscriptionsByListener) {
-                    existingSubscription.subscribe(listener);
-                }
-            }
-        } finally {
-            this.LOCK.writeLock().unlock();
-        }
-    }
-
-
-
-
-
-
-
-
 
 
 
@@ -212,20 +252,23 @@ public class SubscriptionManager {
     // Note: never returns null!
     public Collection<Subscription> getSubscriptionsByMessageType(Class<?> messageType) {
         // thread safe publication
-        Collection<Subscription> subscriptions = new LinkedList<Subscription>();
+        Collection<Subscription> subscriptions = new ArrayDeque<Subscription>();
 
         try {
             this.LOCK.readLock().lock();
 
-            Set<Class<?>> types1 = ReflectionUtils.getSuperTypes(messageType);
-            types1.add(messageType);
+            Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(messageType);
+            if (subs != null) {
+                subscriptions.addAll(subs);
+            }
 
             // also add all subscriptions that match super types
+            Set<Class<?>> types1 = ReflectionUtils.getSuperTypes(messageType);
             for (Class<?> eventSuperType : types1) {
-                Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
+                subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
                 if (subs != null) {
                     for (Subscription sub : subs) {
-                        if (sub.handlesMessageType(eventSuperType)) {
+                        if (sub.handlesMessageType(messageType)) {
                             subscriptions.add(sub);
                         }
                     }
@@ -235,14 +278,15 @@ public class SubscriptionManager {
             ///////////////
             // a var-arg handler might match
             ///////////////
-            // tricky part. We have to check the ARRAY version,
+            // tricky part. We have to check the ARRAY version
+            types1.add(messageType);
             for (Class<?> eventSuperType : types1) {
                 // messy, but the ONLY way to do it.
                 // NOTE: this will NEVER be an array to begin with, since that will call a DIFFERENT method
                 eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
 
                 // also add all subscriptions that match super types
-                Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
+                subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
                 if (subs != null) {
                     for (Subscription sub : subs) {
                         subscriptions.add(sub);
@@ -260,17 +304,20 @@ public class SubscriptionManager {
     // Note: never returns null!
     public Collection<Subscription> getSubscriptionsByMessageType(Class<?> messageType1, Class<?> messageType2) {
         // thread safe publication
-        Collection<Subscription> subscriptions = new LinkedList<Subscription>();
+        Collection<Subscription> subscriptions = new ArrayDeque<Subscription>();
 
         try {
             this.LOCK.readLock().lock();
 
+            Collection<Subscription> subs = this.subscriptionsPerMessageMulti.getValue(messageType1, messageType2);
+            if (subs != null) {
+                subscriptions.addAll(subs);
+            }
+
+
+            // also add all subscriptions that match super types
             Set<Class<?>> types1 = ReflectionUtils.getSuperTypes(messageType1);
-            types1.add(messageType1);
-
             Set<Class<?>> types2 = ReflectionUtils.getSuperTypes(messageType2);
-            types2.add(messageType2);
-
             // also add all subscriptions that match super types
             for (Class<?> eventSuperType1 : types1) {
                 ObjectTree<Class<?>, Collection<Subscription>> leaf1 = this.subscriptionsPerMessageMulti.getLeaf(eventSuperType1);
@@ -280,10 +327,10 @@ public class SubscriptionManager {
                         ObjectTree<Class<?>, Collection<Subscription>> leaf2 = leaf1.getLeaf(eventSuperType2);
 
                         if (leaf2 != null) {
-                            Collection<Subscription> subs = leaf2.getValue();
+                            subs = leaf2.getValue();
                             if (subs != null) {
                                 for (Subscription sub : subs) {
-                                    if (sub.handlesMessageType(eventSuperType1, eventSuperType2)) {
+                                    if (sub.handlesMessageType(messageType1, messageType2)) {
                                         subscriptions.add(sub);
                                     }
                                 }
@@ -297,6 +344,8 @@ public class SubscriptionManager {
             // if they are ALL the same type, a var-arg handler might match
             ///////////////
             if (messageType1 == messageType2) {
+                types1.add(messageType1);
+                types1.add(messageType2);
                 // tricky part. We have to check the ARRAY version
                 for (Class<?> eventSuperType : types1) {
                     // messy, but the ONLY way to do it.
@@ -304,7 +353,7 @@ public class SubscriptionManager {
                     eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
 
                     // also add all subscriptions that match super types
-                    Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
+                    subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
                     if (subs != null) {
                         for (Subscription sub : subs) {
                             subscriptions.add(sub);
@@ -324,19 +373,21 @@ public class SubscriptionManager {
     // Note: never returns null!
     public Collection<Subscription> getSubscriptionsByMessageType(Class<?> messageType1, Class<?> messageType2, Class<?> messageType3) {
         // thread safe publication
-        Collection<Subscription> subscriptions = new LinkedList<Subscription>();
+        Collection<Subscription> subscriptions = new ArrayDeque<Subscription>();
 
         try {
             this.LOCK.readLock().lock();
 
+            Collection<Subscription> subs = this.subscriptionsPerMessageMulti.getValue(messageType1, messageType2, messageType3);
+            if (subs != null) {
+                subscriptions.addAll(subs);
+            }
+
+
+            // also add all subscriptions that match super types
             Set<Class<?>> types1 = ReflectionUtils.getSuperTypes(messageType1);
-            types1.add(messageType1);
-
             Set<Class<?>> types2 = ReflectionUtils.getSuperTypes(messageType2);
-            types2.add(messageType2);
-
             Set<Class<?>> types3 = ReflectionUtils.getSuperTypes(messageType3);
-            types3.add(messageType3);
 
             // also add all subscriptions that match super types
             for (Class<?> eventSuperType1 : types1) {
@@ -351,10 +402,10 @@ public class SubscriptionManager {
                                 ObjectTree<Class<?>, Collection<Subscription>> leaf3 = leaf2.getLeaf(eventSuperType3);
 
                                 if (leaf3 != null) {
-                                    Collection<Subscription> subs = leaf3.getValue();
+                                    subs = leaf3.getValue();
                                     if (subs != null) {
                                         for (Subscription sub : subs) {
-                                            if (sub.handlesMessageType(eventSuperType1, eventSuperType2, eventSuperType3)) {
+                                            if (sub.handlesMessageType(messageType1, messageType2, messageType3)) {
                                                 subscriptions.add(sub);
                                             }
                                         }
@@ -371,13 +422,16 @@ public class SubscriptionManager {
             ///////////////
             if (messageType1 == messageType2 && messageType2 == messageType3) {
                 // tricky part. We have to check the ARRAY version
+                types1.add(messageType1);
+                types1.add(messageType2);
+                types1.add(messageType3);
                 for (Class<?> eventSuperType : types1) {
                     // messy, but the ONLY way to do it.
                     // NOTE: this will NEVER be an array to begin with, since that will call a DIFFERENT method
                     eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
 
                     // also add all subscriptions that match super types
-                    Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
+                    subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
                     if (subs != null) {
                         for (Subscription sub : subs) {
                             subscriptions.add(sub);
@@ -396,56 +450,64 @@ public class SubscriptionManager {
     // Note: never returns null!
     public Collection<Subscription> getSubscriptionsByMessageType(Class<?>... messageTypes) {
         // thread safe publication
-        Collection<Subscription> subscriptions = new LinkedList<Subscription>();
+        Collection<Subscription> subscriptions = new ArrayDeque<Subscription>();
 
         try {
             this.LOCK.readLock().lock();
 
-            int size = messageTypes.length;
-            if (size == 0) {
-                this.LOCK.readLock().unlock();
-                return subscriptions;
-            }
-
-            boolean allSameType = true;
-            Class<?> firstType = messageTypes[0];
-
-            @SuppressWarnings("unchecked")
-            Set<Class<?>>[] types = new Set[size];
-            for (int i=0;i<size;i++) {
-                Class<?> from = messageTypes[i];
-                types[i] = ReflectionUtils.getSuperTypes(from);
-                types[i].add(from);
-                if (from != firstType) {
-                    allSameType = false;
+            Collection<Subscription> subs = this.subscriptionsPerMessageMulti.getValue(messageTypes);
+            if (subs != null) {
+                for (Subscription sub : subs) {
+                    if (sub.handlesMessageType(messageTypes)) {
+                        subscriptions.add(sub);
+                    }
                 }
             }
 
 
-            // add all subscriptions that match super types combinations
-            // have to use recursion for this. BLEH
-            getSubsVarArg(subscriptions, types, size-1, 0, this.subscriptionsPerMessageMulti, messageTypes);
+            int size = messageTypes.length;
+            if (size > 0) {
+                boolean allSameType = true;
+                Class<?> firstType = messageTypes[0];
 
-            ///////////////
-            // if they are ALL the same type, a var-arg handler might match
-            ///////////////
-            if (allSameType) {
-                // do we have a var-arg (it shows as an array) subscribed?
+                @SuppressWarnings("unchecked")
+                Set<Class<?>>[] types = new Set[size];
+                for (int i=0;i<size;i++) {
+                    Class<?> from = messageTypes[i];
+                    types[i] = ReflectionUtils.getSuperTypes(from);
+                    types[i].add(from);
+                    if (from != firstType) {
+                        allSameType = false;
+                    }
+                }
 
-                // tricky part. We have to check the ARRAY version
-                for (Class<?> eventSuperType : types[0]) {
-                    // messy, but the ONLY way to do it.
-                    // NOTE: this will NEVER be an array to begin with, since that will call a DIFFERENT method
-                    eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
 
-                    // also add all subscriptions that match super types
-                    Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
-                    if (subs != null) {
-                        for (Subscription sub : subs) {
-                            subscriptions.add(sub);
+                // add all subscriptions that match super types combinations
+                // have to use recursion for this. BLEH
+                getSubsVarArg(subscriptions, types, size-1, 0, this.subscriptionsPerMessageMulti, messageTypes);
+
+                ///////////////
+                // if they are ALL the same type, a var-arg handler might match
+                ///////////////
+                if (allSameType) {
+                    // do we have a var-arg (it shows as an array) subscribed?
+
+                    // tricky part. We have to check the ARRAY version
+                    for (Class<?> eventSuperType : types[0]) {
+                        // messy, but the ONLY way to do it.
+                        // NOTE: this will NEVER be an array to begin with, since that will call a DIFFERENT method
+                        eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
+
+                        // also add all subscriptions that match super types
+                        subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
+                        if (subs != null) {
+                            for (Subscription sub : subs) {
+                                subscriptions.add(sub);
+                            }
                         }
                     }
                 }
+
             }
         } finally {
             this.LOCK.readLock().unlock();
