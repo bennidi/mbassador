@@ -3,7 +3,6 @@ package net.engio.mbassy;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.engio.mbassy.annotations.Handler;
-import net.engio.mbassy.bus.DeadMessage;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;

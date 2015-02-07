@@ -25,11 +25,11 @@ public class SubscriptionValidator extends AssertSupport{
         this.subscribedListener = subscribedListener;
     }
 
-    public Expectation listener(Class subscriber){
+    public Expectation listener(Class<?> subscriber) {
         return new Expectation(subscriber);
     }
 
-    private SubscriptionValidator expect(Class subscriber, Class messageType){
+    private SubscriptionValidator expect(Class<?> subscriber, Class<?> messageType) {
         this.validations.add(new ValidationEntry(messageType, subscriber));
         this.messageTypes.add(messageType);
         return this;
@@ -37,8 +37,8 @@ public class SubscriptionValidator extends AssertSupport{
 
     // match subscriptions with existing validation entries
     // for each tuple of subscriber and message type the specified number of listeners must exist
-    public void validate(SubscriptionManager manager){
-        for(Class messageType : this.messageTypes){
+    public void validate(SubscriptionManager manager) {
+        for(Class<?> messageType : this.messageTypes) {
             Collection<Subscription> subscriptions = manager.getSubscriptionsByMessageType(messageType);
             Collection<ValidationEntry> validationEntries = getEntries(messageType);
             assertEquals(subscriptions.size(), validationEntries.size());
@@ -59,7 +59,7 @@ public class SubscriptionValidator extends AssertSupport{
 
 
 
-    private Collection<ValidationEntry> getEntries(Class messageType){
+    private Collection<ValidationEntry> getEntries(Class<?> messageType) {
         Collection<ValidationEntry> matching = new LinkedList<ValidationEntry>();
         for (ValidationEntry validationValidationEntry : this.validations){
             if (validationValidationEntry.messageType.equals(messageType)) {
@@ -70,16 +70,16 @@ public class SubscriptionValidator extends AssertSupport{
     }
 
 
-    public class Expectation{
+    public class Expectation {
 
-        private Class listener;
+        private Class<?> listener;
 
-        private Expectation(Class listener) {
+        private Expectation(Class<?> listener) {
             this.listener = listener;
         }
 
-        public SubscriptionValidator handles(Class ...messages){
-            for(Class message : messages) {
+        public SubscriptionValidator handles(Class<?> ...messages){
+            for(Class<?> message : messages) {
                 expect(this.listener, message);
             }
             return SubscriptionValidator.this;
@@ -87,18 +87,12 @@ public class SubscriptionValidator extends AssertSupport{
     }
 
     private class ValidationEntry {
+        private Class<?> subscriber;
+        private Class<?> messageType;
 
-
-        private Class subscriber;
-
-        private Class messageType;
-
-        private ValidationEntry(Class messageType, Class subscriber) {
+        private ValidationEntry(Class<?> messageType, Class<?> subscriber) {
             this.messageType = messageType;
             this.subscriber = subscriber;
         }
-
-
     }
-
 }

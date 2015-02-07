@@ -2,8 +2,8 @@ package net.engio.mbassy.common;
 
 import junit.framework.Assert;
 import net.engio.mbassy.MBassador;
-import net.engio.mbassy.bus.error.IPublicationErrorHandler;
-import net.engio.mbassy.bus.error.PublicationError;
+import net.engio.mbassy.error.IPublicationErrorHandler;
+import net.engio.mbassy.error.PublicationError;
 import net.engio.mbassy.messages.MessageTypes;
 
 import org.junit.Before;
@@ -44,13 +44,13 @@ public abstract class MessageBusTest extends AssertSupport {
 
 
     public MBassador createBus() {
-        MBassador bus = new MBassador();
+        MBassador bus = new MBassador().start();
         bus.addErrorHandler(TestFailingHandler);
         return bus;
     }
 
     public MBassador createBus(ListenerFactory listeners) {
-        MBassador bus = new MBassador();
+        MBassador bus = new MBassador().start();
         bus.addErrorHandler(TestFailingHandler);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
         return bus;

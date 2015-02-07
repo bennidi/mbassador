@@ -50,115 +50,160 @@ public interface PubSubSupport {
     void publish(Object message1, Object message2);
 
     /**
-     * Synchronously publish <b>THREE</b> messages to all registered listeners (that match the signature). This includes listeners
-     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
+     * Synchronously publish <b>THREE</b> messages to all registered listeners (that match the signature). This
+     * includes listeners defined for super types of the given message type, provided they are not configured
+     * to reject valid subtypes. The call returns when all matching handlers of all registered listeners have
+     * been notified (invoked) of the message.
      */
     void publish(Object message1, Object message2, Object message3);
 
     /**
-     * Synchronously publish <b>ARBITRARY</b> messages to all registered listeners (that match the signature). This includes listeners
-     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
+     * Synchronously publish <b>ARBITRARY or ARRAY</b> messages to all registered listeners (that match the
+     * signature). This includes listeners defined for super types of the given message type, provided they
+     *  are not configured to reject valid subtypes. The call returns when all matching handlers of all
+     *  registered listeners have been notified (invoked) of the message.
+     * <p>
+     * <p>
+     * <p>
+     * <b>
+     * Note, that there is NO DIFFERENCE in the java language between VarArg and Array! If it's an
+     * array, IT IS ALSO VARARG. You must explicitly check arrays to make sure they match!
+     * </b>
      */
     void publish(Object... messages);
 
 
 
     /**
-     * Publish the message asynchronously to all registered listeners (that match the signature). This includes listeners
-     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
+     * Publish the message asynchronously to all registered listeners (that match the signature). This includes
+     * listeners defined for super types of the given message type, provided they are not configured to reject
+     * valid subtypes. The call returns when all matching handlers of all registered listeners have been notified
+     * (invoked) of the message.
+     * <p>
      * <p>
      * The behavior of this method depends on the configured queuing strategy:
+     * <p>
      * <p>
      * If an unbound queuing strategy is used the call returns immediately.
      * If a bounded queue is used the call might block until the message can be placed in the queue.
      */
     void publishAsync(Object message);
 
-//    /**
-//     * Publish <b>TWO</b> messages asynchronously to all registered listeners (that match the signature). This includes listeners
-//     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-//     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
-//     * <p>
-//     * The behavior of this method depends on the configured queuing strategy:
-//     * <p>
-//     * If an unbound queuing strategy is used the call returns immediately.
-//     * If a bounded queue is used the call might block until the message can be placed in the queue.
-//     */
-//    void publishAsync(Object message1, Object message2);
-//
-//    /**
-//     * Publish <b>THREE</b> messages asynchronously to all registered listeners (that match the signature). This includes listeners
-//     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-//     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
-//     * <p>
-//     * The behavior of this method depends on the configured queuing strategy:
-//     * <p>
-//     * If an unbound queuing strategy is used the call returns immediately.
-//     * If a bounded queue is used the call might block until the message can be placed in the queue.
-//     */
-//    void publishAsync(Object message1, Object message2, Object message3);
-//
-//    /**
-//     * Publish <b>ARBITRARY</b> messages asynchronously to all registered listeners (that match the signature). This includes listeners
-//     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-//     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
-//     * <p>
-//     * The behavior of this method depends on the configured queuing strategy:
-//     * <p>
-//     * If an unbound queuing strategy is used the call returns immediately.
-//     * If a bounded queue is used the call might block until the message can be placed in the queue.
-//     */
-//    void publishAsync(Object... messages);
+    /**
+     * Publish <b>TWO</b> messages asynchronously to all registered listeners (that match the signature). This
+     * includes listeners defined for super types of the given message type, provided they are not configured
+     * to reject valid subtypes. The call returns when all matching handlers of all registered listeners have
+     * been notified (invoked) of the message.
+     * <p>
+     * <p>
+     * The behavior of this method depends on the configured queuing strategy:
+     * <p>
+     * <p>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call might block until the message can be placed in the queue.
+     */
+    void publishAsync(Object message1, Object message2);
+
+    /**
+     * Publish <b>THREE</b> messages asynchronously to all registered listeners (that match the signature). This
+     * includes listeners defined for super types of the given message type, provided they are not configured to
+     * reject valid subtypes. The call returns when all matching handlers of all registered listeners have been
+     * notified (invoked) of the message.
+     * <p>
+     * <p>
+     * The behavior of this method depends on the configured queuing strategy:
+     * <p>
+     * <p>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call might block until the message can be placed in the queue.
+     */
+    void publishAsync(Object message1, Object message2, Object message3);
+
+    /**
+     * Publish <b>ARBITRARY</b> messages asynchronously to all registered listeners (that match the signature). This
+     * includes listeners defined for super types of the given message type, provided they are not configured to reject
+     * valid subtypes. The call returns when all matching handlers of all registered listeners have been notified
+     * (invoked) of the message.
+     * <p>
+     * <p>
+     * <b>
+     * Note, that there is NO DIFFERENCE in the java language between VarArg and Array! If it's an
+     * array, IT IS ALSO VARARG. You must explicitly check arrays to make sure they match!
+     * </b>
+     * <p>
+     * <p>
+     * The behavior of this method depends on the configured queuing strategy:
+     * <p>
+     * <p>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call might block until the message can be placed in the queue.
+     */
+    void publishAsync(Object... messages);
 
 
     /**
-     * Publish the message asynchronously to all registered listeners (that match the signature). This includes listeners
-     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
+     * Publish the message asynchronously to all registered listeners (that match the signature). This includes
+     * listeners defined for super types of the given message type, provided they are not configured to reject
+     * valid subtypes. The call returns when all matching handlers of all registered listeners have been notified
+     * (invoked) of the message.
+     * <p>
      * <p>
      * The behavior of this method depends on the configured queuing strategy:
+     * <p>
      * <p>
      * If an unbound queuing strategy is used the call returns immediately.
      * If a bounded queue is used the call might block until the message can be placed in the queue or the timeout is reached.
      */
     void publishAsync(long timeout, TimeUnit unit, Object message);
 
-//    /**
-//     * Publish <b>TWO</b> messages asynchronously to all registered listeners (that match the signature). This includes listeners
-//     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-//     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
-//     * <p>
-//     * The behavior of this method depends on the configured queuing strategy:
-//     * <p>
-//     * If an unbound queuing strategy is used the call returns immediately.
-//     * If a bounded queue is used the call might block until the message can be placed in the queue or the timeout is reached.
-//     */
-//    void publishAsync(long timeout, TimeUnit unit, Object message1, Object message2);
-//
-//    /**
-//     * Publish <b>THREE</b> messages asynchronously to all registered listeners (that match the signature). This includes listeners
-//     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-//     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
-//     * <p>
-//     * The behavior of this method depends on the configured queuing strategy:
-//     * <p>
-//     * If an unbound queuing strategy is used the call returns immediately.
-//     * If a bounded queue is used the call might block until the message can be placed in the queue or the timeout is reached.
-//     */
-//    void publishAsync(long timeout, TimeUnit unit, Object message1, Object message2, Object message3);
-//
-//    /**
-//     * Publish <b>ARBITRARY</b> messages asynchronously to all registered listeners (that match the signature). This includes listeners
-//     * defined for super types of the given message type, provided they are not configured to reject valid subtypes. The call
-//     * returns when all matching handlers of all registered listeners have been notified (invoked) of the message.
-//     * <p>
-//     * The behavior of this method depends on the configured queuing strategy:
-//     * <p>
-//     * If an unbound queuing strategy is used the call returns immediately.
-//     * If a bounded queue is used the call might block until the message can be placed in the queue or the timeout is reached.
-//     */
-//    void publishAsync(long timeout, TimeUnit unit, Object... messages);
+    /**
+     * Publish <b>TWO</b> messages asynchronously to all registered listeners (that match the signature). This
+     * includes listeners defined for super types of the given message type, provided they are not configured
+     * to reject valid subtypes. The call returns when all matching handlers of all registered listeners have
+     * been notified (invoked) of the message.
+     * <p>
+     * <p>
+     * The behavior of this method depends on the configured queuing strategy:
+     * <p>
+     * <p>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call might block until the message can be placed in the queue or the timeout is reached.
+     */
+    void publishAsync(long timeout, TimeUnit unit, Object message1, Object message2);
+
+    /**
+     * Publish <b>THREE</b> messages asynchronously to all registered listeners (that match the signature). This
+     * includes listeners defined for super types of the given message type, provided they are not configured to
+     * reject valid subtypes. The call returns when all matching handlers of all registered listeners have been
+     * notified (invoked) of the message.
+     * <p>
+     * <p>
+     * The behavior of this method depends on the configured queuing strategy:
+     * <p>
+     * <p>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call might block until the message can be placed in the queue or the timeout is reached.
+     */
+    void publishAsync(long timeout, TimeUnit unit, Object message1, Object message2, Object message3);
+
+    /**
+     * Publish <b>ARBITRARY or ARRAY</b> messages asynchronously to all registered listeners (that match the signature). This
+     * includes listeners defined for super types of the given message type, provided they are not configured to reject
+     * valid subtypes. The call returns when all matching handlers of all registered listeners have been notified
+     * (invoked) of the message.
+     * <p>
+     * <p>
+     * <b>
+     * Note, that there is NO DIFFERENCE in the java language between VarArg and Array! If it's an
+     * array, IT IS ALSO VARARG. You must explicitly check arrays to make sure they match!
+     * </b>
+     * <p>
+     * <p>
+     * The behavior of this method depends on the configured queuing strategy:
+     * <p>
+     * <p>
+     * If an unbound queuing strategy is used the call returns immediately.
+     * If a bounded queue is used the call might block until the message can be placed in the queue or the timeout is reached.
+     */
+    void publishAsync(long timeout, TimeUnit unit, Object... messages);
 }

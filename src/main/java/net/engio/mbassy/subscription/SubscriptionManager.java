@@ -11,13 +11,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import net.engio.mbassy.bus.error.MessageBusException;
 import net.engio.mbassy.common.ObjectTree;
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.common.WeakConcurrentSet;
 import net.engio.mbassy.dispatch.IHandlerInvocation;
 import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
 import net.engio.mbassy.dispatch.SynchronizedHandlerInvocation;
+import net.engio.mbassy.error.MessageBusException;
 import net.engio.mbassy.listener.MessageHandler;
 import net.engio.mbassy.listener.MetadataReader;
 
@@ -225,7 +225,7 @@ public class SubscriptionManager {
                 Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
                 if (subs != null) {
                     for (Subscription sub : subs) {
-                        if (sub.handlesMessageType(messageType)) {
+                        if (sub.handlesMessageType(eventSuperType)) {
                             subscriptions.add(sub);
                         }
                     }
@@ -235,20 +235,17 @@ public class SubscriptionManager {
             ///////////////
             // a var-arg handler might match
             ///////////////
-            // tricky part. We have to check the ARRAY version
+            // tricky part. We have to check the ARRAY version,
             for (Class<?> eventSuperType : types1) {
-                if (!eventSuperType.isArray()) {
-                    // messy, but the ONLY way to do it.
-                    eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
-                }
+                // messy, but the ONLY way to do it.
+                // NOTE: this will NEVER be an array to begin with, since that will call a DIFFERENT method
+                eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
 
                 // also add all subscriptions that match super types
                 Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
                 if (subs != null) {
                     for (Subscription sub : subs) {
-                        if (sub.isVarArg() && sub.handlesMessageType(messageType)) {
-                            subscriptions.add(sub);
-                        }
+                        subscriptions.add(sub);
                     }
                 }
             }
@@ -286,7 +283,7 @@ public class SubscriptionManager {
                             Collection<Subscription> subs = leaf2.getValue();
                             if (subs != null) {
                                 for (Subscription sub : subs) {
-                                    if (sub.handlesMessageType(messageType1, messageType2)) {
+                                    if (sub.handlesMessageType(eventSuperType1, eventSuperType2)) {
                                         subscriptions.add(sub);
                                     }
                                 }
@@ -302,18 +299,15 @@ public class SubscriptionManager {
             if (messageType1 == messageType2) {
                 // tricky part. We have to check the ARRAY version
                 for (Class<?> eventSuperType : types1) {
-                    if (!eventSuperType.isArray()) {
-                        // messy, but the ONLY way to do it.
-                        eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
-                    }
+                    // messy, but the ONLY way to do it.
+                    // NOTE: this will NEVER be an array to begin with, since that will call a DIFFERENT method
+                    eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
 
                     // also add all subscriptions that match super types
                     Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
                     if (subs != null) {
                         for (Subscription sub : subs) {
-                            if (sub.isVarArg() && sub.handlesMessageType(messageType1)) {
-                                subscriptions.add(sub);
-                            }
+                            subscriptions.add(sub);
                         }
                     }
                 }
@@ -360,7 +354,7 @@ public class SubscriptionManager {
                                     Collection<Subscription> subs = leaf3.getValue();
                                     if (subs != null) {
                                         for (Subscription sub : subs) {
-                                            if (sub.handlesMessageType(messageType1, messageType2, messageType3)) {
+                                            if (sub.handlesMessageType(eventSuperType1, eventSuperType2, eventSuperType3)) {
                                                 subscriptions.add(sub);
                                             }
                                         }
@@ -378,18 +372,15 @@ public class SubscriptionManager {
             if (messageType1 == messageType2 && messageType2 == messageType3) {
                 // tricky part. We have to check the ARRAY version
                 for (Class<?> eventSuperType : types1) {
-                    if (!eventSuperType.isArray()) {
-                        // messy, but the ONLY way to do it.
-                        eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
-                    }
+                    // messy, but the ONLY way to do it.
+                    // NOTE: this will NEVER be an array to begin with, since that will call a DIFFERENT method
+                    eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
 
                     // also add all subscriptions that match super types
                     Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
                     if (subs != null) {
                         for (Subscription sub : subs) {
-                            if (sub.isVarArg() && sub.handlesMessageType(messageType1)) {
-                                subscriptions.add(sub);
-                            }
+                            subscriptions.add(sub);
                         }
                     }
                 }
@@ -431,7 +422,7 @@ public class SubscriptionManager {
             }
 
 
-            // add all subscriptions that match super types
+            // add all subscriptions that match super types combinations
             // have to use recursion for this. BLEH
             getSubsVarArg(subscriptions, types, size-1, 0, this.subscriptionsPerMessageMulti, messageTypes);
 
@@ -443,18 +434,15 @@ public class SubscriptionManager {
 
                 // tricky part. We have to check the ARRAY version
                 for (Class<?> eventSuperType : types[0]) {
-                    if (!eventSuperType.isArray()) {
-                        // messy, but the ONLY way to do it.
-                        eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
-                    }
+                    // messy, but the ONLY way to do it.
+                    // NOTE: this will NEVER be an array to begin with, since that will call a DIFFERENT method
+                    eventSuperType = Array.newInstance(eventSuperType, 1).getClass();
 
                     // also add all subscriptions that match super types
                     Collection<Subscription> subs = this.subscriptionsPerMessageSingle.get(eventSuperType);
                     if (subs != null) {
                         for (Subscription sub : subs) {
-                            if (sub.isVarArg() && sub.handlesMessageType(firstType)) {
-                                subscriptions.add(sub);
-                            }
+                            subscriptions.add(sub);
                         }
                     }
                 }

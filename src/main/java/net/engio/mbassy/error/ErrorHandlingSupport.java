@@ -1,4 +1,4 @@
-package net.engio.mbassy.bus.error;
+package net.engio.mbassy.error;
 
 /**
  * @author bennidi

@@ -2,13 +2,13 @@ package net.engio.mbassy;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.engio.mbassy.bus.error.IPublicationErrorHandler;
-import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.ConcurrentExecutor;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.MessageManager;
 import net.engio.mbassy.common.TestUtil;
+import net.engio.mbassy.error.IPublicationErrorHandler;
+import net.engio.mbassy.error.PublicationError;
 import net.engio.mbassy.listeners.ExceptionThrowingListener;
 import net.engio.mbassy.listeners.IMessageListener;
 import net.engio.mbassy.listeners.Listeners;
@@ -102,7 +102,7 @@ public class MBassadorTest extends MessageBusTest {
             }
         };
 
-        final MBassador bus = new MBassador();
+        final MBassador bus = new MBassador().start();
         bus.addErrorHandler(ExceptionCounter);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);

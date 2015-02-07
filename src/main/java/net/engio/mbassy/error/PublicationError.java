@@ -1,4 +1,4 @@
-package net.engio.mbassy.bus.error;
+package net.engio.mbassy.error;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -79,6 +79,30 @@ public class PublicationError {
 
     public Object[] getPublishedObject() {
         return this.publishedObjects;
+    }
+
+    public PublicationError setPublishedObject(Object publishedObject) {
+        this.publishedObjects = new Object[1];
+        this.publishedObjects[0] = publishedObject;
+
+        return this;
+    }
+
+    public PublicationError setPublishedObject(Object publishedObject1, Object publishedObject2) {
+        this.publishedObjects = new Object[2];
+        this.publishedObjects[0] = publishedObject1;
+        this.publishedObjects[1] = publishedObject2;
+
+        return this;
+    }
+
+    public PublicationError setPublishedObject(Object publishedObject1, Object publishedObject2, Object publishedObject3) {
+        this.publishedObjects = new Object[3];
+        this.publishedObjects[0] = publishedObject1;
+        this.publishedObjects[1] = publishedObject2;
+        this.publishedObjects[2] = publishedObject3;
+
+        return this;
     }
 
     public PublicationError setPublishedObject(Object[] publishedObjects) {

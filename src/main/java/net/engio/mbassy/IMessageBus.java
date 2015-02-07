@@ -1,6 +1,6 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.error.ErrorHandlingSupport;
+import net.engio.mbassy.error.ErrorHandlingSupport;
 
 /**
  * A message bus offers facilities for publishing messages to the message handlers of registered listeners.

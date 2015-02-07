@@ -11,6 +11,15 @@ import net.engio.mbassy.common.ReflectionUtils;
  * Any method in any class annotated with the @Handler annotation represents a message handler. The class that contains
  * the handler is called a  message listener and more generally, any class containing a message handler in its class hierarchy
  * defines such a message listener.
+ * <p>
+ * <p>
+ * Note: When sending messages to a handler that is of type ARRAY (either an object of type array, or a vararg), the JVM cannot
+ *       tell the difference (the message that is being sent), if it is a vararg or array.
+ *       <p>
+ *       <p>
+ *       BECAUSE OF THIS, we always treat the two the same
+ *       <p>
+ *       <p>
  *
  * @author bennidi
  *         Date: 11/14/12
@@ -24,6 +33,7 @@ public class MessageHandler {
     private final boolean acceptsSubtypes;
     private final MessageListener listenerConfig;
 
+    // if ONE of the handled messages is of type array, then we configure it to ALSO accept var args!
     private final boolean acceptsVarArg;
     private final boolean isSynchronized;
 
@@ -40,9 +50,12 @@ public class MessageHandler {
         this.handler         = handler;
         this.acceptsSubtypes = !handlerConfig.rejectSubtypes();
         this.listenerConfig  = listenerMetadata;
-        this.acceptsVarArg   = handlerConfig.vararg();
         this.isSynchronized  = ReflectionUtils.getAnnotation(handler, Synchronized.class) != null;
         this.handledMessages = handledMessages;
+
+
+        // if ONE of the handled messages is of type array, then we configure it to ALSO accept var args!
+        this.acceptsVarArg = handledMessages.length == 1 && handledMessages[0].isArray();
     }
 
     public <A extends Annotation> A getAnnotation(Class<A> annotationType){
@@ -69,6 +82,97 @@ public class MessageHandler {
      * @author dorkbox, llc
      *         Date: 2/2/15
      */
+
+    /**
+     * @return true if the message types are handled
+     */
+    public boolean handlesMessage(Class<?> messageType) {
+        Class<?>[] handledMessages = this.handledMessages;
+        int handledLength = handledMessages.length;
+
+        if (handledLength != 1) {
+            return false;
+        }
+
+        if (this.acceptsSubtypes) {
+            if (!handledMessages[0].isAssignableFrom(messageType)) {
+                return false;
+            }
+        } else {
+            if (handledMessages[0] != messageType) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return true if the message types are handled
+     */
+    public boolean handlesMessage(Class<?> messageType1, Class<?> messageType2) {
+        Class<?>[] handledMessages = this.handledMessages;
+        int handledLength = handledMessages.length;
+
+        if (handledLength != 2) {
+            return false;
+        }
+
+        if (this.acceptsSubtypes) {
+            if (!handledMessages[0].isAssignableFrom(messageType1)) {
+                return false;
+            }
+            if (!handledMessages[1].isAssignableFrom(messageType2)) {
+                return false;
+            }
+        } else {
+            if (handledMessages[0] != messageType1) {
+                return false;
+            }
+            if (handledMessages[1] != messageType2) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return true if the message types are handled
+     */
+    public boolean handlesMessage(Class<?> messageType1, Class<?> messageType2, Class<?> messageType3) {
+        Class<?>[] handledMessages = this.handledMessages;
+        int handledLength = handledMessages.length;
+
+        if (handledLength != 3) {
+            return false;
+        }
+
+        if (this.acceptsSubtypes) {
+            if (!handledMessages[0].isAssignableFrom(messageType1)) {
+                return false;
+            }
+            if (!handledMessages[1].isAssignableFrom(messageType2)) {
+                return false;
+            }
+            if (!handledMessages[2].isAssignableFrom(messageType3)) {
+                return false;
+            }
+        } else {
+            if (handledMessages[0] != messageType1) {
+                return false;
+            }
+            if (handledMessages[1] != messageType2) {
+                return false;
+            }
+            if (handledMessages[2] != messageType3) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * @return true if the message types are handled
      */

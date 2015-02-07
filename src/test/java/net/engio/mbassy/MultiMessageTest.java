@@ -20,7 +20,7 @@ public class MultiMessageTest extends MessageBusTest {
 
     @Test
     public void testMultiMessageSending(){
-        IMessageBus bus = new MBassador();
+        IMessageBus bus = new MBassador().start();
 
         Listener listener = new Listener();
         bus.subscribe(listener);
@@ -31,45 +31,47 @@ public class MultiMessageTest extends MessageBusTest {
         bus.publish("s", "s", "s", "s");
         bus.publish(1, 2, "s");
         bus.publish(1, 2, 3, 4, 5, 6);
+        bus.publish(new Integer[] {1, 2, 3, 4, 5, 6});
 
-        assertEquals(count.get(), 5);
+        assertEquals(count.get(), 10);
     }
 
+    @SuppressWarnings("unused")
     public static class Listener {
         @Handler
-        @SuppressWarnings("unused")
         public void handleSync(String o1) {
             count.getAndIncrement();
+            System.err.println("match String");
         }
 
         @Handler
-        @SuppressWarnings("unused")
         public void handleSync(String o1, String o2) {
             count.getAndIncrement();
+            System.err.println("match String, String");
         }
 
         @Handler
-        @SuppressWarnings("unused")
         public void handleSync(String o1, String o2, String o3) {
             count.getAndIncrement();
+            System.err.println("match String, String, String");
         }
 
         @Handler
-        @SuppressWarnings("unused")
         public void handleSync(Integer o1, Integer o2, String o3) {
             count.getAndIncrement();
-        }
-
-        @Handler(vararg = true)
-        @SuppressWarnings("unused")
-        public void handleSync(String... o) {
-            count.getAndIncrement();
+            System.err.println("match Integer, Integer, String");
         }
 
         @Handler
-        @SuppressWarnings("unused")
+        public void handleSync(String... o) {
+            count.getAndIncrement();
+            System.err.println("match String[]");
+        }
+
+        @Handler
         public void handleSync(Integer... o) {
             count.getAndIncrement();
+            System.err.println("match Integer[]");
         }
     }
 }

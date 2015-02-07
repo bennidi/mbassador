@@ -1,4 +1,4 @@
-package net.engio.mbassy.bus.error;
+package net.engio.mbassy.error;
 
 /**
  * The universal exception type for message bus implementations.
@@ -23,6 +23,4 @@ public class MessageBusException extends Exception {
     public MessageBusException(Throwable cause) {
         super(cause);
     }
-
-
 }

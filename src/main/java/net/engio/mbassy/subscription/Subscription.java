@@ -4,10 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import net.engio.mbassy.bus.error.ErrorHandlingSupport;
-import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.dispatch.IHandlerInvocation;
+import net.engio.mbassy.error.ErrorHandlingSupport;
+import net.engio.mbassy.error.PublicationError;
 import net.engio.mbassy.listener.MessageHandler;
 
 /**
@@ -132,7 +132,7 @@ public class Subscription {
                                                             .setCause(e)
                                                             .setHandler(handler)
                                                             .setListener(listener)
-                                                            .setPublishedObject(new Object[] {message}));
+                                                            .setPublishedObject(message));
                 } catch (IllegalArgumentException e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                                             .setMessage("Error during invocation of message handler. " +
@@ -141,7 +141,7 @@ public class Subscription {
                                                             .setCause(e)
                                                             .setHandler(handler)
                                                             .setListener(listener)
-                                                            .setPublishedObject(new Object[] {message}));
+                                                            .setPublishedObject(message));
                 } catch (InvocationTargetException e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                                             .setMessage("Error during invocation of message handler. " +
@@ -149,8 +149,7 @@ public class Subscription {
                                                             .setCause(e)
                                                             .setHandler(handler)
                                                             .setListener(listener)
-                                                            .setPublishedObject(new Object[] {message}));
-
+                                                            .setPublishedObject(message));
                 } catch (Throwable e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                                             .setMessage("Error during invocation of message handler. " +
@@ -158,7 +157,7 @@ public class Subscription {
                                                             .setCause(e)
                                                             .setHandler(handler)
                                                             .setListener(listener)
-                                                            .setPublishedObject(new Object[] {message}));
+                                                            .setPublishedObject(message));
                 }
             }
         }
@@ -188,7 +187,7 @@ public class Subscription {
                                                             .setCause(e)
                                                             .setHandler(handler)
                                                             .setListener(listener)
-                                                            .setPublishedObject(new Object[] {message1, message2}));
+                                                            .setPublishedObject(message1, message2));
                 } catch (IllegalArgumentException e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                                             .setMessage("Error during invocation of message handler. " +
@@ -201,7 +200,7 @@ public class Subscription {
                                                             .setCause(e)
                                                             .setHandler(handler)
                                                             .setListener(listener)
-                                                            .setPublishedObject(new Object[] {message1, message2}));
+                                                            .setPublishedObject(message1, message2));
                 } catch (InvocationTargetException e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                                             .setMessage("Error during invocation of message handler. " +
@@ -209,8 +208,7 @@ public class Subscription {
                                                             .setCause(e)
                                                             .setHandler(handler)
                                                             .setListener(listener)
-                                                            .setPublishedObject(new Object[] {message1, message2}));
-
+                                                            .setPublishedObject(message1, message2));
                 } catch (Throwable e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                                             .setMessage("Error during invocation of message handler. " +
@@ -218,7 +216,7 @@ public class Subscription {
                                                             .setCause(e)
                                                             .setHandler(handler)
                                                             .setListener(listener)
-                                                            .setPublishedObject(new Object[] {message1, message2}));
+                                                            .setPublishedObject(message1, message2));
                 }
             }
         }
@@ -248,7 +246,7 @@ public class Subscription {
                                     .setCause(e)
                                     .setHandler(handler)
                                     .setListener(listener)
-                                    .setPublishedObject(new Object[] {message1, message2, message3}));
+                                    .setPublishedObject(message1, message2, message3));
                 } catch (IllegalArgumentException e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                     .setMessage("Error during invocation of message handler. " +
@@ -263,7 +261,7 @@ public class Subscription {
                                     .setCause(e)
                                     .setHandler(handler)
                                     .setListener(listener)
-                                    .setPublishedObject(new Object[] {message1, message2, message3}));
+                                    .setPublishedObject(message1, message2, message3));
                 } catch (InvocationTargetException e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                     .setMessage("Error during invocation of message handler. " +
@@ -271,8 +269,7 @@ public class Subscription {
                                     .setCause(e)
                                     .setHandler(handler)
                                     .setListener(listener)
-                                    .setPublishedObject(new Object[] {message1, message2, message3}));
-
+                                    .setPublishedObject(message1, message2, message3));
                 } catch (Throwable e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                     .setMessage("Error during invocation of message handler. " +
@@ -280,7 +277,7 @@ public class Subscription {
                                     .setCause(e)
                                     .setHandler(handler)
                                     .setListener(listener)
-                                    .setPublishedObject(new Object[] {message1, message2, message3}));
+                                    .setPublishedObject(message1, message2, message3));
                 }
             }
         }
@@ -328,7 +325,6 @@ public class Subscription {
                                     .setHandler(handler)
                                     .setListener(listener)
                                     .setPublishedObject(messages));
-
                 } catch (Throwable e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                     .setMessage("Error during invocation of message handler. " +
