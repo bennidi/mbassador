@@ -14,12 +14,12 @@ public interface IConcurrentSet<T> extends Iterable<T> {
 
     int size();
 
+    boolean isEmpty();
+
     void addAll(Iterable<T> elements);
 
     /**
-     * The return on this is DIFFERENT than normal.
-     *
-     * @return TRUE if there are no more elements (aka: this set is now empty)
+     * @return TRUE if the element was removed
      */
     boolean remove(T element);
 }

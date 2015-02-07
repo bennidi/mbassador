@@ -73,8 +73,9 @@ public class SubscriptionManager {
 
             if (subscriptions != null) {
                 for (Subscription subscription : subscriptions) {
-                    boolean isEmpty = subscription.unsubscribe(listener);
+                    subscription.unsubscribe(listener);
 
+                    boolean isEmpty = subscription.isEmpty();
                     if (isEmpty) {
                         // single or multi?
                         Class<?>[] handledMessageTypes = subscription.getHandledMessageTypes();

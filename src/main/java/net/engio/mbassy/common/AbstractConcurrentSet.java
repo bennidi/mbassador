@@ -66,6 +66,10 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
         return this.entries.size();
     }
 
+    public boolean isEmpty() {
+        return this.head == null;
+    }
+
     @Override
     public void addAll(Iterable<T> elements) {
         Lock writeLock = this.lock.writeLock();
@@ -82,22 +86,14 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
     }
 
     /**
-     * The return on this is DIFFERENT than normal.
-     *
-     * @return TRUE if there are no more elements (aka: this set is now empty)
+     * @return TRUE if the element was successfully removed
      */
     @Override
     public boolean remove(T element) {
         if (!contains(element)) {
             // return quickly
-            Lock readLock = this.lock.readLock();
-            readLock.lock();
-            boolean headIsNull = this.head == null;
-            readLock.unlock();
-
-            return headIsNull;
+            return false;
         } else {
-            boolean wasLastElement = false;
             Lock writeLock = this.lock.writeLock();
             try {
                 writeLock.lock();
@@ -113,14 +109,10 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
                     //oldHead.clear(); // optimize for GC not possible because of potentially running iterators
                 }
                 this.entries.remove(element);
-
-                if (this.head == null) {
-                    wasLastElement = true;
-                }
             } finally {
                 writeLock.unlock();
             }
-            return wasLastElement;
+            return true;
         }
     }
 

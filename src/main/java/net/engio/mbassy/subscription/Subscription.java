@@ -110,11 +110,14 @@ public class Subscription {
 
 
     /**
-     * @return TRUE if there are no listeners subscribed
+     * @return TRUE if the element was removed
      */
     public boolean unsubscribe(Object existingListener) {
-        // TRUE if there are no more elements (aka: this set is empty)
         return this.listeners.remove(existingListener);
+    }
+
+    public boolean isEmpty() {
+        return this.listeners.isEmpty();
     }
 
     public int size() {
