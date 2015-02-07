@@ -58,6 +58,10 @@ public class SubscriptionValidator extends AssertSupport{
     }
 
 
+    public void clear() {
+        this.validations.clear();
+    }
+
 
     private Collection<ValidationEntry> getEntries(Class<?> messageType) {
         Collection<ValidationEntry> matching = new LinkedList<ValidationEntry>();

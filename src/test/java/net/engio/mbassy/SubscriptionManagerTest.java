@@ -36,7 +36,7 @@ import org.junit.Test;
 public class SubscriptionManagerTest extends AssertSupport {
 
     private static final int InstancesPerListener = 5000;
-    private static final int ConcurrentUnits = 10;
+    private static final int ConcurrentUnits = 1;
 
     @Test
     public void testIMessageListener(){
@@ -187,12 +187,12 @@ public class SubscriptionManagerTest extends AssertSupport {
 
         validator.validate(subscriptionManager);
 
-        ConcurrentExecutor.runConcurrent(TestUtil.unsubscriber(subscriptionManager, listeners), ConcurrentUnits);
+         ConcurrentExecutor.runConcurrent(TestUtil.unsubscriber(subscriptionManager, listeners), ConcurrentUnits);
 
         listeners.clear();
+        validator.clear();
 
         validator.validate(subscriptionManager);
     }
-
-
 }
+

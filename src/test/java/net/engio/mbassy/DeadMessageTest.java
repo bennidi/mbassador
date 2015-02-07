@@ -101,7 +101,7 @@ public class DeadMessageTest extends MessageBusTest{
         bus.publish(new Object());
 
         // The message should be caught, as it's the only listener
-        assertEquals(0, deadMessages.get());
+        assertEquals(InstancesPerListener, deadMessages.get());
     }
 
     public static class DeadMessagHandler {
