@@ -1,3 +1,38 @@
+MultiMBassador
+==============
+
+The "Multi" MBassador fork is a high-performance, low GC, Disruptor-based, method signature parameters > 1 & var-arg distribution.
+
+*Many* features from the original MBassador have been removed, specifically the ONLY things to remain for a handler are  
+- rejectSubtypes
+- enabled
+
+Additionally, the bus *must* explicitly be started now (because of errorhandling when starting the disruptor), 
+ie: ```.start()```, and conversely ```.shutdown()``` is necessary to shutdown the disruptor/thread pool. During the distillation
+process, the API has changed, and the only way to publish now is to actually call ```bus.publish()``` or ```bus.publishAsync()```.
+  
+  
+The largest change however, is the ability to publish N-number of objects. A single object (or all-matching-types, when more than one)
+will ALSO be sent (VarArg style) to any handler that accepts an array of the correct type. It is important to note, that you
+cannot register a handler(String[] s), and ONLY have it accept objects of type String[]. This is because of how the JVM interprets VarArgs.   
+
+   
+In the following example, "s" will get published to the handler(String s) and to the handler(String[] s) and handler(String... s).
+```
+    bus.publish("s");
+    bus.publish("s", "s");
+    bus.publish("s", "s", "s");
+    bus.publish("s", "s", "s", "s");
+    bus.publish(1, 2, "s");
+    bus.publish(1, 2, 3, 4, 5, 6);
+    bus.publish(new Integer[] {1, 2, 3, 4, 5, 6});
+```
+
+
+
+
+
+
 MBassador
 =========
 
