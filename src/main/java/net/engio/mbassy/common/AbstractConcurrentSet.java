@@ -1,6 +1,5 @@
 package net.engio.mbassy.common;
 
-
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;

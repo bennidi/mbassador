@@ -14,6 +14,9 @@ import net.engio.mbassy.subscription.SubscriptionManager;
 
 /**
  * The base class for all message bus implementations.
+ * @author bennidi
+ * @author dorkbox, llc
+ *         Date: 2/2/15
  */
 public abstract class AbstractPubSubSupport implements PubSubSupport, ErrorHandlingSupport {
 

@@ -1,3 +1,6 @@
+/*
+ * Copyright 2015 dorkbox, llc
+ */
 package net.engio.mbassy;
 
 import java.util.concurrent.atomic.AtomicInteger;

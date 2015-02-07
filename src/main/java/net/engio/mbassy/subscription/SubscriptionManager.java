@@ -29,6 +29,8 @@ import net.engio.mbassy.listener.MetadataReader;
  *
  * @author bennidi
  *         Date: 5/11/13
+ * @author dorkbox, llc
+ *         Date: 2/2/15
  */
 public class SubscriptionManager {
 

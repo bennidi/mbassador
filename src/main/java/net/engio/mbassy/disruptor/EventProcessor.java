@@ -5,6 +5,10 @@ import net.engio.mbassy.bus.error.PublicationError;
 
 import com.lmax.disruptor.EventHandler;
 
+/**
+ * @author dorkbox, llc
+ *         Date: 2/2/15
+ */
 public class EventProcessor implements EventHandler<MessageHolder> {
     private final AbstractPubSubSupport publisher;
 

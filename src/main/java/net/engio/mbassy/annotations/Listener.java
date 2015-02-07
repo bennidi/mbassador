@@ -20,5 +20,4 @@ import java.lang.annotation.Target;
 @Target(value = {ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Inherited
 public @interface Listener {
-
 }

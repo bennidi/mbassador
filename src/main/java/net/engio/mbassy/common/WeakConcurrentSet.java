@@ -1,6 +1,5 @@
 package net.engio.mbassy.common;
 
-
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.WeakHashMap;

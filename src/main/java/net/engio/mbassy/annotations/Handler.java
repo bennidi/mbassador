@@ -12,6 +12,8 @@ import java.lang.annotation.Target;
  *
  * @author bennidi
  *         Date: 2/8/12
+ * @author dorkbox, llc
+ *         Date: 2/2/15
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Inherited

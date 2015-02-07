@@ -1,7 +1,10 @@
 package net.engio.mbassy.bus.error;
 
-
-
+/**
+ * @author bennidi
+ * @author dorkbox, llc
+ *         Date: 2/2/15
+ */
 public interface ErrorHandlingSupport {
 
     /**

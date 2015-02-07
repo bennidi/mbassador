@@ -7,6 +7,8 @@ import java.lang.reflect.Method;
  *
  * @author bennidi
  *         Date: 3/31/13
+ * @author dorkbox, llc
+ *         Date: 2/2/15
  */
 public class SynchronizedHandlerInvocation implements IHandlerInvocation {
 

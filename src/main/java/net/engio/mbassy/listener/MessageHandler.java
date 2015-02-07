@@ -14,6 +14,8 @@ import net.engio.mbassy.common.ReflectionUtils;
  *
  * @author bennidi
  *         Date: 11/14/12
+ * @author dorkbox, llc
+ *         Date: 2/2/15
  */
 public class MessageHandler {
 
@@ -63,9 +65,10 @@ public class MessageHandler {
         return this.handledMessages;
     }
 
-    // todo: have 1, 2, 3 versions
-
-
+    /*
+     * @author dorkbox, llc
+     *         Date: 2/2/15
+     */
     /**
      * @return true if the message types are handled
      */

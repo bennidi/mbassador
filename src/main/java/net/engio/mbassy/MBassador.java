@@ -19,6 +19,10 @@ import com.lmax.disruptor.dsl.ProducerType;
 
 /**
  * The base class for all message bus implementations with support for asynchronous message dispatch
+ *
+ * @Author bennidi
+ * @author dorkbox, llc
+ *         Date: 2/2/15
  */
 public class MBassador extends AbstractPubSubSupport implements IMessageBus {
 

@@ -1,6 +1,10 @@
 package net.engio.mbassy.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * A handler marked with this annotation is guaranteed to be invoked in a thread-safe manner, that is, no

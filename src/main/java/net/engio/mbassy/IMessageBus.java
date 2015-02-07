@@ -53,7 +53,9 @@ import net.engio.mbassy.bus.error.ErrorHandlingSupport;
  * get dispatched to all message handlers that take an instance of List as their parameter
  *
  * @Author bennidi
- * Date: 2/8/12
+ *         Date: 2/8/12
+ * @author dorkbox, llc
+ *         Date: 2/2/15
  */
 public interface IMessageBus extends PubSubSupport, ErrorHandlingSupport {
 

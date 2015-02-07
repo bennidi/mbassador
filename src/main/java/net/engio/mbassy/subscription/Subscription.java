@@ -21,6 +21,9 @@ import net.engio.mbassy.listener.MessageHandler;
  * The subscription provides functionality for message publication by means of delegation to the respective
  * message dispatcher.
  *
+ * @author bennidi
+ * @author dorkbox, llc
+ *         Date: 2/2/15
  */
 public class Subscription {
 

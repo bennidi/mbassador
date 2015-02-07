@@ -6,7 +6,10 @@ import java.util.Locale;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+/**
+ * @author dorkbox, llc
+ *         Date: 2/2/15
+ */
 public class DisruptorThreadFactory implements ThreadFactory {
     /**
      * The stack size is arbitrary based on JVM implementation. Default is 0

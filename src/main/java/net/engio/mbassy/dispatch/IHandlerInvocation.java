@@ -14,6 +14,8 @@ import java.lang.reflect.Method;
  *
  * @author bennidi
  *         Date: 11/23/12
+ * @author dorkbox, llc
+ *         Date: 2/2/15
  */
 public interface IHandlerInvocation {
 
