@@ -146,7 +146,6 @@ public class MetadataReaderTest extends AssertSupport {
         }
     }
 
-
     // a simple event listener
     @SuppressWarnings("unused")
     public class MessageListener1 {
