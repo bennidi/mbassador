@@ -1,7 +1,6 @@
 package net.engio.mbassy.subscription;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import net.engio.mbassy.common.IConcurrentSet;
@@ -12,6 +11,8 @@ import net.engio.mbassy.dispatch.SynchronizedHandlerInvocation;
 import net.engio.mbassy.error.ErrorHandlingSupport;
 import net.engio.mbassy.error.PublicationError;
 import net.engio.mbassy.listener.MessageHandler;
+
+import com.esotericsoftware.reflectasm.MethodAccess;
 
 /**
  * A subscription is a thread-safe container that manages exactly one message handler of all registered
@@ -126,27 +127,18 @@ public class Subscription {
 
     public void publishToSubscription(ErrorHandlingSupport errorHandler, Object message) {
         if (this.listeners.size() > 0) {
-
-            /**
-             * Delivers the given message to the given set of listeners.
-             * Delivery may be delayed, aborted or restricted in various ways, depending
-             * on the configuration of the dispatcher
-             *
-             * @param publication The message publication that initiated the dispatch
-             * @param message     The message that should be delivered to the listeners
-             * @param listeners   The listeners that should receive the message
-             */
-            Method handler = this.handlerMetadata.getHandler();
+            MethodAccess handler = this.handlerMetadata.getHandler();
+            int methodIndex = this.handlerMetadata.getMethodIndex();
 
             for (Object listener : this.listeners) {
                 try {
-                    this.invocation.invoke(listener, handler, message);
+                    this.invocation.invoke(listener, handler, methodIndex, message);
                 } catch (IllegalAccessException e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                                             .setMessage("Error during invocation of message handler. " +
                                                                         "The class or method is not accessible")
                                                             .setCause(e)
-                                                            .setHandler(handler)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
                                                             .setListener(listener)
                                                             .setPublishedObject(message));
                 } catch (IllegalArgumentException e) {
@@ -155,7 +147,7 @@ public class Subscription {
                                                                         "Wrong arguments passed to method. Was: " + message.getClass()
                                                                         + "Expected: " + handler.getParameterTypes()[0])
                                                             .setCause(e)
-                                                            .setHandler(handler)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
                                                             .setListener(listener)
                                                             .setPublishedObject(message));
                 } catch (InvocationTargetException e) {
@@ -163,7 +155,7 @@ public class Subscription {
                                                             .setMessage("Error during invocation of message handler. " +
                                                                         "Message handler threw exception")
                                                             .setCause(e)
-                                                            .setHandler(handler)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
                                                             .setListener(listener)
                                                             .setPublishedObject(message));
                 } catch (Throwable e) {
@@ -171,7 +163,7 @@ public class Subscription {
                                                             .setMessage("Error during invocation of message handler. " +
                                                                         "The handler code threw an exception")
                                                             .setCause(e)
-                                                            .setHandler(handler)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
                                                             .setListener(listener)
                                                             .setPublishedObject(message));
                 }
@@ -181,27 +173,18 @@ public class Subscription {
 
     public void publishToSubscription(ErrorHandlingSupport errorHandler, Object message1, Object message2) {
         if (this.listeners.size() > 0) {
-
-            /**
-             * Delivers the given message to the given set of listeners.
-             * Delivery may be delayed, aborted or restricted in various ways, depending
-             * on the configuration of the dispatcher
-             *
-             * @param publication The message publication that initiated the dispatch
-             * @param message     The message that should be delivered to the listeners
-             * @param listeners   The listeners that should receive the message
-             */
-            Method handler = this.handlerMetadata.getHandler();
+            MethodAccess handler = this.handlerMetadata.getHandler();
+            int methodIndex = this.handlerMetadata.getMethodIndex();
 
             for (Object listener : this.listeners) {
                 try {
-                    this.invocation.invoke(listener, handler, message1, message2);
+                    this.invocation.invoke(listener, handler, methodIndex, message1, message2);
                 } catch (IllegalAccessException e) {
                     errorHandler.handlePublicationError(new PublicationError()
                                                             .setMessage("Error during invocation of message handler. " +
                                                                         "The class or method is not accessible")
                                                             .setCause(e)
-                                                            .setHandler(handler)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
                                                             .setListener(listener)
                                                             .setPublishedObject(message1, message2));
                 } catch (IllegalArgumentException e) {
@@ -214,7 +197,7 @@ public class Subscription {
                                                                                             handler.getParameterTypes()[1]
                                                                             )
                                                             .setCause(e)
-                                                            .setHandler(handler)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
                                                             .setListener(listener)
                                                             .setPublishedObject(message1, message2));
                 } catch (InvocationTargetException e) {
@@ -222,7 +205,7 @@ public class Subscription {
                                                             .setMessage("Error during invocation of message handler. " +
                                                                         "Message handler threw exception")
                                                             .setCause(e)
-                                                            .setHandler(handler)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
                                                             .setListener(listener)
                                                             .setPublishedObject(message1, message2));
                 } catch (Throwable e) {
@@ -230,7 +213,7 @@ public class Subscription {
                                                             .setMessage("Error during invocation of message handler. " +
                                                                         "The handler code threw an exception")
                                                             .setCause(e)
-                                                            .setHandler(handler)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
                                                             .setListener(listener)
                                                             .setPublishedObject(message1, message2));
                 }
@@ -240,60 +223,51 @@ public class Subscription {
 
     public void publishToSubscription(ErrorHandlingSupport errorHandler, Object message1, Object message2, Object message3) {
         if (this.listeners.size() > 0) {
-
-            /**
-             * Delivers the given message to the given set of listeners.
-             * Delivery may be delayed, aborted or restricted in various ways, depending
-             * on the configuration of the dispatcher
-             *
-             * @param publication The message publication that initiated the dispatch
-             * @param message     The message that should be delivered to the listeners
-             * @param listeners   The listeners that should receive the message
-             */
-            Method handler = this.handlerMetadata.getHandler();
+            MethodAccess handler = this.handlerMetadata.getHandler();
+            int methodIndex = this.handlerMetadata.getMethodIndex();
 
             for (Object listener : this.listeners) {
                 try {
-                    this.invocation.invoke(listener, handler, message1, message2, message3);
+                    this.invocation.invoke(listener, handler, methodIndex, message1, message2, message3);
                 } catch (IllegalAccessException e) {
                     errorHandler.handlePublicationError(new PublicationError()
-                                    .setMessage("Error during invocation of message handler. " +
-                                                "The class or method is not accessible")
-                                    .setCause(e)
-                                    .setHandler(handler)
-                                    .setListener(listener)
-                                    .setPublishedObject(message1, message2, message3));
+                                                            .setMessage("Error during invocation of message handler. " +
+                                                                        "The class or method is not accessible")
+                                                            .setCause(e)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
+                                                            .setListener(listener)
+                                                            .setPublishedObject(message1, message2, message3));
                 } catch (IllegalArgumentException e) {
                     errorHandler.handlePublicationError(new PublicationError()
-                                    .setMessage("Error during invocation of message handler. " +
-                                                "Wrong arguments passed to method. Was: " +
-                                    message1.getClass() + ", " +
-                                    message2.getClass() + ", " +
-                                    message3.getClass()
-                                    + ".  Expected: " + handler.getParameterTypes()[0] + ", " +
-                                                        handler.getParameterTypes()[1] + ", " +
-                                                        handler.getParameterTypes()[2]
-                                    )
-                                    .setCause(e)
-                                    .setHandler(handler)
-                                    .setListener(listener)
-                                    .setPublishedObject(message1, message2, message3));
+                                                            .setMessage("Error during invocation of message handler. " +
+                                                                        "Wrong arguments passed to method. Was: " +
+                                                            message1.getClass() + ", " +
+                                                            message2.getClass() + ", " +
+                                                            message3.getClass()
+                                                            + ".  Expected: " + handler.getParameterTypes()[0] + ", " +
+                                                                                handler.getParameterTypes()[1] + ", " +
+                                                                                handler.getParameterTypes()[2]
+                                                            )
+                                                            .setCause(e)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
+                                                            .setListener(listener)
+                                                            .setPublishedObject(message1, message2, message3));
                 } catch (InvocationTargetException e) {
                     errorHandler.handlePublicationError(new PublicationError()
-                                    .setMessage("Error during invocation of message handler. " +
-                                                "Message handler threw exception")
-                                    .setCause(e)
-                                    .setHandler(handler)
-                                    .setListener(listener)
-                                    .setPublishedObject(message1, message2, message3));
+                                                            .setMessage("Error during invocation of message handler. " +
+                                                                        "Message handler threw exception")
+                                                            .setCause(e)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
+                                                            .setListener(listener)
+                                                            .setPublishedObject(message1, message2, message3));
                 } catch (Throwable e) {
                     errorHandler.handlePublicationError(new PublicationError()
-                                    .setMessage("Error during invocation of message handler. " +
-                                                "The handler code threw an exception")
-                                    .setCause(e)
-                                    .setHandler(handler)
-                                    .setListener(listener)
-                                    .setPublishedObject(message1, message2, message3));
+                                                            .setMessage("Error during invocation of message handler. " +
+                                                                        "The handler code threw an exception")
+                                                            .setCause(e)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
+                                                            .setListener(listener)
+                                                            .setPublishedObject(message1, message2, message3));
                 }
             }
         }
@@ -301,54 +275,45 @@ public class Subscription {
 
     public void publishToSubscription(ErrorHandlingSupport errorHandler, Object... messages) {
         if (this.listeners.size() > 0) {
-
-            /**
-             * Delivers the given message to the given set of listeners.
-             * Delivery may be delayed, aborted or restricted in various ways, depending
-             * on the configuration of the dispatcher
-             *
-             * @param publication The message publication that initiated the dispatch
-             * @param message     The message that should be delivered to the listeners
-             * @param listeners   The listeners that should receive the message
-             */
-            Method handler = this.handlerMetadata.getHandler();
+            MethodAccess handler = this.handlerMetadata.getHandler();
+            int methodIndex = this.handlerMetadata.getMethodIndex();
 
             for (Object listener : this.listeners) {
                 try {
-                    this.invocation.invoke(listener, handler, messages);
+                    this.invocation.invoke(listener, handler, methodIndex, messages);
                 } catch (IllegalAccessException e) {
                     errorHandler.handlePublicationError(new PublicationError()
-                                    .setMessage("Error during invocation of message handler. " +
-                                                    "The class or method is not accessible")
-                                    .setCause(e)
-                                    .setHandler(handler)
-                                    .setListener(listener)
-                                    .setPublishedObject(messages));
+                                                            .setMessage("Error during invocation of message handler. " +
+                                                                            "The class or method is not accessible")
+                                                            .setCause(e)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
+                                                            .setListener(listener)
+                                                            .setPublishedObject(messages));
                 } catch (IllegalArgumentException e) {
                     errorHandler.handlePublicationError(new PublicationError()
-                                    .setMessage("Error during invocation of message handler. " +
-                                                "Wrong arguments passed to method. Was: " + Arrays.deepToString(messages)
-                                                + "Expected: " + Arrays.deepToString(handler.getParameterTypes()))
-                                    .setCause(e)
-                                    .setHandler(handler)
-                                    .setListener(listener)
-                                    .setPublishedObject(messages));
+                                                            .setMessage("Error during invocation of message handler. " +
+                                                                        "Wrong arguments passed to method. Was: " + Arrays.deepToString(messages)
+                                                                        + "Expected: " + Arrays.deepToString(handler.getParameterTypes()))
+                                                            .setCause(e)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
+                                                            .setListener(listener)
+                                                            .setPublishedObject(messages));
                 } catch (InvocationTargetException e) {
                     errorHandler.handlePublicationError(new PublicationError()
-                                    .setMessage("Error during invocation of message handler. " +
-                                                "Message handler threw exception")
-                                    .setCause(e)
-                                    .setHandler(handler)
-                                    .setListener(listener)
-                                    .setPublishedObject(messages));
+                                                            .setMessage("Error during invocation of message handler. " +
+                                                                        "Message handler threw exception")
+                                                            .setCause(e)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
+                                                            .setListener(listener)
+                                                            .setPublishedObject(messages));
                 } catch (Throwable e) {
                     errorHandler.handlePublicationError(new PublicationError()
-                                    .setMessage("Error during invocation of message handler. " +
-                                                "The handler code threw an exception")
-                                    .setCause(e)
-                                    .setHandler(handler)
-                                    .setListener(listener)
-                                    .setPublishedObject(messages));
+                                                            .setMessage("Error during invocation of message handler. " +
+                                                                        "The handler code threw an exception")
+                                                            .setCause(e)
+                                                            .setMethodName(handler.getMethodNames()[methodIndex])
+                                                            .setListener(listener)
+                                                            .setPublishedObject(messages));
                 }
             }
         }

@@ -1,12 +1,13 @@
 package net.engio.mbassy.listener;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.annotations.Synchronized;
 import net.engio.mbassy.common.ReflectionUtils;
+
+import com.esotericsoftware.reflectasm.MethodAccess;
 
 /**
  * Any method in any class annotated with the @Handler annotation represents a message handler. The class that contains
@@ -29,7 +30,8 @@ import net.engio.mbassy.common.ReflectionUtils;
  */
 public class MessageHandler {
 
-    private final Method handler;
+    private final MethodAccess handler;
+    private final int methodIndex;
     private final Class<?>[] handledMessages;
     private final boolean acceptsSubtypes;
     private final MessageListener listenerConfig;
@@ -46,9 +48,10 @@ public class MessageHandler {
         }
 
         Class<?>[] handledMessages = handler.getParameterTypes();
-        handler.setAccessible(true);
 
-        this.handler         = handler;
+        this.handler = MethodAccess.get(handler.getDeclaringClass());
+        this.methodIndex = this.handler.getIndex(handler.getName(), handledMessages);
+
         this.acceptsSubtypes = !handlerConfig.rejectSubtypes();
         this.listenerConfig  = listenerMetadata;
         this.isSynchronized  = ReflectionUtils.getAnnotation(handler, Synchronized.class) != null;
@@ -59,10 +62,6 @@ public class MessageHandler {
         this.isVarArg = handledMessages.length == 1 && handledMessages[0].isArray();
     }
 
-    public <A extends Annotation> A getAnnotation(Class<A> annotationType){
-        return ReflectionUtils.getAnnotation(this.handler,annotationType);
-    }
-
     public boolean isSynchronized(){
         return this.isSynchronized;
     }
@@ -71,8 +70,12 @@ public class MessageHandler {
         return this.listenerConfig.isFromListener(listener);
     }
 
-    public Method getHandler() {
+    public MethodAccess getHandler() {
         return this.handler;
+    }
+
+    public int getMethodIndex() {
+        return this.methodIndex;
     }
 
     public Class<?>[] getHandledMessages() {

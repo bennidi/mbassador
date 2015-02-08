@@ -1,6 +1,6 @@
 package net.engio.mbassy.dispatch;
 
-import java.lang.reflect.Method;
+import com.esotericsoftware.reflectasm.MethodAccess;
 
 /**
  * Synchronizes message handler invocations for all handlers that specify @Synchronized
@@ -19,30 +19,30 @@ public class SynchronizedHandlerInvocation implements IHandlerInvocation {
     }
 
     @Override
-    public void invoke(final Object listener, Method handler, final Object message) throws Throwable {
+    public void invoke(final Object listener, final MethodAccess handler, final int methodIndex, final Object message) throws Throwable {
         synchronized (listener) {
-            this.delegate.invoke(listener, handler, message);
+            this.delegate.invoke(listener, handler, methodIndex, message);
         }
     }
 
     @Override
-    public void invoke(final Object listener, Method handler, final Object message1, final Object message2) throws Throwable {
+    public void invoke(final Object listener, MethodAccess handler, int methodIndex, final Object message1, final Object message2) throws Throwable {
         synchronized (listener) {
-            this.delegate.invoke(listener, handler, message1, message2);
+            this.delegate.invoke(listener, handler, methodIndex, message1, message2);
         }
     }
 
     @Override
-    public void invoke(final Object listener, Method handler, final Object message1, final Object message2, final Object message3) throws Throwable {
+    public void invoke(final Object listener, MethodAccess handler, int methodIndex, final Object message1, final Object message2, final Object message3) throws Throwable {
         synchronized (listener) {
-            this.delegate.invoke(listener, handler, message1, message2, message3);
+            this.delegate.invoke(listener, handler, methodIndex, message1, message2, message3);
         }
     }
 
     @Override
-    public void invoke(final Object listener, Method handler, final Object... messages) throws Throwable {
+    public void invoke(final Object listener, MethodAccess handler, int methodIndex, final Object... messages) throws Throwable {
         synchronized (listener) {
-            this.delegate.invoke(listener, handler, messages);
+            this.delegate.invoke(listener, handler, methodIndex, messages);
         }
     }
 }

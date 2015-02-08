@@ -1,6 +1,5 @@
 package net.engio.mbassy.error;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
@@ -20,7 +19,7 @@ public class PublicationError {
     // Internal state
     private Throwable cause;
     private String message;
-    private Method handler;
+    private String methodName;
     private Object listener;
     private Object[] publishedObjects;
 
@@ -59,12 +58,12 @@ public class PublicationError {
         return this;
     }
 
-    public Method getHandler() {
-        return this.handler;
+    public String getMethodName() {
+        return this.methodName;
     }
 
-    public PublicationError setHandler(Method handler) {
-        this.handler = handler;
+    public PublicationError setMethodName(String methodName) {
+        this.methodName = methodName;
         return this;
     }
 
@@ -122,7 +121,7 @@ public class PublicationError {
                 newLine +
                 "\tmessage='" + this.message + '\'' +
                 newLine +
-                "\thandler=" + this.handler +
+                "\tmethod=" + this.methodName +
                 newLine +
                 "\tlistener=" + this.listener +
                 newLine +

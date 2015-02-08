@@ -1,6 +1,6 @@
 package net.engio.mbassy.dispatch;
 
-import java.lang.reflect.Method;
+import com.esotericsoftware.reflectasm.MethodAccess;
 
 /**
  * A handler invocation encapsulates the logic that is used to invoke a single
@@ -28,7 +28,7 @@ public interface IHandlerInvocation {
      *                 type that the handler consumes
      * @param handler  The handler (method) that will be called via reflection
      */
-    void invoke(Object listener, Method handler, Object message) throws Throwable;
+    void invoke(Object listener, MethodAccess handler, int methodIndex, Object message) throws Throwable;
 
     /**
      * Invoke the message delivery logic of this handler
@@ -39,7 +39,7 @@ public interface IHandlerInvocation {
      *                 type that the handler consumes
      * @param handler  The handler (method) that will be called via reflection
      */
-    void invoke(Object listener, Method handler, Object message1, Object message2) throws Throwable;
+    void invoke(Object listener, MethodAccess handler, int methodIndex, Object message1, Object message2) throws Throwable;
 
     /**
      * Invoke the message delivery logic of this handler
@@ -50,7 +50,7 @@ public interface IHandlerInvocation {
      *                 type that the handler consumes
      * @param handler  The handler (method) that will be called via reflection
      */
-    void invoke(Object listener, Method handler, Object message1, Object message2, Object message3) throws Throwable;
+    void invoke(Object listener, MethodAccess handler, int methodIndex, Object message1, Object message2, Object message3) throws Throwable;
 
     /**
      * Invoke the message delivery logic of this handler
@@ -61,5 +61,5 @@ public interface IHandlerInvocation {
      *                 type that the handler consumes
      * @param handler  The handler (method) that will be called via reflection
      */
-    void invoke(Object listener, Method handler, Object... message) throws Throwable;
+    void invoke(Object listener, MethodAccess handler, int methodIndex, Object... message) throws Throwable;
 }
