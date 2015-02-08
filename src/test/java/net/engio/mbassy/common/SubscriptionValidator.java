@@ -1,9 +1,13 @@
 package net.engio.mbassy.common;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import net.engio.mbassy.subscription.Subscription;
 import net.engio.mbassy.subscription.SubscriptionManager;
-
-import java.util.*;
 
 /**
 *
@@ -21,23 +25,22 @@ public class SubscriptionValidator extends AssertSupport{
         this.subscribedListener = subscribedListener;
     }
 
-    public Expectation listener(Class subscriber){
+    public Expectation listener(Class<?> subscriber) {
         return new Expectation(subscriber);
     }
 
-    private SubscriptionValidator expect(Class subscriber, Class messageType){
-        validations.add(new ValidationEntry(messageType, subscriber));
-        messageTypes.add(messageType);
+    private SubscriptionValidator expect(Class<?> subscriber, Class<?> messageType) {
+        this.validations.add(new ValidationEntry(messageType, subscriber));
+        this.messageTypes.add(messageType);
         return this;
     }
 
     // match subscriptions with existing validation entries
     // for each tuple of subscriber and message type the specified number of listeners must exist
-    public void validate(SubscriptionManager manager){
-        for(Class messageType : messageTypes){
+    public void validate(SubscriptionManager manager) {
+        for(Class<?> messageType : this.messageTypes) {
             Collection<Subscription> subscriptions = manager.getSubscriptionsByMessageType(messageType);
-            ensureOrdering(subscriptions);
-            Collection<ValidationEntry> validationEntries = getEntries(EntriesByMessageType(messageType));
+            Collection<ValidationEntry> validationEntries = getEntries(messageType);
             assertEquals(subscriptions.size(), validationEntries.size());
             for(ValidationEntry validationValidationEntry : validationEntries){
                 Subscription matchingSub = null;
@@ -49,67 +52,51 @@ public class SubscriptionValidator extends AssertSupport{
                     }
                 }
                 assertNotNull(matchingSub);
-                assertEquals(subscribedListener.getNumberOfListeners(validationValidationEntry.subscriber), matchingSub.size());
+                assertEquals(this.subscribedListener.getNumberOfListeners(validationValidationEntry.subscriber), matchingSub.size());
             }
         }
     }
 
-    private void ensureOrdering(Collection<Subscription> subscriptions){
-        int lastPriority = Integer.MAX_VALUE;// highest priority possible
-        for(Subscription sub : subscriptions){
-            assertTrue("Subscriptions should be ordered by priority (DESC)", lastPriority >= sub.getPriority());
-            lastPriority = sub.getPriority();
-        }
+
+    public void clear() {
+        this.validations.clear();
     }
 
 
-    private Collection<ValidationEntry> getEntries(IPredicate<ValidationEntry> filter){
+    private Collection<ValidationEntry> getEntries(Class<?> messageType) {
         Collection<ValidationEntry> matching = new LinkedList<ValidationEntry>();
-        for (ValidationEntry validationValidationEntry : validations){
-            if(filter.apply(validationValidationEntry))matching.add(validationValidationEntry);
+        for (ValidationEntry validationValidationEntry : this.validations){
+            if (validationValidationEntry.messageType.equals(messageType)) {
+                matching.add(validationValidationEntry);
+            }
         }
         return matching;
     }
 
-    private IPredicate<ValidationEntry> EntriesByMessageType(final Class messageType){
-        return new IPredicate<ValidationEntry>() {
-            @Override
-            public boolean apply(ValidationEntry target) {
-                return target.messageType.equals(messageType);
-            }
-        };
-    }
 
+    public class Expectation {
 
+        private Class<?> listener;
 
-    public class Expectation{
-
-        private Class listener;
-
-        private Expectation(Class listener) {
+        private Expectation(Class<?> listener) {
             this.listener = listener;
         }
 
-        public SubscriptionValidator handles(Class ...messages){
-            for(Class message : messages)
-                expect(listener, message);
+        public SubscriptionValidator handles(Class<?> ...messages){
+            for(Class<?> message : messages) {
+                expect(this.listener, message);
+            }
             return SubscriptionValidator.this;
         }
     }
 
     private class ValidationEntry {
+        private Class<?> subscriber;
+        private Class<?> messageType;
 
-
-        private Class subscriber;
-
-        private Class messageType;
-
-        private ValidationEntry(Class messageType, Class subscriber) {
+        private ValidationEntry(Class<?> messageType, Class<?> subscriber) {
             this.messageType = messageType;
             this.subscriber = subscriber;
         }
-
-
     }
-
 }

@@ -1,7 +1,6 @@
 package net.engio.mbassy.listeners;
 
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Invoke;
+import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.messages.AbstractMessage;
 
 /**
@@ -22,6 +21,7 @@ public class AbstractMessageListener {
 
     public static class DefaultListener extends BaseListener {
 
+        @Override
         public void handle(AbstractMessage message){
             super.handle(message);
         }
@@ -29,24 +29,17 @@ public class AbstractMessageListener {
 
     public static class NoSubtypesListener extends BaseListener {
 
-        @Handler(rejectSubtypes = true, priority = 4)
+        @Override
+        @Handler(rejectSubtypes = true)
         public void handle(AbstractMessage message){
             super.handle(message);
         }
     }
 
-
-    public static class AsyncListener extends BaseListener {
-
-        @Handler(delivery = Invoke.Asynchronously, priority = Integer.MAX_VALUE)
-        public void handle(AbstractMessage message){
-            super.handle(message);
-        }
-
-    }
 
     public static class DisabledListener extends BaseListener {
 
+        @Override
         @Handler(enabled = false)
         public void handle(AbstractMessage message){
             super.handle(message);

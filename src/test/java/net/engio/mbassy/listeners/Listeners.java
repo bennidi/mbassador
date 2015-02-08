@@ -1,6 +1,11 @@
 package net.engio.mbassy.listeners;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,14 +23,6 @@ public class Listeners {
             MultipartMessageListener.DefaultListener.class,
             ICountableListener.DefaultListener.class,
             IMultipartMessageListener.DefaultListener.class}));
-
-    private static final List<Class> Asynchronous = Collections.unmodifiableList(Arrays.asList(new Class[]{
-            MessagesListener.AsyncListener.class,
-            IMessageListener.AsyncListener.class,
-            StandardMessageListener.AsyncListener.class,
-            MultipartMessageListener.AsyncListener.class,
-            ICountableListener.AsyncListener.class,
-            IMultipartMessageListener.AsyncListener.class}));
 
     private static final List<Class> SubtypeRejecting = Collections.unmodifiableList(Arrays.asList(new Class[]{
             MessagesListener.NoSubtypesListener.class,
@@ -47,37 +44,25 @@ public class Listeners {
 
     private static final List<Class> HandlesIMessage = Collections.unmodifiableList(Arrays.asList(new Class[]{
             IMessageListener.DefaultListener.class,
-            IMessageListener.AsyncListener.class,
             IMessageListener.NoSubtypesListener.class,
             IMultipartMessageListener.DefaultListener.class,
-            IMultipartMessageListener.AsyncListener.class,
             IMultipartMessageListener.NoSubtypesListener.class,
             MessagesListener.DefaultListener.class,
-            MessagesListener.AsyncListener.class,
             MessagesListener.NoSubtypesListener.class,
             StandardMessageListener.DefaultListener.class,
-            StandardMessageListener.AsyncListener.class,
             StandardMessageListener.NoSubtypesListener.class,
             MultipartMessageListener.DefaultListener.class,
-            MultipartMessageListener.AsyncListener.class,
             MultipartMessageListener.NoSubtypesListener.class}));
 
     private static final List<Class> HandlesStandardessage = Collections.unmodifiableList(Arrays.asList(new Class[]{
             IMessageListener.DefaultListener.class,
-            IMessageListener.AsyncListener.class,
             ICountableListener.DefaultListener.class,
-            ICountableListener.AsyncListener.class,
             StandardMessageListener.DefaultListener.class,
-            StandardMessageListener.AsyncListener.class,
             StandardMessageListener.NoSubtypesListener.class}));
 
 
     public static Collection<Class> synchronous(){
         return Synchronous;
-    }
-
-    public static Collection<Class> asynchronous(){
-        return Asynchronous;
     }
 
     public static Collection<Class> subtypeRejecting(){
@@ -99,10 +84,12 @@ public class Listeners {
 
     public static Collection<Class> join(Collection<Class>...listenerSets){
         Set<Class> join = new HashSet<Class>();
-        for(Collection<Class> listeners : listenerSets)
+        for(Collection<Class> listeners : listenerSets) {
             join.addAll(listeners);
-        for(Collection<Class> listeners : listenerSets)
+        }
+        for(Collection<Class> listeners : listenerSets) {
             join.retainAll(listeners);
+        }
         return join;
     }
 

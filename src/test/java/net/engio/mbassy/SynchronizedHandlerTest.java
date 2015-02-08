@@ -1,17 +1,14 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.IMessagePublication;
-import net.engio.mbassy.bus.common.IMessageBus;
-import net.engio.mbassy.bus.config.Feature;
-import net.engio.mbassy.bus.config.IBusConfiguration;
-import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Invoke;
-import net.engio.mbassy.listener.Synchronized;
-import org.junit.Test;
-
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import net.engio.mbassy.annotations.Handler;
+import net.engio.mbassy.annotations.Synchronized;
+import net.engio.mbassy.common.MessageBusTest;
+
+import org.junit.Test;
 
 /**
  * Todo: Add javadoc
@@ -21,90 +18,44 @@ import java.util.List;
  */
 public class SynchronizedHandlerTest extends MessageBusTest {
 
-
-    private static int incrementsPerMessage = 10000;
+    private static AtomicInteger counter = new AtomicInteger(0);
     private static int numberOfMessages = 1000;
     private static int numberOfListeners = 1000;
 
     @Test
     public void testSynchronizedWithSynchronousInvocation(){
         List<SynchronizedWithSynchronousDelivery> handlers = new LinkedList<SynchronizedWithSynchronousDelivery>();
-        IBusConfiguration config = SyncAsync();
-        config.getFeature(Feature.AsynchronousMessageDispatch.class)
-                .setNumberOfMessageDispatchers(6);
-        IMessageBus bus = createBus(config);
+
+        IMessageBus bus = createBus();
         for(int i = 0; i < numberOfListeners; i++){
             SynchronizedWithSynchronousDelivery handler = new SynchronizedWithSynchronousDelivery();
             handlers.add(handler);
             bus.subscribe(handler);
         }
 
-        IMessagePublication publication = null;
         for(int i = 0; i < numberOfMessages; i++){
-           publication =  bus.post(new Object()).asynchronously();
+           bus.publishAsync(new Object());
         }
+
+        int totalCount = numberOfListeners * numberOfMessages;
+        int expireCount = 1000;
+
         // wait for last publication
-        while (!publication.isFinished()){
+        while (expireCount-- > 0 && counter.get() < totalCount){
             pause(100);
         }
 
-        for(SynchronizedWithSynchronousDelivery handler : handlers){
-            assertEquals(incrementsPerMessage * numberOfMessages, handler.counter);
+        if (expireCount <= 0) {
+            fail("Count '" + counter.get() + "' was incorrect!");
         }
-
     }
-
-    @Test
-    public void testSynchronizedWithAsSynchronousInvocation(){
-        List<SynchronizedWithAsynchronousDelivery> handlers = new LinkedList<SynchronizedWithAsynchronousDelivery>();
-        IBusConfiguration config = SyncAsync();
-        config.getFeature(Feature.AsynchronousMessageDispatch.class)
-                .setNumberOfMessageDispatchers(6);
-        IMessageBus bus = createBus(config);
-        for(int i = 0; i < numberOfListeners; i++){
-            SynchronizedWithAsynchronousDelivery handler = new SynchronizedWithAsynchronousDelivery();
-            handlers.add(handler);
-            bus.subscribe(handler);
-        }
-
-        for(int i = 0; i < numberOfMessages; i++){
-            track(bus.post(new Object()).asynchronously());
-        }
-
-        pause(10000);
-
-        for(SynchronizedWithAsynchronousDelivery handler : handlers){
-            assertEquals(incrementsPerMessage * numberOfMessages, handler.counter);
-        }
-
-    }
-
-
 
     public static class SynchronizedWithSynchronousDelivery {
-
-        private int counter = 0;
 
         @Handler
         @Synchronized
         public void handleMessage(Object o){
-           for(int i = 0; i < incrementsPerMessage; i++){
-               counter++;
-           }
-        }
-
-    }
-
-    public static class SynchronizedWithAsynchronousDelivery {
-
-        private int counter = 0;
-
-        @Handler(delivery = Invoke.Asynchronously)
-        @Synchronized
-        public void handleMessage(Object o){
-            for(int i = 0; i < incrementsPerMessage; i++){
-                counter++;
-            }
+           counter.getAndIncrement();
         }
 
     }

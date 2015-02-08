@@ -1,19 +1,19 @@
 package net.engio.mbassy.listeners;
 
-import net.engio.mbassy.listener.Handler;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import net.engio.mbassy.annotations.Handler;
 
 
 public class ObjectListener {
 
     private List handledMessages = Collections.synchronizedList(new LinkedList());
 
-    @Handler(priority = Integer.MAX_VALUE)
+    @Handler()
     public void handle(Object message){
-        handledMessages.add(message);
+        this.handledMessages.add(message);
     }
 
 }

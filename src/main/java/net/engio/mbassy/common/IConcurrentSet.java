@@ -14,7 +14,12 @@ public interface IConcurrentSet<T> extends Iterable<T> {
 
     int size();
 
+    boolean isEmpty();
+
     void addAll(Iterable<T> elements);
 
+    /**
+     * @return TRUE if the element was removed
+     */
     boolean remove(T element);
 }

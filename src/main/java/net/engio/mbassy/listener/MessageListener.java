@@ -1,11 +1,7 @@
 package net.engio.mbassy.listener;
 
-import net.engio.mbassy.common.IPredicate;
-import net.engio.mbassy.common.ReflectionUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,66 +19,33 @@ import java.util.List;
  * @author bennidi
  *         Date: 12/16/12
  */
-public class MessageListener<T> {
-
-
-    public static IPredicate<MessageHandler> ForMessage(final Class<?> messageType) {
-        return new IPredicate<MessageHandler>() {
-            @Override
-            public boolean apply(MessageHandler target) {
-                return target.handlesMessage(messageType);
-            }
-        };
-    }
+public class MessageListener {
 
     private List<MessageHandler> handlers = new ArrayList<MessageHandler>();
+    private Class<?> listenerDefinition;
 
-    private Class<T> listenerDefinition;
-
-    private Listener listenerAnnotation;
-
-    public MessageListener(Class<T> listenerDefinition) {
+    public MessageListener(Class<?> listenerDefinition) {
        this.listenerDefinition = listenerDefinition;
-       listenerAnnotation = ReflectionUtils.getAnnotation( listenerDefinition, Listener.class );
     }
 
-
-    public boolean isFromListener(Class listener){
-        return listenerDefinition.equals(listener);
-    }
-
-    public boolean useStrongReferences(){
-        return listenerAnnotation != null && listenerAnnotation.references().equals(References.Strong);
+    public boolean isFromListener(Class<?> listener){
+        return this.listenerDefinition.equals(listener);
     }
 
     public MessageListener addHandlers(Collection<? extends MessageHandler> c) {
-        handlers.addAll(c);
+        this.handlers.addAll(c);
         return this;
     }
 
     public boolean addHandler(MessageHandler messageHandler) {
-        return handlers.add(messageHandler);
+        return this.handlers.add(messageHandler);
     }
 
-    public List<MessageHandler> getHandlers(){
-        return handlers;
+    public List<MessageHandler> getHandlers() {
+        return this.handlers;
     }
 
-    public List<MessageHandler> getHandlers(IPredicate<MessageHandler> filter) {
-        List<MessageHandler> matching = new LinkedList<MessageHandler>();
-        for (MessageHandler handler : handlers) {
-            if (filter.apply(handler)) {
-                matching.add(handler);
-            }
-        }
-        return matching;
-    }
-
-    public boolean handles(Class<?> messageType) {
-        return !getHandlers(ForMessage(messageType)).isEmpty();
-    }
-
-    public Class<T> getListerDefinition() {
-        return listenerDefinition;
+    public Class<?> getListerDefinition() {
+        return this.listenerDefinition;
     }
 }

@@ -1,7 +1,6 @@
 package net.engio.mbassy.listeners;
 
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Invoke;
+import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.messages.IMultipartMessage;
 
 /**
@@ -22,6 +21,7 @@ public class IMultipartMessageListener {
 
     public static class DefaultListener extends BaseListener {
 
+        @Override
         public void handle(IMultipartMessage message){
             super.handle(message);
         }
@@ -29,25 +29,18 @@ public class IMultipartMessageListener {
 
     public static class NoSubtypesListener extends BaseListener {
 
-        @Handler(rejectSubtypes = true, priority = Integer.MIN_VALUE)
+        @Override
+        @Handler(rejectSubtypes = true)
         public void handle(IMultipartMessage message){
             super.handle(message);
         }
     }
 
-
-    public static class AsyncListener extends BaseListener {
-
-        @Handler(delivery = Invoke.Asynchronously, priority = Integer.MIN_VALUE)
-        public void handle(IMultipartMessage message){
-            super.handle(message);
-        }
-
-    }
 
     public static class DisabledListener extends BaseListener {
 
-        @Handler(enabled = false , priority = 4)
+        @Override
+        @Handler(enabled = false)
         public void handle(IMultipartMessage message){
             super.handle(message);
         }

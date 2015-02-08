@@ -1,9 +1,8 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.common.IMessageBus;
-import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.annotations.Handler;
 import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.listener.Handler;
+
 import org.junit.Test;
 
 /**
@@ -24,7 +23,7 @@ public class MethodDispatchTest extends MessageBusTest{
 
         @Handler
         public void handleString(String s) {
-             listener1Called = true;
+             MethodDispatchTest.this.listener1Called = true;
         }
 
     }
@@ -33,25 +32,26 @@ public class MethodDispatchTest extends MessageBusTest{
     public class EventListener2 extends EventListener1 {
 
         // redefine handler implementation (not configuration)
+        @Override
         public void handleString(String s) {
-           listener2Called = true;
+           MethodDispatchTest.this.listener2Called = true;
         }
 
     }
 
     @Test
     public void testDispatch1(){
-        IMessageBus bus = createBus(SyncAsync());
+        IMessageBus bus = createBus();
         EventListener2 listener2 = new EventListener2();
         bus.subscribe(listener2);
-        bus.post("jfndf").now();
-        assertTrue(listener2Called);
-        assertFalse(listener1Called);
+        bus.publish("jfndf");
+        assertTrue(this.listener2Called);
+        assertFalse(this.listener1Called);
 
         EventListener1 listener1 = new EventListener1();
         bus.subscribe(listener1);
-        bus.post("jfndf").now();
-        assertTrue(listener1Called);
+        bus.publish("jfndf");
+        assertTrue(this.listener1Called);
     }
 
 }

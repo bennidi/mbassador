@@ -11,19 +11,16 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        StrongConcurrentSetTest.class,
         WeakConcurrentSetTest.class,
         MBassadorTest.class,
-        SyncBusTest.MBassadorTest.class,
-        SyncBusTest.SyncMessageBusTest.class,
-        FilterTest.class,
         MetadataReaderTest.class,
         MethodDispatchTest.class,
         DeadMessageTest.class,
         SynchronizedHandlerTest.class,
         SubscriptionManagerTest.class,
         AsyncFIFOBusTest.class,
-        ConditionalHandlers.class
+        ObjectTreeTest.class,
+        MultiMessageTest.class,
 })
 public class AllTests {
 }
