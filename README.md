@@ -3,10 +3,9 @@ MBassador
 
 MBassador is a very light-weight message (event) bus implementation following the publish subscribe pattern. It is designed for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. The core of MBassador's high performance is a specialized data structure that minimizes lock contention such that performance degradation of concurrent access is minimal. The performance win of this design is illustrated in <a href="http://codeblock.engio.net/?p=37" target="_blank">performance comparison</a> and more recently in the [eventbus-performance](https://github.com/bennidi/eventbus-performance) github repository.
 
-Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do) ` bus = new MBassador(BusConfiguration.SyncAsync())`, mark and configure your message handlers with `@Handler` annotations and finally register the listeners at any MBassador instance `bus.subscribe(aListener)`. Start sending messages to your listeners using one of MBassador's publication methods `bus.post(message).now()` or `bus.post(message).asynchronously()`. Done!
+Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do) ` bus = new MBassador()`, mark and configure your message handlers with `@Handler` annotations and finally register the listeners at any MBassador instance `bus.subscribe(aListener)`. Start sending messages to your listeners using one of MBassador's publication methods `bus.post(message).now()` or `bus.post(message).asynchronously()`. Done!
 
-Read this documentation to get an overview of MBassadors features. There is also some documentation in the Wiki - although admittedly
-not enough to make a developer happy (work is in progress). Additionally, you can browse the [javadoc](http://bennidi.github.io/mbassador/)
+Read this documentation to get an overview of MBassadors features. There is also some documentation in the Wiki - although admittedly not enough to make a developer happy (work is in progress). Additionally, you can browse the [javadoc](http://bennidi.github.io/mbassador/)
 
 There is a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. It's beta but stable enough to give it a try.
 
@@ -170,7 +169,7 @@ MBassador is available from the Maven Central Repository using the following coo
     <dependency>
         <groupId>net.engio</groupId>
         <artifactId>mbassador</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.1</version>
     </dependency>
 ```
 
@@ -182,7 +181,6 @@ There is ongoing effort to extend documentation and provide code samples and det
 <h2>Release Notes</h2>
 
 ### [1.2.1](milestones/1.2.1)
- + Not yet released!
  + Centralized handling of common (and arbitrary) properties (see BusConfiguration#setProperty and net.engio.mbassy.bus.common.Properties)
  + Each bus now has a configurable id and respective #toString() implementation (useful for debugging)
  + Each bus now has a default logger (System.out) for publication errors (exception in handlers) which can be replaced with BusConfiguration#setProperty 
