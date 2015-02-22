@@ -1,8 +1,7 @@
 package net.engio.mbassy.common;
 
-import junit.framework.Assert;
-import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.IMessagePublication;
+import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
@@ -28,14 +27,20 @@ public abstract class MessageBusTest extends AssertSupport {
     protected static final int ConcurrentUnits = 10;
     protected static final int IterationsPerThread = 100;
 
-    protected static final IPublicationErrorHandler TestFailingHandler = new IPublicationErrorHandler() {
+    public static final class AssertionErrorHandler implements IPublicationErrorHandler{
+
+        private boolean failOnException;
+
+        public AssertionErrorHandler(boolean failOnException) {
+            this.failOnException = failOnException;
+        }
+
         @Override
         public void handleError(PublicationError error) {
-            error.getCause().printStackTrace();
-            Assert.fail();
+            if(failOnException)
+                org.junit.Assert.fail(error.getCause().getMessage());
         }
-    };
-
+    }
 
     private StrongConcurrentSet<IMessagePublication> issuedPublications = new StrongConcurrentSet<IMessagePublication>();
 
@@ -47,21 +52,24 @@ public abstract class MessageBusTest extends AssertSupport {
     }
 
     public static IBusConfiguration SyncAsync() {
+        return SyncAsync(true);
+    }
+
+    public static IBusConfiguration SyncAsync(boolean failOnError) {
         return new BusConfiguration()
             .addFeature(Feature.SyncPubSub.Default())
             .addFeature(Feature.AsynchronousHandlerInvocation.Default())
-            .addFeature(Feature.AsynchronousMessageDispatch.Default());
+            .addFeature(Feature.AsynchronousMessageDispatch.Default())
+            .setProperty(net.engio.mbassy.bus.common.Properties.Handler.PublicationError, new AssertionErrorHandler(failOnError));
     }
 
     public MBassador createBus(IBusConfiguration configuration) {
         MBassador bus = new MBassador(configuration);
-        bus.addErrorHandler(TestFailingHandler);
         return bus;
     }
 
     public MBassador createBus(IBusConfiguration configuration, ListenerFactory listeners) {
         MBassador bus = new MBassador(configuration);
-        bus.addErrorHandler(TestFailingHandler);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
         return bus;
     }

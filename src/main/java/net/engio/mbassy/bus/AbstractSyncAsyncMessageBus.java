@@ -1,6 +1,8 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.IMessageBus;
+import net.engio.mbassy.bus.common.Properties;
+import net.engio.mbassy.bus.config.ConfigurationError;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.PublicationError;
@@ -9,15 +11,14 @@ import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
  * The base class for all message bus implementations with support for asynchronous message dispatch
  *
- * @param <T>
- * @param <P>
+ * @param <T> The type of message this bus consumes
+ * @param <P> The publication commands this bus supports depend on P
  */
 public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublicationCommand>
         extends AbstractPubSubSupport<T> implements IMessageBus<T, P> {
@@ -36,14 +37,20 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
 
         // configure asynchronous message dispatch
         Feature.AsynchronousMessageDispatch asyncDispatch = configuration.getFeature(Feature.AsynchronousMessageDispatch.class);
+        if(asyncDispatch == null){
+            configuration.handleError(ConfigurationError.Missing(Feature.AsynchronousMessageDispatch.class));
+        }
         pendingMessages = asyncDispatch.getPendingMessages();
         dispatchers = new ArrayList<Thread>(asyncDispatch.getNumberOfMessageDispatchers());
         initDispatcherThreads(asyncDispatch);
 
         // configure asynchronous handler invocation
         Feature.AsynchronousHandlerInvocation asyncInvocation = configuration.getFeature(Feature.AsynchronousHandlerInvocation.class);
+        if(asyncInvocation == null){
+            configuration.handleError(ConfigurationError.Missing(Feature.AsynchronousHandlerInvocation.class));
+        }
         this.executor = asyncInvocation.getExecutor();
-        getRuntime().add(BusRuntime.Properties.AsynchronousHandlerExecutor, executor);
+        getRuntime().add(Properties.Handler.AsynchronousHandlerExecutor, executor);
 
     }
 
@@ -115,11 +122,6 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
     @Override
     public boolean hasPendingMessages() {
         return pendingMessages.size() > 0;
-    }
-
-    @Override
-    public Executor getExecutor() {
-        return executor;
     }
 
 }

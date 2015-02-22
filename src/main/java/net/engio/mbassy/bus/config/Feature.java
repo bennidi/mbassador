@@ -96,9 +96,8 @@ public interface Feature {
             return Default(numberOfCores, numberOfCores * 2);
         }
 
-        public static final AsynchronousHandlerInvocation Default(int initialCoreThreads, int maximumCoreThreads){
-            int numberOfCores = Runtime.getRuntime().availableProcessors();
-            return new AsynchronousHandlerInvocation().setExecutor(new ThreadPoolExecutor(initialCoreThreads, maximumCoreThreads, 1,
+        public static final AsynchronousHandlerInvocation Default(int minThreadCount, int maxThreadCount){
+            return new AsynchronousHandlerInvocation().setExecutor(new ThreadPoolExecutor(minThreadCount, maxThreadCount, 1,
                     TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), MessageHandlerThreadFactory));
         }
 

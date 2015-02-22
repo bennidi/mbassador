@@ -16,8 +16,6 @@ public class BusFactory {
      * Create a message bus supporting only synchronous message publication.
      * All message publications will run in the calling thread, no bus internal
      * multi-threading will occur.
-     *
-     * @return
      */
     public static SyncMessageBus SynchronousOnly(){
         BusConfiguration syncPubSubCfg = new BusConfiguration();
@@ -26,12 +24,9 @@ public class BusFactory {
     }
 
     /**
-     * Create a message bus supporting synchronous and asynchronous message publication.
+     * Create a message bus with support for synchronous and asynchronous message publication.
      * Asynchronous message publication will be handled by a single thread such that FIFO
      * order of message processing is guaranteed.
-     *
-     *
-     * @return
      */
     public static IMessageBus AsynchronousSequentialFIFO(){
         BusConfiguration asyncFIFOConfig = new BusConfiguration();

@@ -69,7 +69,11 @@ MBassador is designed to be extensible with custom implementations of various co
 
 <h2>Usage</h2>
 
-Handler definition (in any bean):
+### Handler definition
+
+Message handlers are defined via annotations added to instance methods. The simplest definition is to just use `@Handler` without changing any parameters or adding of any other annotations.
+> NOTE: MBassador uses WEAK REFERENCES by default. If you do not hold references to your listeners somewhere else they will be garbage collected! This can be changed by adding `@Listener(references=References.Strong)` to the defining class
+
 
         // every message of type TestMessage or any subtype will be delivered
         // to this handler
@@ -123,11 +127,21 @@ Handler definition (in any bean):
         }
 
 
-Creation of message bus and registration of listeners:
+### Message bus creation
 
-        // create as many instances as necessary
-        // bind it to any upper bound
+        // Use a default constructor for convenience and create as many instances as you like
         MBassador<TestMessage> bus = new MBassador<TestMessage>();
+        MBassador<String> bus2 = new MBassador<String>();
+       
+        // Use feature driven configuration to have more control over the configuration details
+        MBassador globalBus = new MBassador(new BusConfiguration()
+             .addFeature(Feature.SyncPubSub.Default())
+             .addFeature(Feature.AsynchronousHandlerInvocation.Default())
+             .addFeature(Feature.AsynchronousMessageDispatch.Default())
+             .setProperty(Properties.Common.Id, "global bus")
+             .setProperty(Properties.Handler.PublicationError, new IPublicationErrorHandler{...}));
+        
+### Listener subscription
         ListeningBean listener = new ListeningBean();
         // the listener will be registered using a weak-reference if not configured otherwise with @Listener
         bus.subscribe(listener);
@@ -135,13 +149,18 @@ Creation of message bus and registration of listeners:
         bus.subscribe(new ClassWithoutAnyDefinedHandlers());
 
 
-Message publication:
+### Message publication
 
         TestMessage message = new TestMessage();
         TestMessage subMessage = new SubTestMessage();
 
+Messages can be published asynchronously in another thread (fire and forget):
+
         bus.publishAsync(message); //returns immediately, publication will continue asynchronously
         bus.post(message).asynchronously(); // same as above
+        
+Message can be published synchronously in the same thread:        
+
         bus.publish(subMessage);   // will return after each handler has been invoked
         bus.post(subMessage).now(); // same as above
 
@@ -161,15 +180,19 @@ You can also download binary release and javadoc from the [maven central reposit
 There is ongoing effort to extend documentation and provide code samples and detailed explanations of how the message bus works. Code samples can also be found in the various test cases. Please read about the terminology used in this project to avoid confusion and misunderstanding.
 
 <h2>Release Notes</h2>
-<h3>[1.2.1](milestones/1.2.1)</h3>
- + Not yet released!
- + API-Changes: 
-   + Removed deprecated method BusConfiguration.SyncAsync() -> use MBassador default constructor instead
-   + Deleted interface ISyncMessageBus since it was merely an aggregation of existing interfaces -> replace with GenericMessagePublicationSupport
 
-<h3>1.2.0</h3>
- + Added support for conditional handlers using Java EL. Thanks to Bernd Rosstauscher
- for the initial implementation.
+### [1.2.1](milestones/1.2.1)
+ + Not yet released!
+ + Centralized handling of common (and arbitrary) properties (see BusConfiguration#setProperty and net.engio.mbassy.bus.common.Properties)
+ + Each bus now has a configurable id and respective #toString() implementation (useful for debugging)
+ + Each bus now has a default logger (System.out) for publication errors (exception in handlers) which can be replaced with BusConfiguration#setProperty 
+ + __API-Changes:__
+   + Interface `IMessageFilter` now receives the SubscriptionContext as second parameter. This gives access to the bus runtime within filter logic (useful for error propagation). -> Change your filters signature. You can access the `MessageHandler` object directly from the context. 
+   + Removed deprecated method BusConfiguration.SyncAsync() -> Use default constructor or feature based configuration instead
+   + Deleted interface ISyncMessageBus since it was merely an aggregation of existing interfaces -> Replace with GenericMessagePublicationSupport
+
+### 1.2.0
+ + Added support for conditional handlers using Java EL. Thanks to Bernd Rosstauscher for the initial implementation.
  + BREAKING CHANGES in BusConfiguration
    + Complete redesign of configuration setup using Features instead of simple get/set parameters. This will allow
  to flexibly combine features and still be able to exclude those not available in certain environments,for example, threading and reflection in GWT (this will be part of future releases)
@@ -178,7 +201,7 @@ There is ongoing effort to extend documentation and provide code samples and det
  with its corresponding interface which will be used for all types of message bus implementations
 
 
-<h3>1.1.10</h3>
+### 1.1.10
  + Fixed broken sort order of prioritized handlers (see #58)
  + Addressed issue #63 by making the constructor of `MessageHandler` use a map of properties and by replacing dependencies to
   all MBassador specific annotations with Java primitives and simple interfaces
@@ -188,11 +211,11 @@ There is ongoing effort to extend documentation and provide code samples and det
  asynchronous FIFO (asynchronous message publications guaranteed to be delivered in the order they occurred)
  + Renamed runtime property of `BusRuntime` "handler.async-service" to "handler.async.executor"
 
-<h3>1.1.9</h3>
+### 1.1.9
 
  + Fixed memory leak reported in issue #53
 
-<h3>1.1.8</h3>
+### 1.1.8
 
  + Internal refactorings and code improvements
  + Fixed #44 #45 #47
@@ -200,7 +223,7 @@ There is ongoing effort to extend documentation and provide code samples and det
  version 1.1.8 is not available from the central repository
 
 
-<h3>1.1.7</h3>
+### 1.1.7
 
  + Console Logger not added to message bus instances by default -> use addErrorHandler(IPublicationErrorHandler.ConsoleLogger)
  + Fixed race conditions in net.engio.mbassy.subscription.Subscription and of WeakConcurrentSet.contains()
@@ -209,7 +232,7 @@ There is ongoing effort to extend documentation and provide code samples and det
  + Improved test-infrastructure and increased test-coverage
  + Thanks for your feedback!
 
-<h3>1.1.6</h3>
+### 1.1.6
 
  + Added support for choosing between strong and weak references using the new @Listener annotation. @Listener can be
  added to any class that defines message handlers and allows to configure which reference type is used
@@ -221,7 +244,7 @@ There is ongoing effort to extend documentation and provide code samples and det
  + Created a message bus implementation that does not use threading to support use in non-multi-threaded environments like GWT,
  see ISyncMessageBus
 
-<h3>1.1.3</h3>
+### 1.1.3
 
  + Added support for FilteredMessage event
  + Renamed @Listener to @Handler and DeadEvent to DeadMessage to increase alignment with the established terminology.
@@ -230,7 +253,7 @@ There is ongoing effort to extend documentation and provide code samples and det
  + Introduced message publication factories as configurable components to make MBassador more extensible/customizable
  + Added more documentation and unit tests
 
-<h3>1.1.1</h3>
+### 1.1.1
 
  + Added support for DeadMessage event
  + Introduced new property to @Handler annotation that allows to activate/deactivate any message handler
@@ -240,7 +263,7 @@ There is ongoing effort to extend documentation and provide code samples and det
    more precisely indicate their meaning
  + Added more unit tests
 
-<h3>1.1.0</h3>
+### 1.1.0
 
 First stable release!
 
@@ -248,20 +271,20 @@ First stable release!
  + More exhaustive unit tests
  + Installation from the central repository
 
-<h3>1.0.6.RC</h3>
+### 1.0.6.RC
 
  + Fixed behaviour with capacity bound blocking queue such that there now are two methods to schedule a message
  asynchronously. One will block until capacity becomes available, the other will timeout after a specified amount of
  time.
  +  Additional unit tests
 
-<h3>1.0.5.RC</h3>
+### 1.0.5.RC
 
  + Added MessageEnvelope and @Enveloped annotation to configure handlers that might receive arbitrary message type
  + Added handler configuration property to @Handler annotation to move from message filtering to more specific implementation
  of this feature
 
-<h3>1.0.4.RC</h3>
+### 1.0.4.RC
 
   + Introduced BusConfiguration as a central class to encapsulate configurational aspects
 

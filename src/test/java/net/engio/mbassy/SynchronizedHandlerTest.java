@@ -29,7 +29,7 @@ public class SynchronizedHandlerTest extends MessageBusTest {
     @Test
     public void testSynchronizedWithSynchronousInvocation(){
         List<SynchronizedWithSynchronousDelivery> handlers = new LinkedList<SynchronizedWithSynchronousDelivery>();
-        IBusConfiguration config = SyncAsync();
+        IBusConfiguration config = SyncAsync(true);
         config.getFeature(Feature.AsynchronousMessageDispatch.class)
                 .setNumberOfMessageDispatchers(6);
         IMessageBus bus = createBus(config);
@@ -57,7 +57,7 @@ public class SynchronizedHandlerTest extends MessageBusTest {
     @Test
     public void testSynchronizedWithAsSynchronousInvocation(){
         List<SynchronizedWithAsynchronousDelivery> handlers = new LinkedList<SynchronizedWithAsynchronousDelivery>();
-        IBusConfiguration config = SyncAsync();
+        IBusConfiguration config = SyncAsync(true);
         config.getFeature(Feature.AsynchronousMessageDispatch.class)
                 .setNumberOfMessageDispatchers(6);
         IMessageBus bus = createBus(config);

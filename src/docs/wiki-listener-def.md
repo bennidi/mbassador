@@ -32,37 +32,37 @@ filters, delivery modes etc.
   </tr>
 
   <tr>
-          <td>rejectSubtypes</td>
-          <td>The primary message type consumed by a message handler is determined by the type of
-              its parameter.Polymorphism does allow any sub type of that message type to be delivered
-              to the handler as well, which is the default behaviour of any message handler.
-              The handler can be configured to not receiving any sub types by specifying thus using this
-              property.
-          </td>
-          <td>false</td>
+      <td>rejectSubtypes</td>
+      <td>The primary message type consumed by a message handler is determined by the type of
+          its parameter.Polymorphism does allow any sub type of that message type to be delivered
+          to the handler as well, which is the default behaviour of any message handler.
+          The handler can be configured to not receiving any sub types by specifying thus using this
+          property.
+      </td>
+      <td>false</td>
   </tr>
 
-  <tr>
-            <td>enabled</td>
-            <td>A handler can be explicitly disabled to not take part in message delivery.
-            </td>
-            <td>true</td>
+    <tr>
+        <td>enabled</td>
+        <td>A handler can be explicitly disabled to not take part in message delivery.
+        </td>
+        <td>true</td>
     </tr>
 
     <tr>
-                <td>strongReferencess</td>
-                <td>Whether the bus should use storng references to the listeners instead of weak references
-                </td>
-                <td>false</td>
+        <td>strongReferencess</td>
+        <td>Whether the bus should use storng references to the listeners instead of weak references
+        </td>
+        <td>false</td>
         </tr>
     <tr>
-                    <td>invocation</td>
-                    <td>Specify a custom implementation for the handler invocation. By default, a generic implementation
-                    that uses reflection will be used. Note: A custom implementation will not be faster than the generic one
-                    since there are heavy optimizations by the JVM using JIT-Compiler and more.
-                    </td>
-                    <td>false</td>
-            </tr>
+        <td>invocation</td>
+        <td>Specify a custom implementation for the handler invocation. By default, a generic implementation
+        that uses reflection will be used. Note: A custom implementation will not be faster than the generic one
+        since there are heavy optimizations by the JVM using JIT-Compiler and more.
+        </td>
+        <td>false</td>
+    </tr>
 
 
 </table>

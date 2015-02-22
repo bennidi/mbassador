@@ -28,7 +28,7 @@ public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements PubSu
             handlePublicationError(new PublicationError()
                     .setMessage("Error during publication of message")
                     .setCause(e)
-                    .setPublishedObject(message));
+                    .setPublishedMessage(message));
         }
     }
 

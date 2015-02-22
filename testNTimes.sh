@@ -1,12 +1,12 @@
 #!/bin/bash
 for (( i = 1; i < $1 ; i++ ))
 do
-  echo "Attempt $i"
+  echo "Round $i"
   mvn test -o -Dtest=$2
   exitcode=$?
   if [ $exitcode -ne 0 ]
   then
-    echo "Error at attempt $i"
+    echo "Error at round $i"
     exit
   fi
 done

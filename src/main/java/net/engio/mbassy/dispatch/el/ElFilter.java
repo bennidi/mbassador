@@ -1,30 +1,36 @@
 package net.engio.mbassy.dispatch.el;
 
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.listener.IMessageFilter;
 import net.engio.mbassy.listener.MessageHandler;
+import net.engio.mbassy.subscription.SubscriptionContext;
 
 import javax.el.ExpressionFactory;
 import javax.el.ValueExpression;
 
-/*****************************************************************************
- * A filter that will use a expression from the handler annotation and 
+/**
+ * A filter that will use a expression from the handler annotation and
  * parse it as EL.
- ****************************************************************************/
-
+ * <p/>
+ * Accepts a message if the associated EL expression evaluates to <code>true</code>
+ */
 public class ElFilter implements IMessageFilter {
 
     // thread-safe initialization of EL factory singleton
-    public static final class ExpressionFactoryHolder{
+    public static final class ExpressionFactoryHolder {
 
         // if runtime exception is thrown, this will
         public static final ExpressionFactory ELFactory = getELFactory();
 
-        /*************************************************************************
+        /**
+         * **********************************************************************
          * Get an implementation of the ExpressionFactory. This uses the
          * Java service lookup mechanism to find a proper implementation.
-         * If none if available we do not support EL filters.
-         ************************************************************************/
-        private static final ExpressionFactory getELFactory(){
+         * If none is available we do not support EL filters.
+         * **********************************************************************
+         */
+        private static final ExpressionFactory getELFactory() {
             try {
                 return ExpressionFactory.newInstance();
             } catch (RuntimeException e) {
@@ -33,40 +39,39 @@ public class ElFilter implements IMessageFilter {
         }
     }
 
-    public static final boolean isELAvailable(){
+    public static final boolean isELAvailable() {
         return ExpressionFactoryHolder.ELFactory != null;
     }
 
-    public static final ExpressionFactory ELFactory(){
+    public static final ExpressionFactory ELFactory() {
         return ExpressionFactoryHolder.ELFactory;
     }
 
-    /**
-     * Accepts a message if the associated EL expression of the message handler resolves to 'true'
-     *
-     * @param message the message to be handled by the handler
-     * @param  metadata the metadata object which describes the message handler
-     * @return
-     */
-	@Override
-	public boolean accepts(Object message, MessageHandler metadata) {
-		String expression = metadata.getCondition();
-		StandardELResolutionContext context = new StandardELResolutionContext(message);
-		return evalExpression(expression, context);
-	}
 
-	private boolean evalExpression(String expression, StandardELResolutionContext context) {
-		ValueExpression ve = ELFactory().createValueExpression(context, expression, Boolean.class);
-		try{
-            Object result = ve.getValue(context);
-            return (Boolean)result;
-             }
-        catch(Throwable exception){
-            // TODO: BusRuntime should be available in this filter to propagate resolution errors
-            // -> this is generally a good feature for filters
+    @Override
+    public boolean accepts(Object message, final SubscriptionContext context) {
+        final MessageHandler metadata = context.getHandler();
+        String expression = metadata.getCondition();
+        StandardELResolutionContext resolutionContext = new StandardELResolutionContext(message);
+        return evalExpression(expression, resolutionContext, context, message);
+    }
+
+    private boolean evalExpression(final String expression,
+                                   final StandardELResolutionContext resolutionContext,
+                                   final SubscriptionContext context,
+                                   final Object message) {
+        ValueExpression ve = ELFactory().createValueExpression(resolutionContext, expression, Boolean.class);
+        try {
+            Object result = ve.getValue(resolutionContext);
+            return (Boolean) result;
+        } catch (Throwable exception) {
+            PublicationError publicationError = new PublicationError(exception, "Error while evaluating EL expression on message", context)
+                    .setPublishedMessage(message);
+            for (IPublicationErrorHandler errorHandler : context.getErrorHandlers()) {
+                errorHandler.handleError(publicationError);
+            }
             return false;
-            //throw new IllegalStateException("A handler uses an EL filter but the output is not \"true\" or \"false\".");
         }
-	}
+    }
 
 }

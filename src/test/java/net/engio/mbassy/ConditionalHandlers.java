@@ -93,7 +93,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testSimpleStringCondition() throws Exception {
-		MBassador bus = createBus(SyncAsync());
+		MBassador bus = createBus(SyncAsync(false));
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("TEST", 0);
@@ -109,7 +109,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testSimpleNumberCondition() throws Exception {
-		MBassador bus = new MBassador();
+		MBassador bus =  createBus(SyncAsync(false));
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("", 5);
@@ -124,7 +124,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testHandleCombinedEL() throws Exception {
-		MBassador bus = createBus(SyncAsync());
+		MBassador bus = createBus(SyncAsync(false));
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("", 3);
@@ -139,7 +139,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testNotMatchingAnyCondition() throws Exception {
-		MBassador bus = createBus(SyncAsync());
+		MBassador bus = createBus(SyncAsync(false));
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("", 0);
@@ -153,7 +153,7 @@ public class ConditionalHandlers extends MessageBusTest {
 	 ************************************************************************/
 	@Test
 	public void testHandleMethodAccessEL() throws Exception {
-		MBassador bus = createBus(SyncAsync());
+		MBassador bus = createBus(SyncAsync(false));
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("XYZ", 1);

@@ -1,6 +1,7 @@
 package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.bus.BusRuntime;
+import net.engio.mbassy.bus.common.Properties;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.MessageBusException;
 import net.engio.mbassy.common.StrongConcurrentSet;
@@ -20,7 +21,7 @@ public class SubscriptionFactory {
 
     public Subscription createSubscription(BusRuntime runtime, MessageHandler handlerMetadata) throws MessageBusException{
         try {
-            Collection<IPublicationErrorHandler> errorHandlers = runtime.get(BusRuntime.Properties.ErrorHandlers);
+            Collection<IPublicationErrorHandler> errorHandlers = runtime.get(Properties.Handler.PublicationError);
             SubscriptionContext context = new SubscriptionContext(runtime, handlerMetadata, errorHandlers);
             IHandlerInvocation invocation = buildInvocationForHandler(context);
             IMessageDispatcher dispatcher = buildDispatcher(context, invocation);
@@ -34,10 +35,10 @@ public class SubscriptionFactory {
 
     protected IHandlerInvocation buildInvocationForHandler(SubscriptionContext context) throws Exception {
         IHandlerInvocation invocation = createBaseHandlerInvocation(context);
-        if(context.getHandlerMetadata().isSynchronized()){
+        if(context.getHandler().isSynchronized()){
             invocation = new SynchronizedHandlerInvocation(invocation);
         }
-        if (context.getHandlerMetadata().isAsynchronous()) {
+        if (context.getHandler().isAsynchronous()) {
             invocation = new AsynchronousHandlerInvocation(invocation);
         }
         return invocation;
@@ -45,17 +46,17 @@ public class SubscriptionFactory {
 
     protected IMessageDispatcher buildDispatcher(SubscriptionContext context, IHandlerInvocation invocation) {
         IMessageDispatcher dispatcher = new MessageDispatcher(context, invocation);
-        if (context.getHandlerMetadata().isEnveloped()) {
+        if (context.getHandler().isEnveloped()) {
             dispatcher = new EnvelopedMessageDispatcher(dispatcher);
         }
-        if (context.getHandlerMetadata().isFiltered()) {
+        if (context.getHandler().isFiltered()) {
             dispatcher = new FilteredMessageDispatcher(dispatcher);
         }
         return dispatcher;
     }
 
     protected IHandlerInvocation createBaseHandlerInvocation(SubscriptionContext context) throws MessageBusException {
-        Class<? extends HandlerInvocation> invocation = context.getHandlerMetadata().getHandlerInvocation();
+        Class<? extends HandlerInvocation> invocation = context.getHandler().getHandlerInvocation();
         if(invocation.isMemberClass() && !Modifier.isStatic(invocation.getModifiers())){
             throw new MessageBusException("The handler invocation must be top level class or nested STATIC inner class");
         }

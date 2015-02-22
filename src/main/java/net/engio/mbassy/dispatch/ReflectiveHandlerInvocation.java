@@ -46,6 +46,6 @@ public class ReflectiveHandlerInvocation extends HandlerInvocation{
      */
     @Override
     public void invoke(final Object listener, final Object message){
-        invokeHandler(message, listener, getContext().getHandlerMetadata().getHandler());
+        invokeHandler(message, listener, getContext().getHandler().getMethod());
     }
 }

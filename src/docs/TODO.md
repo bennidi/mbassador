@@ -2,13 +2,15 @@
 Asyncbus.shutdown() -> no test coverage
 EnvelopedMessageDispatcher -> not tested at all
 
-#Refactorings
 
+#Refactorings
++ split up IMessagePublication into two separate interfaces (internal and external)
++ create MessagePublicationFactory
 
 #Improvements
 Prio 1: Validation of handlers
     ERROR:Handler with mismatching parameter types
-    ERROR:Interfaces + rejectSubtypes
+    ERROR:Interfaces/Abstract + rejectSubtypes
     WARN:@Synchronized only for some handlers of a given listener
 Prio 2: Lifecycle Callbacks = Implement in MessagePublication (BeforeStart,AfterCompletion)
 

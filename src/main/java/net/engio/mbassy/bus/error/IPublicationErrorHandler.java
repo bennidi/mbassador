@@ -26,6 +26,16 @@ public interface IPublicationErrorHandler {
      */
     static final class ConsoleLogger implements IPublicationErrorHandler {
 
+        private final boolean printStackTrace;
+
+        public ConsoleLogger() {
+            this(false);
+        }
+
+        public ConsoleLogger(boolean printStackTrace) {
+            this.printStackTrace = printStackTrace;
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -36,7 +46,7 @@ public interface IPublicationErrorHandler {
             System.out.println(error);
 
             // Printout the stacktrace from the cause.
-            if (error.getCause() != null) {
+            if (printStackTrace && error.getCause() != null) {
                 error.getCause().printStackTrace();
             }
         }

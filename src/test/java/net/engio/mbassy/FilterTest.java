@@ -9,6 +9,7 @@ import net.engio.mbassy.common.TestUtil;
 import net.engio.mbassy.listener.*;
 import net.engio.mbassy.messages.SubTestMessage;
 import net.engio.mbassy.messages.TestMessage;
+import net.engio.mbassy.subscription.SubscriptionContext;
 import org.junit.Test;
 
 import java.util.List;
@@ -131,7 +132,7 @@ public class FilterTest extends MessageBusTest {
     public static class RejectFilteredObjects implements IMessageFilter{
 
         @Override
-        public boolean accepts(Object message, MessageHandler metadata) {
+        public boolean accepts(Object message, SubscriptionContext context) {
             if(message.getClass().equals(FilteredMessage.class) && ((FilteredMessage)message).getMessage().getClass().equals(Object.class)){
                 return false;
             }
@@ -142,7 +143,7 @@ public class FilterTest extends MessageBusTest {
     public static final class RejectAll implements IMessageFilter {
 
         @Override
-        public boolean accepts(Object event, MessageHandler metadata) {
+        public boolean accepts(Object event,  SubscriptionContext context) {
             return false;
         }
     }

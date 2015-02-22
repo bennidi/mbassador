@@ -41,7 +41,6 @@ public class ReflectionUtils
 	 *
 	 * @param overridingMethod
 	 * @param subclass
-	 * @return
 	 */
 	public static Method getOverridingMethod( final Method overridingMethod, final Class subclass ) {
 		Class current = subclass;
