@@ -75,7 +75,6 @@ public class ListenerFactory {
      *
      * NOTE: Iterator is not perfectly synchronized with mutator methods of the list of generated listeners
      * In theory, it is possible that the list is changed while iterators are still running which should be avoided.
-     * @return
      */
     public Iterator iterator(){
         getAll();

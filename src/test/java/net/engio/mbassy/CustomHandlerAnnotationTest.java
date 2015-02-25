@@ -4,6 +4,7 @@ import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.*;
 import net.engio.mbassy.subscription.MessageEnvelope;
+import net.engio.mbassy.subscription.SubscriptionContext;
 import org.junit.Test;
 
 import java.lang.annotation.*;
@@ -67,13 +68,14 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 	public static class NamedMessageFilter implements IMessageFilter<NamedMessage>
 	{
 		@Override
-		public boolean accepts( NamedMessage message, MessageHandler metadata ) {
-			NamedMessageHandler namedMessageHandler = metadata.getAnnotation(NamedMessageHandler.class);
+		public boolean accepts( NamedMessage message,  SubscriptionContext context ) {
+            MessageHandler handler = context.getHandler();
+			NamedMessageHandler namedMessageHandler = handler.getAnnotation(NamedMessageHandler.class);
 			if ( namedMessageHandler != null ) {
 				return Arrays.asList( namedMessageHandler.value() ).contains( message.getName() );
 			}
 
-			EnvelopedNamedMessageHandler envelopedHandler = metadata.getAnnotation(EnvelopedNamedMessageHandler.class);
+			EnvelopedNamedMessageHandler envelopedHandler = handler.getAnnotation(EnvelopedNamedMessageHandler.class);
 			return envelopedHandler != null && Arrays.asList( envelopedHandler.value() ).contains( message.getName() );
 
 		}

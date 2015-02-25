@@ -41,9 +41,12 @@ public class MessageHandler {
          * @param filter   The set of preconfigured filters if any
          * @param listenerConfig The listener metadata
          * @return  A map of properties initialized from the given parameters that will conform to the requirements of the
-         *         {@link MessageHandler} constructor. See {@see MessageHandler.validate()} for more details.
+         *         {@link MessageHandler} constructor.
          */
-        public static final Map<String, Object> Create(Method handler, Handler handlerConfig, IMessageFilter[] filter, MessageListener listenerConfig){
+        public static final Map<String, Object> Create(Method handler,
+                                                       Handler handlerConfig,
+                                                       IMessageFilter[] filter,
+                                                       MessageListener listenerConfig){
             if(handler == null){
                 throw new IllegalArgumentException("The message handler configuration may not be null");
             }
@@ -133,6 +136,7 @@ public class MessageHandler {
     }
 
     private void validate(Map<String, Object> properties){
+        // define expected types of known properties
         Object[][] expectedProperties = new Object[][]{
                 new Object[]{Properties.HandlerMethod, Method.class },
                 new Object[]{Properties.Priority, Integer.class },
@@ -145,13 +149,12 @@ public class MessageHandler {
                 new Object[]{Properties.Listener, MessageListener.class },
                 new Object[]{Properties.AcceptSubtypes, Boolean.class }
         };
+        // ensure types match
         for(Object[] property : expectedProperties){
             if (properties.get(property[0]) == null || !((Class)property[1]).isAssignableFrom(properties.get(property[0]).getClass()))
                 throw new IllegalArgumentException("Property " + property[0] + " was expected to be not null and of type " + property[1]
                         + " but was: " + properties.get(property[0]));
         }
-
-
     }
 
     public <A extends Annotation> A getAnnotation(Class<A> annotationType){
@@ -182,7 +185,7 @@ public class MessageHandler {
         return priority;
     }
 
-    public Method getHandler() {
+    public Method getMethod() {
         return handler;
     }
 

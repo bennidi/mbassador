@@ -1,5 +1,7 @@
 package net.engio.mbassy.listener;
 
+import net.engio.mbassy.subscription.SubscriptionContext;
+
 /**
  * Message filters can be used to control what messages are delivered to a specific message handler.
  * Filters are attached to message handler using the @Listener annotation.
@@ -8,6 +10,7 @@ package net.engio.mbassy.listener;
  *
  * Example:
  *
+ * {@code
  * @Lister
  * @Filters(Urlfilter.class)
  * public void someHandler(String message){...}
@@ -22,6 +25,7 @@ package net.engio.mbassy.listener;
  * bus.post("www.stackoverflow.com"); // will not be delivered
  *
  * NOTE: A message filter must provide a no-arg constructor!!!
+ * }
  *
  * @author bennidi
  *         Date: 2/8/12
@@ -29,12 +33,12 @@ package net.engio.mbassy.listener;
 public interface IMessageFilter<M> {
 
     /**
-     * Check the message for whatever criteria
+     * Check whether the message matches some criteria
      *
-     * @param message the message to be handled by the handler
-     * @param  metadata the metadata object which describes the message handler
+     * @param message The message to be handled by the handler
+     * @param  context The context object containing a description of the message handler and the bus environment
      * @return  true: if the message matches the criteria and should be delivered to the handler
      *          false: otherwise
      */
-    boolean accepts(M message, MessageHandler metadata);
+    boolean accepts(M message, SubscriptionContext context);
 }

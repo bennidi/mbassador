@@ -12,15 +12,16 @@ import java.util.concurrent.TimeUnit;
 
 public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> implements IMessageBus<T, SyncAsyncPostCommand<T>> {
 
+
     public MBassador(IBusConfiguration configuration) {
         super(configuration);
     }
 
     public MBassador(){
-        super(new BusConfiguration()
-            .addFeature(Feature.SyncPubSub.Default())
-            .addFeature(Feature.AsynchronousHandlerInvocation.Default())
-            .addFeature(Feature.AsynchronousMessageDispatch.Default()));
+        this(new BusConfiguration()
+                .addFeature(Feature.SyncPubSub.Default())
+                .addFeature(Feature.AsynchronousHandlerInvocation.Default())
+                .addFeature(Feature.AsynchronousMessageDispatch.Default()));
     }
 
 
@@ -47,7 +48,7 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
             handlePublicationError(new PublicationError()
                     .setMessage("Error during publication of message")
                     .setCause(e)
-                    .setPublishedObject(message));
+                    .setPublishedMessage(message));
         }
 
     }

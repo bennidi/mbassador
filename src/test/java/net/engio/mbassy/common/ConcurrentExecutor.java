@@ -11,7 +11,7 @@ import java.util.concurrent.*;
  * <p/>
  * Date: 2/14/12
  *
- * @Author bennidi
+ * @author bennidi
  */
 public class ConcurrentExecutor {
 

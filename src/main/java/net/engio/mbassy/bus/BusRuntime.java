@@ -18,13 +18,6 @@ import java.util.Map;
  */
 public class BusRuntime {
 
-    public static class Properties{
-
-        public static final String ErrorHandlers = "error.handlers";
-        public static final String AsynchronousHandlerExecutor = "handler.async.executor";
-
-    }
-
     private PubSubSupport provider;
 
     private Map<String, Object> properties = new HashMap<String, Object>();

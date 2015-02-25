@@ -1,6 +1,7 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.DeadMessage;
+import net.engio.mbassy.bus.common.Properties;
 import net.engio.mbassy.bus.common.PubSubSupport;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
@@ -9,10 +10,9 @@ import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.subscription.Subscription;
 import net.engio.mbassy.subscription.SubscriptionManager;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static net.engio.mbassy.bus.common.Properties.Handler.PublicationError;
 
 /**
  * The base class for all message bus implementations.
@@ -33,8 +33,15 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
 
 
     public AbstractPubSubSupport(IBusConfiguration configuration) {
-        this.runtime = new BusRuntime(this);
-        this.runtime.add(BusRuntime.Properties.ErrorHandlers, getRegisteredErrorHandlers());
+        if(!configuration.hasProperty(Properties.Handler.PublicationError)){
+            System.out.println("WARN: No error handler configured to handle exceptions during publication.\n" +
+                    "Error handlers can be added to any instance of  AbstractPubSubSupport or via BusConfiguration. \n" +
+                    "Falling back to console logger.");
+        }
+        this.errorHandlers.add(configuration.getProperty(Properties.Handler.PublicationError, new IPublicationErrorHandler.ConsoleLogger()));
+        this.runtime = new BusRuntime(this)
+            .add(PublicationError, getRegisteredErrorHandlers())
+            .add(Properties.Common.Id, UUID.randomUUID().toString());
         // configure the pub sub feature
         Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
         this.subscriptionManager = pubSubFeature.getSubscriptionManagerProvider()
@@ -97,4 +104,8 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
         }
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "{ " + runtime.get(Properties.Common.Id) + "}";
+    }
 }

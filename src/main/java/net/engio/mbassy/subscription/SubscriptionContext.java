@@ -19,33 +19,30 @@ import java.util.Collection;
 public class SubscriptionContext implements RuntimeProvider {
 
     // the handler's metadata -> for each handler in a listener, a unique subscription context is created
-    private final MessageHandler handlerMetadata;
+    private final MessageHandler handler;
 
     // error handling is first-class functionality
     private final Collection<IPublicationErrorHandler> errorHandlers;
 
-    private BusRuntime runtime;
+    private final BusRuntime runtime;
 
-    public SubscriptionContext(BusRuntime runtime, MessageHandler handlerMetadata,
-                               Collection<IPublicationErrorHandler> errorHandlers) {
+    public SubscriptionContext(final BusRuntime runtime, final MessageHandler handler,
+                               final Collection<IPublicationErrorHandler> errorHandlers) {
         this.runtime = runtime;
-        this.handlerMetadata = handlerMetadata;
+        this.handler = handler;
         this.errorHandlers = errorHandlers;
     }
 
     /**
      * Get the meta data that specifies the characteristics of the message handler
      * that is associated with this context
-     *
-     * @return
      */
-    public MessageHandler getHandlerMetadata() {
-        return handlerMetadata;
+    public MessageHandler getHandler() {
+        return handler;
     }
 
     /**
      * Get the error handlers registered with the enclosing bus.
-     * @return
      */
     public Collection<IPublicationErrorHandler> getErrorHandlers(){
         return errorHandlers;

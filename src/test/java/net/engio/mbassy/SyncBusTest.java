@@ -1,8 +1,12 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.bus.BusFactory;
 import net.engio.mbassy.bus.MBassador;
+import net.engio.mbassy.bus.SyncMessageBus;
 import net.engio.mbassy.bus.common.GenericMessagePublicationSupport;
+import net.engio.mbassy.bus.common.Properties;
+import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.config.Feature;
+import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.ConcurrentExecutor;
@@ -17,7 +21,6 @@ import net.engio.mbassy.listeners.MessagesListener;
 import net.engio.mbassy.messages.MessageTypes;
 import net.engio.mbassy.messages.MultipartMessage;
 import net.engio.mbassy.messages.StandardMessage;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,12 +34,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class SyncBusTest extends MessageBusTest {
 
 
-    protected abstract GenericMessagePublicationSupport getSyncMessageBus();
+    protected abstract GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException);
 
     @Test
     public void testSynchronousMessagePublication() throws Exception {
 
-        final GenericMessagePublicationSupport bus = getSyncMessageBus();
+        final GenericMessagePublicationSupport bus = getSyncMessageBus(true);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
                 .create(InstancesPerListener, IMessageListener.DisabledListener.class)
@@ -87,7 +90,7 @@ public abstract class SyncBusTest extends MessageBusTest {
             }
         };
 
-        final GenericMessagePublicationSupport bus = getSyncMessageBus();
+        final GenericMessagePublicationSupport bus = getSyncMessageBus(false);
         bus.addErrorHandler(ExceptionCounter);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);
@@ -113,7 +116,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
     @Test
     public void testCustomHandlerInvocation(){
-        final GenericMessagePublicationSupport bus = getSyncMessageBus();
+        final GenericMessagePublicationSupport bus = getSyncMessageBus(true);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, CustomInvocationListener.class)
                 .create(InstancesPerListener, Object.class);
@@ -147,7 +150,7 @@ public abstract class SyncBusTest extends MessageBusTest {
 
     @Test
     public void testHandlerPriorities(){
-        final GenericMessagePublicationSupport bus = getSyncMessageBus();
+        final GenericMessagePublicationSupport bus = getSyncMessageBus(true);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, PrioritizedListener.class)
                 .create(InstancesPerListener, Object.class);
@@ -157,9 +160,7 @@ public abstract class SyncBusTest extends MessageBusTest {
         Runnable publishAndCheck = new Runnable() {
             @Override
             public void run() {
-
                 bus.post(new IncrementingMessage()).now();
-
             }
         };
 
@@ -176,8 +177,13 @@ public abstract class SyncBusTest extends MessageBusTest {
 
 
         @Override
-        protected GenericMessagePublicationSupport getSyncMessageBus() {
-            return new MBassador();
+        protected GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException) {
+            IBusConfiguration asyncFIFOConfig = new BusConfiguration()
+                    .setProperty(Properties.Handler.PublicationError, new AssertionErrorHandler(failOnException));
+            asyncFIFOConfig.addFeature(Feature.SyncPubSub.Default());
+            asyncFIFOConfig.addFeature(Feature.AsynchronousHandlerInvocation.Default(1, 1));
+            asyncFIFOConfig.addFeature(Feature.AsynchronousMessageDispatch.Default().setNumberOfMessageDispatchers(1));
+            return new MBassador(asyncFIFOConfig);
         }
 
     }
@@ -186,10 +192,15 @@ public abstract class SyncBusTest extends MessageBusTest {
 
 
         @Override
-        protected GenericMessagePublicationSupport getSyncMessageBus() {
-            return BusFactory.SynchronousOnly();
+        protected GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException) {
+            IBusConfiguration syncPubSubCfg = new BusConfiguration()
+                    .setProperty(Properties.Handler.PublicationError, new AssertionErrorHandler(failOnException));
+            syncPubSubCfg.addFeature(Feature.SyncPubSub.Default());
+            return new SyncMessageBus(syncPubSubCfg);
         }
     }
+
+
 
 
 
@@ -200,7 +211,7 @@ public abstract class SyncBusTest extends MessageBusTest {
         public void markHandled(int newVal){
             // only transitions by the next handler are allowed
             if(count == newVal || count + 1 == newVal) count = newVal;
-            else Assert.fail("Message was handled out of order");
+            else throw new RuntimeException("Message was handled out of order");
         }
     }
 
@@ -209,22 +220,22 @@ public abstract class SyncBusTest extends MessageBusTest {
 
         @Handler(priority = Integer.MIN_VALUE)
         public void handle1(IncrementingMessage message) {
-            message.markHandled(1);
+            message.markHandled(4);
         }
 
         @Handler(priority = -2)
         public void handle2(IncrementingMessage message) {
-            message.markHandled(2);
+            message.markHandled(3);
         }
 
         @Handler
         public void handle3(IncrementingMessage message) {
-            message.markHandled(3);
+            message.markHandled(2);
         }
 
         @Handler(priority = Integer.MAX_VALUE)
         public void handle4(IncrementingMessage message) {
-            message.markHandled(4);
+            message.markHandled(1);
         }
 
 

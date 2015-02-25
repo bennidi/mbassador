@@ -2,8 +2,6 @@ package net.engio.mbassy.bus.common;
 
 import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
 
-import java.util.concurrent.Executor;
-
 /**
  * A message bus offers facilities for publishing messages to the message handlers of registered listeners.
  * A message publication starts when an object is send to the bus using one of the its publication methods.
@@ -65,16 +63,6 @@ public interface IMessageBus<T, P extends ISyncAsyncPublicationCommand>
      */
     @Override
     P post(T message);
-
-    /**
-     * Get the executor service that is used for asynchronous message publications.
-     * The executor is passed to the message bus at creation time.
-     *
-     * Note: The executor can be obtained from the run time. See
-     * @return
-     */
-    @Deprecated
-    Executor getExecutor();
 
     /**
      * Check whether any asynchronous message publications are pending to be processed

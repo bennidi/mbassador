@@ -17,7 +17,7 @@ public final class FilteredMessageDispatcher extends DelegatingMessageDispatcher
 
     public FilteredMessageDispatcher(IMessageDispatcher dispatcher) {
         super(dispatcher);
-        this.filter = dispatcher.getContext().getHandlerMetadata().getFilter();
+        this.filter = dispatcher.getContext().getHandler().getFilter();
     }
 
     private boolean passesFilter(Object message) {
@@ -26,7 +26,7 @@ public final class FilteredMessageDispatcher extends DelegatingMessageDispatcher
             return true;
         } else {
             for (IMessageFilter aFilter : filter) {
-                if (!aFilter.accepts(message, getContext().getHandlerMetadata())) {
+                if (!aFilter.accepts(message, getContext())) {
                     return false;
                 }
             }

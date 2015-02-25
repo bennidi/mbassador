@@ -36,35 +36,28 @@ public class Subscription {
     }
 
     /**
-     * Check whether this subscription manages a message handler of the given message listener class
-     *
-     * @param listener
-     * @return
+     * Check whether this subscription manages a message handler of the given listener class.
      */
     public boolean belongsTo(Class listener){
-        return context.getHandlerMetadata().isFromListener(listener);
+        return context.getHandler().isFromListener(listener);
     }
 
     /**
-     * Check whether this subscriptions manages the given listener instance
-     * @param listener
-     * @return
+     * Check whether this subscriptions manages the given listener instance.
      */
     public boolean contains(Object listener){
         return listeners.contains(listener);
     }
 
     /**
-     * Check whether this subscription manages a message handler
-     * @param messageType
-     * @return
+     * Check whether this subscription manages a specific message type.
      */
     public boolean handlesMessageType(Class<?> messageType) {
-        return context.getHandlerMetadata().handlesMessage(messageType);
+        return context.getHandler().handlesMessage(messageType);
     }
 
     public Class[] getHandledMessageTypes(){
-        return context.getHandlerMetadata().getHandledMessages();
+        return context.getHandler().getHandledMessages();
     }
 
 
@@ -74,7 +67,7 @@ public class Subscription {
     }
 
     public int getPriority() {
-        return context.getHandlerMetadata().getPriority();
+        return context.getHandler().getPriority();
     }
 
 

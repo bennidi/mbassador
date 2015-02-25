@@ -1,6 +1,7 @@
 package net.engio.mbassy.bus.error;
 
 import net.engio.mbassy.bus.IMessagePublication;
+import net.engio.mbassy.subscription.SubscriptionContext;
 
 import java.lang.reflect.Method;
 
@@ -21,7 +22,7 @@ public class PublicationError{
     private String message;
     private Method handler;
     private Object listener;
-    private Object publishedObject;
+    private Object publishedMessage;
 
 
     /**
@@ -43,7 +44,7 @@ public class PublicationError{
         this.message = message;
         this.handler = handler;
         this.listener = listener;
-        this.publishedObject = publishedObject;
+        this.publishedMessage = publishedObject;
     }
 
     public PublicationError(final Throwable cause,
@@ -51,10 +52,16 @@ public class PublicationError{
                             final IMessagePublication publication) {
         this.cause = cause;
         this.message = message;
-        this.publishedObject = publication != null ? publication.getMessage() : null;
+        this.publishedMessage = publication != null ? publication.getMessage() : null;
     }
 
-
+    public PublicationError(final Throwable cause,
+                            final String message,
+                            final SubscriptionContext context) {
+        this.cause = cause;
+        this.message = message;
+        this.handler = context.getHandler().getMethod();
+    }
 
 
     /**
@@ -109,12 +116,12 @@ public class PublicationError{
         return this;
     }
 
-    public Object getPublishedObject() {
-        return publishedObject;
+    public Object getPublishedMessage() {
+        return publishedMessage;
     }
 
-    public PublicationError setPublishedObject(Object publishedObject) {
-        this.publishedObject = publishedObject;
+    public PublicationError setPublishedMessage(Object publishedMessage) {
+        this.publishedMessage = publishedMessage;
         return this;
     }
 
@@ -134,7 +141,7 @@ public class PublicationError{
                 newLine +
                 "\tlistener=" + listener +
                 newLine +
-                "\tpublishedObject=" + publishedObject +
+                "\tpublishedMessage=" + publishedMessage +
                 '}';
     }
 }

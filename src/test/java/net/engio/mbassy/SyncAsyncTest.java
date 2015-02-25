@@ -1,7 +1,7 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.common.Properties;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.*;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author bennidi
  *         Date: 2/8/12
  */
-public class MBassadorTest extends MessageBusTest {
+public class SyncAsyncTest extends MessageBusTest {
 
 
     @Test
@@ -132,8 +132,8 @@ public class MBassadorTest extends MessageBusTest {
             }
         };
 
-        final MBassador bus = new MBassador(SyncAsync());
-        bus.addErrorHandler(ExceptionCounter);
+        final MBassador bus = new MBassador(SyncAsync()
+                .setProperty(Properties.Handler.PublicationError, ExceptionCounter));
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
