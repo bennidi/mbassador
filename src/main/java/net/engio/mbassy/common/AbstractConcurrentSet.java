@@ -1,7 +1,10 @@
 package net.engio.mbassy.common;
 
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -13,8 +16,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author bennidi
  *         Date: 2/12/12
+ * @author dorkbox
+ *         Date: 22/2/15
  */
-public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
+public abstract class AbstractConcurrentSet<T> implements Set<T> {
+    private static final AtomicLong id = new AtomicLong();
+    private final long ID = id.getAndIncrement();
 
     // Internal state
     protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -28,20 +35,17 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
     protected abstract Entry<T> createEntry(T value, Entry<T> next);
 
     @Override
-    public void add(T element) {
-        if (element == null) return;
+    public boolean add(T element) {
+        if (element == null) return false;
         Lock writeLock = lock.writeLock();
         writeLock.lock();
-        if (element == null || entries.containsKey(element)) {
-            writeLock.unlock();
-        } else {
-            insert(element);
-            writeLock.unlock();
-        }
+        boolean changed = insert(element);
+        writeLock.unlock();
+        return changed;
     }
 
     @Override
-    public boolean contains(T element) {
+    public boolean contains(Object element) {
         Lock readLock = lock.readLock();
         ISetEntry<T> entry;
         try {
@@ -54,11 +58,13 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
         return entry != null && entry.getValue() != null;
     }
 
-    private void insert(T element) {
+    private boolean insert(T element) {
         if (!entries.containsKey(element)) {
             head = createEntry(element, head);
             entries.put(element, head);
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -67,22 +73,30 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
     }
 
     @Override
-    public void addAll(Iterable<T> elements) {
+    public boolean isEmpty() {
+        return head == null;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> elements) {
+        boolean changed = false;
+
         Lock writeLock = lock.writeLock();
         try {
             writeLock.lock();
             for (T element : elements) {
                 if (element != null) {
-                    insert(element);
+                    changed |= insert(element);
                 }
             }
         } finally {
             writeLock.unlock();
         }
+        return changed;
     }
 
     @Override
-    public boolean remove(T element) {
+    public boolean remove(Object element) {
         if (!contains(element)) {
             // return quickly
             return false;
@@ -109,7 +123,63 @@ public abstract class AbstractConcurrentSet<T> implements IConcurrentSet<T> {
         }
     }
 
+    @Override
+    public Object[] toArray() {
+        return this.entries.entrySet().toArray();
+    }
 
+    @SuppressWarnings("hiding")
+    @Override
+    public <T> T[] toArray(T[] a) {
+        return this.entries.entrySet().toArray(a);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (this.ID ^ this.ID >>> 32);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        @SuppressWarnings("rawtypes")
+        AbstractConcurrentSet other = (AbstractConcurrentSet) obj;
+        if (this.ID != other.ID) {
+            return false;
+        }
+        return true;
+    }
     public abstract static class Entry<T> implements ISetEntry<T> {
 
         private Entry<T> next;

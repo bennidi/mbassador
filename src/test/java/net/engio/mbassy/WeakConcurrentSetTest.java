@@ -1,11 +1,12 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.common.ConcurrentExecutor;
-import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.common.WeakConcurrentSet;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -23,7 +24,7 @@ public class WeakConcurrentSetTest extends ConcurrentSetTest{
 
 
     @Override
-    protected IConcurrentSet createSet() {
+    protected Collection createSet() {
         return new WeakConcurrentSet();
     }
 
@@ -32,7 +33,7 @@ public class WeakConcurrentSetTest extends ConcurrentSetTest{
 
         // Assemble
         final HashSet<Object> permanentElements = new HashSet<Object>();
-        final IConcurrentSet testSetWeak = createSet();
+        final Collection testSetWeak = createSet();
         final Random rand = new Random();
 
         for (int i = 0; i < numberOfElements; i++) {

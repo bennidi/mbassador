@@ -1,7 +1,6 @@
 package net.engio.mbassy.common;
 
 
-import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -15,7 +14,8 @@ public class StrongConcurrentSet<T> extends AbstractConcurrentSet<T>{
 
 
     public StrongConcurrentSet() {
-        super(new HashMap<T, ISetEntry<T>>());
+        // ConcurrentHashMapV8 is 15%-20% faster than regular ConcurrentHashMap, which is also faster than HashMap.
+        super(new ConcurrentHashMapV8<T, ISetEntry<T>>());
     }
 
     public Iterator<T> iterator() {

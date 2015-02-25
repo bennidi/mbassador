@@ -1,6 +1,7 @@
 package net.engio.mbassy;
 
-import net.engio.mbassy.common.IConcurrentSet;
+import java.util.Collection;
+
 import net.engio.mbassy.common.StrongConcurrentSet;
 
 /**
@@ -12,7 +13,7 @@ import net.engio.mbassy.common.StrongConcurrentSet;
 public class StrongConcurrentSetTest extends ConcurrentSetTest{
 
     @Override
-    protected IConcurrentSet createSet() {
+    protected Collection createSet() {
         return new StrongConcurrentSet();
     }
 }
