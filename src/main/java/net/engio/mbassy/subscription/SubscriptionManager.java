@@ -1,14 +1,12 @@
 package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.bus.BusRuntime;
-import net.engio.mbassy.common.ConcurrentHashMapV8;
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.listener.MessageHandler;
 import net.engio.mbassy.listener.MetadataReader;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
@@ -57,8 +55,8 @@ public class SubscriptionManager {
         this.runtime = runtime;
 
         // ConcurrentHashMapV8 is 15%-20% faster than regular ConcurrentHashMap, which is also faster than HashMap.
-        subscriptionsPerMessage = new ConcurrentHashMapV8<Class, Collection<Subscription>>(64);
-        subscriptionsPerListener = new ConcurrentHashMapV8<Class, Collection<Subscription>>(64);
+        subscriptionsPerMessage = new HashMap<Class, Collection<Subscription>>(64);
+        subscriptionsPerListener = new HashMap<Class, Collection<Subscription>>(64);
     }
 
 
