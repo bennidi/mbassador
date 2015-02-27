@@ -3,7 +3,6 @@ package net.engio.mbassy;
 import junit.framework.Assert;
 import net.engio.mbassy.common.AssertSupport;
 import net.engio.mbassy.common.ConcurrentExecutor;
-import net.engio.mbassy.common.IConcurrentSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,8 +34,8 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         super.beforeTest();
         gcProtector = new HashSet();
     }
-    
-    protected abstract IConcurrentSet createSet();
+
+    protected abstract Collection createSet();
 
 
     @Test
@@ -44,7 +43,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         final LinkedList<Object> duplicates = new LinkedList<Object>();
         final HashSet<Object> distinct = new HashSet<Object>();
 
-        final IConcurrentSet testSet = createSet();
+        final Collection testSet = createSet();
         Random rand = new Random();
 
         // getAll set of distinct objects and list of duplicates
@@ -76,7 +75,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
 
     @Test()
     public void testIterationWithConcurrentRemoval() {
-        final IConcurrentSet<AtomicInteger> testSet = createSet();
+        final Collection<AtomicInteger> testSet = createSet();
         final Random rand = new Random();
 
         for (int i = 0; i < numberOfElements; i++) {
@@ -127,7 +126,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         final HashSet<Object> source = new HashSet<Object>();
         final HashSet<Object> toRemove = new HashSet<Object>();
 
-        final IConcurrentSet testSet = createSet();
+        final Collection testSet = createSet();
         // getAll set of distinct objects and mark a subset of those for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
@@ -174,7 +173,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         final HashSet<Object> source = new HashSet<Object>();
         final HashSet<Object> toRemove = new HashSet<Object>();
 
-        final IConcurrentSet testSet = createSet();
+        final Collection testSet = createSet();
         // getAll set of candidates and mark subset for removal
         for (int i = 0; i < numberOfElements; i++) {
             Object candidate = new Object();
@@ -212,7 +211,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
     @Test
     public void testCompleteRemoval() {
         final HashSet<Object> source = new HashSet<Object>();
-        final IConcurrentSet testSet = createSet();
+        final Collection testSet = createSet();
 
         // getAll set of candidates and mark subset for removal
         for (int i = 0; i < numberOfElements; i++) {
@@ -244,7 +243,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
     @Test
     public void testRemovalViaIterator() {
         final HashSet<Object> source = new HashSet<Object>();
-        final IConcurrentSet setUnderTest = createSet();
+        final Collection setUnderTest = createSet();
 
         // getAll set of candidates and mark subset for removal
         for (int i = 0; i < numberOfElements; i++) {
@@ -287,7 +286,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
      */
     @Test
     public void testConcurrentAddRemove() {
-        final IConcurrentSet testSet = createSet();
+        final Collection testSet = createSet();
         // a set of unique integers that will stay permanently in the test set
         final List permanentObjects = new ArrayList();
         // a set of objects that will be added and removed at random to the test set to force rehashing

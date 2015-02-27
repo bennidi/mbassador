@@ -1,15 +1,15 @@
 package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.bus.IMessagePublication;
-import net.engio.mbassy.common.IConcurrentSet;
 import net.engio.mbassy.dispatch.IMessageDispatcher;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.UUID;
 
 /**
  * A subscription is a thread-safe container that manages exactly one message handler of all registered
- * message listeners of the same class, i.e. all subscribed instances (exlcuding subclasses) of a SingleMessageHandler.class
+ * message listeners of the same class, i.e. all subscribed instances (excluding subclasses) of a SingleMessageHandler.class
  * will be referenced in the subscription created for SingleMessageHandler.class.
  *
  * There will be as many unique subscription objects per message listener class as there are message handlers
@@ -23,13 +23,13 @@ public class Subscription {
 
     private final UUID id = UUID.randomUUID();
 
-    protected final IConcurrentSet<Object> listeners;
+    protected final Collection<Object> listeners;
 
     private final IMessageDispatcher dispatcher;
 
     private final SubscriptionContext context;
 
-    Subscription(SubscriptionContext context, IMessageDispatcher dispatcher, IConcurrentSet<Object> listeners) {
+    Subscription(SubscriptionContext context, IMessageDispatcher dispatcher, Collection<Object> listeners) {
         this.context = context;
         this.dispatcher = dispatcher;
         this.listeners = listeners;

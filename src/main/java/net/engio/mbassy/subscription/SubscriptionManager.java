@@ -1,12 +1,14 @@
 package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.bus.BusRuntime;
+import net.engio.mbassy.common.ConcurrentHashMapV8;
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.listener.MessageHandler;
 import net.engio.mbassy.listener.MetadataReader;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -26,15 +28,14 @@ public class SubscriptionManager {
     // all subscriptions per message type
     // this is the primary list for dispatching a specific message
     // write access is synchronized and happens only when a listener of a specific class is registered the first time
-    private final Map<Class, Collection<Subscription>> subscriptionsPerMessage
-            = new HashMap<Class, Collection<Subscription>>(50);
+    private final Map<Class, Collection<Subscription>> subscriptionsPerMessage;
 
     // all subscriptions per messageHandler type
     // this map provides fast access for subscribing and unsubscribing
     // write access is synchronized and happens very infrequently
     // once a collection of subscriptions is stored it does not change
-    private final Map<Class, Collection<Subscription>> subscriptionsPerListener
-            = new HashMap<Class, Collection<Subscription>>(50);
+    private final Map<Class, Collection<Subscription>> subscriptionsPerListener;
+
 
     // remember already processed classes that do not contain any message handlers
     private final StrongConcurrentSet<Class> nonListeners = new StrongConcurrentSet<Class>();
@@ -52,6 +53,10 @@ public class SubscriptionManager {
         this.metadataReader = metadataReader;
         this.subscriptionFactory = subscriptionFactory;
         this.runtime = runtime;
+
+        // ConcurrentHashMapV8 is 15%-20% faster than regular ConcurrentHashMap, which is also faster than HashMap.
+        subscriptionsPerMessage = new ConcurrentHashMapV8<Class, Collection<Subscription>>(50);
+        subscriptionsPerListener = new ConcurrentHashMapV8<Class, Collection<Subscription>>(50);
     }
 
 
@@ -95,7 +100,7 @@ public class SubscriptionManager {
                     nonListeners.add(listener.getClass());
                     return;
                 }
-                subscriptionsByListener = new ArrayList<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
+                subscriptionsByListener = new ArrayDeque<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
                 // create subscriptions for all detected message handlers
                 for (MessageHandler messageHandler : messageHandlers) {
                     // create the subscription
@@ -163,7 +168,7 @@ public class SubscriptionManager {
             readWriteLock.readLock().lock();
 
             if (subscriptionsPerMessage.get(messageType) != null) {
-	            subscriptions.addAll(subscriptionsPerMessage.get(messageType));
+                subscriptions.addAll(subscriptionsPerMessage.get(messageType));
             }
             for (Class eventSuperType : ReflectionUtils.getSuperTypes(messageType)) {
                 Collection<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
