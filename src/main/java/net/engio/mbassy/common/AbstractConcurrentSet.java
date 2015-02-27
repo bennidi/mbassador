@@ -151,7 +151,14 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
 
     @Override
     public void clear() {
-        throw new UnsupportedOperationException("Not implemented");
+        Lock writeLock = this.lock.writeLock();
+        try {
+            writeLock.lock();
+                head = null;
+                entries.clear();
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override

@@ -10,6 +10,8 @@ import net.engio.mbassy.listener.MetadataReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 /**
  * The subscription managers responsibility is to consistently handle and synchronize the message listener subscription process.
@@ -55,8 +57,8 @@ public class SubscriptionManager {
         this.runtime = runtime;
 
         // ConcurrentHashMapV8 is 15%-20% faster than regular ConcurrentHashMap, which is also faster than HashMap.
-        subscriptionsPerMessage = new ConcurrentHashMapV8<Class, Collection<Subscription>>(50);
-        subscriptionsPerListener = new ConcurrentHashMapV8<Class, Collection<Subscription>>(50);
+        subscriptionsPerMessage = new ConcurrentHashMapV8<Class, Collection<Subscription>>(64);
+        subscriptionsPerListener = new ConcurrentHashMapV8<Class, Collection<Subscription>>(64);
     }
 
 
@@ -78,26 +80,30 @@ public class SubscriptionManager {
 
     private Collection<Subscription> getSubscriptionsByListener(Object listener) {
         Collection<Subscription> subscriptions;
+        ReadLock readLock = readWriteLock.readLock();
         try {
-            readWriteLock.readLock().lock();
+            readLock.lock();
             subscriptions = subscriptionsPerListener.get(listener.getClass());
         } finally {
-            readWriteLock.readLock().unlock();
+            readLock.unlock();
         }
         return subscriptions;
     }
 
     public void subscribe(Object listener) {
         try {
-            if (isKnownNonListener(listener)) {
+            Class<?> listenerClass = listener.getClass();
+
+            if (nonListeners.contains(listenerClass)) {
                 return; // early reject of known classes that do not define message handlers
             }
+            
             Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
             // a listener is either subscribed for the first time
             if (subscriptionsByListener == null) {
-                List<MessageHandler> messageHandlers = metadataReader.getMessageListener(listener.getClass()).getHandlers();
+                List<MessageHandler> messageHandlers = metadataReader.getMessageListener(listenerClass).getHandlers();
                 if (messageHandlers.isEmpty()) {  // remember the class as non listening class if no handlers are found
-                    nonListeners.add(listener.getClass());
+                    nonListeners.add(listenerClass);
                     return;
                 }
                 subscriptionsByListener = new ArrayDeque<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
@@ -123,8 +129,9 @@ public class SubscriptionManager {
 
 
     private void subscribe(Object listener, Collection<Subscription> subscriptions) {
+        WriteLock writeLock = readWriteLock.writeLock();
         try {
-            readWriteLock.writeLock().lock();
+            writeLock.lock();
             // basically this is a deferred double check
             // it's an ugly pattern but necessary because atomic upgrade from read to write lock
             // is not possible
@@ -149,23 +156,19 @@ public class SubscriptionManager {
                 }
             }
         } finally {
-            readWriteLock.writeLock().unlock();
+            writeLock.unlock();
         }
 
 
-    }
-
-    private boolean isKnownNonListener(Object listener) {
-        Class listeningClass = listener.getClass();
-        return nonListeners.contains(listeningClass);
     }
 
     // obtain the set of subscriptions for the given message type
     // Note: never returns null!
     public Collection<Subscription> getSubscriptionsByMessageType(Class messageType) {
         Set<Subscription> subscriptions = new TreeSet<Subscription>(Subscription.SubscriptionByPriorityDesc);
-        try{
-            readWriteLock.readLock().lock();
+        ReadLock readLock = readWriteLock.readLock();
+        try {
+            readLock.lock();
 
             if (subscriptionsPerMessage.get(messageType) != null) {
                 subscriptions.addAll(subscriptionsPerMessage.get(messageType));
@@ -181,7 +184,7 @@ public class SubscriptionManager {
                 }
             }
         }finally{
-            readWriteLock.readLock().unlock();
+            readLock.unlock();
         }
         return subscriptions;
     }
