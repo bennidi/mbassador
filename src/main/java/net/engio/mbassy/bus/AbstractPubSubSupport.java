@@ -35,7 +35,8 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     public AbstractPubSubSupport(IBusConfiguration configuration) {
         if(!configuration.hasProperty(Properties.Handler.PublicationError)){
             System.out.println("WARN: No error handler configured to handle exceptions during publication.\n" +
-                    "Error handlers can be added to any instance of  AbstractPubSubSupport or via BusConfiguration. \n" +
+                    "Publication error handlers can be added by AbstractPubSubSupport.addErrorHandler()\n" +
+                    "Configuration error handlers can be added by IBUsConfiguration.addConfigurationErrorHandler()\n" +
                     "Falling back to console logger.");
         }
         this.errorHandlers.add(configuration.getProperty(Properties.Handler.PublicationError, new IPublicationErrorHandler.ConsoleLogger()));
