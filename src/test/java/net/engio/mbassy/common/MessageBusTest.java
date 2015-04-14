@@ -59,8 +59,9 @@ public abstract class MessageBusTest extends AssertSupport {
         return new BusConfiguration()
             .addFeature(Feature.SyncPubSub.Default())
             .addFeature(Feature.AsynchronousHandlerInvocation.Default())
-            .addFeature(Feature.AsynchronousMessageDispatch.Default())
-            .setProperty(net.engio.mbassy.bus.common.Properties.Handler.PublicationError, new AssertionErrorHandler(failOnError));
+            .addFeature(Feature.AsynchronousMessageDispatch.Default());
+        //DS: removed as publication error handlers now in configuration object
+//            .setProperty(net.engio.mbassy.bus.common.Properties.Handler.PublicationError, new AssertionErrorHandler(failOnError));
     }
 
     public MBassador createBus(IBusConfiguration configuration) {

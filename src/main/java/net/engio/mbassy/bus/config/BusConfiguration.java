@@ -1,9 +1,8 @@
 package net.engio.mbassy.bus.config;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+
+import java.util.*;
 
 /**
  * The bus configuration holds various parameters that can be used to customize the bus' runtime behaviour.
@@ -12,7 +11,9 @@ public class BusConfiguration implements IBusConfiguration {
 
     // the registered properties
     private final Map<Object, Object> properties = new HashMap<Object, Object>();
-    private final List<ConfigurationErrorHandler> errorHandlerList = new LinkedList<ConfigurationErrorHandler>();
+    private final List<ConfigurationErrorHandler> configurationErrorHandlers = new LinkedList<ConfigurationErrorHandler>();
+    // these are transferred to the bus to receive all errors that occur during message dispatch or message handling
+    private final List<IPublicationErrorHandler> publicationErrorHandlers = new ArrayList<IPublicationErrorHandler>();
 
     public BusConfiguration() {
         super();
@@ -47,14 +48,25 @@ public class BusConfiguration implements IBusConfiguration {
 
     @Override
     public IBusConfiguration addConfigurationErrorHandler(ConfigurationErrorHandler handler) {
-        errorHandlerList.add(handler);
+        configurationErrorHandlers.add(handler);
         return this;
     }
 
     @Override
     public void handleError(ConfigurationError error) {
-        for(ConfigurationErrorHandler errorHandler : errorHandlerList){
+        for(ConfigurationErrorHandler errorHandler : configurationErrorHandlers){
             errorHandler.handle(error);
         }
+    }
+
+@Override
+    public final BusConfiguration addPublicationErrorHandler(IPublicationErrorHandler handler) {
+            publicationErrorHandlers.add(handler);
+    return this;
+    }
+
+    @Override
+    public Collection<IPublicationErrorHandler> getRegisteredPublicationErrorHandlers() {
+        return Collections.unmodifiableCollection(publicationErrorHandlers);
     }
 }

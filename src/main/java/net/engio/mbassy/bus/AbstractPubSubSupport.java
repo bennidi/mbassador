@@ -31,23 +31,28 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
 
     private final BusRuntime runtime;
 
+    public static final String ERROR_HANDLER_MSG = "INFO: No error handler has been configured to handle exceptions during publication.\n" +
+            "Publication error handlers can be added by IBusConfiguration.addPublicationErrorHandler()\n" +
+            "Falling back to console logger.";
+
+
+
 
     public AbstractPubSubSupport(IBusConfiguration configuration) {
-        if(!configuration.hasProperty(Properties.Handler.PublicationError)){
-            System.out.println("WARN: No error handler configured to handle exceptions during publication.\n" +
-                    "Publication error handlers can be added by AbstractPubSubSupport.addErrorHandler()\n" +
-                    "Configuration error handlers can be added by IBUsConfiguration.addConfigurationErrorHandler()\n" +
-                    "Falling back to console logger.");
+
+        //transfer publication error handlers from the config object
+        this.errorHandlers.addAll(configuration.getRegisteredPublicationErrorHandlers());
+        if (errorHandlers.isEmpty()) {
+            errorHandlers.add(new IPublicationErrorHandler.ConsoleLogger());
+            System.out.println(ERROR_HANDLER_MSG);
         }
-        this.errorHandlers.add(configuration.getProperty(Properties.Handler.PublicationError, new IPublicationErrorHandler.ConsoleLogger()));
-        this.runtime = new BusRuntime(this)
-            .add(PublicationError, getRegisteredErrorHandlers())
-            .add(Properties.Common.Id, UUID.randomUUID().toString());
+        this.runtime = new BusRuntime(this).add(PublicationError, getRegisteredErrorHandlers())
+                                           .add(Properties.Common.Id, UUID.randomUUID()
+                                                                          .toString());
         // configure the pub sub feature
         Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
         this.subscriptionManager = pubSubFeature.getSubscriptionManagerProvider()
-                .createManager(pubSubFeature.getMetadataReader(),
-                        pubSubFeature.getSubscriptionFactory(), runtime);
+                                                .createManager(pubSubFeature.getMetadataReader(), pubSubFeature.getSubscriptionFactory(), runtime);
         this.publicationFactory = pubSubFeature.getPublicationFactory();
     }
 
@@ -70,12 +75,6 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     }
 
 
-    public final void addErrorHandler(IPublicationErrorHandler handler) {
-        synchronized (this){
-            errorHandlers.add(handler);
-        }
-    }
-
     @Override
     public BusRuntime getRuntime() {
         return runtime;
@@ -83,7 +82,8 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
 
     protected IMessagePublication createMessagePublication(T message) {
         Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
-        if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass().equals(DeadMessage.class)) {
+        if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass()
+                                                                          .equals(DeadMessage.class)) {
             // Dead Event
             subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
             return getPublicationFactory().createPublication(runtime, subscriptions, new DeadMessage(message));

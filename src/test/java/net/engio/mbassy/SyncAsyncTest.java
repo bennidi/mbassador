@@ -1,7 +1,7 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.bus.common.Properties;
+import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.*;
@@ -132,8 +132,11 @@ public class SyncAsyncTest extends MessageBusTest {
             }
         };
 
-        final MBassador bus = new MBassador(SyncAsync()
-                .setProperty(Properties.Handler.PublicationError, ExceptionCounter));
+        //DS: Exception counter added via config
+        IBusConfiguration config = SyncAsync();
+        config.addPublicationErrorHandler(ExceptionCounter);
+        final MBassador bus = new MBassador(config);
+
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
