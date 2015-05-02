@@ -2,11 +2,13 @@ package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.common.ConcurrentHashMapV8;
+import net.engio.mbassy.common.ISetEntry;
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.listener.MessageHandler;
 import net.engio.mbassy.listener.MetadataReader;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -95,16 +97,23 @@ public class SubscriptionManager {
             Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
             // a listener is either subscribed for the first time
             if (subscriptionsByListener == null) {
-                List<MessageHandler> messageHandlers = metadataReader.getMessageListener(listener.getClass()).getHandlers();
+                StrongConcurrentSet<MessageHandler> messageHandlers = metadataReader.getMessageListener(listener.getClass()).getHandlers();
                 if (messageHandlers.isEmpty()) {  // remember the class as non listening class if no handlers are found
                     nonListeners.add(listener.getClass());
                     return;
                 }
                 subscriptionsByListener = new ArrayDeque<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
+
                 // create subscriptions for all detected message handlers
-                for (MessageHandler messageHandler : messageHandlers) {
+
+                ISetEntry<MessageHandler> current = messageHandlers.head;
+                MessageHandler handler;
+                while (current != null) {
+                    handler = current.getValue();
+                    current = current.next();
+
                     // create the subscription
-                    subscriptionsByListener.add(subscriptionFactory.createSubscription(runtime, messageHandler));
+                    subscriptionsByListener.add(subscriptionFactory.createSubscription(runtime, handler));
                 }
                 // this will acquire a write lock and handle the case when another thread already subscribed
                 // this particular listener in the mean-time

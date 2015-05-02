@@ -1,7 +1,9 @@
 package net.engio.mbassy.listener;
 
 import net.engio.mbassy.common.IPredicate;
+import net.engio.mbassy.common.ISetEntry;
 import net.engio.mbassy.common.ReflectionUtils;
+import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.subscription.MessageEnvelope;
 
 import java.lang.reflect.Method;
@@ -22,7 +24,7 @@ public class MetadataReader {
     private static final IPredicate<Method> AllMessageHandlers = new IPredicate<Method>() {
         @Override
         public boolean apply(Method target) {
-	        return ReflectionUtils.getAnnotation(target, Handler.class) != null;
+            return ReflectionUtils.getAnnotation(target, Handler.class) != null;
         }
     };
 
@@ -56,10 +58,12 @@ public class MetadataReader {
     // listeners defined in super classes)
     public MessageListener getMessageListener(Class target) {
         MessageListener listenerMetadata = new MessageListener(target);
+
         // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
-        List<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
+        StrongConcurrentSet<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
+
         // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
-        List<Method> bottomMostHandlers = new LinkedList<Method>();
+        StrongConcurrentSet<Method> bottomMostHandlers = new StrongConcurrentSet<Method>();
         for (Method handler : allHandlers) {
             if (!ReflectionUtils.containsOverridingMethod(allHandlers, handler)) {
                 bottomMostHandlers.add(handler);
@@ -68,7 +72,12 @@ public class MetadataReader {
 
         // for each handler there will be no overriding method that specifies @Handler annotation
         // but an overriding method does inherit the listener configuration of the overwritten method
-        for (Method handler : bottomMostHandlers) {
+        ISetEntry<Method> current = bottomMostHandlers.head;
+        Method handler;
+        while (current != null) {
+            handler = current.getValue();
+            current = current.next();
+
             Handler handlerConfig = ReflectionUtils.getAnnotation( handler, Handler.class);
             if (!handlerConfig.enabled() || !isValidMessageHandler(handler)) {
                 continue; // disabled or invalid listeners are ignored
