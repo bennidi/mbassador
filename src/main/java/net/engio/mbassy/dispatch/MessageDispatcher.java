@@ -1,6 +1,11 @@
 package net.engio.mbassy.dispatch;
 
+import java.lang.reflect.Method;
+
 import net.engio.mbassy.bus.IMessagePublication;
+import net.engio.mbassy.common.AbstractConcurrentSet;
+import net.engio.mbassy.common.ISetEntry;
+import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 import net.engio.mbassy.subscription.SubscriptionContext;
 
@@ -24,10 +29,17 @@ public class MessageDispatcher extends AbstractSubscriptionContextAware implemen
     }
 
     @Override
-    public void dispatch(final IMessagePublication publication, final Object message, final Iterable listeners){
+    public void dispatch(final IMessagePublication publication, final Object message, final AbstractConcurrentSet listeners){
         publication.markDelivered();
-        for (Object listener : listeners) {
-            getInvocation().invoke(listener, message);
+        IHandlerInvocation invocation = getInvocation();
+
+        ISetEntry<Object> current = listeners.head;
+        Object listener;
+        while (current != null) {
+            listener = current.getValue();
+            current = current.next();
+
+            invocation.invoke(listener, message);
         }
     }
 

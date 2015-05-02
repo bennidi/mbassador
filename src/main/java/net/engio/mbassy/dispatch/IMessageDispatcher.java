@@ -1,6 +1,8 @@
 package net.engio.mbassy.dispatch;
 
 import net.engio.mbassy.bus.IMessagePublication;
+import net.engio.mbassy.common.AbstractConcurrentSet;
+import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.subscription.ISubscriptionContextAware;
 
 /**
@@ -29,7 +31,7 @@ public interface IMessageDispatcher extends ISubscriptionContextAware {
      * @param message     The message that should be delivered to the listeners
      * @param listeners   The listeners that should receive the message
      */
-    void dispatch(IMessagePublication publication, Object message, Iterable listeners);
+    void dispatch(IMessagePublication publication, Object message, AbstractConcurrentSet listeners);
 
     /**
      * Get the handler invocation that will be used to deliver the

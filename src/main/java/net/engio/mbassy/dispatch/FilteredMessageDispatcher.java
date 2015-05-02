@@ -1,6 +1,8 @@
 package net.engio.mbassy.dispatch;
 
 import net.engio.mbassy.bus.IMessagePublication;
+import net.engio.mbassy.common.AbstractConcurrentSet;
+import net.engio.mbassy.common.StrongConcurrentSet;
 import net.engio.mbassy.listener.IMessageFilter;
 
 /**
@@ -36,7 +38,7 @@ public final class FilteredMessageDispatcher extends DelegatingMessageDispatcher
 
 
     @Override
-    public void dispatch(IMessagePublication publication, Object message, Iterable listeners){
+    public void dispatch(IMessagePublication publication, Object message, AbstractConcurrentSet listeners){
         if (passesFilter(message)) {
             getDelegate().dispatch(publication, message, listeners);
         }
