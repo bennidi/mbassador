@@ -3,7 +3,6 @@ package net.engio.mbassy;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.SyncMessageBus;
 import net.engio.mbassy.bus.common.GenericMessagePublicationSupport;
-import net.engio.mbassy.bus.common.Properties;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
@@ -33,6 +32,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class SyncBusTest extends MessageBusTest {
 
+
+    protected abstract GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException, IPublicationErrorHandler errorHandler);
 
     protected abstract GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException);
 
@@ -90,8 +91,8 @@ public abstract class SyncBusTest extends MessageBusTest {
             }
         };
 
-        final GenericMessagePublicationSupport bus = getSyncMessageBus(false);
-        bus.addErrorHandler(ExceptionCounter);
+        //DS: modified to pass ExceptionCounter via the configuration object
+        final GenericMessagePublicationSupport bus = getSyncMessageBus(false,ExceptionCounter);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);
 
@@ -175,15 +176,24 @@ public abstract class SyncBusTest extends MessageBusTest {
 
     public static class MBassadorTest extends SyncBusTest {
 
-
+        //DS: added errorHandler parameter to allow adding handler from caller
         @Override
-        protected GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException) {
-            IBusConfiguration asyncFIFOConfig = new BusConfiguration()
-                    .setProperty(Properties.Handler.PublicationError, new AssertionErrorHandler(failOnException));
+        protected GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException, IPublicationErrorHandler errorHandler) {
+            IBusConfiguration asyncFIFOConfig = new BusConfiguration().addPublicationErrorHandler(new AssertionErrorHandler(failOnException));
             asyncFIFOConfig.addFeature(Feature.SyncPubSub.Default());
             asyncFIFOConfig.addFeature(Feature.AsynchronousHandlerInvocation.Default(1, 1));
             asyncFIFOConfig.addFeature(Feature.AsynchronousMessageDispatch.Default().setNumberOfMessageDispatchers(1));
+            if (errorHandler != null) {
+                asyncFIFOConfig.addPublicationErrorHandler(errorHandler);
+            }
             return new MBassador(asyncFIFOConfig);
+
+        }
+
+
+        @Override
+        protected GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException) {
+            return getSyncMessageBus(failOnException, null);
         }
 
     }
@@ -192,11 +202,18 @@ public abstract class SyncBusTest extends MessageBusTest {
 
 
         @Override
-        protected GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException) {
-            IBusConfiguration syncPubSubCfg = new BusConfiguration()
-                    .setProperty(Properties.Handler.PublicationError, new AssertionErrorHandler(failOnException));
+        protected GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException, IPublicationErrorHandler errorHandler) {
+            IBusConfiguration syncPubSubCfg = new BusConfiguration().addPublicationErrorHandler(new AssertionErrorHandler(failOnException));
             syncPubSubCfg.addFeature(Feature.SyncPubSub.Default());
+            if (errorHandler != null) {
+                syncPubSubCfg.addPublicationErrorHandler(errorHandler);
+            }
             return new SyncMessageBus(syncPubSubCfg);
+        }
+
+        @Override
+        protected GenericMessagePublicationSupport getSyncMessageBus(boolean failOnException) {
+            return getSyncMessageBus(failOnException, null);
         }
     }
 

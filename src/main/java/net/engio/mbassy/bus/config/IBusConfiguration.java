@@ -1,5 +1,9 @@
 package net.engio.mbassy.bus.config;
 
+import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+
+import java.util.Collection;
+
 /**
  * The configuration of message bus instances is feature driven, e.g. configuration parameters
  * are grouped into {@link Feature}.
@@ -64,5 +68,10 @@ public interface IBusConfiguration{
      * Calls all ConfigurationErrorHandlers
      */
     void handleError(ConfigurationError error);
+
+    BusConfiguration addPublicationErrorHandler(IPublicationErrorHandler handler);
+
+    Collection<IPublicationErrorHandler> getRegisteredPublicationErrorHandlers();
+
 
 }

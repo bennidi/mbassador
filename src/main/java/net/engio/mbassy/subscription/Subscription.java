@@ -64,7 +64,7 @@ public class Subscription {
 
 
     public void publish(IMessagePublication publication, Object message){
-        if(listeners.size() > 0)
+        if(!listeners.isEmpty())
             dispatcher.dispatch(publication, message, listeners);
     }
 
