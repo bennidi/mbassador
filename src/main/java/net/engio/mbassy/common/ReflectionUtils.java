@@ -35,7 +35,6 @@ public class ReflectionUtils
         }
         if ( !target.equals( Object.class ) ) {
             getMethods( condition, target.getSuperclass(), methods );
-            methods.addAll( methods );
         }
     }
 
