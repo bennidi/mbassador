@@ -15,8 +15,11 @@ public class StrongConcurrentSet<T> extends AbstractConcurrentSet<T>{
 
 
     public StrongConcurrentSet() {
-        // ConcurrentHashMapV8 is 15%-20% faster than regular ConcurrentHashMap, which is also faster than HashMap.
-        super(new HashMap<T, ISetEntry<T>>());
+        this(16);
+    }
+
+    public StrongConcurrentSet(int size) {
+        super(new HashMap<T, ISetEntry<T>>(size));
     }
 
     public Iterator<T> iterator() {

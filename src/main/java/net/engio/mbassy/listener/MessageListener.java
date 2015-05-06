@@ -1,8 +1,11 @@
 package net.engio.mbassy.listener;
 
 import net.engio.mbassy.common.IPredicate;
+import net.engio.mbassy.common.ISetEntry;
 import net.engio.mbassy.common.ReflectionUtils;
+import net.engio.mbassy.common.StrongConcurrentSet;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -35,7 +38,7 @@ public class MessageListener<T> {
         };
     }
 
-    private List<MessageHandler> handlers = new ArrayList<MessageHandler>();
+    private StrongConcurrentSet<MessageHandler> handlers = new StrongConcurrentSet<MessageHandler>();
 
     private Class<T> listenerDefinition;
 
@@ -64,13 +67,19 @@ public class MessageListener<T> {
         return handlers.add(messageHandler);
     }
 
-    public List<MessageHandler> getHandlers(){
+    public StrongConcurrentSet<MessageHandler> getHandlers(){
         return handlers;
     }
 
     public List<MessageHandler> getHandlers(IPredicate<MessageHandler> filter) {
         List<MessageHandler> matching = new LinkedList<MessageHandler>();
-        for (MessageHandler handler : handlers) {
+
+        ISetEntry<MessageHandler> current = handlers.head;
+        MessageHandler handler;
+        while (current != null) {
+            handler = current.getValue();
+            current = current.next();
+
             if (filter.apply(handler)) {
                 matching.add(handler);
             }

@@ -26,7 +26,7 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
     // Internal state
     protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final Map<T, ISetEntry<T>> entries; // maintain a map of entries for O(log n) lookup
-    protected Entry<T> head; // reference to the first element
+    public Entry<T> head; // reference to the first element, public to permit access to iterators
 
     protected AbstractConcurrentSet(Map<T, ISetEntry<T>> entries) {
         this.entries = entries;
