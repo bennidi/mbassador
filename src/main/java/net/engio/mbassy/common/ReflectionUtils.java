@@ -17,10 +17,12 @@ public class ReflectionUtils
 {
 
     public static StrongConcurrentSet<Method> getMethods( IPredicate<Method> condition, Class<?> target ) {
-        return getMethods(condition, target, new StrongConcurrentSet<Method>());
+        StrongConcurrentSet<Method> strongConcurrentSet = new StrongConcurrentSet<Method>();
+        getMethods(condition, target, strongConcurrentSet);
+        return strongConcurrentSet;
     }
 
-    public static StrongConcurrentSet<Method> getMethods( IPredicate<Method> condition, Class<?> target, StrongConcurrentSet<Method> methods ) {
+    private static void getMethods( IPredicate<Method> condition, Class<?> target, StrongConcurrentSet<Method> methods ) {
         try {
             for ( Method method : target.getDeclaredMethods() ) {
                 if ( condition.apply( method ) ) {
@@ -32,9 +34,9 @@ public class ReflectionUtils
             //nop
         }
         if ( !target.equals( Object.class ) ) {
-            methods.addAll( getMethods( condition, target.getSuperclass(), methods ) );
+            getMethods( condition, target.getSuperclass(), methods );
+            methods.addAll( methods );
         }
-        return methods;
     }
 
     /**
