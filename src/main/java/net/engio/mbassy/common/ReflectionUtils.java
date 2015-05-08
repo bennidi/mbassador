@@ -3,9 +3,12 @@ package net.engio.mbassy.common;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -16,8 +19,13 @@ import java.util.Set;
 public class ReflectionUtils
 {
 
-	public static List<Method> getMethods( IPredicate<Method> condition, Class<?> target ) {
-		List<Method> methods = new LinkedList<Method>();
+    public static Collection<Method> getMethods( IPredicate<Method> condition, Class<?> target ) {
+        Collection<Method> methods = new ArrayDeque<Method>();
+        getMethods(condition, target, methods);
+        return methods;
+    }
+
+    private static void getMethods( IPredicate<Method> condition, Class<?> target, Collection<Method> methods ) {
 		try {
 			for ( Method method : target.getDeclaredMethods() ) {
 				if ( condition.apply( method ) ) {
@@ -29,9 +37,8 @@ public class ReflectionUtils
 			//nop
 		}
 		if ( !target.equals( Object.class ) ) {
-			methods.addAll( getMethods( condition, target.getSuperclass() ) );
+            getMethods( condition, target.getSuperclass(), methods );
 		}
-		return methods;
 	}
 
 	/**
@@ -80,7 +87,7 @@ public class ReflectionUtils
 		}
 	}
 
-	public static boolean containsOverridingMethod( final List<Method> allMethods, final Method methodToCheck ) {
+    public static boolean containsOverridingMethod( final Collection<Method> allMethods, final Method methodToCheck ) {
 		for ( Method method : allMethods ) {
 			if ( isOverriddenBy( methodToCheck, method ) ) {
 				return true;
