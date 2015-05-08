@@ -5,10 +5,12 @@ import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.subscription.MessageEnvelope;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * The meta data reader is responsible for parsing and validating message handler configurations.
@@ -57,7 +59,7 @@ public class MetadataReader {
     public MessageListener getMessageListener(Class target) {
         MessageListener listenerMetadata = new MessageListener(target);
         // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
-        List<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
+        Collection<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
         // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
         List<Method> bottomMostHandlers = new LinkedList<Method>();
         for (Method handler : allHandlers) {
