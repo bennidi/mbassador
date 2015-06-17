@@ -203,12 +203,12 @@ to the listeners such that every object has to be explicitly unsubscribed.
 I want to thank the development team from [friendsurance](www.friendsurance.de) for their support and feedback on the bus 
 implementation and the management of friendsurance for allowing me to publish the component as an open source project.
 
-I also want to thank all of the github users who have made little or larger contributions. Thank you boys and girls, it is awesome to see
+I also want to thank all of the github users who have made little or larger [contributions](https://github.com/bennidi/mbassador/pulls?q=is%3Apr+is%3Aclosed). Thank you boys and girls, it is awesome to see
 the open source idea working.
 Special thanks go to
  + [Bernd Rosstauscher](http://github.com/Rossi1337) for providing an initial integration with JUEL
- + [David Sowerby](http://github.com/davidsowerby) for providing guidance for other users and his PR on better error handling
- + [dorkbox](http://github.com/dorkbox) for his incredible [work on performance tuning](http://github.com/bennidi/eventbus-performance/issues/1) which is still to be integrated.
+ + [David Sowerby](http://github.com/davidsowerby) for providing guidance for other users and his various PR on better error handling
+ + [dorkbox](http://github.com/dorkbox) for various PRs and his incredible [work on performance tuning](http://github.com/bennidi/eventbus-performance/issues/1) which is still to be integrated.
 
 
 Many thanks also to ej-technologies for providing me with an open source license of 
