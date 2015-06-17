@@ -1,4 +1,4 @@
-### [1.2.2](../milestones/1.2.2)
+### [1.2.2](http://github.com/bennidi/mbassador/milestones/1.2.2)
  + Upgraded to Maven 3
    + Upgraded all plugins to most recent version
    + Fixed all issues that produced warnings on build output
@@ -6,10 +6,10 @@
 + __API-Changes:__
    + Moved method addPublicationErrorHandler from `IMessageBus` to `IBusConfiguration`
    + Default constructor of `MBassador` has no `IPublicationErrorHandler` registered and will 
-   fall back to console logging. See [#106](../issues/106), [#107](../issues/107) 
+   fall back to console logging. See [#106](http://github.com/bennidi/mbassador/issues/106), [#107](http://github.com/bennidi/mbassador/issues/107) 
 
 
-### [1.2.1](../milestones/1.2.1)
+### [1.2.1](http://github.com/bennidi/mbassador/milestones/1.2.1)
  + Centralized handling of common (and arbitrary) properties (see `BusConfiguration#setProperty` and `net.engio.mbassy.bus.common.Properties`)
  + Each bus now has a configurable id and respective #toString() implementation (useful for debugging)
  + Each bus now has a default logger (System.out) for publication errors (exception in handlers) which can be replaced with BusConfiguration#setProperty 
@@ -29,7 +29,7 @@
 
 
 ### 1.1.10
- + Fixed broken sort order of prioritized handlers (see [#58](../issues/58))
+ + Fixed broken sort order of prioritized handlers (see [#58](http://github.com/bennidi/mbassador/issues/58))
  + Addressed issue #63 by making the constructor of `MessageHandler` use a map of properties and by replacing dependencies to
   all MBassador specific annotations with Java primitives and simple interfaces
  + Small refactorings (moved stuff around to have cleaner packaging)
@@ -40,12 +40,12 @@
 
 ### 1.1.9
 
- + Fixed memory leak reported in [#53](../issues/53)
+ + Fixed memory leak reported in [#53](http://github.com/bennidi/mbassador/issues/53)
 
 ### 1.1.8
 
  + Internal refactorings and code improvements
- + Fixed [#44](../issues/44) [#45](../issues/45) [#47](../issues/47)
+ + Fixed [#44](http://github.com/bennidi/mbassador/issues/44) [#45](http://github.com/bennidi/mbassador/issues/45) [#47](http://github.com/bennidi/mbassador/issues/47)
  + NOTE: This release has a known issue with weak references which introduces a memory leak and is fixed in 1.1.9. The
  version 1.1.8 is not available from the central repository
 
