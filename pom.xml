@@ -122,6 +122,8 @@
         	<scope>runtime</scope>
         	<optional>true</optional>
         </dependency>
+
+
     </dependencies>
 
     <!--  Local repository (for testing)
@@ -183,6 +185,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
                 <configuration>
                     <source>${project.build.java.version}</source>
                     <target>${project.build.java.version}</target>
@@ -192,7 +195,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.4</version>
+                <version>2.5.2</version>
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                 </configuration>
@@ -201,6 +204,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18.1</version>
                 <configuration>
                     <skipTests>false</skipTests>
                     <excludes>
@@ -214,6 +218,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -227,6 +232,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <show>public</show>
+                    <nohelp>true</nohelp>
+                    <header>mbassador, ${project.version}</header>
+                    <footer>mbassador, ${project.version}</footer>
+                    <doctitle>mbassador, ${project.version}</doctitle>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -238,22 +252,9 @@
             </plugin>
 
 	<!-- 
-	These two plugins take care of building and publishing the javadoc, using
+	To build and publish the javadoc run
 		mvn clean javadoc:javadoc scm-publish:publish-scm
 	 --> 
-	<plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-javadoc-plugin</artifactId>
-	    <version>2.9.1</version>
-	    <configuration>
-		<aggregate>true</aggregate>
-		<show>public</show>
-		<nohelp>true</nohelp>
-		<header>mbassador, ${project.version}</header>
-		<footer>mbassador, ${project.version}</footer>
-		<doctitle>mbassador, ${project.version}</doctitle>
-	    </configuration>
-	</plugin>
 	<plugin>
 	    <groupId>org.apache.maven.plugins</groupId>
 	    <artifactId>maven-scm-publish-plugin</artifactId>
@@ -284,7 +285,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.4</version>
+                        <version>1.6</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

@@ -7,10 +7,12 @@ import java.lang.reflect.Method;
  *  This ELContext implementation provides support for standard BeanEL resolution in conditional message handlers.
  *  The message parameter of the message handlers is bound to 'msg' such that it can be referenced int the EL expressions.
  *
- *  Example:
- *  @Handler(condition = "msg.type == 'onClick'")
+ *  <pre>
+ *  <code>
+ *  {@literal @}Handler(condition = "msg.type == 'onClick'")
  *  public void handle(ButtonEvent event)
- *
+ *  </code>
+ *  </pre>
  */
 public class StandardELResolutionContext extends ELContext {
 

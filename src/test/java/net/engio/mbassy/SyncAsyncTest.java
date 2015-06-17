@@ -133,31 +133,30 @@ public class SyncAsyncTest extends MessageBusTest {
         };
 
         //DS: Exception counter added via config
-        IBusConfiguration config = SyncAsync();
-        config.addPublicationErrorHandler(ExceptionCounter);
-        final MBassador bus = new MBassador(config);
+        IBusConfiguration config = SyncAsync(false)
+            .addPublicationErrorHandler(ExceptionCounter);
 
+        final MBassador bus = new MBassador(config);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
 
-        Runnable publishAndCheck = new Runnable() {
+        Runnable asynchronousPublication = new Runnable() {
             @Override
             public void run() {
-                bus.post(new StandardMessage()).asynchronously();
-
+                bus.post(new Object()).asynchronously();
             }
         };
 
         // single threaded
-        ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
+        ConcurrentExecutor.runConcurrent(asynchronousPublication, 1);
         pause(processingTimeInMS);
         assertEquals(InstancesPerListener, exceptionCount.get());
 
 
         // multi threaded
         exceptionCount.set(0);
-        ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
+        ConcurrentExecutor.runConcurrent(asynchronousPublication, ConcurrentUnits);
         pause(processingTimeInMS);
         assertEquals(InstancesPerListener * ConcurrentUnits, exceptionCount.get());
 

@@ -12,7 +12,7 @@ import net.engio.mbassy.subscription.SubscriptionManager;
 
 import java.util.*;
 
-import static net.engio.mbassy.bus.common.Properties.Handler.PublicationError;
+import static net.engio.mbassy.bus.common.Properties.Handler.PublicationErrorHandlers;
 
 /**
  * The base class for all message bus implementations.
@@ -46,7 +46,7 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
             errorHandlers.add(new IPublicationErrorHandler.ConsoleLogger());
             System.out.println(ERROR_HANDLER_MSG);
         }
-        this.runtime = new BusRuntime(this).add(PublicationError, getRegisteredErrorHandlers())
+        this.runtime = new BusRuntime(this).add(PublicationErrorHandlers, getRegisteredErrorHandlers())
                                            .add(Properties.Common.Id, UUID.randomUUID()
                                                                           .toString());
         // configure the pub sub feature
@@ -99,7 +99,7 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     }
 
 
-    public void handlePublicationError(PublicationError error) {
+    protected void handlePublicationError(PublicationError error) {
         for (IPublicationErrorHandler errorHandler : errorHandlers) {
             errorHandler.handleError(error);
         }

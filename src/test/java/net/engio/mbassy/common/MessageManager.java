@@ -1,11 +1,10 @@
 package net.engio.mbassy.common;
 
 import net.engio.mbassy.messages.IMessage;
-
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
 
 /**
  * Created with IntelliJ IDEA.
@@ -95,7 +94,7 @@ public class MessageManager {
     }
 
    private void logSuccess(MessageContext mCtx){
-       LOG.info("Message " + mCtx.getMessage() + " was successfully handled " + mCtx.getExpectedCount() + " times by " + mCtx.printListeners());
+       LOG.info(mCtx.getMessage().getClass().getSimpleName() + " successfully handled " + mCtx.getExpectedCount() + " times by " + mCtx.printListeners());
    }
 
 

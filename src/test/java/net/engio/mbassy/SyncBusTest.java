@@ -101,14 +101,14 @@ public abstract class SyncBusTest extends MessageBusTest {
         Runnable publish = new Runnable() {
             @Override
             public void run() {
-                bus.post(new StandardMessage()).now();
+                bus.post(new Object()).now();
             }
         };
 
         // single threaded
         ConcurrentExecutor.runConcurrent(publish, 1);
-
-        exceptionCount.set(0);
+        assertEquals(InstancesPerListener, exceptionCount.get());
+        exceptionCount.set(0); // reset for next test
 
         // multi threaded
         ConcurrentExecutor.runConcurrent(publish, ConcurrentUnits);

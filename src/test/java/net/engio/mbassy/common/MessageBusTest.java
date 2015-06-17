@@ -42,6 +42,13 @@ public abstract class MessageBusTest extends AssertSupport {
         }
     }
 
+    public static final class EmptyErrorHandler implements IPublicationErrorHandler{
+
+        @Override
+        public void handleError(PublicationError error) {
+        }
+    }
+
     private StrongConcurrentSet<IMessagePublication> issuedPublications = new StrongConcurrentSet<IMessagePublication>();
 
     @Before
@@ -56,12 +63,13 @@ public abstract class MessageBusTest extends AssertSupport {
     }
 
     public static IBusConfiguration SyncAsync(boolean failOnError) {
-        return new BusConfiguration()
+        IBusConfiguration config = new BusConfiguration()
             .addFeature(Feature.SyncPubSub.Default())
             .addFeature(Feature.AsynchronousHandlerInvocation.Default())
             .addFeature(Feature.AsynchronousMessageDispatch.Default());
-        //DS: removed as publication error handlers now in configuration object
-//            .setProperty(net.engio.mbassy.bus.common.Properties.Handler.PublicationError, new AssertionErrorHandler(failOnError));
+        if(failOnError)
+            config.addPublicationErrorHandler(new AssertionErrorHandler(failOnError));
+        return config;
     }
 
     public MBassador createBus(IBusConfiguration configuration) {

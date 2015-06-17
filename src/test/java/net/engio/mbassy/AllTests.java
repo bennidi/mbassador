@@ -23,7 +23,7 @@ import org.junit.runners.Suite;
         SynchronizedHandlerTest.class,
         SubscriptionManagerTest.class,
         AsyncFIFOBusTest.class,
-        ConditionalHandlers.class
+        ConditionalHandlerTest.class
 })
 public class AllTests {
 }

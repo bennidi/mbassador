@@ -42,7 +42,7 @@ public class AbstractPubSubSupportTest {
 
     @Before
     public void setup() {
-        configuration = MessageBusTest.SyncAsync();
+        configuration = MessageBusTest.SyncAsync(false);
     }
 
 
@@ -102,25 +102,23 @@ public class AbstractPubSubSupportTest {
         verify(handler1).handleError(publicationError);
     }
 
+    /**
+     * Test configuration that does not provide a publication error handler.
+     * This should print a warning message and fallback to STDOUT handler
+     */
     @Test
     public void testHandlePublicationError_no_handlers_present_construct_with_config_async() {
         //given
-        final String errorMsg = "Test error";
-        when(publicationError.toString()).thenReturn(errorMsg);
         PrintStream old = null;
-
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);
             old = System.out;
             System.setOut(ps);
-            //when
+            //when no publication error handler is provided
             MBassador<String> bus = new MBassador<String>(configuration);
+            // then we see the warning on the console
             assertThat(baos.toString()).contains(AbstractPubSubSupport.ERROR_HANDLER_MSG);
-            bus.handlePublicationError(publicationError);
-            //then
-            assertThat(baos.toString()).contains(errorMsg);
-
         } finally {
             System.out.flush();
             if (old != null) {
