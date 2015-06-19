@@ -3,6 +3,7 @@ package net.engio.mbassy.subscription;
 import net.engio.mbassy.bus.BusRuntime;
 import net.engio.mbassy.bus.common.RuntimeProvider;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.listener.MessageHandler;
 
 import java.util.Collection;
@@ -51,6 +52,12 @@ public class SubscriptionContext implements RuntimeProvider {
     @Override
     public BusRuntime getRuntime() {
         return runtime;
+    }
+
+    public final void handleError(PublicationError error){
+        for (IPublicationErrorHandler errorHandler : errorHandlers) {
+            errorHandler.handleError(error);
+        }
     }
 
 }

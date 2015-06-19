@@ -35,20 +35,15 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
             "Publication error handlers can be added by IBusConfiguration.addPublicationErrorHandler()\n" +
             "Falling back to console logger.";
 
-
-
-
     public AbstractPubSubSupport(IBusConfiguration configuration) {
-
         //transfer publication error handlers from the config object
         this.errorHandlers.addAll(configuration.getRegisteredPublicationErrorHandlers());
         if (errorHandlers.isEmpty()) {
             errorHandlers.add(new IPublicationErrorHandler.ConsoleLogger());
             System.out.println(ERROR_HANDLER_MSG);
         }
-        this.runtime = new BusRuntime(this).add(PublicationErrorHandlers, getRegisteredErrorHandlers())
-                                           .add(Properties.Common.Id, UUID.randomUUID()
-                                                                          .toString());
+        this.runtime = new BusRuntime(this)
+                .add(PublicationErrorHandlers, configuration.getRegisteredPublicationErrorHandlers());
         // configure the pub sub feature
         Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
         this.subscriptionManager = pubSubFeature.getSubscriptionManagerProvider()

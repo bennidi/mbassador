@@ -14,7 +14,7 @@ public class AbstractSubscriptionContextAware implements ISubscriptionContextAwa
         this.context = context;
     }
 
-    public SubscriptionContext getContext() {
+    public final SubscriptionContext getContext() {
         return context;
     }
 

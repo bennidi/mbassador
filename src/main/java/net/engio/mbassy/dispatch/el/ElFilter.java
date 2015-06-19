@@ -1,6 +1,5 @@
 package net.engio.mbassy.dispatch.el;
 
-import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.listener.IMessageFilter;
 import net.engio.mbassy.listener.MessageHandler;
@@ -62,14 +61,11 @@ public class ElFilter implements IMessageFilter {
                                    final Object message) {
         ValueExpression ve = ELFactory().createValueExpression(resolutionContext, expression, Boolean.class);
         try {
-            Object result = ve.getValue(resolutionContext);
-            return (Boolean) result;
+            return (Boolean)ve.getValue(resolutionContext);
         } catch (Throwable exception) {
             PublicationError publicationError = new PublicationError(exception, "Error while evaluating EL expression on message", context)
                     .setPublishedMessage(message);
-            for (IPublicationErrorHandler errorHandler : context.getErrorHandlers()) {
-                errorHandler.handleError(publicationError);
-            }
+            context.handleError(publicationError);
             return false;
         }
     }

@@ -13,16 +13,15 @@
     <packaging>bundle</packaging>
     <name>mbassador</name>
     <description>
-        Mbassador is a fast and flexible message bus system following the publish subscribe pattern.
-        It is designed for ease of use and aims to be feature rich and extensible
-        while preserving resource efficiency and performance.
+        Mbassador is a fast and flexible event bus system following the publish subscribe pattern.
+        It is designed for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance.
+        It provides non-blocking iterators and minimal write contention with low memory footprint.
 
-        It features:
+        Some features:
         declarative handler definition via annotations,
         sync and/or async message delivery,
-        weak-references,
-        message filtering,
-        ordering of message handlers etc.
+        weak or strong references,
+        configurable message filters,
     </description>
 
     <url>https://github.com/bennidi/mbassador</url>
@@ -52,7 +51,7 @@
         <nazgul-codestyle.version>2.0.1</nazgul-codestyle.version>
         <jdk.version>1.6</jdk.version>
         <pmd.plugin.version>3.0.1</pmd.plugin.version>
-
+        <nazgul.codestyle.version>4.1.1</nazgul.codestyle.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.java.version>1.6</project.build.java.version>
         <github.url>file://${project.basedir}/mvn-local-repo</github.url>
@@ -137,7 +136,7 @@
 
     <build>
         <plugins>
-            <!-- plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${pmd.plugin.version}</version>
@@ -164,10 +163,10 @@
                     <dependency>
                         <groupId>se.jguru.nazgul.tools.codestyle</groupId>
                         <artifactId>nazgul-codestyle</artifactId>
-                        <version>${nazgul-codestyle.version}</version>
+                        <version>${nazgul.codestyle.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin -->
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.felix</groupId>

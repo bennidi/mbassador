@@ -11,19 +11,20 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        StrongConcurrentSetTest.class,
-        WeakConcurrentSetTest.class,
-        SyncAsyncTest.class,
-        SyncBusTest.MBassadorTest.class,
-        SyncBusTest.SyncMessageBusTest.class,
+        AsyncFIFOBusTest.class,
+        ConditionalHandlerTest.class,
+        CustomHandlerAnnotationTest.class,
+        DeadMessageTest.class,
         FilterTest.class,
         MetadataReaderTest.class,
         MethodDispatchTest.class,
-        DeadMessageTest.class,
-        SynchronizedHandlerTest.class,
+        StrongConcurrentSetTest.class,
         SubscriptionManagerTest.class,
-        AsyncFIFOBusTest.class,
-        ConditionalHandlerTest.class
+        SyncAsyncTest.class,
+        SyncBusTest.MBassadorTest.class,
+        SyncBusTest.SyncMessageBusTest.class,
+        SynchronizedHandlerTest.class,
+        WeakConcurrentSetTest.class
 })
 public class AllTests {
 }

@@ -16,15 +16,11 @@ import java.util.Collection;
 public abstract class HandlerInvocation<HANDLER, MESSAGE> extends AbstractSubscriptionContextAware implements IHandlerInvocation<HANDLER, MESSAGE>{
 
 
-    private final Collection<IPublicationErrorHandler> errorHandlers;
-
     public HandlerInvocation(SubscriptionContext context) {
         super(context);
-        errorHandlers = context.getErrorHandlers();
     }
 
-    protected void handlePublicationError(PublicationError error){
-        for(IPublicationErrorHandler handler : errorHandlers)
-            handler.handleError(error);
+    protected final void handlePublicationError(PublicationError error){
+        getContext().handleError(error);
     }
 }
