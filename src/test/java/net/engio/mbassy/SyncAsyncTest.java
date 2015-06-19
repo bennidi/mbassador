@@ -69,8 +69,14 @@ public class SyncAsyncTest extends MessageBusTest {
             @Override
             public void run() {
 
-                StandardMessage standardMessage = messageManager.create(StandardMessage.class, InstancesPerListener, Listeners.join(Listeners.asynchronous(), Listeners.handlesStandardMessage()));
-                MultipartMessage multipartMessage = messageManager.create(MultipartMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class, IMultipartMessageListener.AsyncListener.class);
+                StandardMessage standardMessage = messageManager.createAndTrack(
+                        StandardMessage.class,
+                        InstancesPerListener,
+                        Listeners.join(Listeners.asynchronous(),Listeners.handlesStandardMessage()));
+                MultipartMessage multipartMessage = messageManager.create(
+                        MultipartMessage.class,
+                        InstancesPerListener,
+                        IMessageListener.AsyncListener.class, IMultipartMessageListener.AsyncListener.class);
 
                 bus.post(standardMessage).now();
                 bus.post(multipartMessage).now();
@@ -80,12 +86,12 @@ public class SyncAsyncTest extends MessageBusTest {
         };
 
         ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
-        messageManager.waitForMessages(processingTimeInMS);
+        messageManager.waitForMessages(waitForMessageTimeout);
 
         MessageTypes.resetAll();
         messageManager.register(MessageTypes.Simple, InstancesPerListener * ConcurrentUnits, IMessageListener.AsyncListener.class, MessagesListener.AsyncListener.class);
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
-        messageManager.waitForMessages(processingTimeInMS);
+        messageManager.waitForMessages(waitForMessageTimeout);
     }
 
     @Test
@@ -113,11 +119,11 @@ public class SyncAsyncTest extends MessageBusTest {
         };
 
         ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
-        messageManager.waitForMessages(processingTimeInMS);
+        messageManager.waitForMessages(waitForMessageTimeout);
 
         MessageTypes.resetAll();
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
-        messageManager.waitForMessages(processingTimeInMS);
+        messageManager.waitForMessages(waitForMessageTimeout);
 
     }
 

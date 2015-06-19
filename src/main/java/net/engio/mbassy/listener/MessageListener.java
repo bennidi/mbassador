@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * All instances of any class that defines at least one message handler (see @MessageHandler) are message listeners. Thus,
+ * All instances of any class defining at least one message handler @link MessageHandler are message listeners. Thus,
  * a message listener is any object capable of receiving messages by means of defined message handlers.
  * There are no restrictions about the number of allowed message handlers in a message listener.
  *

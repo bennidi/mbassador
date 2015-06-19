@@ -201,7 +201,7 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
         protected Entry() {
         }
 
-        // not thread-safe! must be synchronized in enclosing context
+        // Not thread-safe! must be synchronized in enclosing context
         @Override
         public void remove() {
             if (predecessor != null) {
@@ -212,7 +212,7 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
             } else if (next != null) {
                 next.predecessor = null;
             }
-            // can not nullify references to help GC since running iterators might not see the entire set
+            // Can not nullify references to help GC because running iterators might not see the entire set
             // if this element is their current element
             //next = null;
             //predecessor = null;

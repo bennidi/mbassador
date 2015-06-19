@@ -5,6 +5,8 @@ import net.engio.mbassy.listener.Invoke;
 import net.engio.mbassy.messages.IMessage;
 
 /**
+ * A collection of different listener flavours meant for convenient reuse in different
+ * test scenarios.
  *
  * @author bennidi
  *         Date: 5/24/13

@@ -19,10 +19,11 @@ import org.junit.Before;
  */
 public abstract class MessageBusTest extends AssertSupport {
 
-    // this value probably needs to be adjusted depending on the performance of the underlying plattform
+    // this value probably needs to be adjusted depending on the performance of the underlying platform
     // otherwise the tests will fail since asynchronous processing might not have finished when
     // evaluation is run
-    protected static final int processingTimeInMS = 6000;
+    protected static final int waitForMessageTimeout = 60000;
+    protected static final int processingTimeInMS = 2000;
     protected static final int InstancesPerListener = 5000;
     protected static final int ConcurrentUnits = 10;
     protected static final int IterationsPerThread = 100;
