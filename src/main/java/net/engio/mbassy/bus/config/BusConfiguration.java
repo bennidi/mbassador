@@ -5,7 +5,7 @@ import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import java.util.*;
 
 /**
- * The bus configuration holds various parameters that can be used to customize the bus' runtime behaviour.
+ * {@inheritDoc}
  */
 public class BusConfiguration implements IBusConfiguration {
 

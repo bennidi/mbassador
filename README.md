@@ -16,6 +16,7 @@ Table of contents:
 + [Wiki](#wiki)
 + [Release Notes](#release-notes)
 + [Roadmap](#roadmap)
++ [Integrations](#integrations)
 + [Credits](#credits)
 + [Contribute](#contribute)
 + [License](#license)
@@ -137,8 +138,8 @@ Message handlers are defined via annotations added to instance methods. The simp
              .addFeature(Feature.SyncPubSub.Default())
              .addFeature(Feature.AsynchronousHandlerInvocation.Default())
              .addFeature(Feature.AsynchronousMessageDispatch.Default())
-             .setProperty(Properties.Common.Id, "global bus")
-             .setProperty(Properties.Handler.PublicationError, new IPublicationErrorHandler{...}));
+             .addPublicationErrorHandler(new IPublicationErrorHandler{...})
+             .setProperty(Properties.Common.Id, "global bus")); // this is used for identification in #toString
         
 ### Listener subscription
         ListeningBean listener = new ListeningBean();
@@ -180,51 +181,56 @@ There is ongoing effort to extend documentation and provide code samples and det
 
 <h2>Release Notes</h2>
 
-Release notes have been moved to the [changelog](changelog)
+Release notes moved to the [changelog](./changelog).
+
+##Integrations
+
 
 
 <h2>Roadmap</h2>
-Check the issues labeled 'enhancement'. Comment if you would like to see the feature in a future release and/or want to share
-your ideas on the feature (or a variation thereof).
-Please understand that I have limited time to include new features and that I will focus on stability and cleaner APIs.
-Adding features only works with well designed and thoroughly tested components. This is especially true for multi-threaded code
-and I am still not 100 percent happy with the existing test design and some parts of the internal code layout.
+There is no roadmap planning going on that deserves hte name. There is a collection of useful features though. Check the issues labeled with [enhancement](https://github.com/bennidi/mbassador/labels/enhancement) or the available milestones. Comment if you would like to see the feature in a future release and/or want to share your ideas on the feature (or a variation thereof).
 
-Planned for release:Spring integration with support for conditional message dispatch in transactional context (dispatch only after
-successful transaction commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring">this</a> repository
+Please understand that I have limited time to include new features and that I will focus on stability and cleaner APIs. Adding features only works with well designed and thoroughly tested components. This is especially true for multi-threaded code and I am still not 100 percent convinced by the existing test design and some parts of the internal code layout.
+
+Planned for release: [Spring integration](bennidi/mbassador-spring) (currently in beta state) with support for conditional message dispatch in transactional context (dispatch only after successful transaction commit etc.).
 
 
 <h2>Credits</h2>
 The initial inspiration for creating this component comes from Google Guava's event bus implementation.
-I liked the simplicity of its design and I do trust the developers at Google a lot, so I was happy to find that they also
-provided an event bus system. The main reason it proved to be unusable for our scenario was that it uses strong references
-to the listeners such that every object has to be explicitly unsubscribed.
+I liked the simplicity of its design and I trust in the code quality of google libraries. The main reason it proved to be unusable for our scenario was that it uses strong references to the listeners.
 
-I want to thank the development team from [friendsurance](www.friendsurance.de) for their support and feedback on the bus 
-implementation and the management of friendsurance for allowing me to publish the component as an open source project.
+I want to thank the development team from [friendsurance](www.friendsurance.de) for their support and feedback on the bus implementation and the management for allowing me to publish the component as an open source project.
 
 I also want to thank all of the github users who have made little or larger [contributions](https://github.com/bennidi/mbassador/pulls?q=is%3Apr+is%3Aclosed). Thank you boys and girls, it is awesome to see
 the open source idea working.
 Special thanks go to
++ [arne-vandamme](http://github.com/arne-vandamme) for adding support for [meta-annotations](https://github.com/bennidi/mbassador/pull/74)
  + [Bernd Rosstauscher](http://github.com/Rossi1337) for providing an initial integration with JUEL
- + [David Sowerby](http://github.com/davidsowerby) for providing guidance for other users and his various PR on better error handling
- + [dorkbox](http://github.com/dorkbox) for various PRs and his incredible [work on performance tuning](http://github.com/bennidi/eventbus-performance/issues/1) which is still to be integrated.
-
+ + [David Sowerby](http://github.com/davidsowerby) for answering user questions, for his tutorial on [guice integration](bennidi/mbassador/wiki/guice-integration) and his various PRs
+ + [dorkbox](http://github.com/dorkbox) for various PRs and his incredible [work on performance tuning](http://github.com/bennidi/eventbus-performance/issues/1) which is still to be integrated
+ + [durron597](http://github.com/durron597) for his many PRs and the help he offered by answering user questions
 
 Many thanks also to ej-technologies for providing me with an open source license of 
 [![JProfiler](http://www.ej-technologies.com/images/banners/jprofiler_small.png)](http://www.ej-technologies.com/products/jprofiler/overview.html) 
 and Jetbrains for a license of [IntelliJ IDEA](http://www.jetbrains.com/idea/)
 
+And all the other open source projects that make this kind of development possible:
 
+* [jUnit](http://www.junit.org)
+* [maven](http://www.maven.org)
+* [mockito](http://www.mockito.org)
+* [slf4j](http://www.slf4j.org)
+* [Odysseus JUEL](http://juel.sourceforge.net/guide/start.html)
+
+
+Special thanks also to [Sonatype](http://www.sonatype.com/) for the hosting of their [oss nexus repository](https://oss.sonatype.org/).
 
 
 <h2>Contribute</h2>
 
-Any feature requests and feedback are more than welcome. You may suggest improvements either by submitting an
-issue or by forking the repo and creating a pull request. I will try to respond as quickly as possible.
+Any feature requests and feedback are more than welcome. You may suggest improvements or report bugs either by submitting an issue - I will try to respond as quickly as possible. Please try to be precise in the description of your requirements. Following a hands-on mentality please feel invited to contribute by by forking the repo and creating a pull request to submit the code you would like to be included. Make your PRs small and provide test code! Take a look at [this issue](bennidi/mbassador#106) for a good example.
 
-Sample code and documentation are both very appreciated contributions. Especially integration with different frameworks
-such as Spring, Guice or other is of great value. Feel free and welcome to create Wiki pages to share your code and ideas.
+Sample code and documentation are both very appreciated contributions. Especially integration with different frameworks is of great value. Feel free and welcome to create Wiki pages to share your code and ideas. Example: [Guice integration](bennidi/mbassador/wiki/guice-integration)
 
 <h2>License</h2>
 

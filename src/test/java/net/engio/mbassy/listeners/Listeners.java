@@ -3,16 +3,12 @@ package net.engio.mbassy.listeners;
 import java.util.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: benjamin
- * Date: 6/26/13
- * Time: 11:48 AM
- * To change this template use File | Settings | File Templates.
+ * Convenience class to create sets of listeners that can be reused on different test scenarios.
  */
 public class Listeners {
 
     private static final List<Class> Synchronous = Collections.unmodifiableList(Arrays.asList(new Class[]{
-            MessagesListener.DefaultListener.class,
+            MessagesTypeListener.DefaultListener.class,
             IMessageListener.DefaultListener.class,
             StandardMessageListener.DefaultListener.class,
             MultipartMessageListener.DefaultListener.class,
@@ -20,7 +16,7 @@ public class Listeners {
             IMultipartMessageListener.DefaultListener.class}));
 
     private static final List<Class> Asynchronous = Collections.unmodifiableList(Arrays.asList(new Class[]{
-            MessagesListener.AsyncListener.class,
+            MessagesTypeListener.AsyncListener.class,
             IMessageListener.AsyncListener.class,
             StandardMessageListener.AsyncListener.class,
             MultipartMessageListener.AsyncListener.class,
@@ -28,7 +24,7 @@ public class Listeners {
             IMultipartMessageListener.AsyncListener.class}));
 
     private static final List<Class> SubtypeRejecting = Collections.unmodifiableList(Arrays.asList(new Class[]{
-            MessagesListener.NoSubtypesListener.class,
+            MessagesTypeListener.NoSubtypesListener.class,
             IMessageListener.NoSubtypesListener.class,
             StandardMessageListener.NoSubtypesListener.class,
             MultipartMessageListener.NoSubtypesListener.class,
@@ -36,7 +32,7 @@ public class Listeners {
             IMultipartMessageListener.NoSubtypesListener.class}));
 
     private static final List<Class> NoHandlers = Collections.unmodifiableList(Arrays.asList(new Class[]{
-            MessagesListener.DisabledListener.class,
+            MessagesTypeListener.DisabledListener.class,
             IMessageListener.DisabledListener.class,
             StandardMessageListener.DisabledListener.class,
             MultipartMessageListener.DisabledListener.class,
@@ -52,9 +48,9 @@ public class Listeners {
             IMultipartMessageListener.DefaultListener.class,
             IMultipartMessageListener.AsyncListener.class,
             IMultipartMessageListener.NoSubtypesListener.class,
-            MessagesListener.DefaultListener.class,
-            MessagesListener.AsyncListener.class,
-            MessagesListener.NoSubtypesListener.class,
+            MessagesTypeListener.DefaultListener.class,
+            MessagesTypeListener.AsyncListener.class,
+            MessagesTypeListener.NoSubtypesListener.class,
             StandardMessageListener.DefaultListener.class,
             StandardMessageListener.AsyncListener.class,
             StandardMessageListener.NoSubtypesListener.class,

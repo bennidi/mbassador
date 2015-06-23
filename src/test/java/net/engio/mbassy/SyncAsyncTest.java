@@ -53,7 +53,7 @@ public class SyncAsyncTest extends MessageBusTest {
         MessageTypes.resetAll();
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
         assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.DefaultListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.DefaultListener.class));
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesTypeListener.DefaultListener.class));
     }
 
 
@@ -89,7 +89,7 @@ public class SyncAsyncTest extends MessageBusTest {
         messageManager.waitForMessages(waitForMessageTimeout);
 
         MessageTypes.resetAll();
-        messageManager.register(MessageTypes.Simple, InstancesPerListener * ConcurrentUnits, IMessageListener.AsyncListener.class, MessagesListener.AsyncListener.class);
+        messageManager.register(MessageTypes.Simple, InstancesPerListener * ConcurrentUnits, IMessageListener.AsyncListener.class, MessagesTypeListener.AsyncListener.class);
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
         messageManager.waitForMessages(waitForMessageTimeout);
     }
