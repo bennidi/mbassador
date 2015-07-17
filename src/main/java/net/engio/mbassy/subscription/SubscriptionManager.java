@@ -28,13 +28,13 @@ public class SubscriptionManager {
     // all subscriptions per message type
     // this is the primary list for dispatching a specific message
     // write access is synchronized and happens only when a listener of a specific class is registered the first time
-    private final Map<Class, Collection<Subscription>> subscriptionsPerMessage;
+    private final Map<Class, ArrayList<Subscription>> subscriptionsPerMessage;
 
     // all subscriptions per messageHandler type
     // this map provides fast access for subscribing and unsubscribing
     // write access is synchronized and happens very infrequently
     // once a collection of subscriptions is stored it does not change
-    private final Map<Class, Collection<Subscription>> subscriptionsPerListener;
+    private final Map<Class, Subscription[]> subscriptionsPerListener;
 
 
     // remember already processed classes that do not contain any message handlers
@@ -54,9 +54,8 @@ public class SubscriptionManager {
         this.subscriptionFactory = subscriptionFactory;
         this.runtime = runtime;
 
-        // ConcurrentHashMapV8 is 15%-20% faster than regular ConcurrentHashMap, which is also faster than HashMap.
-        subscriptionsPerMessage = new HashMap<Class, Collection<Subscription>>(64);
-        subscriptionsPerListener = new HashMap<Class, Collection<Subscription>>(64);
+        subscriptionsPerMessage = new HashMap<Class, ArrayList<Subscription>>(64);
+        subscriptionsPerListener = new HashMap<Class, Subscription[]>(64);
     }
 
 
@@ -64,7 +63,7 @@ public class SubscriptionManager {
         if (listener == null) {
             return false;
         }
-        Collection<Subscription> subscriptions = getSubscriptionsByListener(listener);
+        Subscription[] subscriptions = getSubscriptionsByListener(listener);
         if (subscriptions == null) {
             return false;
         }
@@ -76,8 +75,8 @@ public class SubscriptionManager {
     }
 
 
-    private Collection<Subscription> getSubscriptionsByListener(Object listener) {
-        Collection<Subscription> subscriptions;
+    private Subscription[] getSubscriptionsByListener(Object listener) {
+        Subscription[] subscriptions;
         ReadLock readLock = readWriteLock.readLock();
         try {
             readLock.lock();
@@ -95,21 +94,26 @@ public class SubscriptionManager {
             if (nonListeners.contains(listenerClass)) {
                 return; // early reject of known classes that do not define message handlers
             }
-            
-            Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
+
+            Subscription[] subscriptionsByListener = getSubscriptionsByListener(listener);
             // a listener is either subscribed for the first time
             if (subscriptionsByListener == null) {
-                List<MessageHandler> messageHandlers = metadataReader.getMessageListener(listenerClass).getHandlers();
-                if (messageHandlers.isEmpty()) {  // remember the class as non listening class if no handlers are found
+                MessageHandler[] messageHandlers = metadataReader.getMessageListener(listenerClass).getHandlers();
+                int length = messageHandlers.length;
+
+                if (length == 0) {  // remember the class as non listening class if no handlers are found
                     nonListeners.add(listenerClass);
                     return;
                 }
-                subscriptionsByListener = new ArrayDeque<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
+                subscriptionsByListener = new Subscription[length]; // it's safe to use non-concurrent collection here (read only)
+
                 // create subscriptions for all detected message handlers
-                for (MessageHandler messageHandler : messageHandlers) {
-                    // create the subscription
-                    subscriptionsByListener.add(subscriptionFactory.createSubscription(runtime, messageHandler));
+                MessageHandler messageHandler;
+                for (int i=0; i<length; i++) {
+                    messageHandler = messageHandlers[i];
+                    subscriptionsByListener[i] = subscriptionFactory.createSubscription(runtime, messageHandler);
                 }
+
                 // this will acquire a write lock and handle the case when another thread already subscribed
                 // this particular listener in the mean-time
                 subscribe(listener, subscriptionsByListener);
@@ -126,7 +130,7 @@ public class SubscriptionManager {
     }
 
 
-    private void subscribe(Object listener, Collection<Subscription> subscriptions) {
+    private void subscribe(Object listener, Subscription[] subscriptions) {
         WriteLock writeLock = readWriteLock.writeLock();
         try {
             writeLock.lock();
@@ -135,15 +139,23 @@ public class SubscriptionManager {
             // is not possible
             // the alternative of using a write lock from the beginning would decrease performance dramatically
             // because of the huge number of reads compared to writes
-            Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
+            Subscription[] subscriptionsByListener = getSubscriptionsByListener(listener);
 
             if (subscriptionsByListener == null) {
                 for (Subscription subscription : subscriptions) {
                     subscription.subscribe(listener);
+
                     for (Class<?> messageType : subscription.getHandledMessageTypes()) {
-                        addMessageTypeSubscription(messageType, subscription);
+                        // associate a subscription with a message type
+                        ArrayList<Subscription> subscriptions2 = subscriptionsPerMessage.get(messageType);
+                        if (subscriptions2 == null) {
+                            subscriptions2 = new ArrayList<Subscription>(8);
+                            subscriptionsPerMessage.put(messageType, subscriptions2);
+                        }
+                        subscriptions2.add(subscription);
                     }
                 }
+
                 subscriptionsPerListener.put(listener.getClass(), subscriptions);
             }
             // the rare case when multiple threads concurrently subscribed the same class for the first time
@@ -168,15 +180,21 @@ public class SubscriptionManager {
         try {
             readLock.lock();
 
-            if (subscriptionsPerMessage.get(messageType) != null) {
-                subscriptions.addAll(subscriptionsPerMessage.get(messageType));
+            Subscription subscription;
+            ArrayList<Subscription> subsPerMessage = subscriptionsPerMessage.get(messageType);
+
+            if (subsPerMessage != null) {
+                subscriptions.addAll(subsPerMessage);
             }
+
             for (Class eventSuperType : ReflectionUtils.getSuperTypes(messageType)) {
-                Collection<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
+                ArrayList<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
                 if (subs != null) {
-                    for (Subscription sub : subs) {
-                        if (sub.handlesMessageType(messageType)) {
-                            subscriptions.add(sub);
+                    for (int i = 0; i < subs.size(); i++) {
+                        subscription = subs.get(i);
+
+                        if (subscription.handlesMessageType(messageType)) {
+                            subscriptions.add(subscription);
                         }
                     }
                 }
@@ -185,17 +203,5 @@ public class SubscriptionManager {
             readLock.unlock();
         }
         return subscriptions;
-    }
-
-
-    // associate a subscription with a message type
-    // NOTE: Not thread-safe! must be synchronized in outer scope
-    private void addMessageTypeSubscription(Class messageType, Subscription subscription) {
-        Collection<Subscription> subscriptions = subscriptionsPerMessage.get(messageType);
-        if (subscriptions == null) {
-            subscriptions = new LinkedList<Subscription>();
-            subscriptionsPerMessage.put(messageType, subscriptions);
-        }
-        subscriptions.add(subscription);
     }
 }

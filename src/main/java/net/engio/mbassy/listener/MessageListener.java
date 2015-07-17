@@ -35,7 +35,7 @@ public class MessageListener<T> {
         };
     }
 
-    private List<MessageHandler> handlers = new ArrayList<MessageHandler>();
+    private ArrayList<MessageHandler> handlers = new ArrayList<MessageHandler>();
 
     private Class<T> listenerDefinition;
 
@@ -64,12 +64,13 @@ public class MessageListener<T> {
         return handlers.add(messageHandler);
     }
 
-    public List<MessageHandler> getHandlers(){
-        return handlers;
+    public MessageHandler[] getHandlers(){
+        MessageHandler[] asArray = new MessageHandler[handlers.size()];
+        return handlers.toArray(asArray);
     }
 
     public List<MessageHandler> getHandlers(IPredicate<MessageHandler> filter) {
-        List<MessageHandler> matching = new LinkedList<MessageHandler>();
+        List<MessageHandler> matching = new ArrayList<MessageHandler>();
         for (MessageHandler handler : handlers) {
             if (filter.apply(handler)) {
                 matching.add(handler);
