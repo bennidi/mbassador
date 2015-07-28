@@ -18,6 +18,7 @@ import org.junit.runners.Suite;
         FilterTest.class,
         MetadataReaderTest.class,
         MethodDispatchTest.class,
+        PubSubPauseSupportTest.class,
         StrongConcurrentSetTest.class,
         SubscriptionManagerTest.class,
         SyncAsyncTest.class,

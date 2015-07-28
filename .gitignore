@@ -25,3 +25,4 @@ mvn-local-repo/**/*
 release.properties
 /.classpath
 /.project
+/build/
