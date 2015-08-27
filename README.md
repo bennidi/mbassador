@@ -228,9 +228,9 @@ Special thanks also to [Sonatype](http://www.sonatype.com/) for the hosting of t
 
 <h2>Contribute</h2>
 
-Any feature requests and feedback are more than welcome. You may suggest improvements or report bugs either by submitting an issue - I will try to respond as quickly as possible. Please try to be precise in the description of your requirements. Following a hands-on mentality please feel invited to contribute by by forking the repo and creating a pull request to submit the code you would like to be included. Make your PRs small and provide test code! Take a look at [this issue](bennidi/mbassador#106) for a good example.
+Any feature requests and feedback are more than welcome. You may suggest improvements or report bugs either by submitting an issue - I will try to respond as quickly as possible. Please try to be precise in the description of your requirements. Following a hands-on mentality please feel invited to contribute by by forking the repo and creating a pull request to submit the code you would like to be included. Make your PRs small and provide test code! Take a look at [this issue](bennidi/mbassador#109) for a good example.
 
-Sample code and documentation are both very appreciated contributions. Especially integration with different frameworks is of great value. Feel free and welcome to create Wiki pages to share your code and ideas. Example: [Guice integration](bennidi/mbassador/wiki/guice-integration)
+Sample code and documentation are both very appreciated contributions. Especially integration with different frameworks is of great value. Feel free and welcome to create Wiki pages to share your code and ideas. Example: [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration)
 
 <h2>License</h2>
 
