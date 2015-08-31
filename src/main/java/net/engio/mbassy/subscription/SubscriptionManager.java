@@ -22,29 +22,29 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
  */
 public class SubscriptionManager {
 
-    // the metadata reader that is used to inspect objects passed to the subscribe method
+    // The metadata reader that is used to inspect objects passed to the subscribe method
     private final MetadataReader metadataReader;
 
-    // all subscriptions per message type
-    // this is the primary list for dispatching a specific message
+    // All subscriptions per message type
+    // This is the primary list for dispatching a specific message
     // write access is synchronized and happens only when a listener of a specific class is registered the first time
     private final Map<Class, Collection<Subscription>> subscriptionsPerMessage;
 
-    // all subscriptions per messageHandler type
-    // this map provides fast access for subscribing and unsubscribing
+    // All subscriptions per messageHandler type
+    // This map provides fast access for subscribing and unsubscribing
     // write access is synchronized and happens very infrequently
-    // once a collection of subscriptions is stored it does not change
+    // Once a collection of subscriptions is stored it does not change
     private final Map<Class, Collection<Subscription>> subscriptionsPerListener;
 
 
-    // remember already processed classes that do not contain any message handlers
+    // Remember already processed classes that do not contain any message handlers
     private final StrongConcurrentSet<Class> nonListeners = new StrongConcurrentSet<Class>();
 
-    // this factory is used to create specialized subscriptions based on the given message handler configuration
-    // it can be customized by implementing the getSubscriptionFactory() method
+    // This factory is used to create specialized subscriptions based on the given message handler configuration
+    // It can be customized by implementing the getSubscriptionFactory() method
     private final SubscriptionFactory subscriptionFactory;
 
-    // synchronize read/write acces to the subscription maps
+    // Synchronize read/write access to the subscription maps
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     private final BusRuntime runtime;
@@ -54,9 +54,8 @@ public class SubscriptionManager {
         this.subscriptionFactory = subscriptionFactory;
         this.runtime = runtime;
 
-        // ConcurrentHashMapV8 is 15%-20% faster than regular ConcurrentHashMap, which is also faster than HashMap.
-        subscriptionsPerMessage = new HashMap<Class, Collection<Subscription>>(64);
-        subscriptionsPerListener = new HashMap<Class, Collection<Subscription>>(64);
+        subscriptionsPerMessage = new HashMap<Class, Collection<Subscription>>(256);
+        subscriptionsPerListener = new HashMap<Class, Collection<Subscription>>(256);
     }
 
 
@@ -97,7 +96,7 @@ public class SubscriptionManager {
             }
             
             Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
-            // a listener is either subscribed for the first time
+            // A listener is either subscribed for the first time [1]
             if (subscriptionsByListener == null) {
                 List<MessageHandler> messageHandlers = metadataReader.getMessageListener(listenerClass).getHandlers();
                 if (messageHandlers.isEmpty()) {  // remember the class as non listening class if no handlers are found
@@ -105,15 +104,15 @@ public class SubscriptionManager {
                     return;
                 }
                 subscriptionsByListener = new ArrayDeque<Subscription>(messageHandlers.size()); // it's safe to use non-concurrent collection here (read only)
-                // create subscriptions for all detected message handlers
+                // Create subscriptions for all detected message handlers
                 for (MessageHandler messageHandler : messageHandlers) {
-                    // create the subscription
+                    // Create the subscription
                     subscriptionsByListener.add(subscriptionFactory.createSubscription(runtime, messageHandler));
                 }
-                // this will acquire a write lock and handle the case when another thread already subscribed
+                // This will acquire a write lock and handle the case when another thread already subscribed
                 // this particular listener in the mean-time
                 subscribe(listener, subscriptionsByListener);
-            } // or the subscriptions already exist and must only be updated
+            } // [1]...or the subscriptions already exists and must only be updated
             else {
                 for (Subscription sub : subscriptionsByListener) {
                     sub.subscribe(listener);
@@ -130,11 +129,11 @@ public class SubscriptionManager {
         WriteLock writeLock = readWriteLock.writeLock();
         try {
             writeLock.lock();
-            // basically this is a deferred double check
-            // it's an ugly pattern but necessary because atomic upgrade from read to write lock
-            // is not possible
-            // the alternative of using a write lock from the beginning would decrease performance dramatically
-            // because of the huge number of reads compared to writes
+            // Basically this is a deferred double check.
+            // It's an ugly pattern but necessary because atomic upgrade from read to write lock
+            // is not possible.
+            // The alternative of using a write lock from the beginning would decrease performance dramatically
+            // due to the read heavy read:write ratio
             Collection<Subscription> subscriptionsByListener = getSubscriptionsByListener(listener);
 
             if (subscriptionsByListener == null) {
@@ -147,7 +146,7 @@ public class SubscriptionManager {
                 subscriptionsPerListener.put(listener.getClass(), subscriptions);
             }
             // the rare case when multiple threads concurrently subscribed the same class for the first time
-            // one will be first, all others will have to subscribe to the existing instead the generated subscriptions
+            // one will be first, all others will subscribe to the newly created subscriptions
             else {
                 for (Subscription existingSubscription : subscriptionsByListener) {
                     existingSubscription.subscribe(listener);
