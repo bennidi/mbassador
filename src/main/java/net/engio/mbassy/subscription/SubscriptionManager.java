@@ -142,7 +142,8 @@ public class SubscriptionManager {
             Subscription[] subscriptionsByListener = getSubscriptionsByListener(listener);
 
             if (subscriptionsByListener == null) {
-                for (Subscription subscription : subscriptions) {
+                for (int i=0, n=subscriptions.length; i<n; i++) {
+                    Subscription subscription = subscriptions[i];
                     subscription.subscribe(listener);
 
                     for (Class<?> messageType : subscription.getHandledMessageTypes()) {
@@ -161,15 +162,14 @@ public class SubscriptionManager {
             // the rare case when multiple threads concurrently subscribed the same class for the first time
             // one will be first, all others will have to subscribe to the existing instead the generated subscriptions
             else {
-                for (Subscription existingSubscription : subscriptionsByListener) {
+                for (int i=0, n=subscriptionsByListener.length; i<n; i++) {
+                    Subscription existingSubscription = subscriptionsByListener[i];
                     existingSubscription.subscribe(listener);
                 }
             }
         } finally {
             writeLock.unlock();
         }
-
-
     }
 
     // obtain the set of subscriptions for the given message type
@@ -187,11 +187,14 @@ public class SubscriptionManager {
                 subscriptions.addAll(subsPerMessage);
             }
 
-            for (Class eventSuperType : ReflectionUtils.getSuperTypes(messageType)) {
+            Class[] types = ReflectionUtils.getSuperTypes(messageType);
+            for (int i=0, n=types.length; i<n; i++) {
+                Class eventSuperType = types[i];
+                
                 ArrayList<Subscription> subs = subscriptionsPerMessage.get(eventSuperType);
                 if (subs != null) {
-                    for (int i = 0; i < subs.size(); i++) {
-                        subscription = subs.get(i);
+                    for (int j = 0,m=subs.size(); j<m; j++) {
+                        subscription = subs.get(j);
 
                         if (subscription.handlesMessageType(messageType)) {
                             subscriptions.add(subscription);
