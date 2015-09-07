@@ -13,16 +13,15 @@
     <packaging>bundle</packaging>
     <name>mbassador</name>
     <description>
-        Mbassador is a fast and flexible message bus system following the publish subscribe pattern.
-        It is designed for ease of use and aims to be feature rich and extensible
-        while preserving resource efficiency and performance.
+        Mbassador is a fast and flexible event bus system following the publish subscribe pattern.
+        It is designed for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance.
+        It provides non-blocking iterators and minimal write contention with low memory footprint.
 
-        It features:
+        Some features:
         declarative handler definition via annotations,
         sync and/or async message delivery,
-        weak-references,
-        message filtering,
-        ordering of message handlers etc.
+        weak or strong references,
+        configurable message filters,
     </description>
 
     <url>https://github.com/bennidi/mbassador</url>
@@ -52,7 +51,7 @@
         <nazgul-codestyle.version>2.0.1</nazgul-codestyle.version>
         <jdk.version>1.6</jdk.version>
         <pmd.plugin.version>3.0.1</pmd.plugin.version>
-
+        <nazgul.codestyle.version>4.1.1</nazgul.codestyle.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.java.version>1.6</project.build.java.version>
         <github.url>file://${project.basedir}/mvn-local-repo</github.url>
@@ -122,6 +121,8 @@
         	<scope>runtime</scope>
         	<optional>true</optional>
         </dependency>
+
+
     </dependencies>
 
     <!--  Local repository (for testing)
@@ -135,7 +136,7 @@
 
     <build>
         <plugins>
-            <!-- plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${pmd.plugin.version}</version>
@@ -162,10 +163,10 @@
                     <dependency>
                         <groupId>se.jguru.nazgul.tools.codestyle</groupId>
                         <artifactId>nazgul-codestyle</artifactId>
-                        <version>${nazgul-codestyle.version}</version>
+                        <version>${nazgul.codestyle.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin -->
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -183,6 +184,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
                 <configuration>
                     <source>${project.build.java.version}</source>
                     <target>${project.build.java.version}</target>
@@ -192,7 +194,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.4</version>
+                <version>2.5.2</version>
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                 </configuration>
@@ -201,6 +203,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18.1</version>
                 <configuration>
                     <skipTests>false</skipTests>
                     <excludes>
@@ -214,6 +217,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -227,6 +231,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <show>public</show>
+                    <nohelp>true</nohelp>
+                    <header>mbassador, ${project.version}</header>
+                    <footer>mbassador, ${project.version}</footer>
+                    <doctitle>mbassador, ${project.version}</doctitle>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -238,22 +251,9 @@
             </plugin>
 
 	<!-- 
-	These two plugins take care of building and publishing the javadoc, using
+	To build and publish the javadoc run
 		mvn clean javadoc:javadoc scm-publish:publish-scm
 	 --> 
-	<plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-javadoc-plugin</artifactId>
-	    <version>2.9.1</version>
-	    <configuration>
-		<aggregate>true</aggregate>
-		<show>public</show>
-		<nohelp>true</nohelp>
-		<header>mbassador, ${project.version}</header>
-		<footer>mbassador, ${project.version}</footer>
-		<doctitle>mbassador, ${project.version}</doctitle>
-	    </configuration>
-	</plugin>
 	<plugin>
 	    <groupId>org.apache.maven.plugins</groupId>
 	    <artifactId>maven-scm-publish-plugin</artifactId>
@@ -284,7 +284,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.4</version>
+                        <version>1.6</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

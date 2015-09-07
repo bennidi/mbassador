@@ -15,26 +15,30 @@ import net.engio.mbassy.subscription.Subscription;
  */
 public interface IMessagePublication {
 
-    public boolean add(Subscription subscription);
+    boolean add(Subscription subscription);  // TODO: this method should not be part of the interface
 
     /*
     TODO: document state transitions
      */
-    public void execute();
+    void execute();
 
-    public boolean isFinished();
+    boolean isFinished();
 
-    public boolean isRunning();
+    boolean isRunning();
 
-    public boolean isScheduled();
+    boolean isScheduled();
 
-    public void markDelivered();
+    void markDelivered(); // TODO: this method should not be part of the interface
 
-    public IMessagePublication markScheduled();
+    IMessagePublication markScheduled(); // TODO: this method should not be part of the interface
 
-    public boolean isDeadEvent();
+    boolean isDeadEvent();
 
-    public boolean isFilteredEvent();
+    boolean isFilteredEvent();
 
-    public Object getMessage();
+    Object getMessage();
+
+
+    // TODO: This interface should only be used as return type to public API calls (clients). Internally the implementation
+    // of the interface should be used. This would allow to remove the unwanted methods from this interface.
 }

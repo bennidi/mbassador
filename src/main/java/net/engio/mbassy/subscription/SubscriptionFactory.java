@@ -21,7 +21,7 @@ public class SubscriptionFactory {
 
     public Subscription createSubscription(BusRuntime runtime, MessageHandler handlerMetadata) throws MessageBusException{
         try {
-            Collection<IPublicationErrorHandler> errorHandlers = runtime.get(Properties.Handler.PublicationError);
+            Collection<IPublicationErrorHandler> errorHandlers = runtime.get(Properties.Handler.PublicationErrorHandlers);
             SubscriptionContext context = new SubscriptionContext(runtime, handlerMetadata, errorHandlers);
             IHandlerInvocation invocation = buildInvocationForHandler(context);
             IMessageDispatcher dispatcher = buildDispatcher(context, invocation);

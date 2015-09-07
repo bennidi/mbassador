@@ -3,9 +3,11 @@ package net.engio.mbassy.subscription;
 import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.dispatch.IMessageDispatcher;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A subscription is a thread-safe container that manages exactly one message handler of all registered
@@ -28,6 +30,9 @@ public class Subscription {
     private final IMessageDispatcher dispatcher;
 
     private final SubscriptionContext context;
+
+    private final CopyOnWriteArrayList<Runnable> onSubscription = new CopyOnWriteArrayList<Runnable>();
+
 
     Subscription(SubscriptionContext context, IMessageDispatcher dispatcher, Collection<Object> listeners) {
         this.context = context;
@@ -73,8 +78,10 @@ public class Subscription {
 
     public void subscribe(Object o) {
         listeners.add(o);
+        for(Runnable callback : onSubscription.toArray(new Runnable[]{})){
+            callback.run();
+        }
     }
-
 
     public boolean unsubscribe(Object existingListener) {
         return listeners.remove(existingListener);
@@ -85,6 +92,10 @@ public class Subscription {
     }
 
 
+    public Handle getHandle(){
+        return new Handle();
+    }
+
     public static final Comparator<Subscription> SubscriptionByPriorityDesc = new Comparator<Subscription>() {
         @Override
         public int compare(Subscription o1, Subscription o2) {
@@ -93,6 +104,25 @@ public class Subscription {
         }
     };
 
+
+    /**
+     *  A handle exposes specific functionality of a subscription to be used by clients.
+     *
+     */
+    public class Handle {
+
+        /**
+         * Add a runnable that is invoked after a new listener is subscribed to the corresponding subscription.
+         * The runnable does not receive any information on the event to prevent clients from untroducing coupling
+         * between senders/receivers.
+         *
+         * @param handler The code to be run after each subscription
+         */
+        void onSubscription(Runnable handler){
+            Subscription.this.onSubscription.add(handler);
+        }
+
+    }
 
 
 }

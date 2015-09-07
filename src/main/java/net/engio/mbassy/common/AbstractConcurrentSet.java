@@ -25,7 +25,7 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
 
     // Internal state
     protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    private final Map<T, ISetEntry<T>> entries; // maintain a map of entries for O(log n) lookup
+    private final Map<T, ISetEntry<T>> entries; // maintain a map of entries for O(1) lookup
     protected Entry<T> head; // reference to the first element
 
     protected AbstractConcurrentSet(Map<T, ISetEntry<T>> entries) {
@@ -38,9 +38,13 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
     public boolean add(T element) {
         if (element == null) return false;
         Lock writeLock = lock.writeLock();
-        writeLock.lock();
-        boolean changed = insert(element);
-        writeLock.unlock();
+        boolean changed;
+        try {
+            writeLock.lock();
+            changed = insert(element);
+        } finally {
+            writeLock.unlock();
+        }
         return changed;
     }
 
@@ -51,13 +55,17 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
         try {
             readLock.lock();
             entry = entries.get(element);
-
         } finally {
             readLock.unlock();
         }
         return entry != null && entry.getValue() != null;
     }
 
+
+    /**
+     * Inserts a new element at the head of the set.
+     * Note: This method is expected to be synchronized by the calling code
+     */
     private boolean insert(T element) {
         if (!entries.containsKey(element)) {
             head = createEntry(element, head);
@@ -80,7 +88,6 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
     @Override
     public boolean addAll(Collection<? extends T> elements) {
         boolean changed = false;
-
         Lock writeLock = lock.writeLock();
         try {
             writeLock.lock();
@@ -201,7 +208,7 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
         protected Entry() {
         }
 
-        // not thread-safe! must be synchronized in enclosing context
+        // Not thread-safe! must be synchronized in enclosing context
         @Override
         public void remove() {
             if (predecessor != null) {
@@ -212,7 +219,7 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
             } else if (next != null) {
                 next.predecessor = null;
             }
-            // can not nullify references to help GC since running iterators might not see the entire set
+            // Can not nullify references to help GC because running iterators might not see the entire set
             // if this element is their current element
             //next = null;
             //predecessor = null;

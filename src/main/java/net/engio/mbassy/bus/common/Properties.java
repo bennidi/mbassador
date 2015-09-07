@@ -10,7 +10,7 @@ public final class Properties {
 
     public static final class Handler {
 
-        public static final String PublicationError = "bus.handlers.error";
+        public static final String PublicationErrorHandlers = "bus.handlers.error";
         public static final String AsynchronousHandlerExecutor = "bus.handlers.async-executor";
     }
 

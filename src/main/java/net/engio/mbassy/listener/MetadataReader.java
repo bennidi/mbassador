@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * The meta data reader is responsible for parsing and validating message handler configurations.
@@ -61,14 +62,13 @@ public class MetadataReader {
         Method[] allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
         final int length = allHandlers.length;
 
-        // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
-        List<Method> bottomMostHandlers = new ArrayList<Method>(length);
-
         Method handler;
         for (int i = 0; i < length; i++) {
             handler = allHandlers[i];
 
+            // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
             if (!ReflectionUtils.containsOverridingMethod(allHandlers, handler)) {
+
                 // for each handler there will be no overriding method that specifies @Handler annotation
                 // but an overriding method does inherit the listener configuration of the overwritten method
 

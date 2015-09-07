@@ -2,6 +2,7 @@ package net.engio.mbassy;
 
 import net.engio.mbassy.common.AssertSupport;
 import net.engio.mbassy.listener.MessageListener;
+import net.engio.mbassy.listeners.SimpleHandler;
 import org.junit.Test;
 import net.engio.mbassy.listener.Enveloped;
 import net.engio.mbassy.listener.Handler;
@@ -89,7 +90,25 @@ public class MetadataReaderTest extends AssertSupport {
         validator.check(listener);
     }
 
+    @Test
+    public void testAnonymousListener() {
+       SimpleHandler anonymousSimpleHandler = new SimpleHandler() {
+           @Override
+           @Handler
+           public void onMessage(Object msg) {
+               // nop
+           }
+       };
+        MessageListener<EnvelopedListenerSubclass> listener = reader.getMessageListener(anonymousSimpleHandler.getClass());
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, Object.class);
+        validator.check(listener);
 
+
+    }
+
+
+    // Define and assert expectations on handlers in a listener
     private class ListenerValidator {
 
         private Map<Class<?>, Integer> handlers = new HashMap<Class<?>, Integer>();
@@ -112,8 +131,6 @@ public class MetadataReaderTest extends AssertSupport {
         }
 
     }
-
-
 
 
     // a simple event listener

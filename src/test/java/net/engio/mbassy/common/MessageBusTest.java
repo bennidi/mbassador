@@ -19,10 +19,11 @@ import org.junit.Before;
  */
 public abstract class MessageBusTest extends AssertSupport {
 
-    // this value probably needs to be adjusted depending on the performance of the underlying plattform
+    // this value probably needs to be adjusted depending on the performance of the underlying platform
     // otherwise the tests will fail since asynchronous processing might not have finished when
     // evaluation is run
-    protected static final int processingTimeInMS = 6000;
+    protected static final int waitForMessageTimeout = 60000;
+    protected static final int processingTimeInMS = 2000;
     protected static final int InstancesPerListener = 5000;
     protected static final int ConcurrentUnits = 10;
     protected static final int IterationsPerThread = 100;
@@ -42,6 +43,13 @@ public abstract class MessageBusTest extends AssertSupport {
         }
     }
 
+    public static final class EmptyErrorHandler implements IPublicationErrorHandler{
+
+        @Override
+        public void handleError(PublicationError error) {
+        }
+    }
+
     private StrongConcurrentSet<IMessagePublication> issuedPublications = new StrongConcurrentSet<IMessagePublication>();
 
     @Before
@@ -56,12 +64,13 @@ public abstract class MessageBusTest extends AssertSupport {
     }
 
     public static IBusConfiguration SyncAsync(boolean failOnError) {
-        return new BusConfiguration()
+        IBusConfiguration config = new BusConfiguration()
             .addFeature(Feature.SyncPubSub.Default())
             .addFeature(Feature.AsynchronousHandlerInvocation.Default())
             .addFeature(Feature.AsynchronousMessageDispatch.Default());
-        //DS: removed as publication error handlers now in configuration object
-//            .setProperty(net.engio.mbassy.bus.common.Properties.Handler.PublicationError, new AssertionErrorHandler(failOnError));
+        if(failOnError)
+            config.addPublicationErrorHandler(new AssertionErrorHandler(failOnError));
+        return config;
     }
 
     public MBassador createBus(IBusConfiguration configuration) {

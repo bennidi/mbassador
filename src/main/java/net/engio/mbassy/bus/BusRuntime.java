@@ -1,11 +1,13 @@
 package net.engio.mbassy.bus;
 
+import net.engio.mbassy.bus.common.Properties;
 import net.engio.mbassy.bus.common.PubSubSupport;
 import net.engio.mbassy.bus.error.MissingPropertyException;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Message bus implementations potentially vary in the features they provide and consequently in the components and properties
@@ -24,6 +26,7 @@ public class BusRuntime {
 
     public BusRuntime(PubSubSupport provider) {
         this.provider = provider;
+        properties.put(Properties.Common.Id, UUID.randomUUID().toString());
     }
 
     public <T> T get(String key){

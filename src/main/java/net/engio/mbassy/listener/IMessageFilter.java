@@ -10,9 +10,10 @@ import net.engio.mbassy.subscription.SubscriptionContext;
  *
  * Example:
  *
- * {@code
- * @Lister
- * @Filters(Urlfilter.class)
+ * <pre>
+ * <code>
+ * {@literal @}Listener
+ * {@literal @}Filters(Urlfilter.class)
  * public void someHandler(String message){...}
  *
  * class Urlfilter implements IMessageFilter<String>{
@@ -24,8 +25,11 @@ import net.engio.mbassy.subscription.SubscriptionContext;
  * bus.post("http://www.infoq.com"); // will be delivered
  * bus.post("www.stackoverflow.com"); // will not be delivered
  *
+ * </code>
+ * </pre>
+ *
  * NOTE: A message filter must provide a no-arg constructor!!!
- * }
+ *
  *
  * @author bennidi
  *         Date: 2/8/12

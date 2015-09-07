@@ -12,7 +12,7 @@ import net.engio.mbassy.subscription.SubscriptionManager;
 
 import java.util.*;
 
-import static net.engio.mbassy.bus.common.Properties.Handler.PublicationError;
+import static net.engio.mbassy.bus.common.Properties.Handler.PublicationErrorHandlers;
 
 /**
  * The base class for all message bus implementations.
@@ -35,20 +35,15 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
             "Publication error handlers can be added by IBusConfiguration.addPublicationErrorHandler()\n" +
             "Falling back to console logger.";
 
-
-
-
     public AbstractPubSubSupport(IBusConfiguration configuration) {
-
         //transfer publication error handlers from the config object
         this.errorHandlers.addAll(configuration.getRegisteredPublicationErrorHandlers());
         if (errorHandlers.isEmpty()) {
             errorHandlers.add(new IPublicationErrorHandler.ConsoleLogger());
             System.out.println(ERROR_HANDLER_MSG);
         }
-        this.runtime = new BusRuntime(this).add(PublicationError, getRegisteredErrorHandlers())
-                                           .add(Properties.Common.Id, UUID.randomUUID()
-                                                                          .toString());
+        this.runtime = new BusRuntime(this)
+                .add(PublicationErrorHandlers, configuration.getRegisteredPublicationErrorHandlers());
         // configure the pub sub feature
         Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
         this.subscriptionManager = pubSubFeature.getSubscriptionManagerProvider()
@@ -99,7 +94,7 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     }
 
 
-    public void handlePublicationError(PublicationError error) {
+    protected void handlePublicationError(PublicationError error) {
         for (IPublicationErrorHandler errorHandler : errorHandlers) {
             errorHandler.handleError(error);
         }

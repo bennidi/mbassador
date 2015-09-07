@@ -17,9 +17,9 @@ public interface ErrorHandlingSupport {
 
 
     /**
-     * Returns an immutable collection containing all the registered error handlers
+     * Get all registered instance of {@link IPublicationErrorHandler}
      *
-     * @return
+     * @return  an immutable collection containing all the registered error handlers
      */
     Collection<IPublicationErrorHandler> getRegisteredErrorHandlers();
 

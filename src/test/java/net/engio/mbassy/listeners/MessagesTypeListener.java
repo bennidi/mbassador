@@ -9,7 +9,7 @@ import net.engio.mbassy.messages.MessageTypes;
  * @author bennidi
  *         Date: 5/24/13
  */
-public class MessagesListener {
+public class MessagesTypeListener {
 
     private static abstract class BaseListener {
 

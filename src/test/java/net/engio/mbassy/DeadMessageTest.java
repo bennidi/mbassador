@@ -8,7 +8,7 @@ import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
 import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listeners.IMessageListener;
-import net.engio.mbassy.listeners.MessagesListener;
+import net.engio.mbassy.listeners.MessagesTypeListener;
 import net.engio.mbassy.listeners.ObjectListener;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,9 +36,9 @@ public class DeadMessageTest extends MessageBusTest{
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
                 .create(InstancesPerListener, IMessageListener.AsyncListener.class)
                 .create(InstancesPerListener, IMessageListener.DisabledListener.class)
-                .create(InstancesPerListener, MessagesListener.DefaultListener.class)
-                .create(InstancesPerListener, MessagesListener.AsyncListener.class)
-                .create(InstancesPerListener, MessagesListener.DisabledListener.class)
+                .create(InstancesPerListener, MessagesTypeListener.DefaultListener.class)
+                .create(InstancesPerListener, MessagesTypeListener.AsyncListener.class)
+                .create(InstancesPerListener, MessagesTypeListener.DisabledListener.class)
                 .create(InstancesPerListener, DeadMessagHandler.class)
                 .create(InstancesPerListener, Object.class);
 

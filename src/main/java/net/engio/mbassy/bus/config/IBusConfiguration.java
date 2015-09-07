@@ -61,6 +61,7 @@ public interface IBusConfiguration{
 
     /**
      * Add a handler that is called when a misconfiguration is detected.
+     * Note: Not fully implemented, yet.
      */
     IBusConfiguration addConfigurationErrorHandler(ConfigurationErrorHandler handler);
 

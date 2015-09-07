@@ -53,7 +53,7 @@ public class SyncAsyncTest extends MessageBusTest {
         MessageTypes.resetAll();
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
         assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.DefaultListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.DefaultListener.class));
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesTypeListener.DefaultListener.class));
     }
 
 
@@ -69,8 +69,14 @@ public class SyncAsyncTest extends MessageBusTest {
             @Override
             public void run() {
 
-                StandardMessage standardMessage = messageManager.create(StandardMessage.class, InstancesPerListener, Listeners.join(Listeners.asynchronous(), Listeners.handlesStandardMessage()));
-                MultipartMessage multipartMessage = messageManager.create(MultipartMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class, IMultipartMessageListener.AsyncListener.class);
+                StandardMessage standardMessage = messageManager.createAndTrack(
+                        StandardMessage.class,
+                        InstancesPerListener,
+                        Listeners.join(Listeners.asynchronous(),Listeners.handlesStandardMessage()));
+                MultipartMessage multipartMessage = messageManager.create(
+                        MultipartMessage.class,
+                        InstancesPerListener,
+                        IMessageListener.AsyncListener.class, IMultipartMessageListener.AsyncListener.class);
 
                 bus.post(standardMessage).now();
                 bus.post(multipartMessage).now();
@@ -80,12 +86,12 @@ public class SyncAsyncTest extends MessageBusTest {
         };
 
         ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
-        messageManager.waitForMessages(processingTimeInMS);
+        messageManager.waitForMessages(waitForMessageTimeout);
 
         MessageTypes.resetAll();
-        messageManager.register(MessageTypes.Simple, InstancesPerListener * ConcurrentUnits, IMessageListener.AsyncListener.class, MessagesListener.AsyncListener.class);
+        messageManager.register(MessageTypes.Simple, InstancesPerListener * ConcurrentUnits, IMessageListener.AsyncListener.class, MessagesTypeListener.AsyncListener.class);
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
-        messageManager.waitForMessages(processingTimeInMS);
+        messageManager.waitForMessages(waitForMessageTimeout);
     }
 
     @Test
@@ -113,11 +119,11 @@ public class SyncAsyncTest extends MessageBusTest {
         };
 
         ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
-        messageManager.waitForMessages(processingTimeInMS);
+        messageManager.waitForMessages(waitForMessageTimeout);
 
         MessageTypes.resetAll();
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
-        messageManager.waitForMessages(processingTimeInMS);
+        messageManager.waitForMessages(waitForMessageTimeout);
 
     }
 
@@ -133,31 +139,30 @@ public class SyncAsyncTest extends MessageBusTest {
         };
 
         //DS: Exception counter added via config
-        IBusConfiguration config = SyncAsync();
-        config.addPublicationErrorHandler(ExceptionCounter);
-        final MBassador bus = new MBassador(config);
+        IBusConfiguration config = SyncAsync(false)
+            .addPublicationErrorHandler(ExceptionCounter);
 
+        final MBassador bus = new MBassador(config);
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, ExceptionThrowingListener.class);
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
 
-        Runnable publishAndCheck = new Runnable() {
+        Runnable asynchronousPublication = new Runnable() {
             @Override
             public void run() {
-                bus.post(new StandardMessage()).asynchronously();
-
+                bus.post(new Object()).asynchronously();
             }
         };
 
         // single threaded
-        ConcurrentExecutor.runConcurrent(publishAndCheck, 1);
+        ConcurrentExecutor.runConcurrent(asynchronousPublication, 1);
         pause(processingTimeInMS);
         assertEquals(InstancesPerListener, exceptionCount.get());
 
 
         // multi threaded
         exceptionCount.set(0);
-        ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
+        ConcurrentExecutor.runConcurrent(asynchronousPublication, ConcurrentUnits);
         pause(processingTimeInMS);
         assertEquals(InstancesPerListener * ConcurrentUnits, exceptionCount.get());
 

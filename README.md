@@ -14,8 +14,9 @@ Table of contents:
 + [Usage](#usage)
 + [Installation](#installation)
 + [Wiki](#wiki)
-+ [Release Notes](#releasenotes)
++ [Release Notes](#release-notes)
 + [Roadmap](#roadmap)
++ [Integrations](#integrations)
 + [Credits](#credits)
 + [Contribute](#contribute)
 + [License](#license)
@@ -137,8 +138,8 @@ Message handlers are defined via annotations added to instance methods. The simp
              .addFeature(Feature.SyncPubSub.Default())
              .addFeature(Feature.AsynchronousHandlerInvocation.Default())
              .addFeature(Feature.AsynchronousMessageDispatch.Default())
-             .setProperty(Properties.Common.Id, "global bus")
-             .setProperty(Properties.Handler.PublicationError, new IPublicationErrorHandler{...}));
+             .addPublicationErrorHandler(new IPublicationErrorHandler{...})
+             .setProperty(Properties.Common.Id, "global bus")); // this is used for identification in #toString
         
 ### Listener subscription
         ListeningBean listener = new ListeningBean();
@@ -180,142 +181,56 @@ There is ongoing effort to extend documentation and provide code samples and det
 
 <h2>Release Notes</h2>
 
-### [1.2.1](milestones/1.2.1)
- + Centralized handling of common (and arbitrary) properties (see BusConfiguration#setProperty and net.engio.mbassy.bus.common.Properties)
- + Each bus now has a configurable id and respective #toString() implementation (useful for debugging)
- + Each bus now has a default logger (System.out) for publication errors (exception in handlers) which can be replaced with BusConfiguration#setProperty 
- + __API-Changes:__
-   + Interface `IMessageFilter` now receives the SubscriptionContext as second parameter. This gives access to the bus runtime within filter logic (useful for error propagation). -> Change your filters signature. You can access the `MessageHandler` object directly from the context. 
-   + Removed deprecated method BusConfiguration.SyncAsync() -> Use default constructor or feature based configuration instead
-   + Deleted interface ISyncMessageBus since it was merely an aggregation of existing interfaces -> Replace with GenericMessagePublicationSupport
+Release notes moved to the [changelog](./changelog).
 
-### 1.2.0
- + Added support for conditional handlers using Java EL. Thanks to Bernd Rosstauscher for the initial implementation.
- + BREAKING CHANGES in BusConfiguration
-   + Complete redesign of configuration setup using Features instead of simple get/set parameters. This will allow
- to flexibly combine features and still be able to exclude those not available in certain environments,for example, threading and reflection in GWT (this will be part of future releases)
-   + Properties formerly located in BusConfiguration now moved to their respective Feature class
-   + Removed all SyncXX related interfaces and config implementations. There is now only one `BusConfiguration`
- with its corresponding interface which will be used for all types of message bus implementations
+##Integrations
 
-
-### 1.1.10
- + Fixed broken sort order of prioritized handlers (see #58)
- + Addressed issue #63 by making the constructor of `MessageHandler` use a map of properties and by replacing dependencies to
-  all MBassador specific annotations with Java primitives and simple interfaces
- + Small refactorings (moved stuff around to have cleaner packaging)
- + MessageBus.getExecutor() is now deprecated and will be removed with next release -> use the runtime to get access to it.
- + Introduced BusFactory with convenience methods for creating bus instances for different message dispatching scenarios like
- asynchronous FIFO (asynchronous message publications guaranteed to be delivered in the order they occurred)
- + Renamed runtime property of `BusRuntime` "handler.async-service" to "handler.async.executor"
-
-### 1.1.9
-
- + Fixed memory leak reported in issue #53
-
-### 1.1.8
-
- + Internal refactorings and code improvements
- + Fixed #44 #45 #47
- + NOTE: This release has a known issue with weak references which introduces a memory leak and is fixed in 1.1.9. The
- version 1.1.8 is not available from the central repository
-
-
-### 1.1.7
-
- + Console Logger not added to message bus instances by default -> use addErrorHandler(IPublicationErrorHandler.ConsoleLogger)
- + Fixed race conditions in net.engio.mbassy.subscription.Subscription and of WeakConcurrentSet.contains()
- + Improved message hierarchy handling: Now interfaces, enums , (abstract) classes should work in all combinations
- + Prevented dispatcher threads from dying on exceptions
- + Improved test-infrastructure and increased test-coverage
- + Thanks for your feedback!
-
-### 1.1.6
-
- + Added support for choosing between strong and weak references using the new @Listener annotation. @Listener can be
- added to any class that defines message handlers and allows to configure which reference type is used
- + Custom handler invocations: It is possible to provide a custom handler invocation for each message handler, see "invocation"
- property of @Handler
- + Changed packaging to "bundle" to support OSGI environments
- + Synchronization of message handlers via @Synchronized: Handlers that are not thread-safe can be synchronized to guarantee
-  that only one thread at a time can invoke that handler
- + Created a message bus implementation that does not use threading to support use in non-multi-threaded environments like GWT,
- see ISyncMessageBus
-
-### 1.1.3
-
- + Added support for FilteredMessage event
- + Renamed @Listener to @Handler and DeadEvent to DeadMessage to increase alignment with the established terminology.
- Sorry for the inconvenience since this will lead to compile errors but good old find&replace will do
- + Repackaging and refactoring of some parts
- + Introduced message publication factories as configurable components to make MBassador more extensible/customizable
- + Added more documentation and unit tests
-
-### 1.1.1
-
- + Added support for DeadMessage event
- + Introduced new property to @Handler annotation that allows to activate/deactivate any message handler
- + Full support of proxies created by cglib
- + Message handler inheritance changed! See wiki page about handler definition for more details.
- + Changed @Handler property "dispatch" to "delivery" and renamed the associated enumeration values to
-   more precisely indicate their meaning
- + Added more unit tests
-
-### 1.1.0
-
-First stable release!
-
- + Refactoring and repackaging
- + More exhaustive unit tests
- + Installation from the central repository
-
-### 1.0.6.RC
-
- + Fixed behaviour with capacity bound blocking queue such that there now are two methods to schedule a message
- asynchronously. One will block until capacity becomes available, the other will timeout after a specified amount of
- time.
- +  Additional unit tests
-
-### 1.0.5.RC
-
- + Added MessageEnvelope and @Enveloped annotation to configure handlers that might receive arbitrary message type
- + Added handler configuration property to @Handler annotation to move from message filtering to more specific implementation
- of this feature
-
-### 1.0.4.RC
-
-  + Introduced BusConfiguration as a central class to encapsulate configurational aspects
 
 
 <h2>Roadmap</h2>
-Check the issues labeled 'enhancement'. Comment if you would like to see the feature in a future release and/or want to share
-your ideas on the feature (or a variation thereof).
-Please understand that I have limited time to include new features and that I will focus on stability and cleaner APIs.
-Adding features only works with well designed and thoroughly tested components. This is especially true for multi-threaded code
-and I am still not 100 percent happy with the existing test design and some parts of the internal code layout.
+There is no roadmap planning going on that deserves hte name. There is a collection of useful features though. Check the issues labeled with [enhancement](https://github.com/bennidi/mbassador/labels/enhancement) or the available milestones. Comment if you would like to see the feature in a future release and/or want to share your ideas on the feature (or a variation thereof).
 
-Planned for release:Spring integration with support for conditional message dispatch in transactional context (dispatch only after
-successful transaction commit etc.). Currently in beta, see <a href="https://github.com/bennidi/mbassador-spring">this</a> repository
+Please understand that I have limited time to include new features and that I will focus on stability and cleaner APIs. Adding features only works with well designed and thoroughly tested components. This is especially true for multi-threaded code and I am still not 100 percent convinced by the existing test design and some parts of the internal code layout.
+
+Planned for release: [Spring integration](bennidi/mbassador-spring) (currently in beta state) with support for conditional message dispatch in transactional context (dispatch only after successful transaction commit etc.).
 
 
 <h2>Credits</h2>
-The initial inspiration for creating this component came from trying out Google Guava's event bus implementation.
-I liked the simplicity of its design and I do trust the developers at Google a lot, so I was happy to find that they also
-provided an event bus system. The main reason it proved to be unusable for our scenario was that it uses strong references
-to the listeners such that every object has to be explicitly unsubscribed. This was difficult in our Spring managed environment.
-Finally, I decided to create a custom implementation, which then matured to be stable, extensible and yet very efficient.
+The initial inspiration for creating this component comes from Google Guava's event bus implementation.
+I liked the simplicity of its design and I trust in the code quality of google libraries. The main reason it proved to be unusable for our scenario was that it uses strong references to the listeners.
 
-I want to thank the development team from friendsurance (www.friendsurance.de) for their support and feedback on the bus implementation and the management of friendsurance for allowing me to publish the component as an open source project.
+I want to thank the development team from [friendsurance](www.friendsurance.de) for their support and feedback on the bus implementation and the management for allowing me to publish the component as an open source project.
 
-Many thanks also to ej-technologies for providing me with an open source license of [![JProfiler](http://www.ej-technologies.com/images/banners/jprofiler_small.png)](http://www.ej-technologies.com/products/jprofiler/overview.html) and Jetbrains for a license of [IntelliJ IDEA](http://www.jetbrains.com/idea/)
+I also want to thank all of the github users who have made little or larger [contributions](https://github.com/bennidi/mbassador/pulls?q=is%3Apr+is%3Aclosed). Thank you boys and girls, it is awesome to see
+the open source idea working.
+Special thanks go to
++ [arne-vandamme](http://github.com/arne-vandamme) for adding support for [meta-annotations](https://github.com/bennidi/mbassador/pull/74)
+ + [Bernd Rosstauscher](http://github.com/Rossi1337) for providing an initial integration with JUEL
+ + [David Sowerby](http://github.com/davidsowerby) for answering user questions, for his tutorial on [guice integration](bennidi/mbassador/wiki/guice-integration) and his various PRs
+ + [dorkbox](http://github.com/dorkbox) for various PRs and his incredible [work on performance tuning](http://github.com/bennidi/eventbus-performance/issues/1) which is still to be integrated
+ + [durron597](http://github.com/durron597) for his many PRs and the help he offered by answering user questions
+
+Many thanks also to ej-technologies for providing me with an open source license of 
+[![JProfiler](http://www.ej-technologies.com/images/banners/jprofiler_small.png)](http://www.ej-technologies.com/products/jprofiler/overview.html) 
+and Jetbrains for a license of [IntelliJ IDEA](http://www.jetbrains.com/idea/)
+
+And all the other open source projects that make this kind of development possible:
+
+* [jUnit](http://www.junit.org)
+* [maven](http://www.maven.org)
+* [mockito](http://www.mockito.org)
+* [slf4j](http://www.slf4j.org)
+* [Odysseus JUEL](http://juel.sourceforge.net/guide/start.html)
+
+
+Special thanks also to [Sonatype](http://www.sonatype.com/) for the hosting of their [oss nexus repository](https://oss.sonatype.org/).
+
 
 <h2>Contribute</h2>
 
-Any feature requests and feedback are more than welcome. You may suggest improvements either by submitting an
-issue or by forking the repo and creating a pull request. I will try to respond as quickly as possible.
+Any feature requests and feedback are more than welcome. You may suggest improvements or report bugs either by submitting an issue - I will try to respond as quickly as possible. Please try to be precise in the description of your requirements. Following a hands-on mentality please feel invited to contribute by by forking the repo and creating a pull request to submit the code you would like to be included. Make your PRs small and provide test code! Take a look at [this issue](bennidi/mbassador#109) for a good example.
 
-Sample code and documentation are both very appreciated contributions. Especially integration with different frameworks
-such as Spring, Guice or other is of great value. Feel free and welcome to create Wiki pages to share your code and ideas.
+Sample code and documentation are both very appreciated contributions. Especially integration with different frameworks is of great value. Feel free and welcome to create Wiki pages to share your code and ideas. Example: [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration)
 
 <h2>License</h2>
 

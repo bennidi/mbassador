@@ -16,7 +16,7 @@ import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listeners.CustomInvocationListener;
 import net.engio.mbassy.listeners.ExceptionThrowingListener;
 import net.engio.mbassy.listeners.IMessageListener;
-import net.engio.mbassy.listeners.MessagesListener;
+import net.engio.mbassy.listeners.MessagesTypeListener;
 import net.engio.mbassy.messages.MessageTypes;
 import net.engio.mbassy.messages.MultipartMessage;
 import net.engio.mbassy.messages.StandardMessage;
@@ -44,8 +44,8 @@ public abstract class SyncBusTest extends MessageBusTest {
         ListenerFactory listeners = new ListenerFactory()
                 .create(InstancesPerListener, IMessageListener.DefaultListener.class)
                 .create(InstancesPerListener, IMessageListener.DisabledListener.class)
-                .create(InstancesPerListener, MessagesListener.DefaultListener.class)
-                .create(InstancesPerListener, MessagesListener.DisabledListener.class)
+                .create(InstancesPerListener, MessagesTypeListener.DefaultListener.class)
+                .create(InstancesPerListener, MessagesTypeListener.DisabledListener.class)
                 .create(InstancesPerListener, Object.class);
 
 
@@ -75,8 +75,8 @@ public abstract class SyncBusTest extends MessageBusTest {
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
         assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.DefaultListener.class));
         assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Multipart.getTimesHandled(IMessageListener.DefaultListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesListener.DefaultListener.class));
-        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Multipart.getTimesHandled(MessagesListener.DefaultListener.class));
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesTypeListener.DefaultListener.class));
+        assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Multipart.getTimesHandled(MessagesTypeListener.DefaultListener.class));
     }
 
 
@@ -101,14 +101,14 @@ public abstract class SyncBusTest extends MessageBusTest {
         Runnable publish = new Runnable() {
             @Override
             public void run() {
-                bus.post(new StandardMessage()).now();
+                bus.post(new Object()).now();
             }
         };
 
         // single threaded
         ConcurrentExecutor.runConcurrent(publish, 1);
-
-        exceptionCount.set(0);
+        assertEquals(InstancesPerListener, exceptionCount.get());
+        exceptionCount.set(0); // reset for next test
 
         // multi threaded
         ConcurrentExecutor.runConcurrent(publish, ConcurrentUnits);

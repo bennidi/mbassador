@@ -1,18 +1,13 @@
 package net.engio.mbassy.common;
 
 import net.engio.mbassy.messages.IMessage;
-
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+
 /**
- * Created with IntelliJ IDEA.
- * User: benjamin
- * Date: 6/26/13
- * Time: 12:23 PM
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class MessageManager {
 	private static final Logger LOG =
@@ -33,7 +28,7 @@ public class MessageManager {
         return message;
     }
 
-    public <T extends IMessage> T create(Class<T> messageType, int expectedCount, Collection<Class> listeners){
+    public <T extends IMessage> T createAndTrack(Class<T> messageType, int expectedCount, Collection<Class> listeners){
         T message;
         try {
             message = messageType.newInstance();
@@ -80,7 +75,7 @@ public class MessageManager {
         }
         if(messages.size() > 0){
             logFailingMessages(messages);
-            throw new RuntimeException("Message were not fully processed in given time");
+            org.junit.Assert.fail("Message were not fully processed in given time");
         }
 
 
@@ -95,7 +90,7 @@ public class MessageManager {
     }
 
    private void logSuccess(MessageContext mCtx){
-       LOG.info("Message " + mCtx.getMessage() + " was successfully handled " + mCtx.getExpectedCount() + " times by " + mCtx.printListeners());
+       LOG.info(mCtx.getMessage().getClass().getSimpleName() + " successfully handled " + mCtx.getExpectedCount() + " times by " + mCtx.printListeners());
    }
 
 

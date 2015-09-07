@@ -40,6 +40,9 @@ public class WeakConcurrentSet<T> extends AbstractConcurrentSet<T>{
                     do {
                         ISetEntry orphaned = current;
                         current = current.next();
+                        if (orphaned  == head) {
+                            head = head.next();
+                        }
                         orphaned.remove();
                     } while(current != null && current.getValue() == null);
                 }
