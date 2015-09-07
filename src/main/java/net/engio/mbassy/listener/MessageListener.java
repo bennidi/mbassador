@@ -69,6 +69,7 @@ public class MessageListener<T> {
         return handlers.toArray(asArray);
     }
 
+    // used by unit tests
     public List<MessageHandler> getHandlers(IPredicate<MessageHandler> filter) {
         List<MessageHandler> matching = new ArrayList<MessageHandler>();
         for (MessageHandler handler : handlers) {
@@ -79,6 +80,7 @@ public class MessageListener<T> {
         return matching;
     }
 
+    // used by unit tests
     public boolean handles(Class<?> messageType) {
         return !getHandlers(ForMessage(messageType)).isEmpty();
     }
