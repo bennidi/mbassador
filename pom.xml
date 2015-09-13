@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -10,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.engio</groupId>
     <artifactId>mbassador</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.2.2</version>
     <packaging>bundle</packaging>
     <name>mbassador</name>
     <description>
@@ -36,7 +35,7 @@
     <scm>
         <url>git@github.com:bennidi/mbassador.git</url>
         <connection>scm:git:git@github.com:bennidi/mbassador.git</connection>
-        <tag>mbassador-1.2.0</tag>
+        <tag>mbassador-1.2.2</tag>
         <developerConnection>scm:git:git@github.com:bennidi/mbassador.git</developerConnection>
     </scm>
     <developers>
