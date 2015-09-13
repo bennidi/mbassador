@@ -1,4 +1,4 @@
-### [1.2.2](http://github.com/bennidi/mbassador/milestones/1.2.2)
+### [1.2.3](http://github.com/bennidi/mbassador/milestones/1.2.2)
  + Upgraded to Maven 3
    + Upgraded all plugins to most recent version
    + Fixed all issues that produced warnings on build output
@@ -8,6 +8,11 @@
    + Moved method addPublicationErrorHandler from `IMessageBus` to `IBusConfiguration`
    + Default constructor of `MBassador` has no `IPublicationErrorHandler` registered and will 
    fall back to console logging. See [#106](http://github.com/bennidi/mbassador/issues/106), [#107](http://github.com/bennidi/mbassador/issues/107) 
+
+### [1.2.2](http://github.com/bennidi/mbassador/milestones/1.2.2)
+ + Due to technical problems during release creation this version had to be skipped (git tag not removable)
+ + The respective release is 1.2.3
+ 
 
 
 ### [1.2.1](http://github.com/bennidi/mbassador/milestones/1.2.1)
