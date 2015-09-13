@@ -188,7 +188,7 @@ Release notes moved to the [changelog](./changelog).
 
 
 <h2>Roadmap</h2>
-There is no roadmap planning going on that deserves hte name. There is a collection of useful features though. Check the issues labeled with [enhancement](https://github.com/bennidi/mbassador/labels/enhancement) or the available milestones. Comment if you would like to see the feature in a future release and/or want to share your ideas on the feature (or a variation thereof).
+There is no roadmap planning going on that deserves the name. There is a collection of useful features though. Check the issues labeled with [enhancement](https://github.com/bennidi/mbassador/labels/enhancement) or the available milestones. Comment if you would like to see the feature in a future release and/or want to share your ideas on the feature (or a variation thereof).
 
 Please understand that I have limited time to include new features and that I will focus on stability and cleaner APIs. Adding features only works with well designed and thoroughly tested components. This is especially true for multi-threaded code and I am still not 100 percent convinced by the existing test design and some parts of the internal code layout.
 
