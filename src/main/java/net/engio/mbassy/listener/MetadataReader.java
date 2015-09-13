@@ -5,7 +5,7 @@ import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.subscription.MessageEnvelope;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class MetadataReader {
     private static final IPredicate<Method> AllMessageHandlers = new IPredicate<Method>() {
         @Override
         public boolean apply(Method target) {
-	        return ReflectionUtils.getAnnotation(target, Handler.class) != null;
+            return ReflectionUtils.getAnnotation(target, Handler.class) != null;
         }
     };
 
@@ -59,35 +59,36 @@ public class MetadataReader {
     public MessageListener getMessageListener(Class target) {
         MessageListener listenerMetadata = new MessageListener(target);
         // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
-        Collection<Method> allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
-        // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
-        List<Method> bottomMostHandlers = new LinkedList<Method>();
-        for (Method handler : allHandlers) {
+        Method[] allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
+        final int length = allHandlers.length;
+
+        Method handler;
+        for (int i = 0; i < length; i++) {
+            handler = allHandlers[i];
+
+            // retain only those that are at the bottom of their respective class hierarchy (deepest overriding method)
             if (!ReflectionUtils.containsOverridingMethod(allHandlers, handler)) {
-                bottomMostHandlers.add(handler);
+
+                // for each handler there will be no overriding method that specifies @Handler annotation
+                // but an overriding method does inherit the listener configuration of the overwritten method
+
+                Handler handlerConfig = ReflectionUtils.getAnnotation( handler, Handler.class);
+                if (!handlerConfig.enabled() || !isValidMessageHandler(handler)) {
+                    continue; // disabled or invalid listeners are ignored
+                }
+                Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
+                // if a handler is overwritten it inherits the configuration of its parent method
+                Map<String, Object> handlerProperties = MessageHandler.Properties.Create(overriddenHandler == null ? handler : overriddenHandler,
+                                                                                         handlerConfig,
+                                                                                         getFilter(handlerConfig),
+                                                                                         listenerMetadata);
+                MessageHandler handlerMetadata = new MessageHandler(handlerProperties);
+                listenerMetadata.addHandler(handlerMetadata);
             }
         }
 
-        // for each handler there will be no overriding method that specifies @Handler annotation
-        // but an overriding method does inherit the listener configuration of the overwritten method
-        for (Method handler : bottomMostHandlers) {
-            Handler handlerConfig = ReflectionUtils.getAnnotation( handler, Handler.class);
-            if (!handlerConfig.enabled() || !isValidMessageHandler(handler)) {
-                continue; // disabled or invalid listeners are ignored
-            }
-            Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
-            // if a handler is overwritten it inherits the configuration of its parent method
-            Map<String, Object> handlerProperties = MessageHandler.Properties.Create(overriddenHandler == null ? handler : overriddenHandler,
-                    handlerConfig, getFilter(handlerConfig), listenerMetadata);
-            MessageHandler handlerMetadata = new MessageHandler(handlerProperties);
-            listenerMetadata.addHandler(handlerMetadata);
-
-        }
         return listenerMetadata;
     }
-
-
-
 
     private boolean isValidMessageHandler(Method handler) {
         if (handler == null || ReflectionUtils.getAnnotation( handler, Handler.class) == null) {
@@ -110,5 +111,4 @@ public class MetadataReader {
         }
         return true;
     }
-
 }
