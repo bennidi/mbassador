@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -14,7 +15,8 @@
     <name>mbassador</name>
     <description>
         Mbassador is a fast and flexible event bus system following the publish subscribe pattern.
-        It is designed for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance.
+        It is designed for ease of use and aims to be feature rich and extensible while preserving resource efficiency
+        and performance.
         It provides non-blocking iterators and minimal write contention with low memory footprint.
 
         Some features:
@@ -36,7 +38,7 @@
         <connection>scm:git:git@github.com:bennidi/mbassador.git</connection>
         <tag>mbassador-1.2.0</tag>
         <developerConnection>scm:git:git@github.com:bennidi/mbassador.git</developerConnection>
-  </scm>
+    </scm>
     <developers>
 
         <developer>
@@ -102,24 +104,24 @@
         </dependency>
 
         <dependency>
-        	<groupId>javax.el</groupId>
-        	<artifactId>el-api</artifactId>
-        	<scope>provided</scope>
+            <groupId>javax.el</groupId>
+            <artifactId>el-api</artifactId>
+            <scope>provided</scope>
             <version>2.2</version>
         </dependency>
         <dependency>
-        	<groupId>de.odysseus.juel</groupId>
-        	<artifactId>juel-impl</artifactId>
-        	<version>2.2.7</version>
-        	<scope>runtime</scope>
-        	<optional>true</optional>
+            <groupId>de.odysseus.juel</groupId>
+            <artifactId>juel-impl</artifactId>
+            <version>2.2.7</version>
+            <scope>runtime</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
-        	<groupId>de.odysseus.juel</groupId>
-        	<artifactId>juel-spi</artifactId>
-        	<version>2.2.7</version>
-        	<scope>runtime</scope>
-        	<optional>true</optional>
+            <groupId>de.odysseus.juel</groupId>
+            <artifactId>juel-spi</artifactId>
+            <version>2.2.7</version>
+            <scope>runtime</scope>
+            <optional>true</optional>
         </dependency>
 
 
@@ -205,13 +207,17 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.18.1</version>
                 <configuration>
+                    <!-- Sets the VM argument line used when unit tests are run.-->
+                    <argLine>${surefireArgLine}</argLine>
                     <skipTests>false</skipTests>
                     <excludes>
-                        <!-- exclude the suite which is a convenience class for running all tests from IDE or using scripts -->
+                        <!-- exclude the suite which is a convenience class
+                        for running all tests from IDE or using scripts -->
                         <exclude>AllTests.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
+
 
             <!-- bind the source attaching to package phase -->
             <plugin>
@@ -250,27 +256,103 @@
                 </executions>
             </plugin>
 
-	<!-- 
-	To build and publish the javadoc run
-		mvn clean javadoc:javadoc scm-publish:publish-scm
-	 --> 
-	<plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-scm-publish-plugin</artifactId>
-	    <version>1.0-beta-2</version>
-	    <configuration>
-		<checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
-		<checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
-		<content>${project.reporting.outputDirectory}/apidocs</content>
-		<skipDeletedFiles>true</skipDeletedFiles>
-		<pubScmUrl>scm:git:git@github.com:bennidi/mbassador.git</pubScmUrl>
-		<scmBranch>gh-pages</scmBranch> <!-- branch with static site on github-->
-	    </configuration>
-	</plugin>
+            <!--
+            To build and publish the javadoc run
+                mvn clean javadoc:javadoc scm-publish:publish-scm
+             -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-publish-plugin</artifactId>
+                <version>1.0-beta-2</version>
+                <configuration>
+                    <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
+                    <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
+                    <content>${project.reporting.outputDirectory}/apidocs</content>
+                    <skipDeletedFiles>true</skipDeletedFiles>
+                    <pubScmUrl>scm:git:git@github.com:bennidi/mbassador.git</pubScmUrl>
+                    <scmBranch>gh-pages</scmBranch>
+                    <!-- branch with static site on github-->
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
+
+        <profile>
+            <id>jacoco-coverage</id>
+
+            <activation>
+                <property>
+                    <name>jacoco</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+
+                    <!-- JaCoCo integration for code coverage reports
+
+               To receive a full list of goals and available parameters you can use maven-help-plugin:
+               mvn help:describe -Dplugin=org.jacoco:jacoco-maven-plugin -Ddetail
+              -->
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.7.5.201505241946</version>
+                        <executions>
+                            <!--
+                                Prepares the property pointing to the JaCoCo runtime agent which
+                                is passed as VM argument when Maven the Surefire plugin is executed.
+                            -->
+                            <execution>
+                                <id>pre-unit-test</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- Sets the path to the file which contains the execution data. -->
+                                    <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
+                                    <!--
+                                        Sets the name of the property containing the settings
+                                        for JaCoCo runtime agent.
+                                    -->
+                                    <propertyName>surefireArgLine</propertyName>
+                                </configuration>
+                            </execution>
+                            <!--
+                                Ensures that the code coverage report for unit tests is created after
+                                unit tests have been run.
+                            -->
+                            <execution>
+                                <id>post-unit-test</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- Sets the path to the file which contains the execution data. -->
+                                    <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+                                    <!-- Sets the output directory for the code coverage report. -->
+                                    <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+
+        <!-- Configure the signing of the artefact when the release is performed
+
+        mvn clean deploy
+        mvn release:clean
+        mvn release:prepare
+        mvn release:perform
+
+
+        -->
         <profile>
             <id>release-sign-artifacts</id>
             <activation>

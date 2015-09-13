@@ -46,11 +46,15 @@ public class MessagePublication implements IMessagePublication {
            sub.publish(this, message);
         }
         state = State.Finished;
-        // if the message has not been marked delivered by the dispatcher
+        // This part is necessary to support the feature of publishing a DeadMessage or FilteredMessage
+        // in case that the original message has not made it to any listener.
+        // This happens if subscriptions are empty (due to GC of weak listeners or explicit desubscription)
+        // or if configured filters do not let a message pass. The flag is set by the dispatchers.
+        // META: This seems to be a suboptimal design
         if (!delivered) {
-            if (!isFilteredEvent() && !isDeadEvent()) {
+            if (!isFilteredMessage() && !isDeadMessage()) {
                 runtime.getProvider().publish(new FilteredMessage(message));
-            } else if (!isDeadEvent()) {
+            } else if (!isDeadMessage()) {
                 runtime.getProvider().publish(new DeadMessage(message));
             }
 
@@ -81,11 +85,11 @@ public class MessagePublication implements IMessagePublication {
     }
 
 
-    public boolean isDeadEvent() {
+    public boolean isDeadMessage() {
         return DeadMessage.class.equals(message.getClass());
     }
 
-    public boolean isFilteredEvent() {
+    public boolean isFilteredMessage() {
         return FilteredMessage.class.equals(message.getClass());
     }
 

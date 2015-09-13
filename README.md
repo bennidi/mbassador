@@ -199,11 +199,10 @@ Planned for release: [Spring integration](bennidi/mbassador-spring) (currently i
 The initial inspiration for creating this component comes from Google Guava's event bus implementation.
 I liked the simplicity of its design and I trust in the code quality of google libraries. The main reason it proved to be unusable for our scenario was that it uses strong references to the listeners.
 
-I want to thank the development team from [friendsurance](www.friendsurance.de) for their support and feedback on the bus implementation and the management for allowing me to publish the component as an open source project.
+I want to thank the development team from [friendsurance](http://www.friendsurance.de) for their support and feedback on the bus implementation and the management for allowing me to publish the component as an open source project.
 
-I also want to thank all of the github users who have made little or larger [contributions](https://github.com/bennidi/mbassador/pulls?q=is%3Apr+is%3Aclosed). Thank you boys and girls, it is awesome to see
-the open source idea working.
-Special thanks go to
+I also want to thank all of the githubbers who have made [contributions](https://github.com/bennidi/mbassador/pulls?q=is%3Apr+is%3Aclosed) - it is awesome to see
+the open source idea working. Special thanks go to
 + [arne-vandamme](http://github.com/arne-vandamme) for adding support for [meta-annotations](https://github.com/bennidi/mbassador/pull/74)
  + [Bernd Rosstauscher](http://github.com/Rossi1337) for providing an initial integration with JUEL
  + [David Sowerby](http://github.com/davidsowerby) for answering user questions, for his tutorial on [guice integration](bennidi/mbassador/wiki/guice-integration) and his various PRs
@@ -214,7 +213,7 @@ Many thanks also to ej-technologies for providing me with an open source license
 [![JProfiler](http://www.ej-technologies.com/images/banners/jprofiler_small.png)](http://www.ej-technologies.com/products/jprofiler/overview.html) 
 and Jetbrains for a license of [IntelliJ IDEA](http://www.jetbrains.com/idea/)
 
-And all the other open source projects that make this kind of development possible:
+Mbassador makes use of the following open source projects:
 
 * [jUnit](http://www.junit.org)
 * [maven](http://www.maven.org)
@@ -222,13 +221,13 @@ And all the other open source projects that make this kind of development possib
 * [slf4j](http://www.slf4j.org)
 * [Odysseus JUEL](http://juel.sourceforge.net/guide/start.html)
 
-
 Special thanks also to [Sonatype](http://www.sonatype.com/) for the hosting of their [oss nexus repository](https://oss.sonatype.org/).
 
 
 <h2>Contribute</h2>
 
-Any feature requests and feedback are more than welcome. You may suggest improvements or report bugs either by submitting an issue - I will try to respond as quickly as possible. Please try to be precise in the description of your requirements. Following a hands-on mentality please feel invited to contribute by by forking the repo and creating a pull request to submit the code you would like to be included. Make your PRs small and provide test code! Take a look at [this issue](bennidi/mbassador#109) for a good example.
+
+ Following a hands-on mentality please feel invited to contribute by by forking the repo and creating a pull request to submit the code you would like to be included. Make your PRs small and provide test code! Take a look at [this issue](bennidi/mbassador#109) for a good example.
 
 Sample code and documentation are both very appreciated contributions. Especially integration with different frameworks is of great value. Feel free and welcome to create Wiki pages to share your code and ideas. Example: [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration)
 

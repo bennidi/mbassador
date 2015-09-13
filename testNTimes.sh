@@ -1,5 +1,6 @@
 #!/bin/bash
-for (( i = 1; i < $1 ; i++ ))
+mvn clean
+for (( i = 1; i < $1 + 1 ; i++ ))
 do
   echo "Round $i"
   mvn test -o -Dtest=$2

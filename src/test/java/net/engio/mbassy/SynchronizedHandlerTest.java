@@ -1,5 +1,6 @@
 package net.engio.mbassy;
 
+import junit.framework.Assert;
 import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.Feature;
@@ -22,7 +23,7 @@ import java.util.List;
 public class SynchronizedHandlerTest extends MessageBusTest {
 
 
-    private static int incrementsPerMessage = 10000;
+    private static int incrementsPerMessage = 1000;
     private static int numberOfMessages = 1000;
     private static int numberOfListeners = 1000;
 
@@ -71,11 +72,22 @@ public class SynchronizedHandlerTest extends MessageBusTest {
             track(bus.post(new Object()).asynchronously());
         }
 
-        pause(10000);
-
-        for(SynchronizedWithAsynchronousDelivery handler : handlers){
-            assertEquals(incrementsPerMessage * numberOfMessages, handler.counter);
+        // Check the handlers processing status
+        // Define timeframe in which processing should be finished
+        // If not then an error is assumed
+        long timeElapsed = 0;
+        long timeOut = 30000; // 30 seconds
+        long begin =  System.currentTimeMillis();
+        while (timeElapsed < timeOut) {
+            boolean successful = true;
+            for (SynchronizedWithAsynchronousDelivery handler : handlers) {
+                successful &= incrementsPerMessage * numberOfMessages ==  handler.counter;
+            }
+            if(successful)
+                break;
+            timeElapsed = System.currentTimeMillis() - begin;
         }
+        if(timeElapsed >= timeOut) Assert.fail("Processing of handlers unfinished after timeout");
 
     }
 

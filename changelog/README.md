@@ -3,6 +3,7 @@
    + Upgraded all plugins to most recent version
    + Fixed all issues that produced warnings on build output
  + reduced visibility of `AbstractPubSubSupport.handlePublication` error from `public` to `protected`
+ + Integrated [performance improvements](https://github.com/bennidi/mbassador/pull/125) made by dorkbox
 + __API-Changes:__
    + Moved method addPublicationErrorHandler from `IMessageBus` to `IBusConfiguration`
    + Default constructor of `MBassador` has no `IPublicationErrorHandler` registered and will 

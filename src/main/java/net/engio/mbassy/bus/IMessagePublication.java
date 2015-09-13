@@ -32,9 +32,9 @@ public interface IMessagePublication {
 
     IMessagePublication markScheduled(); // TODO: this method should not be part of the interface
 
-    boolean isDeadEvent();
+    boolean isDeadMessage();
 
-    boolean isFilteredEvent();
+    boolean isFilteredMessage();
 
     Object getMessage();
 

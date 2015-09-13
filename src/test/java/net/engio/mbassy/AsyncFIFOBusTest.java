@@ -1,6 +1,8 @@
 package net.engio.mbassy;
 
+import junit.framework.Assert;
 import net.engio.mbassy.bus.BusFactory;
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.Handler;
@@ -68,22 +70,34 @@ public class AsyncFIFOBusTest extends MessageBusTest {
         for(int i = 0; i < messages.length ; i++){
             messages[i] = i;
         }
+        IMessagePublication publication = null;
         // publish in ascending order
         for(Integer message : messages)
-            fifoBUs.post(message).asynchronously();
+            publication = fifoBUs.post(message).asynchronously();
 
-        while(fifoBUs.hasPendingMessages())
-            pause(2000);
+        while(fifoBUs.hasPendingMessages() && ! publication.isFinished())
+            pause(200);
 
+        // Check the handlers processing status
+        // Define timeframe in which processing should be finished
+        // If not then an error is assumed
+        long timeElapsed = 0;
+        long timeOut = 30000; // 30 seconds
+        long begin =  System.currentTimeMillis();
         for(SyncAsyncListener listener : listeners){
-            assertEquals(messages.length, listener.receivedSync.size());
-            assertEquals(listener.receivedSync.size(), listener.receivedAsync.size());
+            boolean successful = true;
+            successful &= messages.length == listener.receivedSync.size();
+            successful &=  listener.receivedSync.size() ==listener.receivedAsync.size();
             for(int i=0; i < listener.receivedAsync.size(); i++){
-                assertEquals(messages[i], listener.receivedSync.get(i));
+                successful &= messages[i] == listener.receivedSync.get(i);
                 // sync and async in same order
-                assertEquals(listener.receivedSync.get(i), listener.receivedAsync.get(i));
+                successful &= listener.receivedSync.get(i) == listener.receivedAsync.get(i);
             }
+            if(successful)
+                break;
+            timeElapsed = System.currentTimeMillis() - begin;
         }
+        if(timeElapsed >= timeOut) Assert.fail("Processing of handlers unfinished after timeout");
 
     }
 
