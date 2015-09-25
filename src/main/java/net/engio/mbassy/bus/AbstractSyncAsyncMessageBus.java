@@ -75,7 +75,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
                     }
                 }
             });
-            dispatcher.setName("Message dispatcher");
+            dispatcher.setName("MsgDispatcher-"+i);
             dispatchers.add(dispatcher);
             dispatcher.start();
         }
