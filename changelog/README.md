@@ -1,3 +1,10 @@
+### [1.2.4](http://github.com/bennidi/mbassador/milestones/1.2.4)
+ + API-Changes:
+   + Remove IBusConfiguration.{handleError,addConfigurationErrorHandler} => Configuration errors are communicated as RuntimeExceptions
+   + Removed BusFactory => Use explicit feature based construction with BusConfiguration 
+ + Integrated JaCoCo into build =>   
+
+
 ### [1.2.3](http://github.com/bennidi/mbassador/milestones/1.2.2)
  + Upgraded to Maven 3
    + Upgraded all plugins to most recent version
@@ -16,7 +23,7 @@
 
 
 ### [1.2.1](http://github.com/bennidi/mbassador/milestones/1.2.1)
- + Centralized handling of common (and arbitrary) properties (see `BusConfiguration#setProperty` and `net.engio.mbassy.bus.common.Properties`)
+ + Centralized handling of common (and arbitrary) properties (see `BusConfiguration#setProperty` and `net.engio.mbassy.bus.config.IBusConfiguration.Properties`)
  + Each bus now has a configurable id and respective #toString() implementation (useful for debugging)
  + Each bus now has a default logger (System.out) for publication errors (exception in handlers) which can be replaced with BusConfiguration#setProperty 
  + __API-Changes:__

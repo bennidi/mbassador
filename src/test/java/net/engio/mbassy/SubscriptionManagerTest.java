@@ -1,7 +1,7 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.bus.BusRuntime;
-import net.engio.mbassy.bus.common.Properties;
+import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.common.*;
 import net.engio.mbassy.listener.MetadataReader;
 import net.engio.mbassy.listeners.*;
@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- *
  * Test the subscriptions as generated and organized by the subscription manager. Tests use different sets of listeners
  * and corresponding expected set of subscriptions that should result from subscribing the listeners. The subscriptions
  * are tested for the type of messages they should handle and
@@ -29,7 +28,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     private static final int ConcurrentUnits = 10;
 
     @Test
-    public void testIMessageListener(){
+    public void testIMessageListener() {
         ListenerFactory listeners = listeners(
                 IMessageListener.DefaultListener.class,
                 IMessageListener.AsyncListener.class,
@@ -47,7 +46,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     @Test
-    public void testAbstractMessageListener(){
+    public void testAbstractMessageListener() {
         ListenerFactory listeners = listeners(
                 AbstractMessageListener.DefaultListener.class,
                 AbstractMessageListener.AsyncListener.class,
@@ -63,7 +62,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     @Test
-    public void testMessagesListener(){
+    public void testMessagesListener() {
         ListenerFactory listeners = listeners(
                 MessagesTypeListener.DefaultListener.class,
                 MessagesTypeListener.AsyncListener.class,
@@ -79,7 +78,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     @Test
-    public void testMultipartMessageListener(){
+    public void testMultipartMessageListener() {
         ListenerFactory listeners = listeners(
                 MultipartMessageListener.DefaultListener.class,
                 MultipartMessageListener.AsyncListener.class,
@@ -95,7 +94,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     @Test
-    public void testIMultipartMessageListener(){
+    public void testIMultipartMessageListener() {
         ListenerFactory listeners = listeners(
                 IMultipartMessageListener.DefaultListener.class,
                 IMultipartMessageListener.AsyncListener.class,
@@ -111,7 +110,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     @Test
-    public void testStandardMessageListener(){
+    public void testStandardMessageListener() {
         ListenerFactory listeners = listeners(
                 StandardMessageListener.DefaultListener.class,
                 StandardMessageListener.AsyncListener.class,
@@ -127,7 +126,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     @Test
-    public void testICountableListener(){
+    public void testICountableListener() {
         ListenerFactory listeners = listeners(
                 ICountableListener.DefaultListener.class,
                 ICountableListener.AsyncListener.class,
@@ -137,13 +136,13 @@ public class SubscriptionManagerTest extends AssertSupport {
         SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
                 .listener(ICountableListener.DefaultListener.class).handles(ICountable.class)
                 .listener(ICountableListener.DefaultListener.class).handles(MultipartMessage.class, IMultipartMessage.class, ICountable.class, StandardMessage.class)
-                .listener(ICountableListener.AsyncListener.class).handles(MultipartMessage.class, IMultipartMessage.class, ICountable.class,  StandardMessage.class);
+                .listener(ICountableListener.AsyncListener.class).handles(MultipartMessage.class, IMultipartMessage.class, ICountable.class, StandardMessage.class);
 
         runTestWith(listeners, expectedSubscriptions);
     }
 
     @Test
-    public void testMultipleMessageListeners(){
+    public void testMultipleMessageListeners() {
         ListenerFactory listeners = listeners(
                 ICountableListener.DefaultListener.class,
                 ICountableListener.AsyncListener.class,
@@ -159,7 +158,7 @@ public class SubscriptionManagerTest extends AssertSupport {
                 .listener(ICountableListener.DefaultListener.class)
                 .handles(MultipartMessage.class, IMultipartMessage.class, ICountable.class, StandardMessage.class)
                 .listener(ICountableListener.AsyncListener.class)
-                .handles(MultipartMessage.class, IMultipartMessage.class, ICountable.class,  StandardMessage.class)
+                .handles(MultipartMessage.class, IMultipartMessage.class, ICountable.class, StandardMessage.class)
                 .listener(IMultipartMessageListener.DefaultListener.class).handles(MultipartMessage.class, IMultipartMessage.class)
                 .listener(IMultipartMessageListener.AsyncListener.class).handles(MultipartMessage.class, IMultipartMessage.class)
                 .listener(MessagesTypeListener.DefaultListener.class).handles(MessageTypes.class)
@@ -179,12 +178,12 @@ public class SubscriptionManagerTest extends AssertSupport {
 
         Collection<Subscription> subscriptions = subscriptionManager.getSubscriptionsByMessageType(StandardMessage.class);
         assertEquals(1, subscriptions.size());
-        for(Subscription sub : subscriptions)
-            assertEquals(InstancesPerListener,  sub.size());
+        for (Subscription sub : subscriptions)
+            assertEquals(InstancesPerListener, sub.size());
     }
 
     @Test
-    public void testOverloadedMessageHandlers(){
+    public void testOverloadedMessageHandlers() {
         ListenerFactory listeners = listeners(
                 Overloading.ListenerBase.class,
                 Overloading.ListenerSub.class);
@@ -200,7 +199,7 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     @Test
-    public void testPrioritizedMessageHandlers(){
+    public void testPrioritizedMessageHandlers() {
         ListenerFactory listeners = listeners(PrioritizedListener.class);
 
         SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
@@ -212,21 +211,21 @@ public class SubscriptionManagerTest extends AssertSupport {
         runTestWith(listeners, expectedSubscriptions);
     }
 
-    private BusRuntime mockedRuntime(){
+    private BusRuntime mockedRuntime() {
         return new BusRuntime(null)
-                .add(Properties.Handler.PublicationErrorHandlers, Collections.EMPTY_SET)
-                .add(Properties.Handler.AsynchronousHandlerExecutor, null);
+                .add(IBusConfiguration.Properties.PublicationErrorHandlers, Collections.EMPTY_SET)
+                .add(IBusConfiguration.Properties.AsynchronousHandlerExecutor, null);
     }
 
-    private ListenerFactory listeners(Class ...listeners){
+    private ListenerFactory listeners(Class... listeners) {
         ListenerFactory factory = new ListenerFactory();
-        for(Class listener : listeners){
+        for (Class listener : listeners) {
             factory.create(InstancesPerListener, listener);
         }
         return factory;
     }
 
-    private void runTestWith(final ListenerFactory listeners, final SubscriptionValidator validator){
+    private void runTestWith(final ListenerFactory listeners, final SubscriptionValidator validator) {
         final SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
 
         ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
@@ -242,29 +241,29 @@ public class SubscriptionManagerTest extends AssertSupport {
 
 
     /**
-     *  define handlers with different priorities which need to be executed
-     *  in their respective order
+     * define handlers with different priorities which need to be executed
+     * in their respective order
      */
-    public static class PrioritizedListener{
+    public static class PrioritizedListener {
 
 
         @net.engio.mbassy.listener.Handler(priority = 1)
-        public void handlePrio1(IMessage message){
+        public void handlePrio1(IMessage message) {
             message.handled(this.getClass());
         }
 
         @net.engio.mbassy.listener.Handler(priority = 2)
-        public void handlePrio2(IMessage message){
+        public void handlePrio2(IMessage message) {
             message.handled(this.getClass());
         }
 
         @net.engio.mbassy.listener.Handler(priority = 3)
-        public void handlePrio3(IMessage message){
+        public void handlePrio3(IMessage message) {
             message.handled(this.getClass());
         }
 
         @net.engio.mbassy.listener.Handler(priority = 4)
-        public void handlePrio4(IMessage message){
+        public void handlePrio4(IMessage message) {
             message.handled(this.getClass());
         }
     }

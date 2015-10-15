@@ -14,8 +14,6 @@ import net.engio.mbassy.subscription.SubscriptionContext;
 @Listener(references = References.Strong)
 public class CustomInvocationListener {
 
-
-    // this handler will be invoked asynchronously
     @Handler(invocation = HandleSubTestEventInvocation.class)
     public void handle(StandardMessage message) {
         message.handled(this.getClass());

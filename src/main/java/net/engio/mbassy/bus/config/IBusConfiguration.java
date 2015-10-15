@@ -8,8 +8,8 @@ import java.util.Collection;
  * The configuration of message bus instances is feature driven, e.g. configuration parameters
  * are grouped into {@link Feature}.
  *
- * Features can be added to a bus configuration to be used later in the instantiation process of the message bus.
- * Each bus will look for the features it requires and configure them according to the provided configuration. If a required feature is not found the bus will publish a {@link ConfigurationError}
+ * Each bus will look for the features it requires and configure them according to the provided configuration.
+ * If a required feature is not found the bus will publish a {@link ConfigurationError}
  * to the {@link ConfigurationErrorHandler}
  *
  * @author bennidi.
@@ -60,19 +60,31 @@ public interface IBusConfiguration{
     IBusConfiguration addFeature(Feature feature);
 
     /**
-     * Add a handler that is called when a misconfiguration is detected.
-     * Note: Not fully implemented, yet.
+     * Add a handler that will be called whenever a publication error occurs.
+     * See {@link net.engio.mbassy.bus.error.PublicationError}
+     *
+     * @param handler  The handler to be added to the list of handlers
+     * @return A reference to <code>this</code> bus configuration.
      */
-    IBusConfiguration addConfigurationErrorHandler(ConfigurationErrorHandler handler);
-
-    /**
-     * Calls all ConfigurationErrorHandlers
-     */
-    void handleError(ConfigurationError error);
-
     BusConfiguration addPublicationErrorHandler(IPublicationErrorHandler handler);
 
+    /**
+     * Get an unmodifiable collection of all registered publication error handlers
+     */
     Collection<IPublicationErrorHandler> getRegisteredPublicationErrorHandlers();
 
 
+    /**
+     * A collection of properties commonly used by different parts of the library.
+     *
+     * @author bennidi
+     *         Date: 22.02.15
+     */
+    final class Properties {
+
+        public static final String BusId = "bus.id";
+        public static final String PublicationErrorHandlers = "bus.handlers.error";
+        public static final String AsynchronousHandlerExecutor = "bus.handlers.async-executor";
+
+    }
 }

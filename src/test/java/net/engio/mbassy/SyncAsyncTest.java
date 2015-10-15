@@ -11,6 +11,7 @@ import net.engio.mbassy.messages.MultipartMessage;
 import net.engio.mbassy.messages.StandardMessage;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -20,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *         Date: 2/8/12
  */
 public class SyncAsyncTest extends MessageBusTest {
+
 
 
     @Test
@@ -54,6 +56,9 @@ public class SyncAsyncTest extends MessageBusTest {
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
         assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(IMessageListener.DefaultListener.class));
         assertEquals(InstancesPerListener * ConcurrentUnits, MessageTypes.Simple.getTimesHandled(MessagesTypeListener.DefaultListener.class));
+
+        bus.shutdown();
+        pause(200);
     }
 
 
@@ -92,6 +97,9 @@ public class SyncAsyncTest extends MessageBusTest {
         messageManager.register(MessageTypes.Simple, InstancesPerListener * ConcurrentUnits, IMessageListener.AsyncListener.class, MessagesTypeListener.AsyncListener.class);
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
         messageManager.waitForMessages(waitForMessageTimeout);
+
+        bus.shutdown();
+        pause(200);
     }
 
     @Test
@@ -111,7 +119,7 @@ public class SyncAsyncTest extends MessageBusTest {
                 StandardMessage standardMessage = messageManager.create(StandardMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class);
                 MultipartMessage multipartMessage = messageManager.create(MultipartMessage.class, InstancesPerListener, IMessageListener.AsyncListener.class);
 
-                bus.post(standardMessage).asynchronously();
+                bus.post(standardMessage).asynchronously(1, TimeUnit.MILLISECONDS);
                 bus.post(multipartMessage).asynchronously();
                 bus.post(MessageTypes.Simple).asynchronously();
 
@@ -124,6 +132,9 @@ public class SyncAsyncTest extends MessageBusTest {
         MessageTypes.resetAll();
         ConcurrentExecutor.runConcurrent(publishAndCheck, ConcurrentUnits);
         messageManager.waitForMessages(waitForMessageTimeout);
+
+        bus.shutdown();
+        pause(200);
 
     }
 
@@ -165,6 +176,9 @@ public class SyncAsyncTest extends MessageBusTest {
         ConcurrentExecutor.runConcurrent(asynchronousPublication, ConcurrentUnits);
         pause(processingTimeInMS);
         assertEquals(InstancesPerListener * ConcurrentUnits, exceptionCount.get());
+
+        bus.shutdown();
+        pause(200);
 
     }
 

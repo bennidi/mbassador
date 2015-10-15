@@ -1,30 +1,26 @@
 package net.engio.mbassy.bus.config;
 
 /**
- * Configuration errors represent specific misconfigurations of features in a {@link net.engio.mbassy.bus.config.IBusConfiguration}
+ * Configuration errors represent specific invalid configurations of a feature in a {@link net.engio.mbassy.bus.config.IBusConfiguration}
+ * An invalid feature configuration is assumed to render the bus dysfunctional and as such is thrown as an unchecked exception.
  *
  * @author bennidi
  *         Date: 8/29/14
  */
-public class ConfigurationError {
+public class ConfigurationError extends RuntimeException{
 
-    private Class<? extends Feature> featureType;
-    private Feature feature;
     private String message;
 
-    public ConfigurationError(Class<? extends Feature> featureType, Feature feature, String message) {
-        this.featureType = featureType;
-        this.feature = feature;
+    private ConfigurationError(String message) {
         this.message = message;
     }
 
-    public static ConfigurationError Missing(Class<? extends Feature> featureType){
-        return new ConfigurationError(featureType, null, "An expected feature was missing. Use addFeature() in IBusConfiguration to add features.");
+    public static ConfigurationError MissingFeature(Class<? extends Feature> featureType){
+        return new ConfigurationError("The expected feature " + featureType +  " was missing. Use addFeature() in IBusConfiguration to add features.");
     }
 
     @Override
     public String toString() {
-        return "Error for " + featureType + ":" + message +
-                ", (" + feature + ")";
+        return message;
     }
 }

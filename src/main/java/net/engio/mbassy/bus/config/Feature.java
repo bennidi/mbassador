@@ -137,7 +137,7 @@ public interface Feature {
 
 
         private int numberOfMessageDispatchers;
-        private BlockingQueue<IMessagePublication> pendingMessages;
+        private BlockingQueue<IMessagePublication> messageQueue;
         private ThreadFactory dispatcherThreadFactory;
 
         public int getNumberOfMessageDispatchers() {
@@ -149,12 +149,12 @@ public interface Feature {
             return this;
         }
 
-        public BlockingQueue<IMessagePublication> getPendingMessages() {
-            return pendingMessages;
+        public BlockingQueue<IMessagePublication> getMessageQueue() {
+            return messageQueue;
         }
 
         public AsynchronousMessageDispatch setMessageQueue(BlockingQueue<IMessagePublication> pendingMessages) {
-            this.pendingMessages = pendingMessages;
+            this.messageQueue = pendingMessages;
             return this;
         }
 

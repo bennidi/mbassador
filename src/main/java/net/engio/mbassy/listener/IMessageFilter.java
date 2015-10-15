@@ -4,7 +4,7 @@ import net.engio.mbassy.subscription.SubscriptionContext;
 
 /**
  * Message filters can be used to control what messages are delivered to a specific message handler.
- * Filters are attached to message handler using the @Listener annotation.
+ * Filters are attached to message handler using the @Handler annotation.
  * If a message handler specifies filters, the filters accepts(...) method will be checked before the actual handler is invoked.
  * The handler will be invoked only if each filter accepted the message.
  *
@@ -17,7 +17,7 @@ import net.engio.mbassy.subscription.SubscriptionContext;
  * public void someHandler(String message){...}
  *
  * class Urlfilter implements IMessageFilter<String>{
- *     public boolean accepts(String message, MessageHandler metadata){
+ *     public boolean accepts(String message, SubscriptionContext context){
  *         return message.startsWith("http");
  *     }
  * }

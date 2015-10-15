@@ -9,21 +9,6 @@
 		</layout>
 	</appender>
 
-	<category name="org.springframework" additivity="false">
-		<priority value="info"/>
-		<appender-ref ref="console"/>
-	</category>
-
-	<category name="de.safetynet" additivity="false">
-		<priority value="info"/>
-		<appender-ref ref="console"/>
-	</category>
-
-	<category name="de.safetynet.tracking" additivity="false">
-		<priority value="debug"/>
-		<appender-ref ref="console"/>
-	</category>
-
 	<root>
 		<priority value ="info" />
 		<appender-ref ref="console"/>

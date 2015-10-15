@@ -1,7 +1,7 @@
 package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.bus.BusRuntime;
-import net.engio.mbassy.bus.common.Properties;
+import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.MessageBusException;
 import net.engio.mbassy.common.StrongConcurrentSet;
@@ -21,7 +21,7 @@ public class SubscriptionFactory {
 
     public Subscription createSubscription(BusRuntime runtime, MessageHandler handlerMetadata) throws MessageBusException{
         try {
-            Collection<IPublicationErrorHandler> errorHandlers = runtime.get(Properties.Handler.PublicationErrorHandlers);
+            Collection<IPublicationErrorHandler> errorHandlers = runtime.get(IBusConfiguration.Properties.PublicationErrorHandlers);
             SubscriptionContext context = new SubscriptionContext(runtime, handlerMetadata, errorHandlers);
             IHandlerInvocation invocation = buildInvocationForHandler(context);
             IMessageDispatcher dispatcher = buildDispatcher(context, invocation);

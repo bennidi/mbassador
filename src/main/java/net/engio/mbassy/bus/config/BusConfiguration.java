@@ -47,22 +47,9 @@ public class BusConfiguration implements IBusConfiguration {
     }
 
     @Override
-    public IBusConfiguration addConfigurationErrorHandler(ConfigurationErrorHandler handler) {
-        configurationErrorHandlers.add(handler);
-        return this;
-    }
-
-    @Override
-    public void handleError(ConfigurationError error) {
-        for(ConfigurationErrorHandler errorHandler : configurationErrorHandlers){
-            errorHandler.handle(error);
-        }
-    }
-
-@Override
     public final BusConfiguration addPublicationErrorHandler(IPublicationErrorHandler handler) {
-            publicationErrorHandlers.add(handler);
-    return this;
+        publicationErrorHandlers.add(handler);
+        return this;
     }
 
     @Override

@@ -105,7 +105,6 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
     @Override
     public boolean remove(Object element) {
         if (!contains(element)) {
-            // return quickly
             return false;
         } else {
             Lock writeLock = lock.writeLock();
@@ -118,7 +117,6 @@ public abstract class AbstractConcurrentSet<T> implements Set<T> {
                 if (listelement != head) {
                     listelement.remove();
                 } else {
-                    // if it was second, now it's first
                     head = head.next();
                     //oldHead.clear(); // optimize for GC not possible because of potentially running iterators
                 }

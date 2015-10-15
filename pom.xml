@@ -278,6 +278,11 @@
 
     <profiles>
 
+        <!-- Profile to run full test suite with coverage reporting engine JaCoCo
+
+        mvn clean test -Djacoco
+
+        -->
         <profile>
             <id>jacoco-coverage</id>
 

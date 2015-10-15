@@ -1,11 +1,10 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.IMessageBus;
-import net.engio.mbassy.bus.common.Properties;
 import net.engio.mbassy.bus.config.ConfigurationError;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
-import net.engio.mbassy.bus.error.PublicationError;
+import net.engio.mbassy.bus.error.InternalPublicationError;
 import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
 
 import java.util.ArrayList;
@@ -38,19 +37,19 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
         // configure asynchronous message dispatch
         Feature.AsynchronousMessageDispatch asyncDispatch = configuration.getFeature(Feature.AsynchronousMessageDispatch.class);
         if(asyncDispatch == null){
-            configuration.handleError(ConfigurationError.Missing(Feature.AsynchronousMessageDispatch.class));
+            throw ConfigurationError.MissingFeature(Feature.AsynchronousMessageDispatch.class);
         }
-        pendingMessages = asyncDispatch.getPendingMessages();
+        pendingMessages = asyncDispatch.getMessageQueue();
         dispatchers = new ArrayList<Thread>(asyncDispatch.getNumberOfMessageDispatchers());
         initDispatcherThreads(asyncDispatch);
 
         // configure asynchronous handler invocation
         Feature.AsynchronousHandlerInvocation asyncInvocation = configuration.getFeature(Feature.AsynchronousHandlerInvocation.class);
         if(asyncInvocation == null){
-            configuration.handleError(ConfigurationError.Missing(Feature.AsynchronousHandlerInvocation.class));
+            throw ConfigurationError.MissingFeature(Feature.AsynchronousHandlerInvocation.class);
         }
         this.executor = asyncInvocation.getExecutor();
-        getRuntime().add(Properties.Handler.AsynchronousHandlerExecutor, executor);
+        getRuntime().add(IBusConfiguration.Properties.AsynchronousHandlerExecutor, executor);
 
     }
 
@@ -70,7 +69,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
                             Thread.currentThread().interrupt();
                             return;
                         } catch(Throwable t){
-                            handlePublicationError(new PublicationError(t, "Error in asynchronous dispatch",publication));
+                            handlePublicationError(new InternalPublicationError(t, "Error in asynchronous dispatch",publication));
                         }
                     }
                 }
@@ -88,7 +87,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
             pendingMessages.put(publication);
             return publication.markScheduled();
         } catch (InterruptedException e) {
-            handlePublicationError(new PublicationError(e, "Error while adding an asynchronous message publication", publication));
+            handlePublicationError(new InternalPublicationError(e, "Error while adding an asynchronous message publication", publication));
             return publication;
         }
     }
@@ -100,7 +99,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
                     ? publication.markScheduled()
                     : publication;
         } catch (InterruptedException e) {
-            handlePublicationError(new PublicationError(e, "Error while adding an asynchronous message publication", publication));
+            handlePublicationError(new InternalPublicationError(e, "Error while adding an asynchronous message publication", publication));
             return publication;
         }
     }

@@ -1,8 +1,8 @@
 package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.DeadMessage;
-import net.engio.mbassy.bus.common.Properties;
 import net.engio.mbassy.bus.common.PubSubSupport;
+import net.engio.mbassy.bus.config.ConfigurationError;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
@@ -12,7 +12,8 @@ import net.engio.mbassy.subscription.SubscriptionManager;
 
 import java.util.*;
 
-import static net.engio.mbassy.bus.common.Properties.Handler.PublicationErrorHandlers;
+import static net.engio.mbassy.bus.config.IBusConfiguration.Properties.BusId;
+import static net.engio.mbassy.bus.config.IBusConfiguration.Properties.PublicationErrorHandlers;
 
 /**
  * The base class for all message bus implementations.
@@ -43,11 +44,15 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
             System.out.println(ERROR_HANDLER_MSG);
         }
         this.runtime = new BusRuntime(this)
-                .add(PublicationErrorHandlers, configuration.getRegisteredPublicationErrorHandlers());
+                .add(PublicationErrorHandlers, configuration.getRegisteredPublicationErrorHandlers())
+                .add(BusId, configuration.getProperty(BusId, UUID.randomUUID().toString()));
         // configure the pub sub feature
         Feature.SyncPubSub pubSubFeature = configuration.getFeature(Feature.SyncPubSub.class);
+        if(pubSubFeature == null){
+            throw ConfigurationError.MissingFeature(Feature.SyncPubSub.class);
+        }
         this.subscriptionManager = pubSubFeature.getSubscriptionManagerProvider()
-                                                .createManager(pubSubFeature.getMetadataReader(), pubSubFeature.getSubscriptionFactory(), runtime);
+                .createManager(pubSubFeature.getMetadataReader(), pubSubFeature.getSubscriptionFactory(), runtime);
         this.publicationFactory = pubSubFeature.getPublicationFactory();
     }
 
@@ -78,8 +83,8 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     protected IMessagePublication createMessagePublication(T message) {
         Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
         if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass()
-                                                                          .equals(DeadMessage.class)) {
-            // Dead Event
+                .equals(DeadMessage.class)) {
+            // DeadMessage Event
             subscriptions = getSubscriptionsByMessageType(DeadMessage.class);
             return getPublicationFactory().createPublication(runtime, subscriptions, new DeadMessage(message));
         } else {
@@ -102,6 +107,6 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "{ " + runtime.get(Properties.Common.Id) + "}";
+        return getClass().getSimpleName() + "(" + runtime.get(IBusConfiguration.Properties.BusId) + ")";
     }
 }

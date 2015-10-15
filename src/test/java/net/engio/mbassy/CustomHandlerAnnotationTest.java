@@ -26,7 +26,7 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 	@Handler(filters = { @Filter(NamedMessageFilter.class) })
 	@Synchronized
 	@Target(value = { ElementType.METHOD, ElementType.ANNOTATION_TYPE })
-	static @interface NamedMessageHandler
+	@interface NamedMessageHandler
 	{
 		/**
 		 * @return The message names supported.
@@ -41,7 +41,7 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
     @Retention(value = RetentionPolicy.RUNTIME)
     @Inherited
     @NamedMessageHandler("messageThree")
-    static @interface MessageThree {}
+    @interface MessageThree {}
 
 
 
@@ -53,7 +53,7 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 	@Inherited
 	@Handler(filters = { @Filter(NamedMessageFilter.class) })
 	@Enveloped(messages = NamedMessage.class)
-	static @interface EnvelopedNamedMessageHandler
+	@interface EnvelopedNamedMessageHandler
 	{
 		/**
 		 * @return The message names supported.

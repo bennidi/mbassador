@@ -24,7 +24,7 @@ public interface IPublicationErrorHandler {
      * The default error handler will simply log to standard out and
      * print the stack trace if available.
      */
-    static final class ConsoleLogger implements IPublicationErrorHandler {
+    final class ConsoleLogger implements IPublicationErrorHandler {
 
         private final boolean printStackTrace;
 

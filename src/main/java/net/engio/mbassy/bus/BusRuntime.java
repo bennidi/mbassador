@@ -1,7 +1,7 @@
 package net.engio.mbassy.bus;
 
-import net.engio.mbassy.bus.common.Properties;
 import net.engio.mbassy.bus.common.PubSubSupport;
+import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.MissingPropertyException;
 
 import java.util.Collection;
@@ -26,7 +26,6 @@ public class BusRuntime {
 
     public BusRuntime(PubSubSupport provider) {
         this.provider = provider;
-        properties.put(Properties.Common.Id, UUID.randomUUID().toString());
     }
 
     public <T> T get(String key){

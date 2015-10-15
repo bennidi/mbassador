@@ -6,10 +6,12 @@ import net.engio.mbassy.subscription.SubscriptionContext;
 import java.lang.reflect.Method;
 
 /**
- * Publication errors are created when object publication fails
- * for some reason and contain details as to the cause and location
- * where they occurred.
- * <p/>
+ * Publication errors are used to communicate exceptions that occur during message publication.
+ * The most common reason is most likely an exception thrown during the execution of a message handler.
+ *
+ * The publication error contains details about to the cause and location where error occurred.
+ * They are passed to all registered instances of {@link IPublicationErrorHandler} configured within
+ * the {@link net.engio.mbassy.bus.config.IBusConfiguration}
  *
  * @author bennidi
  *         Date: 2/22/12
@@ -61,6 +63,11 @@ public class PublicationError{
         this.cause = cause;
         this.message = message;
         this.handler = context.getHandler().getMethod();
+    }
+
+    public PublicationError(Throwable cause, String message) {
+        this.cause = cause;
+        this.message = message;
     }
 
 
