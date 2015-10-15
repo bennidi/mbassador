@@ -11,7 +11,6 @@ public class BusConfiguration implements IBusConfiguration {
 
     // the registered properties
     private final Map<Object, Object> properties = new HashMap<Object, Object>();
-    private final List<ConfigurationErrorHandler> configurationErrorHandlers = new LinkedList<ConfigurationErrorHandler>();
     // these are transferred to the bus to receive all errors that occur during message dispatch or message handling
     private final List<IPublicationErrorHandler> publicationErrorHandlers = new ArrayList<IPublicationErrorHandler>();
 
