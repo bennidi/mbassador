@@ -2,7 +2,7 @@
  + API-Changes:
    + Remove IBusConfiguration.{handleError,addConfigurationErrorHandler} => Configuration errors are communicated as RuntimeExceptions
    + Removed BusFactory => Use explicit feature based construction with BusConfiguration 
- + Integrated JaCoCo into build =>   
+ + Integrated JaCoCo test coverage report => run `mvn clean test -Djacoco`  
 
 
 ### [1.2.3](http://github.com/bennidi/mbassador/milestones/1.2.2)
@@ -18,8 +18,7 @@
 
 ### [1.2.2](http://github.com/bennidi/mbassador/milestones/1.2.2)
  + Due to technical problems during release creation this version had to be skipped (git tag not removable)
- + The respective release is 1.2.3
- 
+ + The respective release is 1.2.3 
 
 
 ### [1.2.1](http://github.com/bennidi/mbassador/milestones/1.2.1)

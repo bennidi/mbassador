@@ -10,9 +10,8 @@ Read this introduction to get an overview of MBassadors features. There is also 
 There is a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. This is a good example of integration with other frameworks.
 
 >  ################   NOTE #################### 
-> [15.10.2015] My spare time programming efforts have shifted to another open source project - [openmediaid](http://www.openmediaid.org). I will not be able to actively push development of this library anymore. Any developers interested in becoming co-maintainers of this library... you are very welcome!
 
-> However, the code base has matured over the past years and I think it is fairly safe to use this library in your production code. 
+> [15.10.2015] My spare time programming efforts have shifted to another open source project - [openmediaid](http://www.openmediaid.org). I will not be able to actively push development of this library anymore. Any developers interested in becoming co-maintainers of this library... you are very welcome! 
 
 Table of contents:
   *  [Usage](#usage)
@@ -100,7 +99,7 @@ MBassador is available from the Maven Central Repository using the following coo
     <dependency>
         <groupId>net.engio</groupId>
         <artifactId>mbassador</artifactId>
-        <version>{your.desired.version}</version>
+        <version>{see.git.tags.for.latest.version}</version>
     </dependency>
 ```
 
