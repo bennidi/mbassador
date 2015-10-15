@@ -9,10 +9,10 @@ Read this introduction to get an overview of MBassadors features. There is also 
 
 There is a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. This is a good example of integration with other frameworks.
 
-> NOTICE: 
-> [15.10.2015] My spare time programming efforts have shifted to another open source project - [openmediaid](www.openmediaid.org)
-> I will not be able to actively push development of this library beyond providing bug fixes. The code base has matured over the past years and I think it is fairly safe to use this library in your production code. Any developers interested in becoming co-maintainers of this library... you are very welcome!  
-> I do not make any effort in hosting documentation for various versions. Therefore, I recommend you always upgrade to the latest version. API-Changes or documented in the [changelog](changelog)
+>  ################   NOTE #################### 
+> [15.10.2015] My spare time programming efforts have shifted to another open source project - [openmediaid](www.openmediaid.org). I will not be able to actively push development of this library anymore. Any developers interested in becoming co-maintainers of this library... you are very welcome!
+
+> However, the code base has matured over the past years and I think it is fairly safe to use this library in your production code. 
 
 Table of contents:
   *  [Usage](#usage)
@@ -20,7 +20,6 @@ Table of contents:
   *  [Installation](#installation)
   *  [Wiki](#wiki)
   *  [Release Notes](#release-notes)
-  *  [Roadmap](#roadmap)
   *  [Integrations](#integrations)
   *  [Credits](#credits)
   *  [Contribute](#contribute)
@@ -30,7 +29,7 @@ Table of contents:
 
 Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do) ` bus = new MBassador()`, mark and configure your message handlers with `@Handler` annotations and finally register the listeners at any MBassador instance `bus.subscribe(aListener)`. Start sending messages to your listeners using one of MBassador's publication methods `bus.post(message).now()` or `bus.post(message).asynchronously()`.
 
-As a first reference, consider this illustrative example. You might want to have a look at the collection of [examples](examples) to get an understanding of more advanced features.
+As a first reference, consider this illustrative example. You might want to have a look at the collection of [examples](./examples) to see its features on more detail.
 
       // Define your listener
      class SimpleFileListener{
@@ -115,27 +114,18 @@ There is ongoing effort to extend documentation and provide code samples and det
 Release notes moved to the [changelog](./changelog).
 
 
-##Roadmap
-There is no roadmap planning going on that deserves the name. However, there is a collection of useful features that might be implemented in the future. Check the issues labeled with [enhancement](https://github.com/bennidi/mbassador/labels/enhancement) or the available milestones. Comment if you would like to see the feature in a future release and/or want to share your ideas on the feature (or a variation thereof).
-
-Pull requests for any feature/enhancement are always welcome. I will try to integrate them sooner than later. Please understand that code reviews take time and that new code needs to be tested thoroughly before its integration.
-
-Also understand that I have limited time to include new features and that I will focus on stability and cleaner APIs. Adding features only works with well designed and thoroughly tested components. This is especially true for multi-threaded code and I am still not 100 percent convinced by the existing test design and some parts of the internal code layout.
-
-
 <h2>Credits</h2>
 The initial inspiration for creating this component comes from Google Guava's event bus implementation.
 I liked the simplicity of its design and I trust in the code quality of google libraries. The main reason it proved to be unusable for our scenario was that it uses strong references to the listeners.
 
 I want to thank the development team from [friendsurance](http://www.friendsurance.de) for their support and feedback on the bus implementation and the management for allowing me to publish the component as an open source project.
 
-I also want to thank all of the githubbers who have made [contributions](https://github.com/bennidi/mbassador/pulls?q=is%3Apr+is%3Aclosed) - it is awesome to see
-the open source idea working. Special thanks go to
+I also want to thank all githubbers who have made [contributions](https://github.com/bennidi/mbassador/pulls?q=is%3Apr+is%3Aclosed). It was always a pleasure to see how users got engaged into the libraries development and support. Special thanks go to
 + [arne-vandamme](http://github.com/arne-vandamme) for adding support for [meta-annotations](https://github.com/bennidi/mbassador/pull/74)
 + [Bernd Rosstauscher](http://github.com/Rossi1337) for providing an initial integration with JUEL
-+ [David Sowerby](http://github.com/davidsowerby) for answering user questions, for his tutorial on [guice integration](bennidi/mbassador/wiki/guice-integration) and his various PRs
++ [David Sowerby](http://github.com/davidsowerby) for answering user questions, his tutorial on [guice integration](bennidi/mbassador/wiki/guice-integration) and his various PRs
 + [dorkbox](http://github.com/dorkbox) for various PRs and his incredible [work on performance tuning](http://github.com/bennidi/eventbus-performance/issues/1) which is still to be integrated
-+ [durron597](http://github.com/durron597) for his many PRs and the help he offered by answering user questions
++ [durron597](http://github.com/durron597) for his many PRs and the help he offered to other users
 
 Many thanks also to ej-technologies for providing me with an open source license of 
 [![JProfiler](http://www.ej-technologies.com/images/banners/jprofiler_small.png)](http://www.ej-technologies.com/products/jprofiler/overview.html) and Jetbrains for a license of [IntelliJ IDEA](http://www.jetbrains.com/idea/)
@@ -153,7 +143,7 @@ Special thanks also to [Sonatype](http://www.sonatype.com/) for the hosting of t
 
 ##Contribute
 
- Following a hands-on mentality please feel invited to contribute by by forking the repo and creating a pull request to submit the code you would like to be included. Make your PRs small and provide test code! Take a look at [this issue](bennidi/mbassador#109) for a good example.
+Please feel invited to contribute by creating a pull request to submit the code you would like to be included. Make your PRs small and provide test code! Take a look at [this issue](bennidi/mbassador#109) for a good example.
 
 Sample code and documentation are both very appreciated contributions. Especially integration with different frameworks is of great value. Feel free and welcome to create Wiki pages to share your code and ideas. Example: [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration)
 
