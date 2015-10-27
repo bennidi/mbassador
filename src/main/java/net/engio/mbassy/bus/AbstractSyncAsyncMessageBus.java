@@ -69,14 +69,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
                             Thread.currentThread().interrupt();
                             return;
                         } catch(Throwable t){
-                            try
-                            {
-                                handlePublicationError(new InternalPublicationError(t, "Error in asynchronous dispatch", publication));
-                            }
-                            catch (Throwable ex)
-                            {        //swallow exceptions raised from error handlers in async context
-                                ex.printStackTrace();
-                            }
+                            handlePublicationError(new InternalPublicationError(t, "Error in asynchronous dispatch",publication));
                         }
                     }
                 }
