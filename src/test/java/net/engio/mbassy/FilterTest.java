@@ -1,12 +1,16 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.common.DeadMessage;
 import net.engio.mbassy.bus.common.FilteredMessage;
 import net.engio.mbassy.common.ListenerFactory;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.common.TestUtil;
-import net.engio.mbassy.listener.*;
+import net.engio.mbassy.listener.Filter;
+import net.engio.mbassy.listener.Filters;
+import net.engio.mbassy.listener.Handler;
+import net.engio.mbassy.listener.IMessageFilter;
 import net.engio.mbassy.messages.SubTestMessage;
 import net.engio.mbassy.messages.TestMessage;
 import net.engio.mbassy.subscription.SubscriptionContext;
@@ -112,8 +116,8 @@ public class FilterTest extends MessageBusTest {
         TestMessage supertype = new TestMessage();
         TestMessage subtype = new SubTestMessage();
 
-        bus.publish(supertype);
-        bus.publish(subtype);
+        assertTrue(bus.publish(supertype).getErrors().isEmpty());
+        assertTrue(bus.publish(subtype).getErrors().isEmpty());
 
         assertEquals(100, subtype.counter.get());
         assertEquals(0, supertype.counter.get());
@@ -132,7 +136,7 @@ public class FilterTest extends MessageBusTest {
     public static class RejectFilteredObjects implements IMessageFilter{
 
         @Override
-        public boolean accepts(Object message, SubscriptionContext context) {
+        public boolean accepts(Object message, SubscriptionContext context, IMessagePublication publication) {
             if(message.getClass().equals(FilteredMessage.class) && ((FilteredMessage)message).getMessage().getClass().equals(Object.class)){
                 return false;
             }
@@ -143,7 +147,7 @@ public class FilterTest extends MessageBusTest {
     public static final class RejectAll implements IMessageFilter {
 
         @Override
-        public boolean accepts(Object event,  SubscriptionContext context) {
+        public boolean accepts(Object event, SubscriptionContext context, IMessagePublication publication) {
             return false;
         }
     }

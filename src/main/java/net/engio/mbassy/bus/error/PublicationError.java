@@ -20,8 +20,8 @@ import java.lang.reflect.Method;
 public class PublicationError{
 
     // Internal state
-    private Throwable cause;
-    private String message;
+    private final Throwable cause;
+    private final String message;
     private Method handler;
     private Object listener;
     private Object publishedMessage;
@@ -40,13 +40,18 @@ public class PublicationError{
                             final String message,
                             final Method handler,
                             final Object listener,
-                            final Object publishedObject) {
+                            final Object publishedObject,
+                            IMessagePublication publication) {
 
         this.cause = cause;
         this.message = message;
         this.handler = handler;
         this.listener = listener;
         this.publishedMessage = publishedObject;
+        if(publication!=null)
+        {
+            publication.addError(cause);
+        }
     }
 
     public PublicationError(final Throwable cause,
@@ -54,28 +59,36 @@ public class PublicationError{
                             final IMessagePublication publication) {
         this.cause = cause;
         this.message = message;
-        this.publishedMessage = publication != null ? publication.getMessage() : null;
+        if (publication != null)
+        {
+            publication.addError(cause);
+            this.publishedMessage = publication.getMessage();
+        }
     }
 
     public PublicationError(final Throwable cause,
                             final String message,
-                            final SubscriptionContext context) {
+                            final SubscriptionContext context, Object publishedMessage, IMessagePublication publication)
+    {
         this.cause = cause;
         this.message = message;
         this.handler = context.getHandler().getMethod();
+        this.publishedMessage = publishedMessage;
+        if (publication != null)
+        {
+            publication.addError(cause);
+        }
     }
 
-    public PublicationError(Throwable cause, String message) {
+
+    public PublicationError(Throwable cause, String message, Object publishedMessage, IMessagePublication publication) {
         this.cause = cause;
         this.message = message;
-    }
-
-
-    /**
-     * Default constructor.
-     */
-    public PublicationError() {
-        super();
+        this.publishedMessage = publishedMessage;
+        if (publication != null)
+        {
+            publication.addError(cause);
+        }
     }
 
     /**
@@ -85,51 +98,20 @@ public class PublicationError{
         return cause;
     }
 
-    /**
-     * Assigns the cause of this PublicationError.
-     *
-     * @param cause A Throwable which gave rise to this PublicationError.
-     * @return This PublicationError.
-     */
-    public PublicationError setCause(Throwable cause) {
-        this.cause = cause;
-        return this;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public PublicationError setMessage(String message) {
-        this.message = message;
-        return this;
     }
 
     public Method getHandler() {
         return handler;
     }
 
-    public PublicationError setHandler(Method handler) {
-        this.handler = handler;
-        return this;
-    }
-
     public Object getListener() {
         return listener;
     }
 
-    public PublicationError setListener(Object listener) {
-        this.listener = listener;
-        return this;
-    }
-
     public Object getPublishedMessage() {
         return publishedMessage;
-    }
-
-    public PublicationError setPublishedMessage(Object publishedMessage) {
-        this.publishedMessage = publishedMessage;
-        return this;
     }
 
     /**

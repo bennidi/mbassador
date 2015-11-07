@@ -56,7 +56,14 @@ public class SubscriptionContext implements RuntimeProvider {
 
     public final void handleError(PublicationError error){
         for (IPublicationErrorHandler errorHandler : errorHandlers) {
-            errorHandler.handleError(error);
+            try
+            {
+                errorHandler.handleError(error);
+            }
+            catch (Exception e)
+            {
+                System.out.println(e);
+            }
         }
     }
 

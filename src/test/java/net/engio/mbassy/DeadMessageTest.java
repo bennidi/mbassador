@@ -51,9 +51,9 @@ public class DeadMessageTest extends MessageBusTest{
                 for(int i=0; i < IterationsPerThread; i++){
                     int variation = i % 3;
                     switch (variation){
-                        case 0:bus.publish(new Object());break;
-                        case 1:bus.publish(i);break;
-                        case 2:bus.publish(String.valueOf(i));break;
+                        case 0:assertTrue(bus.publish(new Object()).getErrors().isEmpty());break;
+                        case 1:assertTrue(bus.publish(i).getErrors().isEmpty());break;
+                        case 2:assertTrue(bus.publish(String.valueOf(i)).getErrors().isEmpty());break;
                     }
                 }
 

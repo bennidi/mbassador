@@ -1,5 +1,6 @@
 package net.engio.mbassy.listener;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.subscription.SubscriptionContext;
 
 /**
@@ -41,8 +42,9 @@ public interface IMessageFilter<M> {
      *
      * @param message The message to be handled by the handler
      * @param  context The context object containing a description of the message handler and the bus environment
+     * @param publication The IMessagePublication wrapper object of the message
      * @return  true: if the message matches the criteria and should be delivered to the handler
      *          false: otherwise
      */
-    boolean accepts(M message, SubscriptionContext context);
+    boolean accepts(M message, SubscriptionContext context, IMessagePublication publication);
 }

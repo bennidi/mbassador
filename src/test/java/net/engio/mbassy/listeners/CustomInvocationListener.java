@@ -1,5 +1,6 @@
 package net.engio.mbassy.listeners;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.dispatch.HandlerInvocation;
 import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.Listener;
@@ -27,7 +28,7 @@ public class CustomInvocationListener {
         }
 
         @Override
-        public void invoke(CustomInvocationListener listener, StandardMessage message) {
+        public void invoke(CustomInvocationListener listener, StandardMessage message, IMessagePublication publication) {
             listener.handle(message);
         }
     }

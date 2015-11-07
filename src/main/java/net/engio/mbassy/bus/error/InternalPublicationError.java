@@ -14,8 +14,4 @@ public class InternalPublicationError extends PublicationError{
         super(cause, message, publication);
     }
 
-    public InternalPublicationError(Throwable cause, String message) {
-        super(cause, message);
-    }
-
 }

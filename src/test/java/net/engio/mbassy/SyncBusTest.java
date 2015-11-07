@@ -101,7 +101,7 @@ public abstract class SyncBusTest extends MessageBusTest {
         Runnable publish = new Runnable() {
             @Override
             public void run() {
-                bus.post(new Object()).now();
+                assertEquals(InstancesPerListener, bus.post(new Object()).now().getErrors().size());
             }
         };
 
@@ -135,7 +135,7 @@ public abstract class SyncBusTest extends MessageBusTest {
         Runnable publish = new Runnable() {
             @Override
             public void run() {
-                bus.post(new Object()).now();
+                assertEquals(InstancesPerListener, bus.post(new Object()).now().getErrors().size());
             }
         };
 

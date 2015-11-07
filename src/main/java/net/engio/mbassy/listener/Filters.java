@@ -1,5 +1,6 @@
 package net.engio.mbassy.listener;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.subscription.SubscriptionContext;
 
 /**
@@ -23,7 +24,7 @@ public class Filters {
     public static final class RejectSubtypes implements IMessageFilter {
 
         @Override
-        public boolean accepts(final Object event, final SubscriptionContext context) {
+        public boolean accepts(final Object event, final SubscriptionContext context, IMessagePublication publication) {
             final MessageHandler metadata = context.getHandler();
             for (Class handledMessage : metadata.getHandledMessages()) {
                 if (handledMessage.equals(event.getClass())) {
@@ -43,7 +44,7 @@ public class Filters {
     public static final class SubtypesOnly implements IMessageFilter{
 
         @Override
-        public boolean accepts(final Object message, final SubscriptionContext context) {
+        public boolean accepts(final Object message, final SubscriptionContext context, IMessagePublication publication) {
             final MessageHandler metadata = context.getHandler();
             for(Class acceptedClasses : metadata.getHandledMessages()){
                 if(acceptedClasses.isAssignableFrom(message.getClass())

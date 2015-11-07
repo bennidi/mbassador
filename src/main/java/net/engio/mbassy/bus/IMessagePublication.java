@@ -2,6 +2,8 @@ package net.engio.mbassy.bus;
 
 import net.engio.mbassy.subscription.Subscription;
 
+import java.util.List;
+
 /**
  * A message publication is created for each asynchronous message dispatch. It reflects the state
  * of the corresponding message publication process, i.e. provides information whether the
@@ -37,6 +39,13 @@ public interface IMessagePublication {
     boolean isFilteredMessage();
 
     Object getMessage();
+
+    /**
+     * @return errors encountered during message handling
+     */
+    List<Throwable> getErrors();
+
+    void addError(Throwable cause);
 
 
     // TODO: This interface should only be used as return type to public API calls (clients). Internally the implementation

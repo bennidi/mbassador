@@ -1,5 +1,6 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 
@@ -11,7 +12,7 @@ import java.util.concurrent.ExecutorService;
  * @author bennidi
  *         Date: 11/23/12
  */
-public class AsynchronousHandlerInvocation extends AbstractSubscriptionContextAware implements IHandlerInvocation {
+public class  AsynchronousHandlerInvocation extends AbstractSubscriptionContextAware implements IHandlerInvocation {
 
     private final IHandlerInvocation delegate;
 
@@ -27,11 +28,11 @@ public class AsynchronousHandlerInvocation extends AbstractSubscriptionContextAw
      * {@inheritDoc}
      */
     @Override
-    public void invoke(final Object listener, final Object message){
+    public void invoke(final Object listener, final Object message, final IMessagePublication publication){
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                    delegate.invoke(listener, message);
+                    delegate.invoke(listener, message, publication);
             }
         });
     }

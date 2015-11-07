@@ -1,5 +1,6 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.*;
@@ -68,7 +69,7 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 	public static class NamedMessageFilter implements IMessageFilter<NamedMessage>
 	{
 		@Override
-		public boolean accepts( NamedMessage message,  SubscriptionContext context ) {
+		public boolean accepts(NamedMessage message, SubscriptionContext context, IMessagePublication publication) {
             MessageHandler handler = context.getHandler();
 			NamedMessageHandler namedMessageHandler = handler.getAnnotation(NamedMessageHandler.class);
 			if ( namedMessageHandler != null ) {
@@ -127,9 +128,9 @@ public class CustomHandlerAnnotationTest extends MessageBusTest
 		NamedMessage messageTwo = new NamedMessage( "messageTwo" );
 		NamedMessage messageThree = new NamedMessage( "messageThree" );
 
-		bus.publish( messageOne );
-		bus.publish( messageTwo );
-		bus.publish( messageThree );
+		assertTrue(bus.publish(messageOne).getErrors().isEmpty());
+		assertTrue(bus.publish(messageTwo).getErrors().isEmpty());
+		assertTrue(bus.publish(messageThree).getErrors().isEmpty());
 
         assertEquals(2, listener.handledByOne.size());
 		assertTrue( listener.handledByOne.contains( messageOne ) );

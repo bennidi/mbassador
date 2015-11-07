@@ -4,7 +4,9 @@ import net.engio.mbassy.bus.common.DeadMessage;
 import net.engio.mbassy.bus.common.FilteredMessage;
 import net.engio.mbassy.subscription.Subscription;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A message publication is created for each asynchronous message dispatch. It reflects the state
@@ -25,6 +27,7 @@ public class MessagePublication implements IMessagePublication {
     private volatile State state = State.Initial;
     private volatile boolean delivered = false;
     private final BusRuntime runtime;
+    private List<Throwable> errors = new ArrayList<Throwable>();
 
     protected MessagePublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message, State initialState) {
         this.runtime = runtime;
@@ -95,6 +98,15 @@ public class MessagePublication implements IMessagePublication {
 
     public Object getMessage() {
         return message;
+    }
+
+    @Override
+    public List<Throwable> getErrors(){return errors;}
+
+    @Override
+    public void addError(Throwable error)
+    {
+        errors.add(error);
     }
 
     private enum State {
