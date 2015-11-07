@@ -1,5 +1,6 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
 
 /**
@@ -21,9 +22,9 @@ public class SynchronizedHandlerInvocation extends AbstractSubscriptionContextAw
      * {@inheritDoc}
      */
     @Override
-    public void invoke(final Object listener, final Object message){
+    public void invoke(final Object listener, final Object message, IMessagePublication publication){
         synchronized (listener){
-            delegate.invoke(listener, message);
+            delegate.invoke(listener, message, publication);
         }
     }
 

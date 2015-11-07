@@ -1,5 +1,7 @@
 package net.engio.mbassy.bus.common;
 
+import net.engio.mbassy.bus.IMessagePublication;
+
 /**
  * This interface defines the very basic message publication semantics according to the publish subscribe pattern.
  * Listeners can be subscribed and unsubscribed using the corresponding methods. When a listener is subscribed its
@@ -37,5 +39,5 @@ public interface PubSubSupport<T> extends RuntimeProvider{
      *
      * @param message
      */
-    void publish(T message);
+    IMessagePublication publish(T message);
 }

@@ -1,5 +1,6 @@
 package net.engio.mbassy;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
@@ -10,6 +11,7 @@ import net.engio.mbassy.listener.References;
 import net.engio.mbassy.subscription.MessageEnvelope;
 import org.junit.Test;
 
+import javax.el.PropertyNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,9 +28,11 @@ public class ConditionalHandlerTest extends MessageBusTest {
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("TEST", 0);
-		bus.publish(message);
+        final IMessagePublication messagePublication = bus.publish(message);
+        assertEquals(1,messagePublication.getErrors().size());
+        assertEquals(PropertyNotFoundException.class, messagePublication.getErrors().get(0).getClass());
 
-		assertTrue(message.wasHandledBy("handleTypeMessage", "handleEnvelopedMessage"));
+        assertTrue(message.wasHandledBy("handleTypeMessage", "handleEnvelopedMessage"));
         assertFalse(message.wasHandledBy("handleInvalidEL"));
 	}
 

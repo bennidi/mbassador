@@ -64,16 +64,19 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
      *
      * @param message
      */
-    public void publish(T message) {
-        try {
-            IMessagePublication publication = createMessagePublication(message);
+    public IMessagePublication publish(T message)
+    {
+        IMessagePublication publication = null;
+        try
+        {
+            publication = createMessagePublication(message);
             publication.execute();
-        } catch (Throwable e) {
-            handlePublicationError(new PublicationError()
-                    .setMessage("Error during publication of message")
-                    .setCause(e)
-                    .setPublishedMessage(message));
         }
+        catch (Throwable e)
+        {
+            handlePublicationError(new PublicationError(e,"Error during publication of message",message,publication));
+        }
+        return publication;
 
     }
 

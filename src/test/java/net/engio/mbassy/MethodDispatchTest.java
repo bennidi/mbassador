@@ -44,13 +44,13 @@ public class MethodDispatchTest extends MessageBusTest{
         IMessageBus bus = createBus(SyncAsync());
         EventListener2 listener2 = new EventListener2();
         bus.subscribe(listener2);
-        bus.post("jfndf").now();
+        assertTrue(bus.post("jfndf").now().getErrors().isEmpty());
         assertTrue(listener2Called);
         assertFalse(listener1Called);
 
         EventListener1 listener1 = new EventListener1();
         bus.subscribe(listener1);
-        bus.post("jfndf").now();
+        assertTrue(bus.post("jfndf").now().getErrors().isEmpty());
         assertTrue(listener1Called);
     }
 

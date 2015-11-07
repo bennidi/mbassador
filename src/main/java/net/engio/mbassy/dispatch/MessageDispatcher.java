@@ -27,7 +27,7 @@ public class MessageDispatcher extends AbstractSubscriptionContextAware implemen
     public void dispatch(final IMessagePublication publication, final Object message, final Iterable listeners){
         publication.markDelivered();
         for (Object listener : listeners) {
-            getInvocation().invoke(listener, message);
+            getInvocation().invoke(listener, message,publication);
         }
     }
 

@@ -1,5 +1,6 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.bus.IMessagePublication;
 import net.engio.mbassy.subscription.ISubscriptionContextAware;
 
 /**
@@ -19,11 +20,10 @@ public interface IHandlerInvocation<HANDLER, MESSAGE> extends ISubscriptionConte
 
     /**
      * Invoke the message delivery logic of this handler
-     *
-     * @param handler The listener that will receive the message. This can be a reference to a method object
+     *  @param handler The listener that will receive the message. This can be a reference to a method object
      *                 from the java reflection api or any other wrapper that can be used to invoke the handler
      * @param message  The message to be delivered to the handler. This can be any object compatible with the object
-     *                 type that the handler consumes
+     * @param publication The IMessagePublication wrapper object of the message
      */
-    void invoke(HANDLER handler, MESSAGE message);
+    void invoke(HANDLER handler, MESSAGE message, IMessagePublication publication);
 }

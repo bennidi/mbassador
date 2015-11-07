@@ -20,13 +20,13 @@ public final class FilteredMessageDispatcher extends DelegatingMessageDispatcher
         this.filter = dispatcher.getContext().getHandler().getFilter();
     }
 
-    private boolean passesFilter(Object message) {
+    private boolean passesFilter(Object message, IMessagePublication publication) {
 
         if (filter == null) {
             return true;
         } else {
             for (IMessageFilter aFilter : filter) {
-                if (!aFilter.accepts(message, getContext())) {
+                if (!aFilter.accepts(message, getContext(),publication)) {
                     return false;
                 }
             }
@@ -37,7 +37,7 @@ public final class FilteredMessageDispatcher extends DelegatingMessageDispatcher
 
     @Override
     public void dispatch(IMessagePublication publication, Object message, Iterable listeners){
-        if (passesFilter(message)) {
+        if (passesFilter(message,publication)) {
             getDelegate().dispatch(publication, message, listeners);
         }
     }
