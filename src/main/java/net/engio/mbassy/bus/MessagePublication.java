@@ -10,7 +10,7 @@ import java.util.Collection;
  * A message publication is created for each asynchronous message dispatch. It reflects the state
  * of the corresponding message publication process, i.e. provides information whether the
  * publication was successfully scheduled, is currently running etc.
- * <p/>
+ * <p>
  * A message publication lives within a single thread. It is not designed in a thread-safe manner -> not eligible to
  * be used in multiple threads simultaneously .
  *
@@ -26,7 +26,8 @@ public class MessagePublication implements IMessagePublication {
     private volatile boolean delivered = false;
     private final BusRuntime runtime;
 
-    protected MessagePublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message, State initialState) {
+    protected MessagePublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message,
+            State initialState) {
         this.runtime = runtime;
         this.subscriptions = subscriptions;
         this.message = message;
@@ -43,7 +44,10 @@ public class MessagePublication implements IMessagePublication {
     public void execute() {
         state = State.Running;
         for (Subscription sub : subscriptions) {
-           sub.publish(this, message);
+            if (state == State.Cancelled) {
+                break;
+            }
+            sub.publish(this, message);
         }
         state = State.Finished;
         // This part is necessary to support the feature of publishing a DeadMessage or FilteredMessage
@@ -84,6 +88,11 @@ public class MessagePublication implements IMessagePublication {
         return this;
     }
 
+    @Override
+    public void markCancelled() {
+        state = State.Cancelled;
+    }
+
 
     public boolean isDeadMessage() {
         return DeadMessage.class.equals(message.getClass());
@@ -98,12 +107,13 @@ public class MessagePublication implements IMessagePublication {
     }
 
     private enum State {
-        Initial, Scheduled, Running, Finished, Error
+        Initial, Scheduled, Running, Finished, Cancelled, Error
     }
 
     public static class Factory {
 
-        public IMessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message) {
+        public IMessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions,
+                Object message) {
             return new MessagePublication(runtime, subscriptions, message, State.Initial);
         }
 
