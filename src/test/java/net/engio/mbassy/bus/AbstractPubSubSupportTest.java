@@ -1,6 +1,7 @@
 package net.engio.mbassy.bus;
 
 import com.mycila.testing.junit.MycilaJunitRunner;
+import junit.framework.Assert;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
@@ -12,6 +13,7 @@ import org.mockito.Mock;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -183,5 +185,17 @@ public class AbstractPubSubSupportTest {
 
     }
 
-
+    @Test
+    public void testHandlePublicationError_raises_exception() {
+        final AtomicInteger invocationCounter = new AtomicInteger(0);
+        SyncMessageBus<String> bus = new SyncMessageBus<String>(new IPublicationErrorHandler() {
+            @Override
+            public void handleError(PublicationError error) {
+                invocationCounter.incrementAndGet();
+                throw new RuntimeException("exception encountered in error handler");
+            }
+        });
+        bus.handlePublicationError(publicationError);
+        Assert.assertEquals(1, invocationCounter.get());
+    }
 }

@@ -1,10 +1,13 @@
 package net.engio.mbassy;
 
 import net.engio.mbassy.bus.common.IMessageBus;
-import net.engio.mbassy.bus.config.BusConfiguration;
+import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.common.MessageBusTest;
 import net.engio.mbassy.listener.Handler;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Very simple test to verify dispatch to correct message handler
@@ -16,8 +19,6 @@ public class MethodDispatchTest extends MessageBusTest{
 
    private boolean listener1Called = false;
    private boolean listener2Called = false;
-
-
 
     // a simple event listener
     public class EventListener1 {
@@ -54,4 +55,24 @@ public class MethodDispatchTest extends MessageBusTest{
         assertTrue(listener1Called);
     }
 
+    @Test
+    public void testAsyncDispatchAfterExceptionInErrorHandler() throws InterruptedException
+    {
+        IMessageBus bus = createBus(SyncAsync(true /*configures an error handler that throws exception*/).addFeature(Feature.AsynchronousMessageDispatch.Default().setNumberOfMessageDispatchers(1)));
+        final AtomicInteger msgHandlerCounter=new AtomicInteger(0);
+        bus.subscribe(new Object()
+        {
+            @Handler
+            public void handleAndThrowException(String s) throws Exception
+            {
+                msgHandlerCounter.incrementAndGet();
+                throw new Exception("error in msg handler on call no. " + msgHandlerCounter.get());
+            }
+        });
+        bus.post("first event - event handler will raise exception followed by another exception in the error handler").asynchronously();
+        bus.post("second event - expecting that msg dispatcher will still dispatch this after encountering exception in error handler").asynchronously();
+        pause(200);
+        Assert.assertEquals("msg handler is called also on the 2nd event after an exception in error handler following 1st event error", 2, msgHandlerCounter.get());
+        Assert.assertFalse("no more messages left to process", bus.hasPendingMessages());
+    }
 }
