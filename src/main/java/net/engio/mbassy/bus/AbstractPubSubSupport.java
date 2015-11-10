@@ -101,7 +101,14 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
 
     protected void handlePublicationError(PublicationError error) {
         for (IPublicationErrorHandler errorHandler : errorHandlers) {
-            errorHandler.handleError(error);
+            try
+            {
+                errorHandler.handleError(error);
+            }
+            catch (Throwable ex)
+            {
+                ex.printStackTrace();
+            }
         }
     }
 
