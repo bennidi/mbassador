@@ -4,6 +4,11 @@ import net.engio.mbassy.bus.common.AsyncPubSubPauseSupport;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
 
+/**
+ *
+ * @author Brian Groenke [groenke.5@osu.edu]
+ *
+ */
 public abstract class AbstractPauseSyncAsyncMessageBus<T, P extends ISyncAsyncPublicationCommand>
                                                       extends AbstractSyncAsyncMessageBus<T, P>
                                                       implements AsyncPubSubPauseSupport<T> {
@@ -23,7 +28,7 @@ public abstract class AbstractPauseSyncAsyncMessageBus<T, P extends ISyncAsyncPu
 
     @Override
     public boolean resume(final PublishMode publishMode, final FlushMode flushMode) {
-        if (!isPaused() || countInQueue() == 0) return countInQueue() == 0;
+        if (!isPaused() && countInQueue() == 0) return true;
 
         switch (publishMode) {
         case SYNC:
@@ -40,8 +45,8 @@ public abstract class AbstractPauseSyncAsyncMessageBus<T, P extends ISyncAsyncPu
      * Equivalent to <code>resume(PublishMode.SYNC, FlushMode.ATOMIC)</code>
      */
     @Override
-    public void resume() {
-        resume(PublishMode.SYNC, FlushMode.ATOMIC);
+    public boolean resume() {
+        return resume(PublishMode.SYNC, FlushMode.ATOMIC);
     }
 
     /**

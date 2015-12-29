@@ -10,18 +10,16 @@ import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.bus.publication.SyncAsyncPostCommand;
 
-
-public class MBassador<T> extends AbstractPauseSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> implements IMessageBus<T, SyncAsyncPostCommand<T>> {
-
+public class MBassador<T> extends AbstractPauseSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>>
+                      implements IMessageBus<T, SyncAsyncPostCommand<T>> {
 
     /**
      * Default constructor using default setup. super() will also add a default publication error logger
      */
-    public MBassador(){
-        this(new BusConfiguration()
-                .addFeature(Feature.SyncPubSub.Default())
-                .addFeature(Feature.AsynchronousHandlerInvocation.Default())
-                .addFeature(Feature.AsynchronousMessageDispatch.Default()));
+    public MBassador() {
+        this(new BusConfiguration().addFeature(Feature.SyncPubSub.Default())
+                                   .addFeature(Feature.AsynchronousHandlerInvocation.Default())
+                                   .addFeature(Feature.AsynchronousMessageDispatch.Default()));
     }
 
     /**
@@ -45,56 +43,48 @@ public class MBassador<T> extends AbstractPauseSyncAsyncMessageBus<T, SyncAsyncP
         super(configuration);
     }
 
-
-
-
-
     @Override
     public IMessagePublication publishAsync(final T message) {
-	final MessagePublication publication = createMessagePublication(message);
-	if (isPaused()) {
-	    super.enqueueMessageOnPause(message);
-	    return publication;
-	}
+        final MessagePublication publication = createMessagePublication(message);
+        if (isPaused()) {
+            super.enqueueMessageOnPause(message);
+            return publication;
+        }
         return addAsynchronousPublication(publication);
     }
 
     public IMessagePublication publishAsync(final T message, final long timeout, final TimeUnit unit) {
-	final MessagePublication publication = createMessagePublication(message);
-	if (isPaused()) {
-	    super.enqueueMessageOnPause(message);
-	    return publication;
-	}
+        final MessagePublication publication = createMessagePublication(message);
+        if (isPaused()) {
+            super.enqueueMessageOnPause(message);
+            return publication;
+        }
         return addAsynchronousPublication(publication, timeout, unit);
     }
 
-
     /**
-     * Synchronously publish a message to all registered listeners (this includes listeners defined for super types)
-     * The call blocks until every messageHandler has processed the message.
+     * Synchronously publish a message to all registered listeners (this includes listeners defined for super types) The
+     * call blocks until every messageHandler has processed the message.
      *
      * @param message
      */
     @Override
-    public void publish(final T message) {
-                final IMessagePublication publication = createMessagePublication(message);
-	if (isPaused()) {
-	    super.enqueueMessageOnPause(message);
-	    return publication;
-	}
+    public IMessagePublication publish(final T message) {
+        final MessagePublication publication = createMessagePublication(message);
+        if (isPaused()) {
+            super.enqueueMessageOnPause(message);
+            return publication;
+        }
         try {
             publication.execute();
         } catch (final Throwable e) {
-            handlePublicationError(new PublicationError()
-                    .setMessage("Error during publication of message")
-                    .setCause(e)
-                    .setPublication(publication));
+            handlePublicationError(new PublicationError().setMessage("Error during publication of message")
+                                                         .setCause(e)
+                                                         .setPublishedMessage(message));
         }
-        finally {
-            return publication;
-        }
-    }
 
+        return publication;
+    }
 
     @Override
     public SyncAsyncPostCommand<T> post(final T message) {

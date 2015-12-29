@@ -2,17 +2,25 @@ package net.engio.mbassy.bus;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.engio.mbassy.bus.common.PubSubPauseSupport;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 
+/**
+ * Top level implementation for message bus pause/resume support. It is the responsibility of all implementation
+ * classes to check the current pause state via {@link #isPaused()} and enqueue messages during a pause via
+ * {@link #enqueueMessageOnPause(Object)}.
+ *
+ * @author Brian Groenke [groenke.5@osu.edu]
+ *
+ * @param <T> the message type
+ */
 public abstract class AbstractPubSubPauseSupport<T> extends AbstractPubSubSupport<T> implements PubSubPauseSupport<T> {
 
     private final ConcurrentLinkedQueue<T> msgPauseQueue = new ConcurrentLinkedQueue<T>();
     private final AtomicBoolean paused = new AtomicBoolean();
-    private final Lock pauseLock = new ReentrantLock();
+    private final ReentrantLock pauseLock = new ReentrantLock();
 
     protected final Publisher<T> syncResumePublisher = new Publisher<T>() {
 
@@ -30,20 +38,19 @@ public abstract class AbstractPubSubPauseSupport<T> extends AbstractPubSubSuppor
     public void pause() {
         // return immeidately if already paused
         if (paused.get()) return;
-        // acquire write lock; blocks until
         pauseLock.lock();
-        paused.set(true);
+        paused.compareAndSet(false, true);
         pauseLock.unlock();
     }
 
     @Override
-    public void resume() {
-        resume(FlushMode.ATOMIC);
+    public boolean resume() {
+        return resume(FlushMode.ATOMIC);
     }
 
     @Override
     public boolean resume(final FlushMode flushMode) {
-        if (!paused.get() || msgPauseQueue.isEmpty()) return msgPauseQueue.isEmpty();
+        if (!paused.get() && msgPauseQueue.isEmpty()) return true;
 
         return resumeAndPublish(flushMode, syncResumePublisher);
     }
@@ -67,7 +74,7 @@ public abstract class AbstractPubSubPauseSupport<T> extends AbstractPubSubSuppor
     protected final boolean resumeAndPublish(final FlushMode flushMode, final Publisher<T> publisher) {
         switch (flushMode) {
         case ATOMIC:
-            pauseLock.lock(); // prevent pausing during flush
+            pauseLock.lock();
             paused.set(false);
             flushPauseQueue(publisher);
             pauseLock.unlock();
@@ -85,7 +92,7 @@ public abstract class AbstractPubSubPauseSupport<T> extends AbstractPubSubSuppor
     }
 
     protected final void flushPauseQueue(final Publisher<T> publisher) {
-        while (!paused.get() && msgPauseQueue.isEmpty()) {
+        while (!paused.get() && !msgPauseQueue.isEmpty()) {
             publisher.onResume(msgPauseQueue.poll());
         }
     }
