@@ -244,6 +244,7 @@
                     <header>mbassador, ${project.version}</header>
                     <footer>mbassador, ${project.version}</footer>
                     <doctitle>mbassador, ${project.version}</doctitle>
+                    <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
                 <executions>
                     <execution>
