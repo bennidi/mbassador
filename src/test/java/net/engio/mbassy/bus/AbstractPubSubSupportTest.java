@@ -1,6 +1,5 @@
 package net.engio.mbassy.bus;
 
-import com.mycila.testing.junit.MycilaJunitRunner;
 import junit.framework.Assert;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
@@ -10,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
  * <p/>
  * Created by David Sowerby on 13/04/15.
  */
-@RunWith(MycilaJunitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AbstractPubSubSupportTest {
 
     IBusConfiguration configuration;
