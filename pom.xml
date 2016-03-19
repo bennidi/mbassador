@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.engio</groupId>
     <artifactId>mbassador</artifactId>
-    <version>1.2.5-SNAPSHOT</version>
+    <version>1.2.4.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>mbassador</name>
     <description>
@@ -189,7 +189,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.2</version>
+                <version>2.5.3</version>
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                 </configuration>
@@ -257,7 +257,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-publish-plugin</artifactId>
-                <version>1.0-beta-2</version>
+                <version>1.1</version>
                 <configuration>
                     <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
                     <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>

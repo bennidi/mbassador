@@ -1,3 +1,7 @@
+### 1.2.4.1
+ + Updated maven plugins
+ + Fixed #133
+
 ### [1.2.4](http://github.com/bennidi/mbassador/milestones/1.2.4)
  + API-Changes:
    + Remove IBusConfiguration.{handleError,addConfigurationErrorHandler} => Configuration errors are communicated as RuntimeExceptions
