@@ -32,6 +32,8 @@ public interface IMessagePublication {
 
     IMessagePublication markScheduled(); // TODO: this method should not be part of the interface
 
+    void markCancelled();
+
     boolean isDeadMessage();
 
     boolean isFilteredMessage();
@@ -39,6 +41,7 @@ public interface IMessagePublication {
     Object getMessage();
 
 
-    // TODO: This interface should only be used as return type to public API calls (clients). Internally the implementation
+    // TODO: This interface should only be used as return type to public API calls (clients). Internally the
+    // implementation
     // of the interface should be used. This would allow to remove the unwanted methods from this interface.
 }
