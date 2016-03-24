@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.engio</groupId>
     <artifactId>mbassador</artifactId>
-    <version>1.2.4.2</version>
+    <version>1.2.5-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>mbassador</name>
     <description>
@@ -18,6 +18,17 @@
         weak or strong references,
         configurable message filters,
     </description>
+
+    <!--
+
+    Documentation for this pom see
+        http://central.sonatype.org/pages/apache-maven.html
+
+    mvn clean deploy
+    mvn nexus-staging:release
+    git push origin <tag>
+
+    -->
 
     <url>https://github.com/bennidi/mbassador</url>
     <licenses>
