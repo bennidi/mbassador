@@ -1,15 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
-
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.engio</groupId>
     <artifactId>mbassador</artifactId>
-    <version>1.2.5-SNAPSHOT</version>
+    <version>1.2.4.2-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>mbassador</name>
     <description>
@@ -54,6 +48,13 @@
         <project.build.java.version>1.6</project.build.java.version>
         <github.url>file://${project.basedir}/mvn-local-repo</github.url>
     </properties>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencies>
 
@@ -115,9 +116,6 @@
 
 
     </dependencies>
-    <distributionManagement>
-
-    </distributionManagement>
 
     <!--  Local repository (for testing)
     <distributionManagement>
@@ -130,6 +128,19 @@
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -305,44 +316,6 @@
                         </executions>
                     </plugin>
 
-                </plugins>
-            </build>
-        </profile>
-
-
-        <!-- Configure the signing of the artefact when the release is performed
-
-        mvn clean deploy
-        mvn release:clean
-        mvn release:prepare
-        mvn release:perform
-
-
-        -->
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
