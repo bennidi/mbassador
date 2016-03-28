@@ -21,6 +21,11 @@ public interface Feature {
 
     class SyncPubSub implements Feature{
 
+        private MessagePublication.Factory publicationFactory;
+        private MetadataReader metadataReader;
+        private SubscriptionFactory subscriptionFactory;
+        private ISubscriptionManagerProvider subscriptionManagerProvider;
+
         public static final SyncPubSub Default(){
             return new SyncPubSub()
                     .setMetadataReader(new MetadataReader())
@@ -28,11 +33,6 @@ public interface Feature {
                     .setSubscriptionFactory(new SubscriptionFactory())
                     .setSubscriptionManagerProvider(new SubscriptionManagerProvider());
         }
-
-        private MessagePublication.Factory publicationFactory;
-        private MetadataReader metadataReader;
-        private SubscriptionFactory subscriptionFactory;
-        private ISubscriptionManagerProvider subscriptionManagerProvider;
 
         public ISubscriptionManagerProvider getSubscriptionManagerProvider() {
             return subscriptionManagerProvider;
@@ -90,6 +90,7 @@ public interface Feature {
                 return thread;
             }
         };
+        private ExecutorService executor;
 
         public static final AsynchronousHandlerInvocation Default(){
             int numberOfCores = Runtime.getRuntime().availableProcessors();
@@ -100,8 +101,6 @@ public interface Feature {
             return new AsynchronousHandlerInvocation().setExecutor(new ThreadPoolExecutor(minThreadCount, maxThreadCount, 1,
                     TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), MessageHandlerThreadFactory));
         }
-
-        private ExecutorService executor;
 
         public ExecutorService getExecutor() {
             return executor;
@@ -127,6 +126,9 @@ public interface Feature {
                 return thread;
             }
         };
+        private int numberOfMessageDispatchers;
+        private BlockingQueue<IMessagePublication> messageQueue;
+        private ThreadFactory dispatcherThreadFactory;
 
         public static final AsynchronousMessageDispatch Default(){
             return new AsynchronousMessageDispatch()
@@ -134,11 +136,6 @@ public interface Feature {
                 .setDispatcherThreadFactory(MessageDispatchThreadFactory)
                 .setMessageQueue(new LinkedBlockingQueue<IMessagePublication>(Integer.MAX_VALUE));
         }
-
-
-        private int numberOfMessageDispatchers;
-        private BlockingQueue<IMessagePublication> messageQueue;
-        private ThreadFactory dispatcherThreadFactory;
 
         public int getNumberOfMessageDispatchers() {
             return numberOfMessageDispatchers;
