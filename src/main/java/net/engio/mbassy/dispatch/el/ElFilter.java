@@ -22,6 +22,8 @@ public class ElFilter implements IMessageFilter {
         // if runtime exception is thrown, this will
         public static final ExpressionFactory ELFactory = getELFactory();
 
+        private ExpressionFactoryHolder() {}
+
         /**
          * **********************************************************************
          * Get an implementation of the ExpressionFactory. This uses the

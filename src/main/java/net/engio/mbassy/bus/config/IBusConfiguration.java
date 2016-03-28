@@ -86,5 +86,6 @@ public interface IBusConfiguration{
         public static final String PublicationErrorHandlers = "bus.handlers.error";
         public static final String AsynchronousHandlerExecutor = "bus.handlers.async-executor";
 
+        private Properties() {}
     }
 }
