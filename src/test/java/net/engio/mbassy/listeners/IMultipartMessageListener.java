@@ -38,7 +38,7 @@ public class IMultipartMessageListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously, priority = Integer.MIN_VALUE)
+        @Handler(delivery = Invoke.ASYNCHRONOUSLY, priority = Integer.MIN_VALUE)
         public void handle(IMultipartMessage message){
             super.handle(message);
         }

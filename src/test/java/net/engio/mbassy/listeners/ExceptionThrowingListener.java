@@ -8,7 +8,7 @@ import net.engio.mbassy.listener.References;
  * @author bennidi
  *         Date: 5/25/13
  */
-@Listener(references = References.Strong)
+@Listener(references = References.STRONG)
 public class ExceptionThrowingListener {
 
 

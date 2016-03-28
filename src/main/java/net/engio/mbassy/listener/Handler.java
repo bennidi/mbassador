@@ -37,7 +37,7 @@ public @interface Handler {
      * Define the mode in which a message is delivered to each listener. Listeners can be notified
      * sequentially or concurrently.
      */
-    Invoke delivery() default Invoke.Synchronously;
+    Invoke delivery() default Invoke.SYNCHRONOUSLY;
 
     /**
      * Handlers are ordered by priority and handlers with higher priority are processed before

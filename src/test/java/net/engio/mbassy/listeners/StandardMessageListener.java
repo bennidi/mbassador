@@ -38,7 +38,7 @@ public class StandardMessageListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously, priority = -10)
+        @Handler(delivery = Invoke.ASYNCHRONOUSLY, priority = -10)
         public void handle(StandardMessage message){
             super.handle(message);
         }

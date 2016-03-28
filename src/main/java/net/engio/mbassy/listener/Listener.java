@@ -22,6 +22,6 @@ public @interface Listener {
      * It is possible to use strong references instead.
      *
      */
-    References references() default References.Weak;
+    References references() default References.WEAK;
 
 }

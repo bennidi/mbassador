@@ -38,7 +38,7 @@ public class MessagesTypeListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously)
+        @Handler(delivery = Invoke.ASYNCHRONOUSLY)
         public void handle(MessageTypes message){
             super.handle(message);
         }

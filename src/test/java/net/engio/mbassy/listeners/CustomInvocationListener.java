@@ -11,7 +11,7 @@ import net.engio.mbassy.subscription.SubscriptionContext;
  * @author bennidi
  *         Date: 5/25/13
  */
-@Listener(references = References.Strong)
+@Listener(references = References.STRONG)
 public class CustomInvocationListener {
 
     @Handler(invocation = HandleSubTestEventInvocation.class)

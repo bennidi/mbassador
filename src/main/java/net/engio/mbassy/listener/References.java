@@ -6,5 +6,5 @@ package net.engio.mbassy.listener;
 *         Date: 3/29/13
 */
 public enum References {
-    Strong,Weak
+    STRONG, WEAK
 }

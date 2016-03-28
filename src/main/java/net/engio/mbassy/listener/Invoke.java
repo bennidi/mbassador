@@ -7,5 +7,5 @@ package net.engio.mbassy.listener;
  *         Date: 11/16/12
  */
 public enum Invoke {
-    Synchronously, Asynchronously
+    SYNCHRONOUSLY, ASYNCHRONOUSLY
 }

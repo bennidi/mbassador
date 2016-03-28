@@ -110,7 +110,7 @@ public class SynchronizedHandlerTest extends MessageBusTest {
 
         private int counter = 0;
 
-        @Handler(delivery = Invoke.Asynchronously)
+        @Handler(delivery = Invoke.ASYNCHRONOUSLY)
         @Synchronized
         public void handleMessage(Object o){
             for(int i = 0; i < incrementsPerMessage; i++){
