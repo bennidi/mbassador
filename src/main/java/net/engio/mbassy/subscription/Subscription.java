@@ -1,6 +1,7 @@
 package net.engio.mbassy.subscription;
 
 import net.engio.mbassy.bus.IMessagePublication;
+import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.dispatch.IMessageDispatcher;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class Subscription {
     }
 
 
-    public void publish(IMessagePublication publication, Object message){
+    public void publish(MessagePublication publication, Object message){
         if(!listeners.isEmpty())
             dispatcher.dispatch(publication, message, listeners);
     }

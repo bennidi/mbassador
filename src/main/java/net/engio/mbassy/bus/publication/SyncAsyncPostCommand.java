@@ -22,8 +22,8 @@ public class SyncAsyncPostCommand<T> implements ISyncAsyncPublicationCommand {
     }
 
     @Override
-    public void now() {
-        mBassador.publish(message);
+    public IMessagePublication now() {
+        return mBassador.publish(message);
     }
 
     @Override

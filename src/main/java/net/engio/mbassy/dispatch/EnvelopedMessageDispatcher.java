@@ -1,6 +1,7 @@
 package net.engio.mbassy.dispatch;
 
 import net.engio.mbassy.bus.IMessagePublication;
+import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.subscription.MessageEnvelope;
 
 /**
@@ -20,7 +21,7 @@ public class EnvelopedMessageDispatcher extends DelegatingMessageDispatcher {
     }
 
     @Override
-    public void dispatch(IMessagePublication publication, Object message, Iterable listeners){
+    public void dispatch(MessagePublication publication, Object message, Iterable listeners){
         getDelegate().dispatch(publication, new MessageEnvelope(message), listeners);
     }
 }

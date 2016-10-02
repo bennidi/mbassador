@@ -1,3 +1,13 @@
+### 1.3.0
+ + Non-Breaking API changes
+   + Extended IMessagePublication to allow for error reporting using `hasError()` and `getError()`
+   + Any publication method now returns an IMessagePublication object. This resolves [PR-127](../pull/127). Any dispatched
+    message publication can now be inspected for execution error. Does not support collection of multiple errors due to implied
+    GC and memory allocation overhead in high-throughput scenarios.
+ + Breaking API changes
+    + Added MessagePublication to IHandlerInvocation.invoke(...)
+    + Added MessagePublication to IMessageDispatcher.dispatch(...)
+
 ### 1.2.4.2
  + Updated pom. Now using nexus-staging plugin
  + Removed pmd

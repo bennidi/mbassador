@@ -80,7 +80,7 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
         return runtime;
     }
 
-    protected IMessagePublication createMessagePublication(T message) {
+    protected MessagePublication createMessagePublication(T message) {
         Collection<Subscription> subscriptions = getSubscriptionsByMessageType(message.getClass());
         if ((subscriptions == null || subscriptions.isEmpty()) && !message.getClass()
                 .equals(DeadMessage.class)) {

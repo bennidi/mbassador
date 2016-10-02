@@ -1,5 +1,6 @@
 package net.engio.mbassy.bus;
 
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.subscription.Subscription;
 
 /**
@@ -15,11 +16,6 @@ import net.engio.mbassy.subscription.Subscription;
  */
 public interface IMessagePublication {
 
-    boolean add(Subscription subscription);  // TODO: this method should not be part of the interface
-
-    /*
-    TODO: document state transitions
-     */
     void execute();
 
     boolean isFinished();
@@ -28,9 +24,9 @@ public interface IMessagePublication {
 
     boolean isScheduled();
 
-    void markDelivered(); // TODO: this method should not be part of the interface
+    boolean hasError();
 
-    IMessagePublication markScheduled(); // TODO: this method should not be part of the interface
+    PublicationError getError();
 
     boolean isDeadMessage();
 
@@ -38,7 +34,4 @@ public interface IMessagePublication {
 
     Object getMessage();
 
-
-    // TODO: This interface should only be used as return type to public API calls (clients). Internally the implementation
-    // of the interface should be used. This would allow to remove the unwanted methods from this interface.
 }

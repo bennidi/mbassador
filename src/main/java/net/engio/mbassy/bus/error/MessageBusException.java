@@ -8,9 +8,6 @@ package net.engio.mbassy.bus.error;
  */
 public class MessageBusException extends Exception{
 
-    public MessageBusException() {
-    }
-
     public MessageBusException(String message) {
         super(message);
     }

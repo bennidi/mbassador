@@ -1,5 +1,6 @@
 package net.engio.mbassy.dispatch;
 
+import net.engio.mbassy.bus.MessagePublication;
 import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.subscription.AbstractSubscriptionContextAware;
@@ -20,7 +21,8 @@ public abstract class HandlerInvocation<HANDLER, MESSAGE> extends AbstractSubscr
         super(context);
     }
 
-    protected final void handlePublicationError(PublicationError error){
+    protected final void handlePublicationError(MessagePublication publication, PublicationError error){
+        publication.markError(error);
         getContext().handleError(error);
     }
 }

@@ -2,6 +2,7 @@ package net.engio.mbassy.bus;
 
 import net.engio.mbassy.bus.common.DeadMessage;
 import net.engio.mbassy.bus.common.FilteredMessage;
+import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.subscription.Subscription;
 
 import java.util.Collection;
@@ -23,8 +24,10 @@ public class MessagePublication implements IMessagePublication {
     private final Object message;
     // message publications can be referenced by multiple threads to query publication progress
     private volatile State state = State.Initial;
-    private volatile boolean delivered = false;
+    private volatile boolean dispatched = false;
     private final BusRuntime runtime;
+    private PublicationError error = null;
+
 
     protected MessagePublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message, State initialState) {
         this.runtime = runtime;
@@ -51,7 +54,7 @@ public class MessagePublication implements IMessagePublication {
         // This happens if subscriptions are empty (due to GC of weak listeners or explicit desubscription)
         // or if configured filters do not let a message pass. The flag is set by the dispatchers.
         // META: This seems to be a suboptimal design
-        if (!delivered) {
+        if (!dispatched) {
             if (!isFilteredMessage() && !isDeadMessage()) {
                 runtime.getProvider().publish(new FilteredMessage(message));
             } else if (!isDeadMessage()) {
@@ -73,8 +76,20 @@ public class MessagePublication implements IMessagePublication {
         return state.equals(State.Scheduled);
     }
 
-    public void markDelivered() {
-        delivered = true;
+    public boolean hasError() {
+        return this.error != null;
+    }
+
+    @Override
+    public PublicationError getError() {
+        return error;
+    }
+
+    public void markDispatched() {
+        dispatched = true;
+    }
+    public void markError(PublicationError error) {
+        this.error = error;
     }
 
     public MessagePublication markScheduled() {
@@ -83,7 +98,6 @@ public class MessagePublication implements IMessagePublication {
         }
         return this;
     }
-
 
     public boolean isDeadMessage() {
         return DeadMessage.class.equals(message.getClass());
@@ -98,12 +112,12 @@ public class MessagePublication implements IMessagePublication {
     }
 
     private enum State {
-        Initial, Scheduled, Running, Finished, Error
+        Initial, Scheduled, Running, Finished
     }
 
     public static class Factory {
 
-        public IMessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message) {
+        public MessagePublication createPublication(BusRuntime runtime, Collection<Subscription> subscriptions, Object message) {
             return new MessagePublication(runtime, subscriptions, message, State.Initial);
         }
 

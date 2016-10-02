@@ -21,53 +21,55 @@ public class PublicationError{
 
     // Internal state
     private Throwable cause;
-    private String message;
+    private String errorMsg;
     private Method handler;
     private Object listener;
-    private Object publishedMessage;
+    private IMessagePublication publication;
+    private Object message;
+
 
 
     /**
      * Compound constructor, creating a PublicationError from the supplied objects.
      *
      * @param cause           The Throwable giving rise to this PublicationError.
-     * @param message         The message to send.
+     * @param errorMsg         The message to send.
      * @param handler        The method where the error was created.
      * @param listener The object in which the PublicationError was generated.
-     * @param publishedObject The published object which gave rise to the error.
+     * @param publication The publication that errored
      */
     public PublicationError(final Throwable cause,
-                            final String message,
+                            final String errorMsg,
                             final Method handler,
                             final Object listener,
-                            final Object publishedObject) {
+                            final IMessagePublication publication) {
 
         this.cause = cause;
-        this.message = message;
+        this.errorMsg = errorMsg;
         this.handler = handler;
         this.listener = listener;
-        this.publishedMessage = publishedObject;
+        this.publication = publication;
+        this.message = publication != null ? publication.getMessage() : null;
     }
 
     public PublicationError(final Throwable cause,
-                            final String message,
+                            final String errorMsg,
                             final IMessagePublication publication) {
         this.cause = cause;
-        this.message = message;
-        this.publishedMessage = publication != null ? publication.getMessage() : null;
+        this.errorMsg = errorMsg;
     }
 
     public PublicationError(final Throwable cause,
-                            final String message,
+                            final String errorMsg,
                             final SubscriptionContext context) {
         this.cause = cause;
-        this.message = message;
+        this.errorMsg = errorMsg;
         this.handler = context.getHandler().getMethod();
     }
 
-    public PublicationError(Throwable cause, String message) {
+    public PublicationError(Throwable cause, String errorMsg) {
         this.cause = cause;
-        this.message = message;
+        this.errorMsg = errorMsg;
     }
 
 
@@ -97,10 +99,15 @@ public class PublicationError{
     }
 
     public String getMessage() {
-        return message;
+        return errorMsg;
     }
 
     public PublicationError setMessage(String message) {
+        this.errorMsg = message;
+        return this;
+    }
+
+    public PublicationError setPublishedMessage(Object message) {
         this.message = message;
         return this;
     }
@@ -124,11 +131,11 @@ public class PublicationError{
     }
 
     public Object getPublishedMessage() {
-        return publishedMessage;
+        return message;
     }
 
-    public PublicationError setPublishedMessage(Object publishedMessage) {
-        this.publishedMessage = publishedMessage;
+    public PublicationError setPublication(IMessagePublication publication) {
+        this.publication = publication;
         return this;
     }
 
@@ -142,13 +149,13 @@ public class PublicationError{
                 newLine +
                 "\tcause=" + cause +
                 newLine +
-                "\tmessage='" + message + '\'' +
+                "\tmessage='" + errorMsg + '\'' +
                 newLine +
                 "\thandler=" + handler +
                 newLine +
                 "\tlistener=" + listener +
                 newLine +
-                "\tpublishedMessage=" + publishedMessage +
+                "\tpublishedMessage=" + getPublishedMessage() +
                 '}';
     }
 }

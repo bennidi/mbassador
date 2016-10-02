@@ -82,7 +82,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
 
 
     // this method queues a message delivery request
-    protected IMessagePublication addAsynchronousPublication(IMessagePublication publication) {
+    protected IMessagePublication addAsynchronousPublication(MessagePublication publication) {
         try {
             pendingMessages.put(publication);
             return publication.markScheduled();
@@ -93,7 +93,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
     }
 
     // this method queues a message delivery request
-    protected IMessagePublication addAsynchronousPublication(IMessagePublication publication, long timeout, TimeUnit unit) {
+    protected IMessagePublication addAsynchronousPublication(MessagePublication publication, long timeout, TimeUnit unit) {
         try {
             return pendingMessages.offer(publication, timeout, unit)
                     ? publication.markScheduled()

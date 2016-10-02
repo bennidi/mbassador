@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,6 +28,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
     protected final int numberOfElements = 100000;
     protected final int numberOfThreads = 50;
 
+    // needed to avoid premature garbage collection for weakly referenced listeners
     protected Set gcProtector = new HashSet();
 
     @Before
@@ -36,6 +38,59 @@ public abstract class ConcurrentSetTest extends AssertSupport {
     }
 
     protected abstract Collection createSet();
+
+
+    @Test
+    public void testAddAll() {
+        final Collection testSet = createSet();
+        final List<Number> notFound = new CopyOnWriteArrayList<Number>();
+        // insert all elements (containing duplicates) into the set
+        final Random rand = new Random();
+        ConcurrentExecutor.runConcurrent(new Runnable() {
+            @Override
+            public void run() {
+                final List<Number> source = new LinkedList<Number>();
+                for (int i = 0; i < numberOfElements; i++) {
+                    source.add(rand.nextDouble());
+                }
+                testSet.addAll(source);
+                for (Number src : source) {
+                    if(!testSet.contains(src)){
+                        notFound.add(src);
+                    }
+                }
+            }
+        }, numberOfThreads);
+
+        // check that the control set and the test set contain the exact same elements
+        assertEquals(notFound.size(), 0);
+    }
+
+    @Test
+    public void testAdd() {
+        final Collection testSet = createSet();
+        final List<Number> notFound = new CopyOnWriteArrayList<Number>();
+        final Random rand = new Random();
+        // insert all elements (containing duplicates) into the set
+        ConcurrentExecutor.runConcurrent(new Runnable() {
+            @Override
+            public void run() {
+                final List<Number> source = new LinkedList<Number>();
+                for (int i = 0; i < numberOfElements; i++) {
+                    source.add(rand.nextDouble());
+                }
+                for (Number src : source) {
+                    testSet.add(src);
+                    if(!testSet.contains(src)){
+                        notFound.add(src);
+                    }
+                }
+            }
+        }, numberOfThreads);
+
+        // check that the control set and the test set contain the exact same elements
+        assertEquals(notFound.size(), 0);
+    }
 
 
     @Test
@@ -158,7 +213,7 @@ public abstract class ConcurrentSetTest extends AssertSupport {
 
         // ensure that the test set does not contain any of the elements that have been removed from it
         for (Object tar : testSet) {
-            Assert.assertTrue(!toRemove.contains(tar));
+            assertTrue(!toRemove.contains(tar));
         }
         // ensure that the test set still contains all objects from the source set that have not been marked
         // for removal
@@ -351,10 +406,5 @@ public abstract class ConcurrentSetTest extends AssertSupport {
         for(Integer excluded : excluding)
             result.remove(excluded);
         return result;
-    }
-
-    protected void protectFromGarbageCollector(Set elements){
-        for(Object element : elements)
-            gcProtector.add(element);
     }
 }

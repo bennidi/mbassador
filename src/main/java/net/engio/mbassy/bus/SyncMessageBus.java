@@ -42,14 +42,17 @@ public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements PubSu
     }
 
     @Override
-    public void publish(T message) {
+    public IMessagePublication publish(T message) {
+        IMessagePublication publication = createMessagePublication(message);
         try {
-            IMessagePublication publication = createMessagePublication(message);
             publication.execute();
         } catch (Throwable e) {
             handlePublicationError(new PublicationError().setMessage("Error during publication of message")
                                                          .setCause(e)
-                                                         .setPublishedMessage(message));
+                                                         .setPublication(publication));
+        }
+        finally{
+            return publication;
         }
     }
 
@@ -67,8 +70,8 @@ public class SyncMessageBus<T> extends AbstractPubSubSupport<T> implements PubSu
         }
 
         @Override
-        public void now() {
-            publish(message);
+        public IMessagePublication now() {
+            return publish(message);
         }
     }
 }

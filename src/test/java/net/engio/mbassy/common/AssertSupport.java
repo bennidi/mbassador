@@ -92,6 +92,10 @@ public class AssertSupport {
         Assert.assertFalse(message, condition);
     }
 
+    public void assertEquals(String message, Object expected, Object actual) {
+        Assert.assertEquals(message, expected, actual);
+    }
+
     public void assertEquals(Object expected, Object actual) {
         Assert.assertEquals(expected, actual);
     }
