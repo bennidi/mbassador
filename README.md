@@ -1,4 +1,7 @@
 <img src="https://travis-ci.org/bennidi/mbassador.svg?branch=master" alt="build-status" />
+<a href="http://bennidi.github.io/mbassador/" target="blank"><img src="assets/java.png?raw=true" alt="javadoc" />javadoc</a>
+<a href="wiki" target="blank"><img src="assets/wiki.png?raw=true" alt="wiki" /></a>
+
 
 MBassador
 =========
