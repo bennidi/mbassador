@@ -1,0 +1,4 @@
+jdk:
+  - openjdk6
+script:
+  mvn verify

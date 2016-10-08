@@ -113,8 +113,12 @@ MBassador is available from the Maven Central Repository using the following coo
 
 You can also download binary release and javadoc from the [maven central repository](http://search.maven.org/#search|ga|1|mbassador). Of course you can always clone the repository and build from source.
 
-<h2>Wiki</h2>
+<h2>Documentation</h2>
 There is ongoing effort to extend documentation and provide code samples and detailed explanations of how the message bus works. Code samples can also be found in the various test cases. Please read about the terminology used in this project to avoid confusion and misunderstanding.
+
++ [javadoc](http://bennidi.github.io/mbassador/)
++ [wiki](wiki)
++ API examples on programcreek: [Handler](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.listener.Handler), [BusConfiguration](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.bus.config.BusConfiguration), [MBassador](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.bus.MBassador)
 
 <h2>Release Notes</h2>
 
