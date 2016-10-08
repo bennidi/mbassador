@@ -1,4 +1,4 @@
 jdk:
   - openjdk6
 script:
-  mvn clean build
+  mvn clean test
