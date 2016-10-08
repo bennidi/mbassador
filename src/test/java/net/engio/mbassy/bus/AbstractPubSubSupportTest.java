@@ -15,7 +15,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -120,7 +119,7 @@ public class AbstractPubSubSupportTest {
             //when no publication error handler is provided
             MBassador<String> bus = new MBassador<String>(configuration);
             // then we see the warning on the console
-            assertThat(baos.toString()).contains(AbstractPubSubSupport.ERROR_HANDLER_MSG);
+            Assert.assertTrue(baos.toString().contains(AbstractPubSubSupport.ERROR_HANDLER_MSG));
         } finally {
             System.out.flush();
             if (old != null) {
@@ -144,10 +143,10 @@ public class AbstractPubSubSupportTest {
             System.setOut(ps);
             //when
             SyncMessageBus<String> bus = new SyncMessageBus<String>();
-            assertThat(baos.toString()).contains(AbstractPubSubSupport.ERROR_HANDLER_MSG);
+            Assert.assertTrue(baos.toString().contains(AbstractPubSubSupport.ERROR_HANDLER_MSG));
             bus.handlePublicationError(publicationError);
             //then
-            assertThat(baos.toString()).contains(errorMsg);
+            Assert.assertTrue(baos.toString().contains(errorMsg));
 
         } finally {
             System.out.flush();
@@ -171,10 +170,10 @@ public class AbstractPubSubSupportTest {
             System.setOut(ps);
             //when
             MBassador<String> bus = new MBassador<String>();
-            assertThat(baos.toString()).contains(AbstractPubSubSupport.ERROR_HANDLER_MSG);
+            Assert.assertTrue(baos.toString().contains(AbstractPubSubSupport.ERROR_HANDLER_MSG));
             bus.handlePublicationError(publicationError);
             //then
-            assertThat(baos.toString()).contains(errorMsg);
+            Assert.assertTrue(baos.toString().contains(errorMsg));
 
         } finally {
             System.out.flush();
