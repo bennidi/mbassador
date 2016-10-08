@@ -1,3 +1,5 @@
+<img src="https://travis-ci.org/bennidi/mbassador.svg?branch=master" alt="build-status" />
+
 MBassador
 =========
 
