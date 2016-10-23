@@ -14,6 +14,7 @@ public abstract class AbstractPauseSyncAsyncMessageBus<T, P extends ISyncAsyncPu
                                                       implements AsyncPubSubPauseSupport<T> {
 
     private final Publisher<T> asyncResumePublisher = new Publisher<T>() {
+
         @Override
         public void onResume(final T msg) {
             publishAsync(msg);
@@ -36,8 +37,8 @@ public abstract class AbstractPauseSyncAsyncMessageBus<T, P extends ISyncAsyncPu
         case ASYNC:
             return resumeAndPublish(flushMode, asyncResumePublisher);
         default:
-            throw new IllegalArgumentException("Unrecognized value for " + PublishMode.class.getSimpleName() + ": "
-                            + publishMode);
+            throw new IllegalArgumentException(
+                "Unrecognized value for " + PublishMode.class.getSimpleName() + ": " + publishMode);
         }
     }
 

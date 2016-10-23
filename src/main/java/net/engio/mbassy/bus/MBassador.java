@@ -14,12 +14,15 @@ public class MBassador<T> extends AbstractPauseSyncAsyncMessageBus<T, SyncAsyncP
                       implements IMessageBus<T, SyncAsyncPostCommand<T>> {
 
     /**
-     * Default constructor using default setup. super() will also add a default publication error logger
+     * Default constructor using default setup. super() will also add a default
+     * publication error logger
      */
     public MBassador() {
-        this(new BusConfiguration().addFeature(Feature.SyncPubSub.Default())
-                                   .addFeature(Feature.AsynchronousHandlerInvocation.Default())
-                                   .addFeature(Feature.AsynchronousMessageDispatch.Default()));
+        this(
+            new BusConfiguration()
+                .addFeature(Feature.SyncPubSub.Default())
+                .addFeature(Feature.AsynchronousHandlerInvocation.Default())
+                .addFeature(Feature.AsynchronousMessageDispatch.Default()));
     }
 
     /**
@@ -28,10 +31,12 @@ public class MBassador<T> extends AbstractPauseSyncAsyncMessageBus<T, SyncAsyncP
      * @param errorHandler
      */
     public MBassador(final IPublicationErrorHandler errorHandler) {
-        super(new BusConfiguration().addFeature(Feature.SyncPubSub.Default())
-                                    .addFeature(Feature.AsynchronousHandlerInvocation.Default())
-                                    .addFeature(Feature.AsynchronousMessageDispatch.Default())
-                                    .addPublicationErrorHandler(errorHandler));
+        super(
+            new BusConfiguration()
+                .addFeature(Feature.SyncPubSub.Default())
+                .addFeature(Feature.AsynchronousHandlerInvocation.Default())
+                .addFeature(Feature.AsynchronousMessageDispatch.Default())
+                .addPublicationErrorHandler(errorHandler));
     }
 
     /**
@@ -50,6 +55,7 @@ public class MBassador<T> extends AbstractPauseSyncAsyncMessageBus<T, SyncAsyncP
             super.enqueueMessageOnPause(message);
             return publication;
         }
+
         return addAsynchronousPublication(publication);
     }
 
@@ -59,12 +65,14 @@ public class MBassador<T> extends AbstractPauseSyncAsyncMessageBus<T, SyncAsyncP
             super.enqueueMessageOnPause(message);
             return publication;
         }
+
         return addAsynchronousPublication(publication, timeout, unit);
     }
 
     /**
-     * Synchronously publish a message to all registered listeners (this includes listeners defined for super types) The
-     * call blocks until every messageHandler has processed the message.
+     * Synchronously publish a message to all registered listeners (this
+     * includes listeners defined for super types) The call blocks until every
+     * messageHandler has processed the message.
      *
      * @param message
      */
@@ -75,12 +83,15 @@ public class MBassador<T> extends AbstractPauseSyncAsyncMessageBus<T, SyncAsyncP
             super.enqueueMessageOnPause(message);
             return publication;
         }
+
         try {
             publication.execute();
         } catch (final Throwable e) {
-            handlePublicationError(new PublicationError().setMessage("Error during publication of message")
-                                                         .setCause(e)
-                                                         .setPublishedMessage(message));
+            handlePublicationError(
+                new PublicationError()
+                    .setMessage("Error during publication of message")
+                    .setCause(e)
+                    .setPublishedMessage(message));
         }
 
         return publication;

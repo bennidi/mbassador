@@ -8,13 +8,15 @@ import net.engio.mbassy.bus.common.PubSubPauseSupport;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 
 /**
- * Top level implementation for message bus pause/resume support. It is the responsibility of all implementation
- * classes to check the current pause state via {@link #isPaused()} and enqueue messages during a pause via
+ * Top level implementation for message bus pause/resume support. It is the
+ * responsibility of all implementation classes to check the current pause state
+ * via {@link #isPaused()} and enqueue messages during a pause via
  * {@link #enqueueMessageOnPause(Object)}.
  *
  * @author Brian Groenke [groenke.5@osu.edu]
  *
- * @param <T> the message type
+ * @param <T>
+ *            the message type
  */
 public abstract class AbstractPubSubPauseSupport<T> extends AbstractPubSubSupport<T> implements PubSubPauseSupport<T> {
 
@@ -84,8 +86,8 @@ public abstract class AbstractPubSubPauseSupport<T> extends AbstractPubSubSuppor
             flushPauseQueue(publisher);
             break;
         default:
-            throw new IllegalArgumentException("Unrecognized value for " + FlushMode.class.getSimpleName() + ": "
-                            + flushMode);
+            throw new IllegalArgumentException(
+                "Unrecognized value for " + FlushMode.class.getSimpleName() + ": " + flushMode);
         }
 
         return msgPauseQueue.isEmpty();
