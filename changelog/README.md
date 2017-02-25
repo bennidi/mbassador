@@ -1,3 +1,14 @@
+### 1.3.1
+
++ TODO
+  + Remove IBusConfiguration (merge with BusConfiguration)
+  + Investigate https://github.com/bennidi/mbassador/issues/101
+  + Introduce @Asynchronous as alternative to delivery mode
+  + @Enveloped.messages -> @Enveloped.types
+  + MessageEnvelope -> Envelope
+
+
+
 ### 1.3.0
  + Non-Breaking API changes
    + Extended IMessagePublication to allow for error reporting using `hasError()` and `getError()`

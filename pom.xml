@@ -14,9 +14,9 @@
 
         Some features:
         declarative handler definition via annotations,
-        sync and/or async message delivery,
+        sync and/or async event delivery,
         weak or strong references,
-        configurable message filters,
+        configurable event filters,
     </description>
 
     <!--

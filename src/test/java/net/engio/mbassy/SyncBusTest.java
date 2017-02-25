@@ -115,40 +115,6 @@ public abstract class SyncBusTest extends MessageBusTest {
         assertEquals(InstancesPerListener * ConcurrentUnits, exceptionCount.get());
     }
 
-    @Test
-    public void testExceptionInHandlerInvocation2(){
-        final AtomicInteger exceptionCount = new AtomicInteger(0);
-        IPublicationErrorHandler ExceptionCounter = new IPublicationErrorHandler() {
-            @Override
-            public void handleError(PublicationError error) {
-                exceptionCount.incrementAndGet();
-            }
-        };
-
-        //DS: modified to pass ExceptionCounter via the configuration object
-        final GenericMessagePublicationSupport bus = getSyncMessageBus(false,ExceptionCounter);
-        ListenerFactory listeners = new ListenerFactory()
-                .create(InstancesPerListener, ExceptionThrowingListener.class);
-
-        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(bus, listeners), ConcurrentUnits);
-
-        Runnable publish = new Runnable() {
-            @Override
-            public void run() {
-                bus.post(new Object()).now();
-            }
-        };
-
-        // single threaded
-        ConcurrentExecutor.runConcurrent(publish, 1);
-        assertEquals(InstancesPerListener, exceptionCount.get());
-        exceptionCount.set(0); // reset for next test
-
-        // multi threaded
-        ConcurrentExecutor.runConcurrent(publish, ConcurrentUnits);
-        assertEquals(InstancesPerListener * ConcurrentUnits, exceptionCount.get());
-    }
-
 
     @Test
     public void testCustomHandlerInvocation(){

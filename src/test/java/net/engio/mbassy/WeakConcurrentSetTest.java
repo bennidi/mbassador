@@ -19,10 +19,6 @@ import java.util.Set;
  */
 public class WeakConcurrentSetTest extends ConcurrentSetTest{
 
-
-
-
-
     @Override
     protected Collection createSet() {
         return new WeakConcurrentSet();

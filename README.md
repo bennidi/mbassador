@@ -8,24 +8,12 @@ MBassador
 
 MBassador is a light-weight, high-performance event bus implementing the [publish subscribe pattern](https://en.wikipedia.org/wiki/Publish-subscribe_pattern). It is designed for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. 
 
-The core of MBassador's high performance is a specialized data structure that provides non-blocking readers and minimizes lock contention for writers such that performance degradation of concurrent read/write access is minimal. The advantages of this design are illustrated in this [github repository](https://github.com/bennidi/eventbus-performance).
+The core of MBassador's high performance is a **specialized data structure** that provides **non-blocking readers** and minimizes lock contention for writers such that performance degradation of concurrent read/write access is minimal. The advantages of this design are illustrated in this [github repository](https://github.com/bennidi/eventbus-performance).
 
-The code is production ready: 86% instruction coverage, 82% branch coverage with highly randomized and concurrently run test sets, no severe bugs have been reported in the last 18 month. No modifications to the core will be made without thouroughly testing the code.
+The code is **production ready**: 86% instruction coverage, 82% branch coverage with highly randomized and concurrently run test sets, no severe bugs have been reported in the last 18 month. No modifications to the core will be made without thoroughly testing the code.
 
-For documentation you can browse the [javadoc](http://bennidi.github.io/mbassador/), read this overview, check out the wiki resources.
 
-There is a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. This is a good example of integration with other frameworks. An example of [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration) also exists.
-
-Table of contents:
-  *  [Usage](#usage)
-  *  [Features](#features)
-  *  [Installation](#installation)
-  *  [Wiki](#wiki)
-  *  [Release Notes](#release-notes)
-  *  [Integrations](#integrations)
-  *  [Credits](#credits)
-  *  [Contribute](#contribute)
-  *  [License](#license)
+[Usage](#usage) | [Features](#features) | [Installation](#installation) | [Wiki](#wiki) | [Release Notes](#release-notes) | [Integrations](#integrations) | [Credits](#credits) | [Contribute](#contribute) | [License](#license)
 
 <h2>Usage</h2>
 
@@ -35,12 +23,25 @@ As a first reference, consider this illustrative example. You might want to have
 
 ```java
       
-// Define your listener
+// Define your handlers
+
+@Listener(references = References.Strong)
 class SimpleFileListener{
 
     @Handler
-    public void handle(File msg){
+    public void handle(File file){
       // do something with the file
+    }
+    
+    @Handler(delivery = Invoke.Asynchronously)
+    public void expensiveOperation(File file){
+      // do something with the file
+    }
+    
+    @Handler(condition = "msg.size >= 10000")
+    @Enveloped(messages = {HashMap.class, LinkedList.class})
+    public void handleLarge(MessageEnvelope envelope) {
+       // handle objects without common super type
     }
 
 }
@@ -48,8 +49,7 @@ class SimpleFileListener{
 // somewhere else in your code
 
 MBassador bus = new MBassador();
-Object listener = new SimpleFileListener();
-bus.subscribe (listener);
+bus.subscribe (new SimpleFileListener());
 bus.post(new File("/tmp/smallfile.csv")).now();
 bus.post(new File("/tmp/bigfile.csv")).asynchronously();
 
@@ -124,6 +124,11 @@ There is ongoing effort to extend documentation and provide code samples and det
 + [javadoc](http://bennidi.github.io/mbassador/)
 + [wiki](wiki)
 + API examples on programcreek: [Handler](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.listener.Handler), [BusConfiguration](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.bus.config.BusConfiguration), [MBassador](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.bus.MBassador)
+
+
+<h2>Integrations</h2>
+
+There is a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. This is a good example of integration with other frameworks. An example of [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration) also exists.
 
 <h2>Release Notes</h2>
 
