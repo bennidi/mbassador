@@ -1,6 +1,9 @@
 <img src="https://travis-ci.org/bennidi/mbassador.svg?branch=master" alt="build-status" />
-[![Maven Central](https://img.shields.io/maven-central/v/net.engio/mbassador.svg)](https://maven-badges.herokuapp.com/maven-central/net.engio/mbassador)
+
+<a href="https://maven-badges.herokuapp.com/maven-central/net.engio/mbassador" target="blank" ><img src="https://img.shields.io/maven-central/v/net.engio/mbassador.svg" /></a>
+
 <a href="http://bennidi.github.io/mbassador/" target="blank"><img src="assets/java.png?raw=true" alt="javadoc" width="20" height="20"/>javadoc</a>
+
 <a href="wiki" target="blank"><img src="assets/wiki.png?raw=true" alt="wiki" width="50" height="20"/></a>
 
 
