@@ -59,7 +59,7 @@ bus.post(new File("/tmp/bigfile.csv")).asynchronously();
 
 ```   
 
-##Features
+## Features
 
 
 > Annotation driven
@@ -108,8 +108,9 @@ Errors during message delivery are sent to all registered error handlers which c
 
 MBassador is designed to be extensible with custom implementations of various components like message dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different kinds of objects. A configuration object is used to customize the different configurable parts, see [Features](https://github.com/bennidi/mbassador/wiki/Components#Feature)
 
-<h2>Installation</h2>
+## Installation
 MBassador is available from the Maven Central Repository using the following coordinates:
+
 ```xml
 
 <dependency>
@@ -122,7 +123,7 @@ MBassador is available from the Maven Central Repository using the following coo
 
 You can also download binary release and javadoc from the [maven central repository](http://search.maven.org/#search|ga|1|mbassador). Of course you can always clone the repository and build from source.
 
-<h2>Documentation</h2>
+## Documentation
 There is ongoing effort to extend documentation and provide code samples and detailed explanations of how the message bus works. Code samples can also be found in the various test cases. Please read about the terminology used in this project to avoid confusion and misunderstanding.
 
 + [javadoc](http://bennidi.github.io/mbassador/)
@@ -130,12 +131,12 @@ There is ongoing effort to extend documentation and provide code samples and det
 + API examples on programcreek: [Handler](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.listener.Handler), [BusConfiguration](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.bus.config.BusConfiguration), [MBassador](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.bus.MBassador)
 
 
-<h2>Integrations</h2>
+## Integrations
 
 There is a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. This is a good example of integration with other frameworks. An example of [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration) also exists.
 
 
-<h2>Credits</h2>
+## Credits
 The initial inspiration for creating this component comes from Google Guava's event bus implementation.
 I liked the simplicity of its design and I trust in the code quality of google libraries. The main reason it proved to be unusable for our scenario was that it uses strong references to the listeners.
 
