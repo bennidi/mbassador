@@ -33,10 +33,10 @@ public class MetadataReader {
 
     // retrieve all instances of filters associated with the given subscription
     private IMessageFilter[] getFilter(Handler subscription) {
-        if (subscription.filters().length == 0) {
+        if (subscription.filters().length == 0 && subscription.filterRefs().length == 0) {
             return null;
         }
-        IMessageFilter[] filters = new IMessageFilter[subscription.filters().length];
+        IMessageFilter[] filters = new IMessageFilter[subscription.filters().length + subscription.filterRefs().length];
         int i = 0;
         for (Filter filterDef : subscription.filters()) {
             IMessageFilter filter = filterCache.get(filterDef.value());
@@ -48,6 +48,11 @@ public class MetadataReader {
                     throw new RuntimeException(e);// propagate as runtime exception
                 }
             }
+            filters[i] = filter;
+            i++;
+        }
+        for (String filterRef : subscription.filterRefs()) {
+            IMessageFilter<?> filter = ReflectionUtils.getField(filterRef,IMessageFilter.class);
             filters[i] = filter;
             i++;
         }

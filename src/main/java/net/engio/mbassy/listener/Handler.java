@@ -23,7 +23,11 @@ public @interface Handler {
      */
     Filter[] filters() default {};
     
-    
+    /**
+     * Adds a filter by name. It is a public static final field reference in class.field form.
+     * Allows access to using lambdas for filters in java 8 (until annotations support field or method refs in java 9)
+     */
+    String[] filterRefs() default {};
     /**
      * Defines a filter condition as Expression Language. This can be used to filter the events based on 
      * attributes of the event object. Note that the expression must resolve to either
