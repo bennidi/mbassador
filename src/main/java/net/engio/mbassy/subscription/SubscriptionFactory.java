@@ -28,12 +28,14 @@ public class SubscriptionFactory {
             return new Subscription(context, dispatcher, handlerMetadata.useStrongReferences()
                 ? new StrongConcurrentSet<Object>()
                 : new WeakConcurrentSet<Object>());
+        } catch (MessageBusException e) {
+            throw e;
         } catch (Exception e) {
             throw new MessageBusException(e);
         }
     }
 
-    protected IHandlerInvocation buildInvocationForHandler(SubscriptionContext context) throws Exception {
+    protected IHandlerInvocation buildInvocationForHandler(SubscriptionContext context) throws MessageBusException {
         IHandlerInvocation invocation = createBaseHandlerInvocation(context);
         if(context.getHandler().isSynchronized()){
             invocation = new SynchronizedHandlerInvocation(invocation);
@@ -44,7 +46,7 @@ public class SubscriptionFactory {
         return invocation;
     }
 
-    protected IMessageDispatcher buildDispatcher(SubscriptionContext context, IHandlerInvocation invocation) {
+    protected IMessageDispatcher buildDispatcher(SubscriptionContext context, IHandlerInvocation invocation) throws MessageBusException {
         IMessageDispatcher dispatcher = new MessageDispatcher(context, invocation);
         if (context.getHandler().isEnveloped()) {
             dispatcher = new EnvelopedMessageDispatcher(dispatcher);
