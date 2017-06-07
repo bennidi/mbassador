@@ -26,6 +26,17 @@ import java.util.List;
 public class MessageListener<T> {
 
 
+    private ArrayList<MessageHandler> handlers = new ArrayList<MessageHandler>();
+
+    private Class<T> listenerDefinition;
+
+    private Listener listenerAnnotation;
+
+    public MessageListener(Class<T> listenerDefinition) {
+        this.listenerDefinition = listenerDefinition;
+        listenerAnnotation = ReflectionUtils.getAnnotation( listenerDefinition, Listener.class );
+    }
+
     public static IPredicate<MessageHandler> ForMessage(final Class<?> messageType) {
         return new IPredicate<MessageHandler>() {
             @Override
@@ -34,18 +45,6 @@ public class MessageListener<T> {
             }
         };
     }
-
-    private ArrayList<MessageHandler> handlers = new ArrayList<MessageHandler>();
-
-    private Class<T> listenerDefinition;
-
-    private Listener listenerAnnotation;
-
-    public MessageListener(Class<T> listenerDefinition) {
-       this.listenerDefinition = listenerDefinition;
-       listenerAnnotation = ReflectionUtils.getAnnotation( listenerDefinition, Listener.class );
-    }
-
 
     public boolean isFromListener(Class listener){
         return listenerDefinition.equals(listener);

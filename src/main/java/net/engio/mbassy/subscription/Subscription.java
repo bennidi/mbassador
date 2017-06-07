@@ -24,6 +24,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class Subscription {
 
+    public static final Comparator<Subscription> SubscriptionByPriorityDesc = new Comparator<Subscription>() {
+        @Override
+        public int compare(Subscription o1, Subscription o2) {
+            int byPriority = ((Integer)o2.getPriority()).compareTo(o1.getPriority());
+            return byPriority == 0 ? o2.id.compareTo(o1.id) : byPriority;
+        }
+    };
+
     private final UUID id = UUID.randomUUID();
 
     protected final Collection<Object> listeners;
@@ -96,14 +104,6 @@ public class Subscription {
     public Handle getHandle(){
         return new Handle();
     }
-
-    public static final Comparator<Subscription> SubscriptionByPriorityDesc = new Comparator<Subscription>() {
-        @Override
-        public int compare(Subscription o1, Subscription o2) {
-            int byPriority = ((Integer)o2.getPriority()).compareTo(o1.getPriority());
-            return byPriority == 0 ? o2.id.compareTo(o1.id) : byPriority;
-        }
-    };
 
 
     /**
