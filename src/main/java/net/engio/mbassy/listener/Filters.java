@@ -11,6 +11,7 @@ import net.engio.mbassy.subscription.SubscriptionContext;
 public class Filters {
 
 
+    private Filters() {}
 
     /**
      * This filter will only accept messages of the exact same type

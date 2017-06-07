@@ -15,6 +15,8 @@ import java.util.Set;
  */
 public class ReflectionUtils
 {
+    private ReflectionUtils() {}
+
     public static Method[] getMethods(IPredicate<Method> condition, Class<?> target) {
         ArrayList<Method> methods = new ArrayList<Method>();
 

@@ -33,6 +33,8 @@ public class MessageHandler {
         public static final String Priority = "priority";
         public static final String Invocation = "invocation";
 
+        private Properties() {}
+
         /**
          * Create the property map for the {@link MessageHandler} constructor using the default objects.
          *
