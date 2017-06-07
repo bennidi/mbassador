@@ -1,17 +1,17 @@
 package net.engio.mbassy.bus;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.ConfigurationError;
 import net.engio.mbassy.bus.config.Feature;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.bus.error.InternalPublicationError;
 import net.engio.mbassy.bus.publication.ISyncAsyncPublicationCommand;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The base class for all message bus implementations with support for asynchronous message dispatch
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * @param <P> The publication commands this bus supports depend on P
  */
 public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublicationCommand>
-        extends AbstractPubSubSupport<T> implements IMessageBus<T, P> {
+        extends AbstractPubSubPauseSupport<T> implements IMessageBus<T, P> {
 
     // executor for asynchronous message handlers
     private final ExecutorService executor;
@@ -31,11 +31,11 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
     // all pending messages scheduled for asynchronous dispatch are queued here
     private final BlockingQueue<IMessagePublication> pendingMessages;
 
-    protected AbstractSyncAsyncMessageBus(IBusConfiguration configuration) {
+    protected AbstractSyncAsyncMessageBus(final IBusConfiguration configuration) {
         super(configuration);
 
         // configure asynchronous message dispatch
-        Feature.AsynchronousMessageDispatch asyncDispatch = configuration.getFeature(Feature.AsynchronousMessageDispatch.class);
+        final Feature.AsynchronousMessageDispatch asyncDispatch = configuration.getFeature(Feature.AsynchronousMessageDispatch.class);
         if(asyncDispatch == null){
             throw ConfigurationError.MissingFeature(Feature.AsynchronousMessageDispatch.class);
         }
@@ -44,7 +44,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
         initDispatcherThreads(asyncDispatch);
 
         // configure asynchronous handler invocation
-        Feature.AsynchronousHandlerInvocation asyncInvocation = configuration.getFeature(Feature.AsynchronousHandlerInvocation.class);
+        final Feature.AsynchronousHandlerInvocation asyncInvocation = configuration.getFeature(Feature.AsynchronousHandlerInvocation.class);
         if(asyncInvocation == null){
             throw ConfigurationError.MissingFeature(Feature.AsynchronousHandlerInvocation.class);
         }
@@ -54,18 +54,19 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
     }
 
     // initialize the dispatch workers
-    private void initDispatcherThreads(Feature.AsynchronousMessageDispatch configuration) {
+    private void initDispatcherThreads(final Feature.AsynchronousMessageDispatch configuration) {
         for (int i = 0; i < configuration.getNumberOfMessageDispatchers(); i++) {
             // each thread will run forever and process incoming
             // message publication requests
-            Thread dispatcher = configuration.getDispatcherThreadFactory().newThread(new Runnable() {
-                public void run() {
+            final Thread dispatcher = configuration.getDispatcherThreadFactory().newThread(new Runnable() {
+                @Override
+		public void run() {
                     while (true) {
                         IMessagePublication publication = null;
                         try {
                             publication = pendingMessages.take();
                             publication.execute();
-                        } catch (InterruptedException e) {
+                        } catch (final InterruptedException e) {
                             Thread.currentThread().interrupt();
                             return;
                         } catch(Throwable t){
@@ -112,7 +113,7 @@ public abstract class AbstractSyncAsyncMessageBus<T, P extends ISyncAsyncPublica
 
     @Override
     public void shutdown() {
-        for (Thread dispatcher : dispatchers) {
+        for (final Thread dispatcher : dispatchers) {
             dispatcher.interrupt();
         }
         if(executor != null) executor.shutdown();

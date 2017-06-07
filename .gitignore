@@ -17,7 +17,7 @@
 target/**/*
 target/**
 classes/
-
+bin/
 
 # the local maven repository #
 lib/
@@ -25,3 +25,8 @@ mvn-local-repo/**/*
 release.properties
 /.classpath
 /.project
+/build/
+
+# gradle configuration files #
+.gradle/
+

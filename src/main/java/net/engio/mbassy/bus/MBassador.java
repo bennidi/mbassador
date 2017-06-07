@@ -1,5 +1,7 @@
 package net.engio.mbassy.bus;
 
+import java.util.concurrent.TimeUnit;
+
 import net.engio.mbassy.bus.common.IMessageBus;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
@@ -8,17 +10,16 @@ import net.engio.mbassy.bus.error.IPublicationErrorHandler;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.bus.publication.SyncAsyncPostCommand;
 
-import java.util.concurrent.TimeUnit;
-
-
-public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>> implements IMessageBus<T, SyncAsyncPostCommand<T>> {
-
+public class MBassador<T> extends AbstractPauseSyncAsyncMessageBus<T, SyncAsyncPostCommand<T>>
+                      implements IMessageBus<T, SyncAsyncPostCommand<T>> {
 
     /**
-     * Default constructor using default setup. super() will also add a default publication error logger
+     * Default constructor using default setup. super() will also add a default
+     * publication error logger
      */
-    public MBassador(){
-        this(new BusConfiguration()
+    public MBassador() {
+        this(
+            new BusConfiguration()
                 .addFeature(Feature.SyncPubSub.Default())
                 .addFeature(Feature.AsynchronousHandlerInvocation.Default())
                 .addFeature(Feature.AsynchronousMessageDispatch.Default()));
@@ -29,11 +30,13 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
      *
      * @param errorHandler
      */
-    public MBassador(IPublicationErrorHandler errorHandler) {
-        super(new BusConfiguration().addFeature(Feature.SyncPubSub.Default())
-                                    .addFeature(Feature.AsynchronousHandlerInvocation.Default())
-                                    .addFeature(Feature.AsynchronousMessageDispatch.Default())
-                                    .addPublicationErrorHandler(errorHandler));
+    public MBassador(final IPublicationErrorHandler errorHandler) {
+        super(
+            new BusConfiguration()
+                .addFeature(Feature.SyncPubSub.Default())
+                .addFeature(Feature.AsynchronousHandlerInvocation.Default())
+                .addFeature(Feature.AsynchronousMessageDispatch.Default())
+                .addPublicationErrorHandler(errorHandler));
     }
 
     /**
@@ -41,43 +44,61 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
      *
      * @param configuration
      */
-    public MBassador(IBusConfiguration configuration) {
+    public MBassador(final IBusConfiguration configuration) {
         super(configuration);
     }
 
-    public IMessagePublication publishAsync(T message) {
-        return addAsynchronousPublication(createMessagePublication(message));
+    @Override
+    public IMessagePublication publishAsync(final T message) {
+        final MessagePublication publication = createMessagePublication(message);
+        if (isPaused()) {
+            super.enqueueMessageOnPause(message);
+            return publication;
+        }
+
+        return addAsynchronousPublication(publication);
     }
 
-    public IMessagePublication publishAsync(T message, long timeout, TimeUnit unit) {
-        return addAsynchronousPublication(createMessagePublication(message), timeout, unit);
-    }
+    public IMessagePublication publishAsync(final T message, final long timeout, final TimeUnit unit) {
+        final MessagePublication publication = createMessagePublication(message);
+        if (isPaused()) {
+            super.enqueueMessageOnPause(message);
+            return publication;
+        }
 
+        return addAsynchronousPublication(publication, timeout, unit);
+    }
 
     /**
-     * Synchronously publish a message to all registered listeners (this includes listeners defined for super types)
-     * The call blocks until every messageHandler has processed the message.
+     * Synchronously publish a message to all registered listeners (this
+     * includes listeners defined for super types) The call blocks until every
+     * messageHandler has processed the message.
      *
      * @param message
      */
-    public IMessagePublication publish(T message) {
-        IMessagePublication publication = createMessagePublication(message);
-        try {
-            publication.execute();
-        } catch (Throwable e) {
-            handlePublicationError(new PublicationError()
-                    .setMessage("Error during publication of message")
-                    .setCause(e)
-                    .setPublication(publication));
-        }
-        finally{
+    @Override
+    public IMessagePublication publish(final T message) {
+        final MessagePublication publication = createMessagePublication(message);
+        if (isPaused()) {
+            super.enqueueMessageOnPause(message);
             return publication;
         }
+
+        try {
+            publication.execute();
+        } catch (final Throwable e) {
+            handlePublicationError(
+                new PublicationError()
+                    .setMessage("Error during publication of message")
+                    .setCause(e)
+                    .setPublishedMessage(message));
+        }
+
+        return publication;
     }
 
-
     @Override
-    public SyncAsyncPostCommand<T> post(T message) {
+    public SyncAsyncPostCommand<T> post(final T message) {
         return new SyncAsyncPostCommand<T>(this, message);
     }
 
