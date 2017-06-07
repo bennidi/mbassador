@@ -41,7 +41,7 @@ public class ICountableListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously)
+        @Handler(delivery = Invoke.ASYNCHRONOUSLY)
         public void handle(ICountable message){
             super.handle(message);
         }

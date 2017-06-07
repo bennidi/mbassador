@@ -41,7 +41,7 @@ public class MultipartMessageListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously)
+        @Handler(delivery = Invoke.ASYNCHRONOUSLY)
         public void handle(MultipartMessage message){
             super.handle(message);
         }

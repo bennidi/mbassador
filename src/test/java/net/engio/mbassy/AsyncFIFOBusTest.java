@@ -129,7 +129,7 @@ public class AsyncFIFOBusTest extends MessageBusTest {
             receivedSync.add(message);
         }
 
-        @Handler(delivery = Invoke.Asynchronously)
+        @Handler(delivery = Invoke.ASYNCHRONOUSLY)
         public void handleASync(Integer message){
             receivedAsync.add(message);
         }

@@ -113,7 +113,7 @@ public class ConditionalHandlerTest extends MessageBusTest {
 
     }
 
-    @Listener(references = References.Strong)
+    @Listener(references = References.STRONG)
     public static class ConditionalMessageListener {
 
         @Handler(condition = "msg.type == 'TEST'")

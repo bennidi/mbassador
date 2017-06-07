@@ -5,7 +5,6 @@ import net.engio.mbassy.common.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -52,7 +51,7 @@ public class MessageListener<T> {
     }
 
     public boolean useStrongReferences(){
-        return listenerAnnotation != null && listenerAnnotation.references().equals(References.Strong);
+        return listenerAnnotation != null && listenerAnnotation.references().equals(References.STRONG);
     }
 
     public MessageListener addHandlers(Collection<? extends MessageHandler> c) {

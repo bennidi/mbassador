@@ -43,7 +43,7 @@ public class IMessageListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously)
+        @Handler(delivery = Invoke.ASYNCHRONOUSLY)
         public void handle(IMessage message){
             super.handle(message);
         }

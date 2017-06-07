@@ -41,7 +41,7 @@ public class AbstractMessageListener {
 
     public static class AsyncListener extends BaseListener {
 
-        @Handler(delivery = Invoke.Asynchronously, priority = Integer.MAX_VALUE)
+        @Handler(delivery = Invoke.ASYNCHRONOUSLY, priority = Integer.MAX_VALUE)
         public void handle(AbstractMessage message){
             super.handle(message);
         }

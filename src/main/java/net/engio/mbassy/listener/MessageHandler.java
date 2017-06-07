@@ -21,17 +21,17 @@ public class MessageHandler {
 
     public static final class Properties{
 
-        public static final String HandlerMethod = "handler";
-        public static final String InvocationMode = "invocationMode";
-        public static final String Filter = "filter";
-        public static final String Condition = "condition";
-        public static final String Enveloped = "envelope";
-        public static final String HandledMessages = "messages";
-        public static final String IsSynchronized = "synchronized";
-        public static final String Listener = "listener";
-        public static final String AcceptSubtypes = "subtypes";
-        public static final String Priority = "priority";
-        public static final String Invocation = "invocation";
+        public static final String HANDLER_METHOD = "handler";
+        public static final String INVOCATION_MODE = "invocationMode";
+        public static final String FILTER = "filter";
+        public static final String CONDITION = "condition";
+        public static final String ENVELOPED = "envelope";
+        public static final String HANDLED_MESSAGES = "messages";
+        public static final String IS_SYNCHRONIZED = "synchronized";
+        public static final String LISTENER = "listener";
+        public static final String ACCEPT_SUBTYPES = "subtypes";
+        public static final String PRIORITY = "priority";
+        public static final String INVOCATION = "invocation";
 
         /**
          * Create the property map for the {@link MessageHandler} constructor using the default objects.
@@ -59,7 +59,7 @@ public class MessageHandler {
                     : handler.getParameterTypes();
             handler.setAccessible(true);
             Map<String, Object> properties = new HashMap<String, Object>();
-            properties.put(HandlerMethod, handler);
+            properties.put(HANDLER_METHOD, handler);
             // add EL filter if a condition is present
             if(handlerConfig.condition().length() > 0){
                 if (!ElFilter.isELAvailable()) {
@@ -73,16 +73,16 @@ public class MessageHandler {
                 expandedFilter[filter.length] = new ElFilter();
                 filter = expandedFilter;
             }
-            properties.put(Filter, filter);
-            properties.put(Condition, cleanEL(handlerConfig.condition()));
-            properties.put(Priority, handlerConfig.priority());
-            properties.put(Invocation, handlerConfig.invocation());
-            properties.put(InvocationMode, handlerConfig.delivery());
-            properties.put(Enveloped, enveloped != null);
-            properties.put(AcceptSubtypes, !handlerConfig.rejectSubtypes());
-            properties.put(Listener, listenerConfig);
-            properties.put(IsSynchronized, ReflectionUtils.getAnnotation( handler, Synchronized.class) != null);
-            properties.put(HandledMessages, handledMessages);
+            properties.put(FILTER, filter);
+            properties.put(CONDITION, cleanEL(handlerConfig.condition()));
+            properties.put(PRIORITY, handlerConfig.priority());
+            properties.put(INVOCATION, handlerConfig.invocation());
+            properties.put(INVOCATION_MODE, handlerConfig.delivery());
+            properties.put(ENVELOPED, enveloped != null);
+            properties.put(ACCEPT_SUBTYPES, !handlerConfig.rejectSubtypes());
+            properties.put(LISTENER, listenerConfig);
+            properties.put(IS_SYNCHRONIZED, ReflectionUtils.getAnnotation( handler, Synchronized.class) != null);
+            properties.put(HANDLED_MESSAGES, handledMessages);
             return properties;
         }
 
@@ -122,32 +122,32 @@ public class MessageHandler {
     public MessageHandler(Map<String, Object> properties){
         super();
         validate(properties);
-        this.handler = (Method)properties.get(Properties.HandlerMethod);
-        this.filter = (IMessageFilter[])properties.get(Properties.Filter);
-        this.condition = (String)properties.get(Properties.Condition);
-        this.priority = (Integer)properties.get(Properties.Priority);
-        this.invocation = (Class<? extends HandlerInvocation>)properties.get(Properties.Invocation);
-        this.invocationMode = (Invoke)properties.get(Properties.InvocationMode);
-        this.isEnvelope = (Boolean)properties.get(Properties.Enveloped);
-        this.acceptsSubtypes = (Boolean)properties.get(Properties.AcceptSubtypes);
-        this.listenerConfig = (MessageListener)properties.get(Properties.Listener);
-        this.isSynchronized = (Boolean)properties.get(Properties.IsSynchronized);
-        this.handledMessages = (Class[])properties.get(Properties.HandledMessages);
+        this.handler = (Method)properties.get(Properties.HANDLER_METHOD);
+        this.filter = (IMessageFilter[])properties.get(Properties.FILTER);
+        this.condition = (String)properties.get(Properties.CONDITION);
+        this.priority = (Integer)properties.get(Properties.PRIORITY);
+        this.invocation = (Class<? extends HandlerInvocation>)properties.get(Properties.INVOCATION);
+        this.invocationMode = (Invoke)properties.get(Properties.INVOCATION_MODE);
+        this.isEnvelope = (Boolean)properties.get(Properties.ENVELOPED);
+        this.acceptsSubtypes = (Boolean)properties.get(Properties.ACCEPT_SUBTYPES);
+        this.listenerConfig = (MessageListener)properties.get(Properties.LISTENER);
+        this.isSynchronized = (Boolean)properties.get(Properties.IS_SYNCHRONIZED);
+        this.handledMessages = (Class[])properties.get(Properties.HANDLED_MESSAGES);
     }
 
     private void validate(Map<String, Object> properties){
         // define expected types of known properties
         Object[][] expectedProperties = new Object[][]{
-                new Object[]{Properties.HandlerMethod, Method.class },
-                new Object[]{Properties.Priority, Integer.class },
-                new Object[]{Properties.Invocation, Class.class },
-                new Object[]{Properties.Filter, IMessageFilter[].class },
-                new Object[]{Properties.Condition, String.class },
-                new Object[]{Properties.Enveloped, Boolean.class },
-                new Object[]{Properties.HandledMessages, Class[].class },
-                new Object[]{Properties.IsSynchronized, Boolean.class },
-                new Object[]{Properties.Listener, MessageListener.class },
-                new Object[]{Properties.AcceptSubtypes, Boolean.class }
+                new Object[]{Properties.HANDLER_METHOD, Method.class },
+                new Object[]{Properties.PRIORITY, Integer.class },
+                new Object[]{Properties.INVOCATION, Class.class },
+                new Object[]{Properties.FILTER, IMessageFilter[].class },
+                new Object[]{Properties.CONDITION, String.class },
+                new Object[]{Properties.ENVELOPED, Boolean.class },
+                new Object[]{Properties.HANDLED_MESSAGES, Class[].class },
+                new Object[]{Properties.IS_SYNCHRONIZED, Boolean.class },
+                new Object[]{Properties.LISTENER, MessageListener.class },
+                new Object[]{Properties.ACCEPT_SUBTYPES, Boolean.class }
         };
         // ensure types match
         for(Object[] property : expectedProperties){
@@ -174,7 +174,7 @@ public class MessageHandler {
     }
 
     public boolean isAsynchronous() {
-        return invocationMode.equals(Invoke.Asynchronously);
+        return invocationMode.equals(Invoke.ASYNCHRONOUSLY);
     }
 
     public boolean isFiltered() {

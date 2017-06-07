@@ -20,6 +20,6 @@ public @interface Listener {
      * strong instead.
      *
      */
-    References references() default References.Weak;
+    References references() default References.WEAK;
 
 }

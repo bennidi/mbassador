@@ -25,7 +25,7 @@ public class Overloading {
 
     }
 
-    @Listener(references = References.Strong)
+    @Listener(references = References.STRONG)
     public static class ListenerBase {
 
 
