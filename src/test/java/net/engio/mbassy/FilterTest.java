@@ -12,6 +12,8 @@ import net.engio.mbassy.messages.TestMessage;
 import net.engio.mbassy.subscription.SubscriptionContext;
 import org.junit.Test;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -82,13 +84,15 @@ public class FilterTest extends MessageBusTest {
         }
 
         // FilteredEvents that contain messages of class Object will be filtered (again) and should cause a DeadEvent to be thrown
-        @Handler(filters = {@Filter(RejectFilteredObjects.class)})
+        @Handler
+        @RejectFilteredObjectsFilter
         public void handleFilteredEvent(FilteredMessage filtered){
             FilteredEventCounter.incrementAndGet();
         }
 
         // will cause republication of a FilteredEvent
-        @Handler(filters = {@Filter(RejectAll.class)})
+        @Handler
+        @RejectAllFilter
         public void handleNone(Object any){
             FilteredEventCounter.incrementAndGet();
         }
@@ -146,6 +150,18 @@ public class FilterTest extends MessageBusTest {
         public boolean accepts(Object event,  SubscriptionContext context) {
             return false;
         }
+    }
+
+    @Filter(RejectFilteredObjects.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface RejectFilteredObjectsFilter {
+
+    }
+
+    @RepeatedFilters({@Filter(RejectAll.class)})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface RejectAllFilter {
+
     }
 
 }

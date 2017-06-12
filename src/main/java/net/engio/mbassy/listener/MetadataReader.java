@@ -4,13 +4,13 @@ import net.engio.mbassy.common.IPredicate;
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.subscription.MessageEnvelope;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 /**
  * The meta data reader is responsible for parsing and validating message handler configurations.
@@ -32,13 +32,14 @@ public class MetadataReader {
     private final Map<Class<? extends IMessageFilter>, IMessageFilter> filterCache = new HashMap<Class<? extends IMessageFilter>, IMessageFilter>();
 
     // retrieve all instances of filters associated with the given subscription
-    private IMessageFilter[] getFilter(Handler subscription) {
-        if (subscription.filters().length == 0) {
+    private IMessageFilter[] getFilter(Method method, Handler subscription) {
+        Filter[] filterDefinitions = collectFilters(method, subscription);
+        if (filterDefinitions.length == 0) {
             return null;
         }
-        IMessageFilter[] filters = new IMessageFilter[subscription.filters().length];
+        IMessageFilter[] filters = new IMessageFilter[filterDefinitions.length];
         int i = 0;
-        for (Filter filterDef : subscription.filters()) {
+        for (Filter filterDef : filterDefinitions) {
             IMessageFilter filter = filterCache.get(filterDef.value());
             if (filter == null) {
                 try {
@@ -52,6 +53,24 @@ public class MetadataReader {
             i++;
         }
         return filters;
+    }
+
+    private Filter[] collectFilters(Method method, Handler subscription) {
+        List<Filter> filters = new ArrayList<Filter>(subscription.filters().length);
+        Collections.addAll(filters, subscription.filters());
+        Annotation[] annotations = method.getAnnotations();
+        for (int i = 0; i < method.getAnnotations().length; i++) {
+            Class<? extends Annotation> annotationType = annotations[i].annotationType();
+            RepeatedFilters repeated = annotationType.getAnnotation(RepeatedFilters.class);
+            if (repeated != null) {
+                Collections.addAll(filters, repeated.value());
+            }
+            Filter filter = annotationType.getAnnotation(Filter.class);
+            if (filter != null) {
+                filters.add(filter);
+            }
+        }
+        return filters.toArray(new Filter[filters.size()]);
     }
 
     // get all listeners defined by the given class (includes
@@ -72,7 +91,7 @@ public class MetadataReader {
                 // for each handler there will be no overriding method that specifies @Handler annotation
                 // but an overriding method does inherit the listener configuration of the overwritten method
 
-                Handler handlerConfig = ReflectionUtils.getAnnotation( handler, Handler.class);
+                Handler handlerConfig = ReflectionUtils.getAnnotation(handler, Handler.class);
                 if (!handlerConfig.enabled() || !isValidMessageHandler(handler)) {
                     continue; // disabled or invalid listeners are ignored
                 }
@@ -80,7 +99,7 @@ public class MetadataReader {
                 // if a handler is overwritten it inherits the configuration of its parent method
                 Map<String, Object> handlerProperties = MessageHandler.Properties.Create(overriddenHandler == null ? handler : overriddenHandler,
                                                                                          handlerConfig,
-                                                                                         getFilter(handlerConfig),
+                                                                                         getFilter(handler, handlerConfig),
                                                                                          listenerMetadata);
                 MessageHandler handlerMetadata = new MessageHandler(handlerProperties);
                 listenerMetadata.addHandler(handlerMetadata);
