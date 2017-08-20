@@ -6,15 +6,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * The repeated filters annotation is used to add multiple {@link Filter}s to
- * a single {@link ElementType#ANNOTATION_TYPE annotation type} when using
- * "inherited filters".
+ * The include filters directive can be used to add multiple {@link Filter}s to
+ * a single {@link ElementType#ANNOTATION_TYPE annotation type}. This allows to add
+ * filters to message handlers with one or more user-defined annotations.
  *
  * @see Filter
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface RepeatedFilters {
+public @interface IncludeFilters {
 
     /**
      * An array of filters to be used for filtering {@link Handler}s.

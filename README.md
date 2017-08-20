@@ -95,6 +95,40 @@ Instead of using weak references, a listener can be configured to be referenced 
 
 MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to a single message handler. Since version 1.2.0 Java EL expressions in `@Handler` are another way to define conditional message dispatch. Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message. FilteredMessage events can be handled by registering listeners that handle FilteredMessage.
 
+Note: Since version 1.3.1 it is possible to wrap a filter in a custom annotation for reuse
+
+```java
+
+
+
+
+    public static final class RejectAllFilter implements IMessageFilter {
+
+        @Override
+        public boolean accepts(Object event,  SubscriptionContext context) {
+            return false;
+        }
+    }
+
+    @IncludeFilters({@Filter(RejectAllFilter.class)})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface RejectAll {}
+    
+    public static class FilteredMessageListener{
+    
+        // will cause republication of a FilteredEvent
+        @Handler
+        @RejectAll
+        public void handleNone(Object any){
+            FilteredEventCounter.incrementAndGet();
+        }
+
+        
+    }
+
+
+```
+
 > Enveloped messages
 
 Message handlers can declare to receive an enveloped message using `Enveloped`. The envelope can wrap different types of messages to allow a single handler to handle multiple, unrelated message types.

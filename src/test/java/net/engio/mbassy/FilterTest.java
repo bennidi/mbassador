@@ -158,7 +158,7 @@ public class FilterTest extends MessageBusTest {
 
     }
 
-    @RepeatedFilters({@Filter(RejectAllFilter.class)})
+    @IncludeFilters({@Filter(RejectAllFilter.class)})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface RejectAll {
 

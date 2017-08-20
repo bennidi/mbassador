@@ -61,7 +61,7 @@ public class MetadataReader {
         Annotation[] annotations = method.getAnnotations();
         for (int i = 0; i < method.getAnnotations().length; i++) {
             Class<? extends Annotation> annotationType = annotations[i].annotationType();
-            RepeatedFilters repeated = annotationType.getAnnotation(RepeatedFilters.class);
+            IncludeFilters repeated = annotationType.getAnnotation(IncludeFilters.class);
             if (repeated != null) {
                 Collections.addAll(filters, repeated.value());
             }

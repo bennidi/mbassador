@@ -1,4 +1,4 @@
-### 1.3.1
+### 1.3.2
 
 + TODO
   + Remove IBusConfiguration (merge with BusConfiguration)
@@ -7,7 +7,9 @@
   + @Enveloped.messages -> @Enveloped.types
   + MessageEnvelope -> Envelope
 
+### 1.3.2
 
++ Merged PR #150: Filter definition as reusable annotation
 
 ### 1.3.0
  + Non-Breaking API changes
