@@ -1,10 +1,7 @@
-<img src="https://travis-ci.org/bennidi/mbassador.svg?branch=master" alt="build-status" />
-
-<a href="https://maven-badges.herokuapp.com/maven-central/net.engio/mbassador" target="blank" ><img src="https://img.shields.io/maven-central/v/net.engio/mbassador.svg" /></a>
-
-<a href="http://www.javadoc.io/doc/net.engio/mbassador"><img src="http://www.javadoc.io/badge/net.engio/mbassador.svg" alt="Javadocs"></a>
-
-<a href="wiki" target="blank"><img src="assets/wiki.png?raw=true" alt="wiki" width="50" height="20"/></a>
+[![build status](https://travis-ci.org/bennidi/mbassador.svg?branch=master)](https://travis-ci.org/bennidi/mbassador)
+[![maven central](https://img.shields.io/maven-central/v/net.engio/mbassador.svg)](https://maven-badges.herokuapp.com/maven-central/net.engio/mbassador)
+[![javadoc](http://www.javadoc.io/badge/net.engio/mbassador.svg)](http://www.javadoc.io/doc/net.engio/mbassador)
+[![wiki](assets/wiki.png?raw=true)](wiki)
 
 
 MBassador
@@ -12,9 +9,9 @@ MBassador
 
 MBassador is a light-weight, high-performance event bus implementing the [publish subscribe pattern](https://en.wikipedia.org/wiki/Publish-subscribe_pattern). It is designed for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. 
 
-The core of MBassador's high performance is a **specialized data structure** that provides **non-blocking readers** and minimizes lock contention for writers such that performance degradation of concurrent read/write access is minimal. The advantages of this design are illustrated in this [github repository](https://github.com/bennidi/eventbus-performance).
+The core of MBassador is built around a *custom data structure* that provides **non-blocking reads** and minimized lock contention for writes such that performance degradation of concurrent read/write access is minimal. Benchmarks that illustrate the advantages of this design are available in this [github repository](https://github.com/bennidi/eventbus-performance).
 
-The code is **production ready**: 86% instruction coverage, 82% branch coverage with highly randomized and concurrently run test sets, no severe bugs have been reported in the last 18 month. No modifications to the core will be made without thoroughly testing the code.
+The code is **production ready**: 86% instruction coverage, 82% branch coverage with randomized and concurrently run test sets, no major bug has been reported in the last 18 month. No modifications to the core will be made without thoroughly testing the code.
 
 
 [Usage](#usage) | [Features](#features) | [Installation](#installation) | [Wiki](#wiki) | [Release Notes](#./changelog) | [Integrations](#integrations) | [Credits](#credits) | [Contribute](#contribute) | [License](#license)
@@ -77,10 +74,16 @@ Messages do not need to implement any interface and can be of any type. The clas
 
 > Synchronous and asynchronous message delivery
 
-There are two types of (a-)synchronicity when using MBassador: message dispatch and handler invocation. 
-For message dispatch _synchronous_ means that the publishing method blocks until messages are delivered to all handlers and _asynchronous_ means that the publish method returns immediately and the message will be dispatched in another thread (fire and forget).
+There are **two types of (a-)synchronicity** when using MBassador: message dispatch and handler invocation. 
+**Message dispatch** 
 
-For handler invocation synchronous means that within a running publication all handlers are called sequentially. _Asynchronous_ means that the handler invocation is pushed into a queue and the next handler is invoked with waiting for the previous to finish.
+_Synchronous_ dispatch means that the publish method blocks until all handlers have been *processed*. Note: This does not necessarily imply that each handler has been invoked and received the message - due to the possibility to combine synchronous dispatch with asynchronous handlers. This is the semantics of `publish(Object obj)` and `post(Objec obj).now()`
+
+_Asynchronous_ dispatch means that the publish method returns immediately and the message will be dispatched in another thread (fire and forget). This is the semantics of `publishAsync(Object obj)` and `post(Objec obj).asynchronously()`
+
+**Handler invocation**
+
+_Synchronous_ handlers are invoked sequentially and from the same thread within a running publication. _Asynchronous_ handlers means that the actual handler invocation is pushed to a queue that is processed by a pool of worker threads.
 
 > Configurable reference types
 
@@ -133,12 +136,12 @@ There is ongoing effort to extend documentation and provide code samples and det
 
 ## Integrations
 
-There is a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. This is a good example of integration with other frameworks. An example of [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration) also exists.
+There is a [spring-extension](https://github.com/bennidi/mbassador-spring) available to support CDI-like transactional message sending in a Spring environment. This is a good example of integration with other frameworks. Another example is the [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration).
 
 
 ## Credits
 The initial inspiration for creating this component comes from Google Guava's event bus implementation.
-I liked the simplicity of its design and I trust in the code quality of google libraries. The main reason it proved to be unusable for our scenario was that it uses strong references to the listeners.
+I liked the simplicity of its design and I trust in the code quality of google libraries. Unfortunately it uses strong references only.
 
 Thanks to all [contributors](https://github.com/bennidi/mbassador/pulls?q=is%3Apr+is%3Aclosed), especially
 + [arne-vandamme](http://github.com/arne-vandamme) for adding support for [meta-annotations](https://github.com/bennidi/mbassador/pull/74)
@@ -153,7 +156,7 @@ Many thanks also to ej-technologies for providing an open source license of
 OSS used by MBassador: [jUnit](http://www.junit.org) | [maven](http://www.maven.org) | [mockito](http://www.mockito.org) | [slf4j](http://www.slf4j.org) | [Odysseus JUEL](http://juel.sourceforge.net/guide/start.html)
 
 
-##Contribute
+## Contribute
 
 Pick an issue from the list of open issues and start implementing. Make your PRs small and provide test code! Take a look at [this issue](bennidi/mbassador#109) for a good example.
 
@@ -161,6 +164,6 @@ Pick an issue from the list of open issues and start implementing. Make your PRs
 
 Sample code and documentation are both very appreciated contributions. Especially integration with different frameworks is of great value. Feel free and welcome to create Wiki pages to share your code and ideas. Example: [Guice integration](https://github.com/bennidi/mbassador/wiki/Guice-Integration)
 
-<h2>License</h2>
+## License
 
 This project is distributed under the terms of the MIT License. See file "LICENSE" for further reference.

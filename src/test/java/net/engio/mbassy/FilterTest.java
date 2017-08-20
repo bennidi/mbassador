@@ -85,14 +85,14 @@ public class FilterTest extends MessageBusTest {
 
         // FilteredEvents that contain messages of class Object will be filtered (again) and should cause a DeadEvent to be thrown
         @Handler
-        @RejectFilteredObjectsFilter
+        @RejectFiltered
         public void handleFilteredEvent(FilteredMessage filtered){
             FilteredEventCounter.incrementAndGet();
         }
 
         // will cause republication of a FilteredEvent
         @Handler
-        @RejectAllFilter
+        @RejectAll
         public void handleNone(Object any){
             FilteredEventCounter.incrementAndGet();
         }
@@ -133,7 +133,7 @@ public class FilterTest extends MessageBusTest {
 
     }
 
-    public static class RejectFilteredObjects implements IMessageFilter{
+    public static class RejectFilteredObjectsFilter implements IMessageFilter{
 
         @Override
         public boolean accepts(Object message, SubscriptionContext context) {
@@ -144,7 +144,7 @@ public class FilterTest extends MessageBusTest {
         }
     }
 
-    public static final class RejectAll implements IMessageFilter {
+    public static final class RejectAllFilter implements IMessageFilter {
 
         @Override
         public boolean accepts(Object event,  SubscriptionContext context) {
@@ -152,15 +152,15 @@ public class FilterTest extends MessageBusTest {
         }
     }
 
-    @Filter(RejectFilteredObjects.class)
+    @Filter(RejectFilteredObjectsFilter.class)
     @Retention(RetentionPolicy.RUNTIME)
-    public @interface RejectFilteredObjectsFilter {
+    public @interface RejectFiltered {
 
     }
 
-    @RepeatedFilters({@Filter(RejectAll.class)})
+    @RepeatedFilters({@Filter(RejectAllFilter.class)})
     @Retention(RetentionPolicy.RUNTIME)
-    public @interface RejectAllFilter {
+    public @interface RejectAll {
 
     }
 
