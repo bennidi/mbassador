@@ -27,20 +27,29 @@ public class ReflectionUtils
 
     public static void getMethods(IPredicate<Method> condition, Class<?> target, ArrayList<Method> methods) {
         try {
-            for ( Method method : target.getDeclaredMethods() ) {
-                if ( condition.apply( method ) ) {
-                    methods.add( method );
+            for (Method method : target.getDeclaredMethods()) {
+                if (condition.apply(method)) {
+                    methods.add(method);
+                }
+            }
+
+            for (Class superType : getSuperTypes(target)) {
+                if (superType.equals(Object.class)) {
+                    continue;
+                }
+
+                for (Method superTypeMethod : superType.getDeclaredMethods()) {
+                    if (condition.apply(superTypeMethod )) {
+                        methods.add(superTypeMethod);
+                    }
                 }
             }
         }
-        catch ( Exception e ) {
+        catch (Exception e) {
             //nop
         }
-        if ( !target.equals( Object.class ) ) {
-            getMethods(condition, target.getSuperclass(), methods);
-        }
     }
-    
+
     /**
     * Traverses the class hierarchy upwards, starting at the given subclass, looking
     * for an override of the given methods -> finds the bottom most override of the given
