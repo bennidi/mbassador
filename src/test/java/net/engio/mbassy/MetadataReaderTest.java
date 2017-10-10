@@ -43,13 +43,13 @@ public class MetadataReaderTest extends AssertSupport {
         validator.check(listener);
     }
 
-    /*@Test
+    @Test
     public void testInterfacedEnveloped() {
         MessageListener listener = reader.getMessageListener(EnvelopedInterfacedListener.class);
         ListenerValidator validator = new ListenerValidator()
-                .expectHandlers(1, Object.class);
+                .expectHandlers(1, Integer.class);
         validator.check(listener);
-    } WIP */
+    }
 
 
     @Test
@@ -215,32 +215,32 @@ public class MetadataReaderTest extends AssertSupport {
 
     }
 
-    public static interface EnvelopedListenerInterface {
+    public interface EnvelopedListenerInterface {
 
         @Handler
-        @Enveloped(messages = Object.class)
+        @Enveloped(messages = Integer.class)
         void handle(MessageEnvelope envelope);
     }
 
-    public class EnvelopedInterfacedListener implements  EnvelopedListenerInterface {
+    public class EnvelopedInterfacedListener implements EnvelopedListenerInterface {
 
         @Override
         public void handle(MessageEnvelope envelope) {
-            //
+
         }
     }
 
-    public static interface ListenerInterface {
+    public interface ListenerInterface {
 
         @Handler
         void handle(String str);
     }
 
-    public class InterfacedListener implements  ListenerInterface{
+    public class InterfacedListener implements ListenerInterface {
 
         @Override
         public void handle(String str) {
-            //
+
         }
     }
 
