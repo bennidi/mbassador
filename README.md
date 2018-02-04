@@ -164,7 +164,7 @@ You can also download binary release and javadoc from the [maven central reposit
 There is ongoing effort to extend documentation and provide code samples and detailed explanations of how the message bus works. Code samples can also be found in the various test cases. Please read about the terminology used in this project to avoid confusion and misunderstanding.
 
 + [javadoc](http://bennidi.github.io/mbassador/)
-+ [wiki](wiki)
++ [wiki](https://github.com/bennidi/mbassador/wiki)
 + API examples on programcreek: [Handler](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.listener.Handler), [BusConfiguration](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.bus.config.BusConfiguration), [MBassador](http://www.programcreek.com/java-api-examples/index.php?api=net.engio.mbassy.bus.MBassador)
 
 
