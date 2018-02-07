@@ -205,4 +205,9 @@ public class SubscriptionManager {
         }
         return subscriptions;
     }
+
+    public void unsubscribeAll(){
+        this.subscriptionsPerListener.clear();
+        this.subscriptionsPerMessage.clear();
+    }
 }
