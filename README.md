@@ -1,5 +1,5 @@
-MBassador - CS Fork
-===================
+MBassador - Continuum Security Fork
+===================================
 
 [![](https://jitpack.io/v/continuumsecurity/mbassador.svg)](https://jitpack.io/#continuumsecurity/mbassador)
 
