@@ -226,7 +226,7 @@ public class SubscriptionManagerTest extends AssertSupport {
 
         expectedSubscriptions.validate(subscriptionManager);
 
-        subscriptionManager.unsubscribeAllPerListener();
+        subscriptionManager.unsubscribeAllListener();
 
         listeners.clear();
 
