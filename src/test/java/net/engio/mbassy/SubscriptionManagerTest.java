@@ -211,6 +211,50 @@ public class SubscriptionManagerTest extends AssertSupport {
         runTestWith(listeners, expectedSubscriptions);
     }
 
+    @Test
+    public void testUnsubscribeAllPerListener() {
+        ListenerFactory listeners = listeners(
+                Overloading.ListenerBase.class,
+                Overloading.ListenerSub.class);
+
+        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
+
+        SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
+                .listener(Overloading.ListenerBase.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class)
+                .listener(Overloading.ListenerSub.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class, Overloading.TestMessageB.class);
+
+        expectedSubscriptions.validate(subscriptionManager);
+
+        subscriptionManager.unsubscribeAllPerListener();
+
+        listeners.clear();
+
+        expectedSubscriptions.validate(subscriptionManager);
+    }
+
+    @Test
+    public void testUnsubscribeAll() {
+        ListenerFactory listeners = listeners(
+                Overloading.ListenerBase.class,
+                Overloading.ListenerSub.class);
+
+        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
+
+        SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
+                .listener(Overloading.ListenerBase.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class)
+                .listener(Overloading.ListenerSub.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class, Overloading.TestMessageB.class);
+
+        expectedSubscriptions.validate(subscriptionManager);
+
+        subscriptionManager.unsubscribeAll();
+
+        assertFalse(subscriptionManager.unsubscribe(Overloading.ListenerBase.class));
+        assertFalse(subscriptionManager.unsubscribe(Overloading.ListenerSub.class));
+
+    }
+
     private BusRuntime mockedRuntime() {
         return new BusRuntime(null)
                 .add(IBusConfiguration.Properties.PublicationErrorHandlers, Collections.EMPTY_SET)
