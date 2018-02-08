@@ -120,4 +120,8 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     public void unsubscribeAll(){
         this.subscriptionManager.unsubscribeAll();
     }
+
+    public void unsubscribeAllListener(){
+        this.subscriptionManager.unsubscribeAllListener();
+    }
 }
