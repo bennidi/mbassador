@@ -212,28 +212,6 @@ public class SubscriptionManagerTest extends AssertSupport {
     }
 
     @Test
-    public void testUnsubscribeAllPerListener() {
-        ListenerFactory listeners = listeners(
-                Overloading.ListenerBase.class,
-                Overloading.ListenerSub.class);
-
-        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
-        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
-
-        SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
-                .listener(Overloading.ListenerBase.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class)
-                .listener(Overloading.ListenerSub.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class, Overloading.TestMessageB.class);
-
-        expectedSubscriptions.validate(subscriptionManager);
-
-        subscriptionManager.unsubscribeAllListener();
-
-        listeners.clear();
-
-        expectedSubscriptions.validate(subscriptionManager);
-    }
-
-    @Test
     public void testUnsubscribeAll() {
         ListenerFactory listeners = listeners(
                 Overloading.ListenerBase.class,
@@ -249,6 +227,28 @@ public class SubscriptionManagerTest extends AssertSupport {
         expectedSubscriptions.validate(subscriptionManager);
 
         subscriptionManager.unsubscribeAll();
+
+        listeners.clear();
+
+        expectedSubscriptions.validate(subscriptionManager);
+    }
+
+    @Test
+    public void testPurge() {
+        ListenerFactory listeners = listeners(
+                Overloading.ListenerBase.class,
+                Overloading.ListenerSub.class);
+
+        SubscriptionManager subscriptionManager = new SubscriptionManager(new MetadataReader(), new SubscriptionFactory(), mockedRuntime());
+        ConcurrentExecutor.runConcurrent(TestUtil.subscriber(subscriptionManager, listeners), ConcurrentUnits);
+
+        SubscriptionValidator expectedSubscriptions = new SubscriptionValidator(listeners)
+                .listener(Overloading.ListenerBase.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class)
+                .listener(Overloading.ListenerSub.class).handles(Overloading.TestMessageA.class, Overloading.TestMessageA.class, Overloading.TestMessageB.class);
+
+        expectedSubscriptions.validate(subscriptionManager);
+
+        subscriptionManager.purge();
 
         assertFalse(subscriptionManager.unsubscribe(Overloading.ListenerBase.class));
         assertFalse(subscriptionManager.unsubscribe(Overloading.ListenerSub.class));

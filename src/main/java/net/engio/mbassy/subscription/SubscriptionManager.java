@@ -209,7 +209,7 @@ public class SubscriptionManager {
     /**
      * Unsubscribe all listener and keeps classes subscriptions.
      */
-    public void unsubscribeAllListener() {
+    public void unsubscribeAll() {
         ReadLock readLock = readWriteLock.readLock();
         try {
             readLock.lock();
@@ -224,9 +224,9 @@ public class SubscriptionManager {
     }
 
     /**
-     * Unsubscribe all classes and their related subscription.
+     * Remove all classes and their related subscription.
      */
-    public void unsubscribeAll() {
+    public void purge() {
         ReadLock readLock = readWriteLock.readLock();
         try {
             readLock.lock();
