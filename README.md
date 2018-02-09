@@ -3,7 +3,7 @@ MBassador - Continuum Security Fork
 
 [![](https://jitpack.io/v/continuumsecurity/mbassador.svg)](https://jitpack.io/#continuumsecurity/mbassador)
 
-This fork start from version 1.3.1 born out of necessity to get a deep manage subscriptions
+This fork starts from version 1.3.1 and is born out of the necessity to allow a deeper management of object subscriptions
 
 ## Features
 
