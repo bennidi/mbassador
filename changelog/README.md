@@ -7,7 +7,7 @@
   + @Enveloped.messages -> @Enveloped.types
   + MessageEnvelope -> Envelope
 
-### 1.3.2
+### 1.3.1
 
 + Merged PR #150: Filter definition as reusable annotation
 

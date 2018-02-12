@@ -205,4 +205,35 @@ public class SubscriptionManager {
         }
         return subscriptions;
     }
+
+    /**
+     * Unsubscribe all listener and keeps classes subscriptions.
+     */
+    public void unsubscribeAll() {
+        ReadLock readLock = readWriteLock.readLock();
+        try {
+            readLock.lock();
+            for (Map.Entry<Class, Subscription[]> entry : this.subscriptionsPerListener.entrySet()) {
+                for (int i = 0; i < entry.getValue().length; i++) {
+                    entry.getValue()[i].unsubscribeAll();
+                }
+            }
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * Remove all classes and their related subscription.
+     */
+    public void purge() {
+        ReadLock readLock = readWriteLock.readLock();
+        try {
+            readLock.lock();
+            this.subscriptionsPerListener.clear();
+            this.subscriptionsPerMessage.clear();
+        } finally {
+            readLock.unlock();
+        }
+    }
 }

@@ -116,4 +116,12 @@ public abstract class AbstractPubSubSupport<T> implements PubSubSupport<T> {
     public String toString() {
         return getClass().getSimpleName() + "(" + runtime.get(IBusConfiguration.Properties.BusId) + ")";
     }
+
+    public void purge(){
+        this.subscriptionManager.purge();
+    }
+
+    public void unsubscribeAll(){
+        this.subscriptionManager.unsubscribeAll();
+    }
 }

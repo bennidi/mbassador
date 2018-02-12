@@ -88,6 +88,13 @@ public class Subscription {
         return listeners.remove(existingListener);
     }
 
+    /**
+     * Remove all subscribe listener
+     */
+    public void unsubscribeAll(){
+        this.listeners.clear();
+    }
+
     public int size() {
         return listeners.size();
     }
