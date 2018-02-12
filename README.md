@@ -1,39 +1,11 @@
-MBassador - Continuum Security Fork
-===================================
-
-[![](https://jitpack.io/v/continuumsecurity/mbassador.svg)](https://jitpack.io/#continuumsecurity/mbassador)
-
-This fork starts from version 1.3.1 and is born out of the necessity to allow a deeper management of object subscriptions
-
-## Features
-
-> Unsubscribe all 
-
-Remove subscribed listeners and keep the clases associated to the subscriptions. Recomended for use cases when need unsubscribe all existing listeners but don't want remove the association with the register class. The next time you subscribe a class already subcribed it will reuse this instance and only update listeners. Improve the performance.
-
-```java
-MBassador bus = new MBassador();
-bus.unsubscribeAll();
-```
-
-> Purge
-
-Remove all subscribed class and their listener associated. Force clean the whole subscription list. Recomended for use cases when your cycle of life subscribe new instances of already existing classes and you can't unsbuscribe old one.
-
-```java
-MBassador bus = new MBassador();
-bus.purge();
-```
-
-[ChangeLog](https://github.com/continuumsecurity/mbassador/tree/master/changelog)
-
-MBassador - Official Repository
-===============================
-
 [![build status](https://travis-ci.org/bennidi/mbassador.svg?branch=master)](https://travis-ci.org/bennidi/mbassador)
 [![maven central](https://img.shields.io/maven-central/v/net.engio/mbassador.svg)](https://maven-badges.herokuapp.com/maven-central/net.engio/mbassador)
 [![javadoc](http://www.javadoc.io/badge/net.engio/mbassador.svg)](http://www.javadoc.io/doc/net.engio/mbassador)
 [![wiki](assets/wiki.png?raw=true)](wiki)
+
+
+MBassador
+=========
 
 MBassador is a light-weight, high-performance event bus implementing the [publish subscribe pattern](https://en.wikipedia.org/wiki/Publish-subscribe_pattern). It is designed for ease of use and aims to be feature rich and extensible while preserving resource efficiency and performance. 
 
@@ -42,7 +14,7 @@ The core of MBassador is built around a *custom data structure* that provides **
 The code is **production ready**: 86% instruction coverage, 82% branch coverage with randomized and concurrently run test sets, no major bug has been reported in the last 18 month. No modifications to the core will be made without thoroughly testing the code.
 
 
-[Usage](#usage) | [Features](#features) | [Installation](#installation) | [Wiki](https://github.com/bennidi/mbassador/wiki) | [Release Notes](https://github.com/bennidi/mbassador/tree/master/changelog) | [Integrations](#integrations) | [Credits](#credits) | [Contribute](#contribute) | [License](#license)
+[Usage](#usage) | [Features](#features) | [Installation](#installation) | [Wiki](#wiki) | [Release Notes](#./changelog) | [Integrations](#integrations) | [Credits](#credits) | [Contribute](#contribute) | [License](#license)
 
 <h2>Usage</h2>
 
@@ -122,40 +94,6 @@ Instead of using weak references, a listener can be configured to be referenced 
 > Message filtering
 
 MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to a single message handler. Since version 1.2.0 Java EL expressions in `@Handler` are another way to define conditional message dispatch. Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message. FilteredMessage events can be handled by registering listeners that handle FilteredMessage.
-
-Note: Since version 1.3.1 it is possible to wrap a filter in a custom annotation for reuse
-
-```java
-
-
-
-
-    public static final class RejectAllFilter implements IMessageFilter {
-
-        @Override
-        public boolean accepts(Object event,  SubscriptionContext context) {
-            return false;
-        }
-    }
-
-    @IncludeFilters({@Filter(RejectAllFilter.class)})
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface RejectAll {}
-    
-    public static class FilteredMessageListener{
-    
-        // will cause republication of a FilteredEvent
-        @Handler
-        @RejectAll
-        public void handleNone(Object any){
-            FilteredEventCounter.incrementAndGet();
-        }
-
-        
-    }
-
-
-```
 
 > Enveloped messages
 

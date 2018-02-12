@@ -1,8 +1,3 @@
-### 1.4.0 - Continuum Security
-
-+ Added unsubscribeAll API feature. Remove all subscription listeners but not associated classes
-+ Added purge API feature. Remove all subscription listener and associated classes, force clean subscription list.
-
 ### 1.3.2
 
 + TODO
@@ -12,7 +7,7 @@
   + @Enveloped.messages -> @Enveloped.types
   + MessageEnvelope -> Envelope
 
-### 1.3.2
+### 1.3.1
 
 + Merged PR #150: Filter definition as reusable annotation
 
