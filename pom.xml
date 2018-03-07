@@ -54,9 +54,9 @@
     </developers>
 
     <properties>
-        <jdk.version>1.6</jdk.version>
+        <jdk.version>1.7</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.java.version>1.6</project.build.java.version>
+        <project.build.java.version>1.7</project.build.java.version>
         <github.url>file://${project.basedir}/mvn-local-repo</github.url>
     </properties>
 
