@@ -45,6 +45,7 @@ public class MessageHandler {
          */
         public static final Map<String, Object> Create(Method handler,
                                                        Handler handlerConfig,
+                                                       Enveloped enveloped,
                                                        IMessageFilter[] filter,
                                                        MessageListener listenerConfig){
             if(handler == null){
@@ -53,7 +54,6 @@ public class MessageHandler {
             if(filter == null){
                 filter = new IMessageFilter[]{};
             }
-            Enveloped enveloped = ReflectionUtils.getAnnotation( handler, Enveloped.class );
             Class[] handledMessages = enveloped != null
                     ? enveloped.messages()
                     : handler.getParameterTypes();

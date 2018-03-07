@@ -89,18 +89,23 @@ public class MetadataReader {
             if (!ReflectionUtils.containsOverridingMethod(allHandlers, handler)) {
 
                 // for each handler there will be no overriding method that specifies @Handler annotation
-                // but an overriding method does inherit the listener configuration of the overwritten method
+                // but an overriding method does inherit the listener configuration of the overridden method
 
                 Handler handlerConfig = ReflectionUtils.getAnnotation(handler, Handler.class);
+                Enveloped enveloped = ReflectionUtils.getAnnotation( handler, Enveloped.class );
+
                 if (!handlerConfig.enabled() || !isValidMessageHandler(handler)) {
                     continue; // disabled or invalid listeners are ignored
                 }
+
                 Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
-                // if a handler is overwritten it inherits the configuration of its parent method
+                // if a handler is overridden it inherits the configuration of its parent method
                 Map<String, Object> handlerProperties = MessageHandler.Properties.Create(overriddenHandler == null ? handler : overriddenHandler,
                                                                                          handlerConfig,
+                                                                                         enveloped,
                                                                                          getFilter(handler, handlerConfig),
                                                                                          listenerMetadata);
+
                 MessageHandler handlerMetadata = new MessageHandler(handlerProperties);
                 listenerMetadata.addHandler(handlerMetadata);
             }
