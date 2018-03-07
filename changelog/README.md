@@ -1,13 +1,16 @@
-### 1.3.2
+### 1.3.3
 
 + TODO
   + Remove IBusConfiguration (merge with BusConfiguration)
-  + Investigate https://github.com/bennidi/mbassador/issues/101
   + Introduce @Asynchronous as alternative to delivery mode
   + @Enveloped.messages -> @Enveloped.types
   + MessageEnvelope -> Envelope
-
+  
 ### 1.3.2
+  
+  + Merged PR #153: Support of handler definition in interfaces
+
+### 1.3.1
 
 + Merged PR #150: Filter definition as reusable annotation
 
