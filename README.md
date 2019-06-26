@@ -11,6 +11,8 @@ MBassador is a light-weight, high-performance event bus implementing the [publis
 
 The core of MBassador is built around a *custom data structure* that provides **non-blocking reads** and minimized lock contention for writes such that performance degradation of concurrent read/write access is minimal. Benchmarks that illustrate the advantages of this design are available in this [github repository](https://github.com/bennidi/eventbus-performance).
 
+[![wiki](https://github.com/bennidi/eventbus-performance/blob/master/results/ReadWriteLowConcurrency/mbassador-1.3.0/chart.jpg?raw=true)](wiki)
+
 The code is **production ready**: 86% instruction coverage, 82% branch coverage with randomized and concurrently run test sets, no major bug has been reported in the last 18 month. No modifications to the core will be made without thoroughly testing the code.
 
 
