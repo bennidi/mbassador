@@ -111,7 +111,7 @@ public class MessagePublication implements IMessagePublication {
         return message;
     }
 
-    private enum State {
+    protected enum State {
         Initial, Scheduled, Running, Finished
     }
 
