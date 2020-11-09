@@ -1,4 +1,8 @@
+arch:
+ - amd
+ - ppc64le
+ 
 jdk:
-  - openjdk7
+  - openjdk11
 script:
   mvn clean test
