@@ -94,7 +94,6 @@ public class SubscriptionManager {
                 return; // early reject of known classes that do not define message handlers
             }
             Subscription[] subscriptionsByListener = getSubscriptionsByListener(listener);
-            // Increase counter by 1!
             // a listener is either subscribed for the first time
             if (subscriptionsByListener == null) {
                 MessageHandler[] messageHandlers = metadataReader.getMessageListener(listenerClass).getHandlers();
