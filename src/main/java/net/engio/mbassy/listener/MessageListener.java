@@ -3,6 +3,7 @@ package net.engio.mbassy.listener;
 import net.engio.mbassy.common.IPredicate;
 import net.engio.mbassy.common.ReflectionUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -37,18 +38,18 @@ public class MessageListener<T> {
 
     private ArrayList<MessageHandler> handlers = new ArrayList<MessageHandler>();
 
-    private Class<T> listenerDefinition;
+    private WeakReference<Class<T>> listenerDefinition;
 
     private Listener listenerAnnotation;
 
     public MessageListener(Class<T> listenerDefinition) {
-       this.listenerDefinition = listenerDefinition;
+       this.listenerDefinition = new WeakReference<>(listenerDefinition);
        listenerAnnotation = ReflectionUtils.getAnnotation( listenerDefinition, Listener.class );
     }
 
 
     public boolean isFromListener(Class listener){
-        return listenerDefinition.equals(listener);
+        return listenerDefinition.get().equals(listener);
     }
 
     public boolean useStrongReferences(){
@@ -83,9 +84,5 @@ public class MessageListener<T> {
     // used by unit tests
     public boolean handles(Class<?> messageType) {
         return !getHandlers(ForMessage(messageType)).isEmpty();
-    }
-
-    public Class<T> getListerDefinition() {
-        return listenerDefinition;
     }
 }
