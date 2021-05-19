@@ -69,10 +69,8 @@ public class SubscriptionManager {
             return false;
         }
         boolean isRemoved = true;
-        boolean isEmpty = true;
         for (Subscription subscription : subscriptions) {
             isRemoved &= subscription.unsubscribe(listener);
-            isEmpty = isEmpty && subscription.size() == 0;
         }
         readWriteLock.writeLock().lock();
         int left = subscriptionsPerListenerCounter.get(listener.getClass()) - 1;
