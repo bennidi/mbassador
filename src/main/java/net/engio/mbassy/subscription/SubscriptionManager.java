@@ -35,6 +35,7 @@ public class SubscriptionManager {
     // write access is synchronized and happens very infrequently
     // once a collection of subscriptions is stored it does not change
     private final WeakHashMap<Class, Subscription[]> subscriptionsPerListener;
+    private final WeakHashMap<Class, Integer> subscriptionsPerListenerCounter;
 
     // Remember already processed classes that do not contain any message handlers
     private final StrongConcurrentSet<Class> nonListeners = new StrongConcurrentSet<Class>();
@@ -55,6 +56,7 @@ public class SubscriptionManager {
 
         subscriptionsPerMessage = new WeakHashMap<Class, ArrayList<Subscription>>(256);
         subscriptionsPerListener = new WeakHashMap<Class, Subscription[]>(256);
+        subscriptionsPerListenerCounter = new WeakHashMap<Class, Integer>(256);
     }
 
 
@@ -67,9 +69,24 @@ public class SubscriptionManager {
             return false;
         }
         boolean isRemoved = true;
+        boolean isEmpty = true;
         for (Subscription subscription : subscriptions) {
             isRemoved &= subscription.unsubscribe(listener);
+            isEmpty = isEmpty && subscription.size() == 0;
         }
+        readWriteLock.writeLock().lock();
+        int left = subscriptionsPerListenerCounter.get(listener.getClass()) - 1;
+        subscriptionsPerListenerCounter.put(listener.getClass(), left);
+        if(left == 0) {
+            subscriptionsPerListener.remove(listener.getClass());
+            for (Subscription subscription : subscriptions) {
+                for (Class<?> messageType : subscription.getHandledMessageTypes()) {
+                    ArrayList<Subscription> subscriptions2 = subscriptionsPerMessage.get(messageType);
+                    subscriptions2.remove(subscription);
+                }
+            }
+        }
+        readWriteLock.writeLock().unlock();
         return isRemoved;
     }
 
@@ -94,6 +111,10 @@ public class SubscriptionManager {
                 return; // early reject of known classes that do not define message handlers
             }
             Subscription[] subscriptionsByListener = getSubscriptionsByListener(listener);
+
+            readWriteLock.writeLock().lock();
+            subscriptionsPerListenerCounter.put(listenerClass,subscriptionsPerListenerCounter.getOrDefault(subscriptionsPerListenerCounter,0) + 1);
+            readWriteLock.writeLock().unlock();
             // a listener is either subscribed for the first time
             if (subscriptionsByListener == null) {
                 MessageHandler[] messageHandlers = metadataReader.getMessageListener(listenerClass).getHandlers();
