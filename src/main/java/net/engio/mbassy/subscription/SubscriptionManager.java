@@ -111,8 +111,10 @@ public class SubscriptionManager {
             Subscription[] subscriptionsByListener = getSubscriptionsByListener(listener);
 
             readWriteLock.writeLock().lock();
-            subscriptionsPerListenerCounter.put(listenerClass,subscriptionsPerListenerCounter.getOrDefault(subscriptionsPerListenerCounter,0) + 1);
+            int counter= subscriptionsPerListenerCounter.getOrDefault(listenerClass,0) + 1;
+            subscriptionsPerListenerCounter.put(listenerClass,counter);
             readWriteLock.writeLock().unlock();
+
             // a listener is either subscribed for the first time
             if (subscriptionsByListener == null) {
                 MessageHandler[] messageHandlers = metadataReader.getMessageListener(listenerClass).getHandlers();
