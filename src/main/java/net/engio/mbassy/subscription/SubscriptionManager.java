@@ -72,19 +72,21 @@ public class SubscriptionManager {
         for (Subscription subscription : subscriptions) {
             isRemoved &= subscription.unsubscribe(listener);
         }
-        readWriteLock.writeLock().lock();
-        int left = subscriptionsPerListenerCounter.get(listener.getClass()) - 1;
-        subscriptionsPerListenerCounter.put(listener.getClass(), left);
-        if(left == 0) {
-            subscriptionsPerListener.remove(listener.getClass());
-            for (Subscription subscription : subscriptions) {
-                for (Class<?> messageType : subscription.getHandledMessageTypes()) {
-                    ArrayList<Subscription> subscriptions2 = subscriptionsPerMessage.get(messageType);
-                    subscriptions2.remove(subscription);
+        if(isRemoved) {
+            readWriteLock.writeLock().lock();
+            int left = subscriptionsPerListenerCounter.get(listener.getClass()) - 1;
+            subscriptionsPerListenerCounter.put(listener.getClass(), left);
+            if(left == 0) {
+                subscriptionsPerListener.remove(listener.getClass());
+                for (Subscription subscription : subscriptions) {
+                    for (Class<?> messageType : subscription.getHandledMessageTypes()) {
+                        ArrayList<Subscription> subscriptions2 = subscriptionsPerMessage.get(messageType);
+                        subscriptions2.remove(subscription);
+                    }
                 }
             }
+            readWriteLock.writeLock().unlock();
         }
-        readWriteLock.writeLock().unlock();
         return isRemoved;
     }
 
