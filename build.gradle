@@ -4,16 +4,18 @@ apply plugin: 'war' // needed for providedCompile
 group="org.mbassy"
 version="1.2.5-SNAPSHOT"
 
-
-
 repositories {
     jcenter()
     mavenCentral()
 }
 
+test {
+    jvmArgs '--add-opens java.base/java.lang=ALL-UNNAMED'
+}
+
 dependencies {
 
-    testCompile "junit:junit:4.12"
+    testCompile "junit:junit:4.13.2"
     testCompile 'org.assertj:assertj-core:3.3.0'
     testCompile 'org.mockito:mockito-core:1.10.19'
 
@@ -21,7 +23,8 @@ dependencies {
 
 
     testCompile 'org.slf4j:slf4j-log4j12:1.7.5'
-    providedCompile 'javax.el:javax.el-api:2.2.5'
+    providedCompile 'jakarta.el:jakarta.el-api:6.0.1'
+    providedCompile 'org.glassfish:jakarta.el:4.0.2'
     runtime 'de.odysseus.juel:juel-impl:2.2.7'
     runtime 'de.odysseus.juel:juel-spi:2.2.7'
 }

@@ -1,12 +1,12 @@
 package net.engio.mbassy.dispatch.el;
 
+import jakarta.el.ExpressionFactory;
+import jakarta.el.ValueExpression;
 import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.listener.IMessageFilter;
 import net.engio.mbassy.listener.MessageHandler;
 import net.engio.mbassy.subscription.SubscriptionContext;
 
-import javax.el.ExpressionFactory;
-import javax.el.ValueExpression;
 
 /**
  * A filter that will use a expression from the handler annotation and
@@ -29,7 +29,7 @@ public class ElFilter implements IMessageFilter {
          * If none is available we do not support EL filters.
          * **********************************************************************
          */
-        private static final ExpressionFactory getELFactory() {
+        private static ExpressionFactory getELFactory() {
             try {
                 return ExpressionFactory.newInstance();
             } catch (RuntimeException e) {
@@ -38,11 +38,11 @@ public class ElFilter implements IMessageFilter {
         }
     }
 
-    public static final boolean isELAvailable() {
+    public static boolean isELAvailable() {
         return ExpressionFactoryHolder.ELFactory != null;
     }
 
-    public static final ExpressionFactory ELFactory() {
+    public static ExpressionFactory ELFactory() {
         return ExpressionFactoryHolder.ELFactory;
     }
 
@@ -61,7 +61,7 @@ public class ElFilter implements IMessageFilter {
                                    final Object message) {
         ValueExpression ve = ELFactory().createValueExpression(resolutionContext, expression, Boolean.class);
         try {
-            return (Boolean)ve.getValue(resolutionContext);
+            return ve.getValue(resolutionContext);
         } catch (Throwable exception) {
             PublicationError publicationError = new PublicationError(exception, "Error while evaluating EL expression on message", context)
                     .setPublishedMessage(message);

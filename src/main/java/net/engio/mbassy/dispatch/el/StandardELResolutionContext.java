@@ -1,6 +1,12 @@
 package net.engio.mbassy.dispatch.el;
 
-import javax.el.*;
+import jakarta.el.BeanELResolver;
+import jakarta.el.ELContext;
+import jakarta.el.ELResolver;
+import jakarta.el.FunctionMapper;
+import jakarta.el.ValueExpression;
+import jakarta.el.VariableMapper;
+
 import java.lang.reflect.Method;
 
 /**
@@ -31,12 +37,12 @@ public class StandardELResolutionContext extends ELContext {
 		//this.resolver = new CompositeELResolver();
         this.resolver = new BeanELResolver(true);
 	}
-	
+
 
 
 	/*************************************************************************
 	 * The resolver for the event object.
-	 * @see javax.el.ELContext#getELResolver()
+	 * @see jakarta.el.ELContext#getELResolver()
 	 ************************************************************************/
 	@Override
 	public ELResolver getELResolver() {
@@ -44,7 +50,7 @@ public class StandardELResolutionContext extends ELContext {
 	}
 
 	/*************************************************************************
-	 * @see javax.el.ELContext#getFunctionMapper()
+	 * @see jakarta.el.ELContext#getFunctionMapper()
 	 ************************************************************************/
 	@Override
 	public FunctionMapper getFunctionMapper() {
@@ -52,7 +58,7 @@ public class StandardELResolutionContext extends ELContext {
 	}
 
 	/*************************************************************************
-	 * @see javax.el.ELContext#getVariableMapper()
+	 * @see jakarta.el.ELContext#getVariableMapper()
 	 ************************************************************************/
 	@Override
 	public VariableMapper getVariableMapper() {

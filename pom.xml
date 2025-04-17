@@ -54,9 +54,9 @@
     </developers>
 
     <properties>
-        <jdk.version>1.7</jdk.version>
+        <jdk.version>21</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.java.version>1.7</project.build.java.version>
+        <project.build.java.version>21</project.build.java.version>
         <github.url>file://${project.basedir}/mvn-local-repo</github.url>
     </properties>
 
@@ -102,10 +102,16 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>el-api</artifactId>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
             <scope>provided</scope>
-            <version>2.2</version>
+            <version>6.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <scope>provided</scope>
+            <version>4.0.2</version>
         </dependency>
         <dependency>
             <groupId>de.odysseus.juel</groupId>
@@ -182,6 +188,10 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
+                    <compilerArgs>
+                        <arg>--add-opens</arg>
+                        <arg>java.base/java.lang=ALL-UNNAMED</arg>
+                    </compilerArgs>
                     <source>${project.build.java.version}</source>
                     <target>${project.build.java.version}</target>
                 </configuration>
@@ -203,6 +213,7 @@
                 <configuration>
                     <!-- Sets the VM argument line used when unit tests are run.-->
                     <argLine>${surefireArgLine}</argLine>
+                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <skipTests>false</skipTests>
                     <excludes>
                         <!-- exclude the suite which is a convenience class
@@ -298,7 +309,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.7.5.201505241946</version>
+                        <version>0.8.12</version>
                         <executions>
                             <!--
                                 Prepares the property pointing to the JaCoCo runtime agent which

@@ -43,11 +43,11 @@ public class MessageHandler {
          * @return  A map of properties initialized from the given parameters that will conform to the requirements of the
          *         {@link MessageHandler} constructor.
          */
-        public static final Map<String, Object> Create(Method handler,
-                                                       Handler handlerConfig,
-                                                       Enveloped enveloped,
-                                                       IMessageFilter[] filter,
-                                                       MessageListener listenerConfig){
+        public static Map<String, Object> Create(Method handler,
+                                                 Handler handlerConfig,
+                                                 Enveloped enveloped,
+                                                 IMessageFilter[] filter,
+                                                 MessageListener listenerConfig){
             if(handler == null){
                 throw new IllegalArgumentException("The message handler configuration may not be null");
             }
@@ -101,7 +101,7 @@ public class MessageHandler {
     private final IMessageFilter[] filter;
 
 	private final String condition;
-    
+
     private final int priority;
 
     private final Class<? extends HandlerInvocation> invocation;
@@ -192,7 +192,7 @@ public class MessageHandler {
     public IMessageFilter[] getFilter() {
         return filter;
     }
-    
+
     public String getCondition() {
     	return this.condition;
     }
