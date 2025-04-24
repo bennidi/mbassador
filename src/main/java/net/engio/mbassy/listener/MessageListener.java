@@ -42,8 +42,8 @@ public class MessageListener<T> {
     private Listener listenerAnnotation;
 
     public MessageListener(Class<T> listenerDefinition) {
-       this.listenerDefinition = listenerDefinition;
-       listenerAnnotation = ReflectionUtils.getAnnotation( listenerDefinition, Listener.class );
+        this.listenerDefinition = listenerDefinition;
+        listenerAnnotation = ReflectionUtils.getAnnotation( listenerDefinition, Listener.class );
     }
 
 
