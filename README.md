@@ -40,11 +40,20 @@ class SimpleFileListener{
     public void expensiveOperation(File file){
       // do something with the file
     }
-    
-    @Handler(condition = "msg.size >= 10000")
+
+    @Handler(filters = @Filter(LargeFileFilter.class))
     @Enveloped(messages = {HashMap.class, LinkedList.class})
     public void handleLarge(MessageEnvelope envelope) {
        // handle objects without common super type
+    }
+
+    static class LargeFileFilter implements IMessageFilter<MessageEnvelope> {
+        public boolean accepts(MessageEnvelope envelope, SubscriptionContext context) {
+            Object msg = envelope.getMessage();
+            if (msg instanceof Map) return ((Map) msg).size() >= 10000;
+            if (msg instanceof Collection) return ((Collection) msg).size() >= 10000;
+            return false;
+        }
     }
 
 }
@@ -95,9 +104,9 @@ Instead of using weak references, a listener can be configured to be referenced 
 
 > Message filtering
 
-MBassador offers static message filtering. Filters are configured using annotations and multiple filters can be attached to a single message handler. Since version 1.2.0 Java EL expressions in `@Handler` are another way to define conditional message dispatch. Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message. FilteredMessage events can be handled by registering listeners that handle FilteredMessage.
+MBassador offers type-safe message filtering using lambda-compatible filter classes. Filters are configured using the `@Filter` annotation and multiple filters can be attached to a single message handler. Filters implement the `IMessageFilter` functional interface, allowing for clean, type-safe filtering logic. Messages that have matching handlers but do not pass the configured filters result in the publication of a FilteredMessage object which wraps the original message. FilteredMessage events can be handled by registering listeners that handle FilteredMessage.
 
-Note: Since version 1.3.1 it is possible to wrap a filter in a custom annotation for reuse
+Filters can be reused across handlers by wrapping them in custom annotations (available since version 1.3.1)
 
 ```java
 
@@ -189,7 +198,7 @@ Thanks to all [contributors](https://github.com/bennidi/mbassador/pulls?q=is%3Ap
 Many thanks also to ej-technologies for providing an open source license of 
 [![JProfiler](http://www.ej-technologies.com/images/banners/jprofiler_small.png)](http://www.ej-technologies.com/products/jprofiler/overview.html) and Jetbrains for a license of [IntelliJ IDEA](http://www.jetbrains.com/idea/)
 
-OSS used by MBassador: [jUnit](http://www.junit.org) | [maven](http://www.maven.org) | [mockito](http://www.mockito.org) | [slf4j](http://www.slf4j.org) | [Odysseus JUEL](http://juel.sourceforge.net/guide/start.html)
+OSS used by MBassador: [jUnit](http://www.junit.org) | [maven](http://www.maven.org) | [mockito](http://www.mockito.org) | [slf4j](http://www.slf4j.org)
 
 
 ## Contribute

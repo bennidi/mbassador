@@ -7,9 +7,8 @@ import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.common.MessageBusTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -23,7 +22,6 @@ import static org.mockito.Mockito.when;
  * <p/>
  * Created by David Sowerby on 13/04/15.
  */
-@RunWith(MockitoJUnitRunner.class)
 public class AbstractPubSubSupportTest {
 
     IBusConfiguration configuration;
@@ -43,6 +41,7 @@ public class AbstractPubSubSupportTest {
 
     @Before
     public void setup() {
+        MockitoAnnotations.openMocks(this);
         configuration = MessageBusTest.SyncAsync(false);
     }
 

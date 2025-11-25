@@ -3,18 +3,16 @@ package net.engio.mbassy;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.config.IBusConfiguration;
 import net.engio.mbassy.common.MessageBusTest;
-import net.engio.mbassy.listener.Enveloped;
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Listener;
-import net.engio.mbassy.listener.References;
+import net.engio.mbassy.listener.*;
 import net.engio.mbassy.subscription.MessageEnvelope;
+import net.engio.mbassy.subscription.SubscriptionContext;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /*****************************************************************************
- * Some unit tests for the "condition" filter.
+ * Unit tests for the lambda-based filter functionality (replacing EL conditions).
  ****************************************************************************/
 
 public class ConditionalHandlerTest extends MessageBusTest {
@@ -29,7 +27,7 @@ public class ConditionalHandlerTest extends MessageBusTest {
 		bus.publish(message);
 
 		assertTrue(message.wasHandledBy("handleTypeMessage", "handleEnvelopedMessage"));
-        assertFalse(message.wasHandledBy("handleInvalidEL"));
+        assertFalse(message.wasHandledBy("handleInvalidProperty"));
 	}
 
 	@Test
@@ -41,19 +39,19 @@ public class ConditionalHandlerTest extends MessageBusTest {
 		bus.publish(message);
 
 		assertTrue(message.wasHandledBy("handleSizeMessage"));
-        assertFalse(message.wasHandledBy("handleInvalidEL"));
+        assertFalse(message.wasHandledBy("handleInvalidProperty"));
 	}
 
 	@Test
-	public void testHandleCombinedEL(){
+	public void testHandleCombinedFilter(){
 		MBassador bus = createBus(SyncAsync());
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("", 3);
 		bus.publish(message);
 
-        assertTrue(message.wasHandledBy("handleCombinedEL"));
-        assertFalse(message.wasHandledBy("handleInvalidEL"));
+        assertTrue(message.wasHandledBy("handleCombinedFilter"));
+        assertFalse(message.wasHandledBy("handleInvalidProperty"));
 	}
 
 	@Test
@@ -68,15 +66,15 @@ public class ConditionalHandlerTest extends MessageBusTest {
 	}
 
 	@Test
-	public void testHandleMethodAccessEL(){
+	public void testHandleMethodAccessFilter(){
 		MBassador bus = createBus(SyncAsync());
 		bus.subscribe(new ConditionalMessageListener());
 
 		TestEvent message = new TestEvent("XYZ", 1);
 		bus.publish(message);
 
-        assertTrue(message.wasHandledBy("handleMethodAccessEL"));
-        assertFalse(message.wasHandledBy("handleInvalidEL"));
+        assertTrue(message.wasHandledBy("handleMethodAccessFilter"));
+        assertFalse(message.wasHandledBy("handleInvalidProperty"));
 
     }
 
@@ -113,35 +111,74 @@ public class ConditionalHandlerTest extends MessageBusTest {
 
     }
 
+    // Filter implementations using lambda-style classes
+
+    public static class TestTypeFilter implements IMessageFilter<TestEvent> {
+        @Override
+        public boolean accepts(TestEvent message, SubscriptionContext context) {
+            return "TEST".equals(message.getType());
+        }
+    }
+
+    public static class SizeGreaterThan4Filter implements IMessageFilter<TestEvent> {
+        @Override
+        public boolean accepts(TestEvent message, SubscriptionContext context) {
+            return message.getSize() > 4;
+        }
+    }
+
+    public static class InvalidPropertyFilter implements IMessageFilter<TestEvent> {
+        @Override
+        public boolean accepts(TestEvent message, SubscriptionContext context) {
+            // This simulates accessing an invalid property - always returns false
+            // In the old EL version this would be "msg.foo > 4" where foo doesn't exist
+            return false;
+        }
+    }
+
+    public static class SizeBetween2And4Filter implements IMessageFilter<TestEvent> {
+        @Override
+        public boolean accepts(TestEvent message, SubscriptionContext context) {
+            return message.getSize() > 2 && message.getSize() < 4;
+        }
+    }
+
+    public static class XYZTypeAndSize1Filter implements IMessageFilter<TestEvent> {
+        @Override
+        public boolean accepts(TestEvent message, SubscriptionContext context) {
+            return "XYZ".equals(message.getType()) && message.getSize() == 1;
+        }
+    }
+
     @Listener(references = References.Strong)
     public static class ConditionalMessageListener {
 
-        @Handler(condition = "msg.type == 'TEST'")
+        @Handler(filters = @Filter(TestTypeFilter.class))
         public void handleTypeMessage(TestEvent message) {
             message.handledBy("handleTypeMessage");
         }
 
-        @Handler(condition = "msg.size > 4")
+        @Handler(filters = @Filter(SizeGreaterThan4Filter.class))
         public void handleSizeMessage(TestEvent message) {
             message.handledBy("handleSizeMessage");
         }
 
-        @Handler(condition = "msg.foo > 4")
-        public void handleInvalidEL(TestEvent message) {
-            message.handledBy("handleInvalidEL");
+        @Handler(filters = @Filter(InvalidPropertyFilter.class))
+        public void handleInvalidProperty(TestEvent message) {
+            message.handledBy("handleInvalidProperty");
         }
 
-        @Handler(condition = "msg.size > 2 && msg.size < 4")
-        public void handleCombinedEL(TestEvent message) {
-            message.handledBy( "handleCombinedEL");
+        @Handler(filters = @Filter(SizeBetween2And4Filter.class))
+        public void handleCombinedFilter(TestEvent message) {
+            message.handledBy("handleCombinedFilter");
         }
 
-        @Handler(condition = "msg.getType().equals('XYZ') && msg.getSize() == 1")
-        public void handleMethodAccessEL(TestEvent message) {
-            message.handledBy("handleMethodAccessEL");
+        @Handler(filters = @Filter(XYZTypeAndSize1Filter.class))
+        public void handleMethodAccessFilter(TestEvent message) {
+            message.handledBy("handleMethodAccessFilter");
         }
 
-        @Handler(condition = "msg.type == 'TEST'")
+        @Handler(filters = @Filter(TestTypeFilter.class))
         @Enveloped(messages = {TestEvent.class, Object.class})
         public void handleEnvelopedMessage(MessageEnvelope envelope) {
             envelope.<TestEvent>getMessage().handledBy("handleEnvelopedMessage");

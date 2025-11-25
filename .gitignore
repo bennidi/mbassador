@@ -5,6 +5,8 @@
 .idea/*
 .idea
 
+
+
 # eclipse settings
 /.settings/
 
@@ -25,3 +27,4 @@ mvn-local-repo/**/*
 release.properties
 /.classpath
 /.project
+.gradle

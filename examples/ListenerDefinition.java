@@ -89,16 +89,15 @@ public class ListenerDefinition {
         }
 
         /**
-         * Another way of controlling which messages are delivered to handlers is by using JUEL expressions.
-         * These can be specified as conditions (no type checking etc.) and will be evaluated on the msg.
-         * This particular condition will filter out all empty strings
+         * Filters can be implemented as simple classes implementing IMessageFilter.
+         * This particular filter will only accept non-empty strings.
          */
-        @Handler(condition = "!msg.isEmpty()")
+        @Handler(filters = @Filter(NonEmptyStringFilter.class))
         public void handleNonEmptyStrings(String msg) {
         }
 
         /**
-         *
+         * Handlers can combine multiple filters and other options.
          */
         @Handler(delivery = Invoke.Synchronously, rejectSubtypes = true)
         @Enveloped(messages = {Object.class, String.class})
@@ -110,6 +109,12 @@ public class ListenerDefinition {
         static class Urlfilter implements IMessageFilter<String>{
             public boolean accepts(String message, SubscriptionContext context){
                 return message.startsWith("http");
+            }
+        }
+
+        static class NonEmptyStringFilter implements IMessageFilter<String>{
+            public boolean accepts(String message, SubscriptionContext context){
+                return !message.isEmpty();
             }
         }
 
@@ -148,14 +153,21 @@ public class ListenerDefinition {
 
 
     /**
-     * Handler annotation that adds a condition checking for positive integers only
+     * Custom annotation that combines handler configuration with a filter for positive integers.
+     * This demonstrates how to create reusable handler configurations.
      */
     @Retention(value = RetentionPolicy.RUNTIME)
     @Inherited
-    @Handler(condition = "msg.getClass() == Integer.class && msg > 0")
+    @Handler(filters = @Filter(PositiveIntegerFilter.class))
     @Synchronized
     @Target(value = { ElementType.METHOD, ElementType.ANNOTATION_TYPE })
     @interface SynchronizedPositiveIntegers{}
+
+    static class PositiveIntegerFilter implements IMessageFilter<Integer> {
+        public boolean accepts(Integer message, SubscriptionContext context) {
+            return message != null && message > 0;
+        }
+    }
 
     static class ListenerWithCustomAnnotation{
 

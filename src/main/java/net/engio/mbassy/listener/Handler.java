@@ -18,20 +18,24 @@ import java.lang.annotation.*;
 public @interface Handler {
 
     /**
-     * Add any numbers of filters to the handler. All filters are evaluated before the handler
+     * Add any number of filters to the handler. All filters are evaluated before the handler
      * is actually invoked, which is only if all the filters accept the message.
+     *
+     * <p>Filters must implement {@link IMessageFilter} and provide a no-arg constructor.</p>
+     *
+     * <p>Example:</p>
+     * <pre>
+     * class LargeFileFilter implements IMessageFilter&lt;File&gt; {
+     *     public boolean accepts(File file, SubscriptionContext context) {
+     *         return file.length() &gt;= 10000;
+     *     }
+     * }
+     *
+     * {@literal @}Handler(filters = {@literal @}Filter(LargeFileFilter.class))
+     * public void handleLargeFile(File file) { ... }
+     * </pre>
      */
     Filter[] filters() default {};
-    
-    
-    /**
-     * Defines a filter condition as Expression Language. This can be used to filter the events based on 
-     * attributes of the event object. Note that the expression must resolve to either
-     * <code>true</code> to allow the event or <code>false</code> to block it from delivery to the handler. 
-     * The message itself is available as "msg" variable. 
-     * @return the condition in EL syntax.
-     */
-    String condition() default "";
 
     /**
      * Define the mode in which a message is delivered to each listener. Listeners can be notified

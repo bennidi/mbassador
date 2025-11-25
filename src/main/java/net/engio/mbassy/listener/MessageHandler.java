@@ -2,7 +2,6 @@ package net.engio.mbassy.listener;
 
 import net.engio.mbassy.common.ReflectionUtils;
 import net.engio.mbassy.dispatch.HandlerInvocation;
-import net.engio.mbassy.dispatch.el.ElFilter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -24,7 +23,6 @@ public class MessageHandler {
         public static final String HandlerMethod = "handler";
         public static final String InvocationMode = "invocationMode";
         public static final String Filter = "filter";
-        public static final String Condition = "condition";
         public static final String Enveloped = "envelope";
         public static final String HandledMessages = "messages";
         public static final String IsSynchronized = "synchronized";
@@ -60,21 +58,7 @@ public class MessageHandler {
             handler.setAccessible(true);
             Map<String, Object> properties = new HashMap<String, Object>();
             properties.put(HandlerMethod, handler);
-            // add EL filter if a condition is present
-            if(handlerConfig.condition().length() > 0){
-                if (!ElFilter.isELAvailable()) {
-                    throw new IllegalStateException("A handler uses an EL filter but no EL implementation is available.");
-                }
-
-                IMessageFilter[] expandedFilter = new IMessageFilter[filter.length + 1];
-                for(int i = 0; i < filter.length ; i++){
-                   expandedFilter[i] = filter[i];
-                }
-                expandedFilter[filter.length] = new ElFilter();
-                filter = expandedFilter;
-            }
             properties.put(Filter, filter);
-            properties.put(Condition, cleanEL(handlerConfig.condition()));
             properties.put(Priority, handlerConfig.priority());
             properties.put(Invocation, handlerConfig.invocation());
             properties.put(InvocationMode, handlerConfig.delivery());
@@ -85,22 +69,12 @@ public class MessageHandler {
             properties.put(HandledMessages, handledMessages);
             return properties;
         }
-
-        private static String cleanEL(String expression) {
-
-            if (!expression.trim().startsWith("${") && !expression.trim().startsWith("#{")) {
-                expression = "${"+expression+"}";
-            }
-            return expression;
-        }
     }
 
 
     private final Method handler;
 
     private final IMessageFilter[] filter;
-
-	private final String condition;
 
     private final int priority;
 
@@ -124,7 +98,6 @@ public class MessageHandler {
         validate(properties);
         this.handler = (Method)properties.get(Properties.HandlerMethod);
         this.filter = (IMessageFilter[])properties.get(Properties.Filter);
-        this.condition = (String)properties.get(Properties.Condition);
         this.priority = (Integer)properties.get(Properties.Priority);
         this.invocation = (Class<? extends HandlerInvocation>)properties.get(Properties.Invocation);
         this.invocationMode = (Invoke)properties.get(Properties.InvocationMode);
@@ -142,7 +115,6 @@ public class MessageHandler {
                 new Object[]{Properties.Priority, Integer.class },
                 new Object[]{Properties.Invocation, Class.class },
                 new Object[]{Properties.Filter, IMessageFilter[].class },
-                new Object[]{Properties.Condition, String.class },
                 new Object[]{Properties.Enveloped, Boolean.class },
                 new Object[]{Properties.HandledMessages, Class[].class },
                 new Object[]{Properties.IsSynchronized, Boolean.class },
@@ -178,7 +150,7 @@ public class MessageHandler {
     }
 
     public boolean isFiltered() {
-        return filter.length > 0 || (condition != null && condition.trim().length() > 0);
+        return filter.length > 0;
     }
 
     public int getPriority() {
@@ -191,10 +163,6 @@ public class MessageHandler {
 
     public IMessageFilter[] getFilter() {
         return filter;
-    }
-
-    public String getCondition() {
-    	return this.condition;
     }
 
     public Class[] getHandledMessages() {

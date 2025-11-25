@@ -4,7 +4,7 @@
     <groupId>net.engio</groupId>
     <artifactId>mbassador</artifactId>
     <version>1.3.3-SNAPSHOT</version>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
     <name>mbassador</name>
     <description>
         Mbassador is a fast and flexible event bus system following the publish subscribe pattern.
@@ -54,20 +54,19 @@
     </developers>
 
     <properties>
-        <jdk.version>21</jdk.version>
+        <maven.compiler.release>22</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.java.version>21</project.build.java.version>
         <github.url>file://${project.basedir}/mvn-local-repo</github.url>
     </properties>
 
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
@@ -76,58 +75,30 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.10.19</version>
+            <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.5</version>
+            <version>1.7.36</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.5</version>
+            <version>1.7.36</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>jakarta.el</groupId>
-            <artifactId>jakarta.el-api</artifactId>
-            <scope>provided</scope>
-            <version>6.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.el</artifactId>
-            <scope>provided</scope>
-            <version>4.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>de.odysseus.juel</groupId>
-            <artifactId>juel-impl</artifactId>
-            <version>2.2.7</version>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>de.odysseus.juel</groupId>
-            <artifactId>juel-spi</artifactId>
-            <version>2.2.7</version>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-
 
     </dependencies>
 
@@ -146,11 +117,11 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
+                <version>1.6.13</version>
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
@@ -158,7 +129,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -173,7 +144,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.3.7</version>
+                <version>5.1.8</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -186,15 +157,38 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <compilerArgs>
-                        <arg>--add-opens</arg>
-                        <arg>java.base/java.lang=ALL-UNNAMED</arg>
-                    </compilerArgs>
-                    <source>${project.build.java.version}</source>
-                    <target>${project.build.java.version}</target>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -221,45 +215,6 @@
                         <exclude>AllTests.java</exclude>
                     </excludes>
                 </configuration>
-            </plugin>
-
-
-            <!-- bind the source attaching to package phase -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
-                <configuration>
-                    <aggregate>true</aggregate>
-                    <show>public</show>
-                    <nohelp>true</nohelp>
-                    <header>mbassador, ${project.version}</header>
-                    <footer>mbassador, ${project.version}</footer>
-                    <doctitle>mbassador, ${project.version}</doctitle>
-                    <additionalparam>-Xdoclint:none</additionalparam>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <!--
