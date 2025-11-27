@@ -32,7 +32,7 @@ public class MetadataReader {
     private final Map<Class<? extends IMessageFilter>, IMessageFilter> filterCache = new HashMap<Class<? extends IMessageFilter>, IMessageFilter>();
 
     // retrieve all instances of filters associated with the given subscription
-    private IMessageFilter[] getFilter(Method method, Handler subscription) {
+    private IMessageFilter[] getFilter(Method method, Handler subscription, Class<?> targetClass) {
         Filter[] filterDefinitions = collectFilters(method, subscription);
         if (filterDefinitions.length == 0) {
             return null;
@@ -74,11 +74,30 @@ public class MetadataReader {
     }
 
     // get all listeners defined by the given class (includes
-    // listeners defined in super classes)
+    // listeners defined in super classes and interfaces)
     public MessageListener getMessageListener(Class target) {
         MessageListener listenerMetadata = new MessageListener(target);
-        // get all handlers (this will include all (inherited) methods directly annotated using @Handler)
+
+        // Step 1: Get all handlers from class hierarchy (existing logic)
         Method[] allHandlers = ReflectionUtils.getMethods(AllMessageHandlers, target);
+
+        // Track which methods have been processed to avoid duplicates
+        java.util.Set<String> processedMethods = new java.util.HashSet<String>();
+
+        // Step 2: Process class-defined handlers
+        processClassHandlers(allHandlers, target, listenerMetadata, processedMethods);
+
+        // Step 3: Process interface-defined handlers (new functionality)
+        processInterfaceHandlers(target, listenerMetadata, processedMethods);
+
+        return listenerMetadata;
+    }
+
+    /**
+     * Processes handlers that are directly annotated in the class hierarchy.
+     */
+    private void processClassHandlers(Method[] allHandlers, Class target, MessageListener listenerMetadata,
+                                       java.util.Set<String> processedMethods) {
         final int length = allHandlers.length;
 
         Method handler;
@@ -99,19 +118,102 @@ public class MetadataReader {
                 }
 
                 Method overriddenHandler = ReflectionUtils.getOverridingMethod(handler, target);
+                Method actualHandler = overriddenHandler == null ? handler : overriddenHandler;
+
+                // Mark this method as processed
+                String methodKey = getMethodKey(actualHandler);
+                processedMethods.add(methodKey);
+
                 // if a handler is overridden it inherits the configuration of its parent method
-                Map<String, Object> handlerProperties = MessageHandler.Properties.Create(overriddenHandler == null ? handler : overriddenHandler,
-                                                                                         handlerConfig,
-                                                                                         enveloped,
-                                                                                         getFilter(handler, handlerConfig),
-                                                                                         listenerMetadata);
+                Map<String, Object> handlerProperties = MessageHandler.Properties.Create(
+                    actualHandler,
+                    handlerConfig,
+                    enveloped,
+                    getFilter(handler, handlerConfig, target),
+                    listenerMetadata);
 
                 MessageHandler handlerMetadata = new MessageHandler(handlerProperties);
                 listenerMetadata.addHandler(handlerMetadata);
             }
         }
+    }
 
-        return listenerMetadata;
+    /**
+     * Processes handlers defined in interfaces but not in the class itself.
+     * Only processes methods that:
+     * 1. Are defined in an interface with @Handler annotation
+     * 2. Are implemented in the target class
+     * 3. Do NOT have their own @Handler annotation in the class (class annotation wins)
+     * 4. Have not already been processed
+     */
+    private void processInterfaceHandlers(Class target, MessageListener listenerMetadata,
+                                           java.util.Set<String> processedMethods) {
+        // Get all interface methods with @Handler annotation
+        Method[] interfaceHandlers = ReflectionUtils.getInterfaceMethods(AllMessageHandlers, target);
+
+        for (Method interfaceMethod : interfaceHandlers) {
+            // Find the corresponding method in the target class
+            Method classMethod = findClassMethod(target, interfaceMethod);
+
+            if (classMethod != null) {
+                String methodKey = getMethodKey(classMethod);
+
+                // Skip if already processed (either by class annotation or superclass)
+                if (processedMethods.contains(methodKey)) {
+                    continue;
+                }
+
+                // Check if the class method already has its own @Handler annotation
+                // Use direct annotation check, not meta-annotation search
+                Handler classAnnotation = classMethod.getAnnotation(Handler.class);
+
+                if (classAnnotation == null) {
+                    // No class annotation - inherit from interface
+                    Handler interfaceAnnotation = ReflectionUtils.getAnnotation(interfaceMethod, Handler.class);
+                    Enveloped interfaceEnveloped = ReflectionUtils.getAnnotation(interfaceMethod, Enveloped.class);
+
+                    if (interfaceAnnotation != null && interfaceAnnotation.enabled() && isValidMessageHandler(interfaceMethod)) {
+                        // Mark as processed
+                        processedMethods.add(methodKey);
+
+                        // Use interface annotation but actual class method for invocation
+                        Map<String, Object> handlerProperties = MessageHandler.Properties.Create(
+                            classMethod,
+                            interfaceAnnotation,
+                            interfaceEnveloped,
+                            getFilter(interfaceMethod, interfaceAnnotation, target),
+                            listenerMetadata);
+
+                        MessageHandler handlerMetadata = new MessageHandler(handlerProperties);
+                        listenerMetadata.addHandler(handlerMetadata);
+                    }
+                }
+                // else: class annotation exists, already processed in processClassHandlers
+            }
+        }
+    }
+
+    /**
+     * Creates a unique key for a method to track processed methods.
+     */
+    private String getMethodKey(Method method) {
+        StringBuilder key = new StringBuilder();
+        key.append(method.getName());
+        for (Class<?> paramType : method.getParameterTypes()) {
+            key.append("_").append(paramType.getName());
+        }
+        return key.toString();
+    }
+
+    /**
+     * Finds the method in the target class that implements the given interface method.
+     */
+    private Method findClassMethod(Class<?> target, Method interfaceMethod) {
+        try {
+            return target.getMethod(interfaceMethod.getName(), interfaceMethod.getParameterTypes());
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 
     private boolean isValidMessageHandler(Method handler) {

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(mvn clean test:*)",
       "Bash(cat:*)",
-      "Bash(mvn clean compile:*)"
+      "Bash(mvn clean compile:*)",
+      "Bash(mvn test:*)"
     ],
     "deny": [],
     "ask": []

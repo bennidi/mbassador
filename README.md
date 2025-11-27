@@ -140,6 +140,69 @@ Filters can be reused across handlers by wrapping them in custom annotations (av
 
 ```
 
+> Interface-based handler definitions
+
+MBassador supports defining message handlers on interface methods. Implementing classes automatically inherit these handler configurations, making it easy to create reusable handler contracts and reducing boilerplate code.
+
+**Basic example:**
+
+```java
+// Define the handler contract in an interface
+interface EventProcessor {
+    @Handler
+    void processEvent(MyEvent event);
+}
+
+// Implementing class automatically gets the handler registration
+class MyEventProcessor implements EventProcessor {
+    @Override
+    public void processEvent(MyEvent event) {
+        // Handler is automatically registered via interface
+        // No @Handler annotation needed here
+    }
+}
+```
+
+**Precedence rules:**
+
+1. **Class annotations override interface annotations** - If both the interface method and the implementing class method have `@Handler`, the class annotation takes precedence
+2. **Last interface wins** - When implementing multiple interfaces with the same method signature (diamond problem), the last interface in the `implements` clause wins
+3. **Filters are inherited** - Filter annotations on interface methods are also inherited by implementing classes
+
+**Advanced example:**
+
+```java
+// Interface with filters and priority
+interface PrioritizedHandler {
+    @Handler(priority = 10, filters = @Filter(ImportantMessageFilter.class))
+    void handleImportant(Message msg);
+}
+
+// Class can override with its own configuration
+class CustomHandler implements PrioritizedHandler {
+    @Override
+    @Handler(priority = 5)  // This takes precedence over interface
+    public void handleImportant(Message msg) {
+        // Uses priority = 5, not priority = 10
+    }
+}
+
+// Or inherit completely from interface
+class DefaultHandler implements PrioritizedHandler {
+    @Override  // No @Handler needed
+    public void handleImportant(Message msg) {
+        // Inherits priority = 10 and filter from interface
+    }
+}
+```
+
+This feature is particularly useful for:
+- Creating handler contracts in libraries/frameworks
+- Reducing code duplication across similar listeners
+- Enforcing consistent handler configurations
+- Building plugin architectures with predefined handler interfaces
+
+
 > Enveloped messages
 
 Message handlers can declare to receive an enveloped message using `Enveloped`. The envelope can wrap different types of messages to allow a single handler to handle multiple, unrelated message types.

@@ -9,6 +9,38 @@ import java.lang.annotation.*;
  * Mark any method of any class(=listener) as a message handler and configure the handler
  * using different properties.
  *
+ * <p>This annotation can be placed on:</p>
+ * <ul>
+ *     <li><strong>Class methods</strong> - Traditional usage</li>
+ *     <li><strong>Interface methods</strong> - Implementing classes inherit the annotation</li>
+ *     <li><strong>Meta-annotations</strong> - Create custom handler annotations</li>
+ * </ul>
+ *
+ * <h3>Interface Annotation Inheritance</h3>
+ * <p>When {@code @Handler} is placed on an interface method, implementing classes automatically
+ * inherit the handler configuration:</p>
+ *
+ * <pre>
+ * interface EventProcessor {
+ *     {@literal @}Handler(priority = 10)
+ *     void process(Event event);
+ * }
+ *
+ * class MyProcessor implements EventProcessor {
+ *     {@literal @}Override  // No {@literal @}Handler needed - inherited from interface
+ *     public void process(Event event) {
+ *         // Automatically registered with priority = 10
+ *     }
+ * }
+ * </pre>
+ *
+ * <h3>Precedence Rules</h3>
+ * <ul>
+ *     <li>Class annotations override interface annotations</li>
+ *     <li>When implementing multiple interfaces with the same method, last interface wins</li>
+ *     <li>Filters, priority, and all handler settings are inherited from interfaces</li>
+ * </ul>
+ *
  * @author bennidi
  *         Date: 2/8/12
  */

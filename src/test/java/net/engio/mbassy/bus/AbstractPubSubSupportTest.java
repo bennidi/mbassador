@@ -15,7 +15,6 @@ import java.io.PrintStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Added for changes proposed under https://github.com/bennidi/mbassador/issues/106
@@ -35,7 +34,8 @@ public class AbstractPubSubSupportTest {
     @Mock
     IPublicationErrorHandler handler3;
 
-    @Mock
+    // Don't mock PublicationError - create real instances instead
+    // This avoids Java 22+ compatibility issues with Mockito bytecode instrumentation
     PublicationError publicationError;
 
 
@@ -43,6 +43,11 @@ public class AbstractPubSubSupportTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
         configuration = MessageBusTest.SyncAsync(false);
+        // Create a real PublicationError instance instead of mocking
+        publicationError = new PublicationError(
+            new RuntimeException("Test exception"),
+            "Test error message"
+        );
     }
 
 
@@ -132,7 +137,11 @@ public class AbstractPubSubSupportTest {
     public void testHandlePublicationError_default_construct_sync() {
         //given
         final String errorMsg = "Test error";
-        when(publicationError.toString()).thenReturn(errorMsg);
+        // Create a real PublicationError with the expected message
+        PublicationError testError = new PublicationError(
+            new RuntimeException("Test"),
+            errorMsg
+        );
         PrintStream old = null;
 
         try {
@@ -143,7 +152,7 @@ public class AbstractPubSubSupportTest {
             //when
             SyncMessageBus<String> bus = new SyncMessageBus<String>();
             Assert.assertTrue(baos.toString().contains(AbstractPubSubSupport.ERROR_HANDLER_MSG));
-            bus.handlePublicationError(publicationError);
+            bus.handlePublicationError(testError);
             //then
             Assert.assertTrue(baos.toString().contains(errorMsg));
 
@@ -159,7 +168,11 @@ public class AbstractPubSubSupportTest {
     public void testHandlePublicationError_default_construct_async() {
         //given
         final String errorMsg = "Test error";
-        when(publicationError.toString()).thenReturn(errorMsg);
+        // Create a real PublicationError with the expected message
+        PublicationError testError = new PublicationError(
+            new RuntimeException("Test"),
+            errorMsg
+        );
         PrintStream old = null;
 
         try {
@@ -170,7 +183,7 @@ public class AbstractPubSubSupportTest {
             //when
             MBassador<String> bus = new MBassador<String>();
             Assert.assertTrue(baos.toString().contains(AbstractPubSubSupport.ERROR_HANDLER_MSG));
-            bus.handlePublicationError(publicationError);
+            bus.handlePublicationError(testError);
             //then
             Assert.assertTrue(baos.toString().contains(errorMsg));
 

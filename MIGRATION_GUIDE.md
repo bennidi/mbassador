@@ -473,8 +473,50 @@ If you encounter issues during migration:
 2. Look at test cases in `src/test/java/net/engio/mbassy/ConditionalHandlerTest.java`
 3. Open an issue on [GitHub](https://github.com/bennidi/mbassador/issues)
 
+## New Feature: Interface-Based Handler Definitions
+
+### What's New in v1.3.3
+
+MBassador now supports defining `@Handler` annotations on interface methods! Implementing classes automatically inherit these annotations, reducing boilerplate and enabling powerful design patterns.
+
+### How It Works
+
+```java
+// Define handler in interface
+interface MessageProcessor {
+    @Handler(priority = 10)
+    void process(MyMessage msg);
+}
+
+// Implementing class inherits the @Handler annotation
+class MyProcessor implements MessageProcessor {
+    @Override
+    public void process(MyMessage msg) {
+        // Automatically registered as handler with priority = 10
+        // No @Handler annotation needed!
+    }
+}
+```
+
+### Use Cases
+
+1. **Library/Framework Development** - Define handler contracts that users implement
+2. **Plugin Architectures** - Create plugin interfaces with predefined handler configurations
+3. **Code Reuse** - Share handler configurations across multiple implementations
+4. **Consistency** - Enforce consistent handler settings across related classes
+
+### Precedence Rules
+
+- **Class annotation wins** - If both interface and class have `@Handler`, class takes precedence
+- **Last interface wins** - In diamond scenarios, last interface in `implements` clause wins
+- **Fully backward compatible** - Existing code continues to work unchanged
+
+This is a non-breaking enhancement that adds new capability without affecting existing functionality.
+
+---
+
 ## Version History
 
-- **v1.3.3** - Removed EL support, introduced lambda-compatible filters
+- **v1.3.3** - Removed EL support, introduced lambda-compatible filters, added interface annotation inheritance
 - **v1.3.1** - Added support for meta-annotations (filter reuse)
 - **v1.2.0** - Introduced EL expression support (now removed)
