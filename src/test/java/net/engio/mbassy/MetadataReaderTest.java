@@ -2,6 +2,7 @@ package net.engio.mbassy;
 
 import net.engio.mbassy.common.AssertSupport;
 import net.engio.mbassy.listener.MessageListener;
+import net.engio.mbassy.listener.MessageHandler;
 import net.engio.mbassy.listeners.SimpleHandler;
 import org.junit.Test;
 import net.engio.mbassy.listener.Enveloped;
@@ -111,8 +112,197 @@ public class MetadataReaderTest extends AssertSupport {
         ListenerValidator validator = new ListenerValidator()
                 .expectHandlers(1, Object.class);
         validator.check(listener);
+    }
 
+    // ============= Interface Annotation Inheritance Tests =============
 
+    @Test
+    public void testDiamondProblemAB() {
+        // When implementing DiamondA, DiamondB - creates handlers from both interfaces
+        MessageListener listener = reader.getMessageListener(DiamondImplementationAB.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(2, String.class);  // One from each interface
+        validator.check(listener);
+
+        // Both handlers should exist with their respective priorities
+        List<MessageHandler> handlers = listener.getHandlers(ForMessage(String.class));
+        assertEquals(2, handlers.size());
+        // Verify we have both priorities
+        boolean hasPriority1 = handlers.stream().anyMatch(h -> h.getPriority() == 1);
+        boolean hasPriority5 = handlers.stream().anyMatch(h -> h.getPriority() == 5);
+        assertTrue(hasPriority1);
+        assertTrue(hasPriority5);
+    }
+
+    @Test
+    public void testDiamondProblemBA() {
+        // When implementing DiamondB, DiamondA - creates handlers from both interfaces
+        MessageListener listener = reader.getMessageListener(DiamondImplementationBA.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(2, String.class);  // One from each interface
+        validator.check(listener);
+
+        // Both handlers should exist with their respective priorities
+        List<MessageHandler> handlers = listener.getHandlers(ForMessage(String.class));
+        assertEquals(2, handlers.size());
+        // Verify we have both priorities (order doesn't affect which handlers are created)
+        boolean hasPriority1 = handlers.stream().anyMatch(h -> h.getPriority() == 1);
+        boolean hasPriority5 = handlers.stream().anyMatch(h -> h.getPriority() == 5);
+        assertTrue(hasPriority1);
+        assertTrue(hasPriority5);
+    }
+
+    @Test
+    public void testClassAnnotationOverridesInterface() {
+        // Class annotation should take precedence over interface annotation
+        MessageListener listener = reader.getMessageListener(ClassOverridesInterface.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, String.class);
+        validator.check(listener);
+
+        // Verify priority from class (10) is used, not interface (1)
+        List<MessageHandler> handlers = listener.getHandlers(ForMessage(String.class));
+        assertEquals(10, handlers.get(0).getPriority());
+    }
+
+    @Test
+    public void testDeepInterfaceHierarchy() {
+        // Extended interface should override base interface
+        MessageListener listener = reader.getMessageListener(DeepHierarchyImpl.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, String.class);
+        validator.check(listener);
+
+        // Verify priority from ExtendedInterface (10), not BaseInterface (1)
+        List<MessageHandler> handlers = listener.getHandlers(ForMessage(String.class));
+        assertEquals(10, handlers.get(0).getPriority());
+    }
+
+    @Test
+    public void testMultipleInterfacesDifferentMethods() {
+        // Should have handlers from both interfaces
+        MessageListener listener = reader.getMessageListener(MultiInterfaceImpl.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, String.class)
+                .expectHandlers(1, Integer.class);
+        validator.check(listener);
+    }
+
+    @Test
+    public void testDisabledHandlerFromInterface() {
+        // Disabled handler in interface should not be registered
+        MessageListener listener = reader.getMessageListener(DisabledInterfaceImpl.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(0, String.class);
+        validator.check(listener);
+    }
+
+    @Test
+    public void testClassEnablesDisabledInterfaceHandler() {
+        // Class can re-enable a disabled interface handler
+        MessageListener listener = reader.getMessageListener(EnablesDisabledHandler.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, String.class);
+        validator.check(listener);
+    }
+
+    @Test
+    public void testRejectSubtypesFromInterface() {
+        // rejectSubtypes should be inherited from interface
+        MessageListener listener = reader.getMessageListener(RejectSubtypesImpl.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, Number.class)
+                .expectHandlers(0, Integer.class)  // Should be rejected
+                .expectHandlers(0, Double.class);   // Should be rejected
+        validator.check(listener);
+
+        // Verify rejectSubtypes is true (acceptsSubtypes is false)
+        List<MessageHandler> handlers = listener.getHandlers(ForMessage(Number.class));
+        assertFalse(handlers.get(0).acceptsSubtypes());
+    }
+
+    @Test
+    public void testClassOverridesRejectSubtypes() {
+        // Class can override rejectSubtypes from interface
+        MessageListener listener = reader.getMessageListener(AcceptsSubtypesImpl.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, Number.class)
+                .expectHandlers(1, Integer.class)   // Should be accepted
+                .expectHandlers(1, Double.class);    // Should be accepted
+        validator.check(listener);
+
+        // Verify rejectSubtypes is false (acceptsSubtypes is true)
+        List<MessageHandler> handlers = listener.getHandlers(ForMessage(Number.class));
+        assertTrue(handlers.get(0).acceptsSubtypes());
+    }
+
+    @Test
+    public void testEnvelopedFromInterface() {
+        // Enveloped annotation should be inherited from interface
+        MessageListener listener = reader.getMessageListener(EnvelopedInterfacedListener.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, Integer.class)
+                .expectHandlers(0, String.class);  // Not in enveloped messages
+        validator.check(listener);
+    }
+
+    @Test
+    public void testMixedInterfaceAndClassHandlers() {
+        // Should have handlers from both interface and class-defined methods
+        MessageListener listener = reader.getMessageListener(MixedHandlersImpl.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(1, String.class)   // From interface
+                .expectHandlers(1, Integer.class);  // From class
+        validator.check(listener);
+    }
+
+    @Test
+    public void testNoHandlerInterfaceMethod() {
+        // Interface method without @Handler should not create handler
+        MessageListener listener = reader.getMessageListener(NoHandlerInterfaceImpl.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(0, String.class);
+        validator.check(listener);
+    }
+
+    @Test
+    public void testTripleDiamondABC() {
+        // With three interfaces - creates handlers from all three
+        MessageListener listener = reader.getMessageListener(TripleDiamondABC.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(3, String.class);  // One from each interface
+        validator.check(listener);
+
+        // All three handlers should exist with their respective priorities
+        List<MessageHandler> handlers = listener.getHandlers(ForMessage(String.class));
+        assertEquals(3, handlers.size());
+        // Verify we have all three priorities
+        boolean hasPriority1 = handlers.stream().anyMatch(h -> h.getPriority() == 1);
+        boolean hasPriority2 = handlers.stream().anyMatch(h -> h.getPriority() == 2);
+        boolean hasPriority3 = handlers.stream().anyMatch(h -> h.getPriority() == 3);
+        assertTrue(hasPriority1);
+        assertTrue(hasPriority2);
+        assertTrue(hasPriority3);
+    }
+
+    @Test
+    public void testTripleDiamondCBA() {
+        // With three interfaces in reverse order - creates handlers from all three
+        MessageListener listener = reader.getMessageListener(TripleDiamondCBA.class);
+        ListenerValidator validator = new ListenerValidator()
+                .expectHandlers(3, String.class);  // One from each interface
+        validator.check(listener);
+
+        // All three handlers should exist (order doesn't matter)
+        List<MessageHandler> handlers = listener.getHandlers(ForMessage(String.class));
+        assertEquals(3, handlers.size());
+        // Verify we have all three priorities
+        boolean hasPriority1 = handlers.stream().anyMatch(h -> h.getPriority() == 1);
+        boolean hasPriority2 = handlers.stream().anyMatch(h -> h.getPriority() == 2);
+        boolean hasPriority3 = handlers.stream().anyMatch(h -> h.getPriority() == 3);
+        assertTrue(hasPriority1);
+        assertTrue(hasPriority2);
+        assertTrue(hasPriority3);
     }
 
 
@@ -241,6 +431,183 @@ public class MetadataReaderTest extends AssertSupport {
         @Override
         public void handle(String str) {
 
+        }
+    }
+
+    // ============= Diamond Problem Test Classes =============
+
+    public interface DiamondA {
+        @Handler(priority = 1)
+        void handleDiamond(String message);
+    }
+
+    public interface DiamondB {
+        @Handler(priority = 5)
+        void handleDiamond(String message);
+    }
+
+    public class DiamondImplementationAB implements DiamondA, DiamondB {
+        @Override
+        public void handleDiamond(String message) {
+        }
+    }
+
+    public class DiamondImplementationBA implements DiamondB, DiamondA {
+        @Override
+        public void handleDiamond(String message) {
+        }
+    }
+
+    // ============= Class Override Test Classes =============
+
+    public interface OverrideInterface {
+        @Handler(priority = 1)
+        void handleOverride(String message);
+    }
+
+    public class ClassOverridesInterface implements OverrideInterface {
+        @Override
+        @Handler(priority = 10)
+        public void handleOverride(String message) {
+        }
+    }
+
+    // ============= Deep Hierarchy Test Classes =============
+
+    public interface BaseInterface {
+        @Handler(priority = 1)
+        void handleDeep(String message);
+    }
+
+    public interface ExtendedInterface extends BaseInterface {
+        @Override
+        @Handler(priority = 10)
+        void handleDeep(String message);
+    }
+
+    public class DeepHierarchyImpl implements ExtendedInterface {
+        @Override
+        public void handleDeep(String message) {
+        }
+    }
+
+    // ============= Multiple Interfaces Test Classes =============
+
+    public interface InterfaceA {
+        @Handler
+        void handleA(String message);
+    }
+
+    public interface InterfaceB {
+        @Handler
+        void handleB(Integer message);
+    }
+
+    public class MultiInterfaceImpl implements InterfaceA, InterfaceB {
+        @Override
+        public void handleA(String message) {
+        }
+
+        @Override
+        public void handleB(Integer message) {
+        }
+    }
+
+    // ============= Disabled Handler Test Classes =============
+
+    public interface DisabledInterface {
+        @Handler(enabled = false)
+        void handleDisabled(String message);
+    }
+
+    public class DisabledInterfaceImpl implements DisabledInterface {
+        @Override
+        public void handleDisabled(String message) {
+        }
+    }
+
+    public class EnablesDisabledHandler implements DisabledInterface {
+        @Override
+        @Handler(enabled = true)
+        public void handleDisabled(String message) {
+        }
+    }
+
+    // ============= RejectSubtypes Test Classes =============
+
+    public interface RejectSubtypesInterface {
+        @Handler(rejectSubtypes = true)
+        void handleNumber(Number message);
+    }
+
+    public class RejectSubtypesImpl implements RejectSubtypesInterface {
+        @Override
+        public void handleNumber(Number message) {
+        }
+    }
+
+    public class AcceptsSubtypesImpl implements RejectSubtypesInterface {
+        @Override
+        @Handler(rejectSubtypes = false)
+        public void handleNumber(Number message) {
+        }
+    }
+
+    // ============= Mixed Handlers Test Classes =============
+
+    public interface MixedInterface {
+        @Handler
+        void fromInterface(String message);
+    }
+
+    public class MixedHandlersImpl implements MixedInterface {
+        @Override
+        public void fromInterface(String message) {
+        }
+
+        @Handler
+        public void fromClass(Integer message) {
+        }
+    }
+
+    // ============= No Handler Interface Test Classes =============
+
+    public interface NoHandlerInterface {
+        void notAHandler(String message);
+    }
+
+    public class NoHandlerInterfaceImpl implements NoHandlerInterface {
+        @Override
+        public void notAHandler(String message) {
+        }
+    }
+
+    // ============= Triple Diamond Test Classes =============
+
+    public interface TripleA {
+        @Handler(priority = 1)
+        void handleTriple(String message);
+    }
+
+    public interface TripleB {
+        @Handler(priority = 2)
+        void handleTriple(String message);
+    }
+
+    public interface TripleC {
+        @Handler(priority = 3)
+        void handleTriple(String message);
+    }
+
+    public class TripleDiamondABC implements TripleA, TripleB, TripleC {
+        @Override
+        public void handleTriple(String message) {
+        }
+    }
+
+    public class TripleDiamondCBA implements TripleC, TripleB, TripleA {
+        @Override
+        public void handleTriple(String message) {
         }
     }
 

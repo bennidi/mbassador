@@ -7,12 +7,14 @@ import net.engio.mbassy.listener.*;
 import net.engio.mbassy.subscription.SubscriptionContext;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Test suite for interface annotation inheritance feature.
- * Tests that @Handler annotations on interface methods are properly inherited
- * by implementing classes, with proper precedence rules.
+ * Integration test suite for interface annotation inheritance feature.
+ * Tests handler execution with multiple subscribed listeners and verifies
+ * execution order based on priority settings.
  *
  * @author bennidi
  */
@@ -21,400 +23,208 @@ public class InterfaceInheritanceTest extends MessageBusTest {
     // ============= Test Messages =============
 
     public static class TestMessage {
-        public final AtomicInteger handlerCallCount = new AtomicInteger(0);
-        public String lastHandlerCalled;
-    }
-
-    public static class SpecificMessage extends TestMessage {
+        public final List<String> executionOrder = new ArrayList<>();
     }
 
     public static class PriorityTestMessage {
-        public int priority = -1;
+        public final List<String> executionOrder = new ArrayList<>();
     }
 
-    // ============= Test 1: Basic Interface Inheritance =============
+    // ============= Test 1: Priority Execution Order with Multiple Listeners =============
 
-    interface BasicHandler {
-        @Handler
-        void handleMessage(TestMessage message);
+    interface HighPriorityHandler {
+        @Handler(priority = 10)
+        void handle(PriorityTestMessage message);
     }
 
-    public static class BasicImplementation implements BasicHandler {
-        @Override
-        public void handleMessage(TestMessage message) {
-            message.handlerCallCount.incrementAndGet();
-            message.lastHandlerCalled = "BasicImplementation";
-        }
-    }
-
-    @Test
-    public void testBasicInterfaceInheritance() {
-        MBassador bus = createBus(SyncAsync());
-        BasicImplementation listener = new BasicImplementation();
-        bus.subscribe(listener);
-
-        TestMessage message = new TestMessage();
-        bus.publish(message);
-
-        assertEquals(1, message.handlerCallCount.get());
-        assertEquals("BasicImplementation", message.lastHandlerCalled);
-    }
-
-    // ============= Test 2: Class Annotation Overrides Interface =============
-
-    interface OverrideTestInterface {
-        @Handler(priority = 1)
-        void handleMessage(TestMessage message);
-    }
-
-    public static class ClassAnnotationWins implements OverrideTestInterface {
-        @Override
-        @Handler(priority = 10)  // This should win
-        public void handleMessage(TestMessage message) {
-            message.handlerCallCount.incrementAndGet();
-            message.lastHandlerCalled = "ClassAnnotationWins";
-        }
-    }
-
-    @Test
-    public void testClassAnnotationOverridesInterface() {
-        MBassador bus = createBus(SyncAsync());
-        ClassAnnotationWins listener = new ClassAnnotationWins();
-        bus.subscribe(listener);
-
-        // Verify the handler was registered
-        TestMessage message = new TestMessage();
-        bus.publish(message);
-
-        assertEquals(1, message.handlerCallCount.get());
-        assertEquals("ClassAnnotationWins", message.lastHandlerCalled);
-    }
-
-    // ============= Test 3: Diamond Problem - Last Interface Wins =============
-
-    interface DiamondA {
-        @Handler(priority = 1)
-        void handlePriority(PriorityTestMessage message);
-    }
-
-    interface DiamondB {
+    interface MediumPriorityHandler {
         @Handler(priority = 5)
-        void handlePriority(PriorityTestMessage message);
+        void handle(PriorityTestMessage message);
     }
 
-    public static class DiamondImplementation implements DiamondA, DiamondB {
+    interface LowPriorityHandler {
+        @Handler(priority = 1)
+        void handle(PriorityTestMessage message);
+    }
+
+    public static class HighPriorityListener implements HighPriorityHandler {
         @Override
-        public void handlePriority(PriorityTestMessage message) {
-            // Should inherit priority = 5 from DiamondB (last interface)
-            message.priority = 5;
+        public void handle(PriorityTestMessage message) {
+            message.executionOrder.add("High");
+        }
+    }
+
+    public static class MediumPriorityListener implements MediumPriorityHandler {
+        @Override
+        public void handle(PriorityTestMessage message) {
+            message.executionOrder.add("Medium");
+        }
+    }
+
+    public static class LowPriorityListener implements LowPriorityHandler {
+        @Override
+        public void handle(PriorityTestMessage message) {
+            message.executionOrder.add("Low");
         }
     }
 
     @Test
-    public void testDiamondProblemLastInterfaceWins() {
+    public void testPriorityBasedExecutionOrder() {
         MBassador bus = createBus(SyncAsync());
-        DiamondImplementation listener = new DiamondImplementation();
-        bus.subscribe(listener);
+
+        // Subscribe in random order
+        bus.subscribe(new LowPriorityListener());
+        bus.subscribe(new HighPriorityListener());
+        bus.subscribe(new MediumPriorityListener());
 
         PriorityTestMessage message = new PriorityTestMessage();
         bus.publish(message);
 
-        // Verify it was called with priority from last interface
-        assertEquals(5, message.priority);
+        // Verify execution order is based on priority (high to low)
+        assertEquals(3, message.executionOrder.size());
+        assertEquals("High", message.executionOrder.get(0));
+        assertEquals("Medium", message.executionOrder.get(1));
+        assertEquals("Low", message.executionOrder.get(2));
     }
 
-    // ============= Test 4: Deep Interface Hierarchy =============
+    // ============= Test 2: Mixed Class and Interface Priorities =============
 
-    interface BaseInterface {
+    interface InterfacePriority5 {
+        @Handler(priority = 5)
+        void handle(PriorityTestMessage message);
+    }
+
+    public static class OverridesToPriority8 implements InterfacePriority5 {
+        @Override
+        @Handler(priority = 8)  // Class overrides interface priority
+        public void handle(PriorityTestMessage message) {
+            message.executionOrder.add("Override8");
+        }
+    }
+
+    public static class KeepsPriority5 implements InterfacePriority5 {
+        @Override
+        public void handle(PriorityTestMessage message) {
+            message.executionOrder.add("Keep5");
+        }
+    }
+
+    @Test
+    public void testMixedInterfaceAndClassPriorities() {
+        MBassador bus = createBus(SyncAsync());
+
+        bus.subscribe(new HighPriorityListener());  // Priority 10
+        bus.subscribe(new OverridesToPriority8());  // Priority 8 (overridden)
+        bus.subscribe(new KeepsPriority5());        // Priority 5 (from interface)
+        bus.subscribe(new LowPriorityListener());   // Priority 1
+
+        PriorityTestMessage message = new PriorityTestMessage();
+        bus.publish(message);
+
+        // Verify execution order: 10 -> 8 -> 5 (x2 from diamond) -> 5 -> 1
+        assertEquals("High", message.executionOrder.get(0));
+        assertEquals("Override8", message.executionOrder.get(1));
+        assertTrue(message.executionOrder.contains("Keep5"));
+        assertEquals("Low", message.executionOrder.get(message.executionOrder.size() - 1));
+    }
+
+    // ============= Test 3: Multiple Handlers with Diamond Interfaces =============
+
+    interface DiamondInterfaceA {
+        @Handler(priority = 10)
+        void handleDiamond(TestMessage message);
+    }
+
+    interface DiamondInterfaceB {
+        @Handler(priority = 5)
+        void handleDiamond(TestMessage message);
+    }
+
+    public static class DiamondListener implements DiamondInterfaceA, DiamondInterfaceB {
+        @Override
+        public void handleDiamond(TestMessage message) {
+            message.executionOrder.add("Diamond");
+        }
+    }
+
+    @Test
+    public void testDiamondInterfaceExecutionOrder() {
+        MBassador bus = createBus(SyncAsync());
+
+        bus.subscribe(new DiamondListener());
+
+        TestMessage message = new TestMessage();
+        bus.publish(message);
+
+        // Should be called twice - once for each interface
+        assertEquals(2, message.executionOrder.size());
+        assertEquals("Diamond", message.executionOrder.get(0));  // Priority 10
+        assertEquals("Diamond", message.executionOrder.get(1));  // Priority 5
+    }
+
+    // ============= Test 4: Complex Multi-Listener Scenario =============
+
+    interface EarlyHandler {
+        @Handler(priority = 100)
+        void handleEarly(TestMessage message);
+    }
+
+    interface LateHandler {
         @Handler(priority = 1)
-        void handleDeep(TestMessage message);
+        void handleLate(TestMessage message);
     }
 
-    interface ExtendedInterface extends BaseInterface {
+    public static class EarlyListenerA implements EarlyHandler {
         @Override
-        @Handler(priority = 10)  // Overrides base
-        void handleDeep(TestMessage message);
+        public void handleEarly(TestMessage message) {
+            message.executionOrder.add("EarlyA");
+        }
     }
 
-    public static class DeepHierarchyImpl implements ExtendedInterface {
+    public static class EarlyListenerB implements EarlyHandler {
         @Override
-        public void handleDeep(TestMessage message) {
-            message.handlerCallCount.incrementAndGet();
-            message.lastHandlerCalled = "DeepHierarchyImpl";
+        public void handleEarly(TestMessage message) {
+            message.executionOrder.add("EarlyB");
+        }
+    }
+
+    public static class LateListenerA implements LateHandler {
+        @Override
+        public void handleLate(TestMessage message) {
+            message.executionOrder.add("LateA");
+        }
+    }
+
+    public static class LateListenerB implements LateHandler {
+        @Override
+        public void handleLate(TestMessage message) {
+            message.executionOrder.add("LateB");
         }
     }
 
     @Test
-    public void testDeepInterfaceHierarchy() {
+    public void testMultipleListenersSamePriority() {
         MBassador bus = createBus(SyncAsync());
-        DeepHierarchyImpl listener = new DeepHierarchyImpl();
-        bus.subscribe(listener);
+
+        // Subscribe listeners with same priorities
+        bus.subscribe(new LateListenerA());
+        bus.subscribe(new EarlyListenerA());
+        bus.subscribe(new LateListenerB());
+        bus.subscribe(new EarlyListenerB());
 
         TestMessage message = new TestMessage();
         bus.publish(message);
 
-        // Should inherit from ExtendedInterface, not BaseInterface
-        assertEquals(1, message.handlerCallCount.get());
-        assertEquals("DeepHierarchyImpl", message.lastHandlerCalled);
-    }
+        // Verify execution order
+        assertEquals(4, message.executionOrder.size());
 
-    // ============= Test 5: Mixed Annotations (Some Interface, Some Class) =============
+        // Early handlers (priority 100) should execute first
+        assertTrue(message.executionOrder.get(0).startsWith("Early"));
+        assertTrue(message.executionOrder.get(1).startsWith("Early"));
 
-    interface MixedInterface {
-        @Handler
-        void fromInterface(TestMessage message);
-
-        void noAnnotation(SpecificMessage message);
-    }
-
-    public static class MixedImplementation implements MixedInterface {
-        private final AtomicInteger interfaceMethodCalls = new AtomicInteger(0);
-        private final AtomicInteger classMethodCalls = new AtomicInteger(0);
-
-        @Override
-        public void fromInterface(TestMessage message) {
-            interfaceMethodCalls.incrementAndGet();
-            message.lastHandlerCalled = "fromInterface";
-        }
-
-        @Override
-        @Handler  // Class provides annotation
-        public void noAnnotation(SpecificMessage message) {
-            classMethodCalls.incrementAndGet();
-            message.lastHandlerCalled = "noAnnotation";
-        }
-    }
-
-    @Test
-    public void testMixedAnnotations() {
-        MBassador bus = createBus(SyncAsync());
-        MixedImplementation listener = new MixedImplementation();
-        bus.subscribe(listener);
-
-        // Test interface-annotated method
-        TestMessage message1 = new TestMessage();
-        bus.publish(message1);
-        assertEquals(1, listener.interfaceMethodCalls.get());
-        assertEquals(0, listener.classMethodCalls.get());
-        assertEquals("fromInterface", message1.lastHandlerCalled);
-
-        // Test class-annotated method
-        // Note: SpecificMessage extends TestMessage, so both handlers will be called
-        SpecificMessage message2 = new SpecificMessage();
-        bus.publish(message2);
-        assertEquals(2, listener.interfaceMethodCalls.get());  // Called again for SpecificMessage
-        assertEquals(1, listener.classMethodCalls.get());
-        // Both handlers are called, lastHandlerCalled could be either depending on execution order
-        assertTrue(message2.lastHandlerCalled.equals("noAnnotation") ||
-                   message2.lastHandlerCalled.equals("fromInterface"));
-    }
-
-    // ============= Test 6: Filter Inheritance from Interface =============
-
-    public static class OnlySpecificMessageFilter implements IMessageFilter<TestMessage> {
-        @Override
-        public boolean accepts(TestMessage message, SubscriptionContext context) {
-            return message instanceof SpecificMessage;
-        }
-    }
-
-    interface FilteredInterface {
-        @Handler(filters = @Filter(OnlySpecificMessageFilter.class))
-        void handleFiltered(TestMessage message);
-    }
-
-    public static class FilterInheritanceImpl implements FilteredInterface {
-        private final AtomicInteger callCount = new AtomicInteger(0);
-
-        @Override
-        public void handleFiltered(TestMessage message) {
-            callCount.incrementAndGet();
-        }
-    }
-
-    @Test
-    public void testFilterInheritance() {
-        MBassador bus = createBus(SyncAsync());
-        FilterInheritanceImpl listener = new FilterInheritanceImpl();
-        bus.subscribe(listener);
-
-        // Generic message should be filtered out
-        TestMessage generic = new TestMessage();
-        bus.publish(generic);
-        assertEquals(0, listener.callCount.get());
-
-        // SpecificMessage should pass filter
-        SpecificMessage specific = new SpecificMessage();
-        bus.publish(specific);
-        assertEquals(1, listener.callCount.get());
-    }
-
-    // ============= Test 7: Multiple Interfaces with Different Methods =============
-
-    interface InterfaceA {
-        @Handler
-        void methodA(TestMessage message);
-    }
-
-    interface InterfaceB {
-        @Handler
-        void methodB(SpecificMessage message);
-    }
-
-    public static class MultipleInterfacesImpl implements InterfaceA, InterfaceB {
-        private final AtomicInteger methodACalls = new AtomicInteger(0);
-        private final AtomicInteger methodBCalls = new AtomicInteger(0);
-
-        @Override
-        public void methodA(TestMessage message) {
-            methodACalls.incrementAndGet();
-        }
-
-        @Override
-        public void methodB(SpecificMessage message) {
-            methodBCalls.incrementAndGet();
-        }
-    }
-
-    @Test
-    public void testMultipleInterfacesDifferentMethods() {
-        MBassador bus = createBus(SyncAsync());
-        MultipleInterfacesImpl listener = new MultipleInterfacesImpl();
-        bus.subscribe(listener);
-
-        // Test methodA
-        TestMessage message1 = new TestMessage();
-        bus.publish(message1);
-        assertEquals(1, listener.methodACalls.get());
-        assertEquals(0, listener.methodBCalls.get());
-
-        // Test methodB
-        SpecificMessage message2 = new SpecificMessage();
-        bus.publish(message2);
-        assertEquals(2, listener.methodACalls.get());  // Also handled by methodA
-        assertEquals(1, listener.methodBCalls.get());
-    }
-
-    // ============= Test 8: Interface Without Handler (Should Not Register) =============
-
-    interface NoHandlerInterface {
-        void notAHandler(TestMessage message);
-    }
-
-    public static class NoHandlerImpl implements NoHandlerInterface {
-        private final AtomicInteger callCount = new AtomicInteger(0);
-
-        @Override
-        public void notAHandler(TestMessage message) {
-            callCount.incrementAndGet();
-        }
-    }
-
-    @Test
-    public void testInterfaceWithoutHandlerAnnotation() {
-        MBassador bus = createBus(SyncAsync());
-        NoHandlerImpl listener = new NoHandlerImpl();
-        bus.subscribe(listener);
-
-        TestMessage message = new TestMessage();
-        bus.publish(message);
-
-        // Should not be called - no @Handler annotation anywhere
-        assertEquals(0, listener.callCount.get());
-    }
-
-    // ============= Test 9: Async Handler from Interface =============
-
-    interface AsyncInterface {
-        @Handler(delivery = Invoke.Asynchronously)
-        void handleAsync(TestMessage message);
-    }
-
-    public static class AsyncImpl implements AsyncInterface {
-        private final AtomicInteger callCount = new AtomicInteger(0);
-
-        @Override
-        public void handleAsync(TestMessage message) {
-            callCount.incrementAndGet();
-        }
-
-        public int getCallCount() {
-            return callCount.get();
-        }
-    }
-
-    @Test
-    public void testAsyncHandlerInheritance() throws InterruptedException {
-        MBassador bus = createBus(SyncAsync());
-        AsyncImpl listener = new AsyncImpl();
-        bus.subscribe(listener);
-
-        TestMessage message = new TestMessage();
-        bus.publish(message);
-
-        // Wait for async processing
-        Thread.sleep(100);
-
-        assertEquals(1, listener.getCallCount());
-    }
-
-    // ============= Test 10: Disabled Handler from Interface =============
-
-    interface DisabledInterface {
-        @Handler(enabled = false)
-        void handleDisabled(TestMessage message);
-    }
-
-    public static class DisabledImpl implements DisabledInterface {
-        private final AtomicInteger callCount = new AtomicInteger(0);
-
-        @Override
-        public void handleDisabled(TestMessage message) {
-            callCount.incrementAndGet();
-        }
-    }
-
-    @Test
-    public void testDisabledHandlerInheritance() {
-        MBassador bus = createBus(SyncAsync());
-        DisabledImpl listener = new DisabledImpl();
-        bus.subscribe(listener);
-
-        TestMessage message = new TestMessage();
-        bus.publish(message);
-
-        // Should not be called - handler is disabled
-        assertEquals(0, listener.callCount.get());
-    }
-
-    // ============= Test 11: Class Enables Disabled Interface Handler =============
-
-    interface DisabledByDefaultInterface {
-        @Handler(enabled = false)
-        void handle(TestMessage message);
-    }
-
-    public static class EnableInClass implements DisabledByDefaultInterface {
-        private final AtomicInteger callCount = new AtomicInteger(0);
-
-        @Override
-        @Handler(enabled = true)  // Class enables it
-        public void handle(TestMessage message) {
-            callCount.incrementAndGet();
-        }
-    }
-
-    @Test
-    public void testClassEnablesDisabledInterfaceHandler() {
-        MBassador bus = createBus(SyncAsync());
-        EnableInClass listener = new EnableInClass();
-        bus.subscribe(listener);
-
-        TestMessage message = new TestMessage();
-        bus.publish(message);
-
-        // Should be called - class annotation enables it
-        assertEquals(1, listener.callCount.get());
+        // Late handlers (priority 1) should execute last
+        assertTrue(message.executionOrder.get(2).startsWith("Late"));
+        assertTrue(message.executionOrder.get(3).startsWith("Late"));
     }
 
     // ============= Helper Methods =============
