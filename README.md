@@ -97,12 +97,10 @@ This is 100% backward compatible with existing MBassador code. Listeners use @Ha
 You can optionally enable auto‑scanning of packages for listener classes:
 
 ```java
-// Zero-config: automatically scans given packages and subscribes found listeners
-MBassador<Event> bus = new MBassador<>(
-        true,
-        "com.myapp.listeners",
-        "org.company.handlers"
-    );
+// Zero-config style: automatically scans given packages and subscribes found listeners
+MBassador<Event> bus = new MBassador<>();
+
+bus.autoScan("com.myapp.listeners", "org.company.handlers");
 ```
 The constructor above will:
 
@@ -126,6 +124,17 @@ This pattern is inspired by the Dimension‑DI DependencyScanner: it uses a two�
 2. analyzing class bytes via the Class‑File API to detect @Handler methods, only loading classes that are actually needed.
 
 Note: Only classes with an accessible no‑arg constructor can be auto‑instantiated. Classes without such a constructor will be skipped with a diagnostic message.
+
+You can enable auto‑scanning by calling autoScan(...) on an existing bus.
+
+By default, any class annotated with `@Listener` and having at least one `@Handler` method is a candidate for auto-scan. You can opt out by setting:
+
+```java
+@Listener(autoScan = false)
+public class InternalListener {
+    ...
+}
+```
 
 #### 3. Mixed usage (auto‑scan + manual subscription)
 

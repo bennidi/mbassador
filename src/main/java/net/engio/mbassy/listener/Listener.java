@@ -18,8 +18,12 @@ public @interface Listener {
     /**
      * BY DEFAULT, MBassador uses {@link java.lang.ref.WeakReference}. It is possible to use
      * strong instead.
-     *
      */
     References references() default References.Weak;
 
+    /**
+     * Controls whether this listener is picked up by auto-scan.
+     * Default is true for backward compatibility.
+     */
+    boolean autoScan() default true;
 }

@@ -10,6 +10,7 @@ import net.engio.mbassy.bus.error.PublicationError;
 import net.engio.mbassy.bus.publication.SyncAsyncPostCommand;
 
 import java.util.concurrent.TimeUnit;
+import net.engio.mbassy.listener.Listener;
 import net.engio.mbassy.scan.ClassFileHandlerScanner;
 
 
@@ -48,26 +49,11 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
     }
 
     /**
-     * Constructor with auto-scanning enabled
-     */
-    public MBassador(boolean enableAutoScan, String... packagesToScan) {
-        this(new BusConfiguration()
-                 .addFeature(Feature.SyncPubSub.Default())
-                 .addFeature(Feature.AsynchronousHandlerInvocation.Default())
-                 .addFeature(Feature.AsynchronousMessageDispatch.Default())
-                 .addFeature(Feature.AutoScan.Default().setPackagesToScan(packagesToScan)));
-
-        if (enableAutoScan) {
-            autoScan(packagesToScan);
-        }
-    }
-
-    /**
-     * Auto-scans specified packages for listeners and subscribes them automatically.
+     * Auto-scans default package for listeners and subscribes them automatically.
      * This provides zero-configuration capability.
      */
     public void autoScan() {
-        autoScan(""); // Scan default package
+        autoScan("");
     }
 
     /**
@@ -82,10 +68,22 @@ public class MBassador<T> extends AbstractSyncAsyncMessageBus<T, SyncAsyncPostCo
                 List<Class<?>> listenerClasses = scanner.scanPackage(pkg);
                 for (Class<?> listenerClass : listenerClasses) {
                     try {
-                        // Use default constructor to create instance
+                        Listener listenerAnn = listenerClass.getAnnotation(Listener.class);
+                        if (listenerAnn != null && !listenerAnn.autoScan()) {
+                            // Explicitly opted out of auto-scan
+                            continue;
+                        }
+
+                        // Check for default constructor before attempting to use it
+                        listenerClass.getDeclaredConstructor(); // throws if none
+
                         Object listener = listenerClass.getDeclaredConstructor().newInstance();
                         subscribe(listener);
                         System.out.println("Auto-subscribed listener: " + listenerClass.getName());
+                    } catch (NoSuchMethodException e) {
+                        // No default constructor - skip silently or log once
+                        System.err.println("Skipping listener without default constructor: " +
+                                               listenerClass.getName());
                     } catch (Exception e) {
                         System.err.println("Failed to instantiate and subscribe listener: " +
                                                listenerClass.getName() + " - " + e.getMessage());

@@ -40,7 +40,8 @@ public class AutoScanUsageTest extends MessageBusTest {
     AutoScannedListener.count.set(0);
 
     String pkg = "net.engio.mbassy.autoscan";
-    MBassador<TestEvent> bus = new MBassador<>(true, pkg);
+    MBassador<TestEvent> bus = new MBassador<>();
+    bus.autoScan(pkg);
 
     bus.post(new TestEvent()).now();
 
