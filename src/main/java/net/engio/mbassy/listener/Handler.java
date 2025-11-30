@@ -1,6 +1,7 @@
 package net.engio.mbassy.listener;
 
 import net.engio.mbassy.dispatch.HandlerInvocation;
+import net.engio.mbassy.dispatch.MethodHandleInvocation;
 import net.engio.mbassy.dispatch.ReflectiveHandlerInvocation;
 
 import java.lang.annotation.*;
@@ -99,14 +100,10 @@ public @interface Handler {
 
     /**
      * Each handler call is implemented as an invocation object that implements the invocation mechanism.
-     * The basic implementation uses reflection and is the default. It is possible though to provide a custom
-     * invocation to add additional logic.
-     *
-     * Note: Providing a custom invocation will most likely reduce performance, since the JIT-Compiler
-     * can not do some of its sophisticated byte code optimizations.
+     * The modern implementation uses MethodHandle for high-performance dispatch.
      *
      */
-    Class<? extends HandlerInvocation> invocation() default ReflectiveHandlerInvocation.class;
+    Class<? extends HandlerInvocation> invocation() default MethodHandleInvocation.class;
 
 
 }
