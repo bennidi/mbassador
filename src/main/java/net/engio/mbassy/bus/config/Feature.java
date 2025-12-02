@@ -18,6 +18,23 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public interface Feature {
 
+    class AutoScan implements Feature {
+
+        public static AutoScan Default() {
+            return new AutoScan();
+        }
+
+        private String[] packagesToScan = new String[0];
+
+        public String[] getPackagesToScan() {
+            return packagesToScan;
+        }
+
+        public AutoScan setPackagesToScan(String... packages) {
+            this.packagesToScan = packages;
+            return this;
+        }
+    }
 
     class SyncPubSub implements Feature{
 
@@ -167,6 +184,4 @@ public interface Feature {
             return this;
         }
     }
-
-
 }

@@ -58,19 +58,26 @@ public class SubscriptionFactory {
     }
 
     protected IHandlerInvocation createBaseHandlerInvocation(SubscriptionContext context) throws MessageBusException {
-        Class<? extends HandlerInvocation> invocation = context.getHandler().getHandlerInvocation();
-        if(invocation.isMemberClass() && !Modifier.isStatic(invocation.getModifiers())){
+        Class<? extends HandlerInvocation> invocationClass = context.getHandler().getHandlerInvocation();
+
+        // Use MethodHandleInvocation as the default implementation
+        if (invocationClass.equals(ReflectiveHandlerInvocation.class)) {
+            return new MethodHandleInvocation(context);
+        }
+
+        // Existing logic for custom invocations
+        if(invocationClass.isMemberClass() && !Modifier.isStatic(invocationClass.getModifiers())){
             throw new MessageBusException("The handler invocation must be top level class or nested STATIC inner class");
         }
         try {
-            Constructor<? extends IHandlerInvocation> constructor = invocation.getConstructor(SubscriptionContext.class);
+            Constructor<? extends IHandlerInvocation> constructor = invocationClass.getConstructor(SubscriptionContext.class);
             return constructor.newInstance(context);
         } catch (NoSuchMethodException e) {
             throw new MessageBusException("The provided handler invocation did not specify the necessary constructor "
-                    + invocation.getSimpleName() + "(SubscriptionContext);", e);
+                                              + invocationClass.getSimpleName() + "(SubscriptionContext);", e);
         } catch (Exception e) {
             throw new MessageBusException("Could not instantiate the provided handler invocation "
-                    + invocation.getSimpleName(), e);
+                                              + invocationClass.getSimpleName(), e);
         }
     }
 }

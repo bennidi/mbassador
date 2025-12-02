@@ -24,7 +24,8 @@ import org.junit.runners.Suite;
         SyncBusTest.MBassadorTest.class,
         SyncBusTest.SyncMessageBusTest.class,
         SynchronizedHandlerTest.class,
-        WeakConcurrentSetTest.class
+        WeakConcurrentSetTest.class,
+        AutoScanUsageTest.class
 })
 public class AllTests {
 }

@@ -54,7 +54,7 @@
     </developers>
 
     <properties>
-        <maven.compiler.release>22</maven.compiler.release>
+        <maven.compiler.release>24</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <github.url>file://${project.basedir}/mvn-local-repo</github.url>
     </properties>
@@ -82,7 +82,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.11.0</version>
+            <version>5.20.0</version>
             <scope>test</scope>
         </dependency>
 

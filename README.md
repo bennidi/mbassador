@@ -22,6 +22,8 @@ The code is **production ready**: 86% instruction coverage, 82% branch coverage 
 
 Using MBassador in your project is very easy. Create as many instances of MBassador as you like (usually a singleton will do) ` bus = new MBassador()`, mark and configure your message handlers with `@Handler` annotations and finally register the listeners at any MBassador instance `bus.subscribe(aListener)`. Start sending messages to your listeners using one of MBassador's publication methods `bus.post(message).now()` or `bus.post(message).asynchronously()`.
 
+MBassador also supports optional **auto-scanning** of packages for listeners annotated with `@Listener`, allowing zero‑configuration discovery in larger applications.
+
 As a first reference, consider this illustrative example. You might want to have a look at the collection of [examples](./examples) to see its features on more detail.
 
 ```java
@@ -66,6 +68,115 @@ bus.post(new File("/tmp/smallfile.csv")).now();
 bus.post(new File("/tmp/bigfile.csv")).asynchronously();
 
 ```   
+
+### Auto-Scanning and Modern Handler Invocation
+
+MBassador supports two complementary “modern” features:
+
+1. **Zero‑configuration listener discovery** via classpath/package auto‑scanning
+2. **High‑performance handler invocation** using `java.lang.invoke.MethodHandle`
+
+#### 1. Traditional usage (backward compatible)
+
+In the classic style you create a bus and manually subscribe listener instances:
+
+```java
+MBassador<Event> bus = new MBassador<>();
+
+// Manually constructed listener
+bus.subscribe(new MyEventListener());
+
+// Publish events
+    bus.post(new Event()).now();
+```
+
+This is 100% backward compatible with existing MBassador code. Listeners use @Handler as before, and nothing about registration or dispatch semantics changes.
+
+#### 2. Modern auto‑scanning usage (JDK 24+ Class-File API)
+
+You can optionally enable auto‑scanning of packages for listener classes:
+
+```java
+// Zero-config style: automatically scans given packages and subscribes found listeners
+MBassador<Event> bus = new MBassador<>();
+
+bus.autoScan("com.myapp.listeners", "org.company.handlers");
+```
+The constructor above will:
+
+- Scan the given packages using the JDK Class‑File API (no class loading needed for discovery).
+- Find all classes that:
+  - Have at least one method annotated with @Handler, and
+  - Are annotated (directly or via meta‑annotation) with @Listener.
+- Instantiate them via their default constructor and subscribe them to the bus.
+
+You can also trigger scanning manually on an existing bus:
+
+```java
+MBassador<Event> bus = new MBassador<>();
+
+// Later in application bootstrap
+bus.autoScan("com.myapp.listeners", "org.company.handlers");
+```
+
+This pattern is inspired by the Dimension‑DI DependencyScanner: it uses a two‑phase process of
+1. discovering class names in the given packages (directory or JAR) and
+2. analyzing class bytes via the Class‑File API to detect @Handler methods, only loading classes that are actually needed.
+
+Note: Only classes with an accessible no‑arg constructor can be auto‑instantiated. Classes without such a constructor will be skipped with a diagnostic message.
+
+You can enable auto‑scanning by calling autoScan(...) on an existing bus.
+
+By default, any class annotated with `@Listener` and having at least one `@Handler` method is a candidate for auto-scan. You can opt out by setting:
+
+```java
+@Listener(autoScan = false)
+public class InternalListener {
+    ...
+}
+```
+
+#### 3. Mixed usage (auto‑scan + manual subscription)
+
+Auto‑scan and manual subscription can be freely mixed:
+
+```java
+MBassador<Event> bus = new MBassador<>();
+
+// 1) Automatically discover and subscribe all listeners in the given packages
+bus.autoScan("com.myapp.listeners");
+
+// 2) Manually add specific listeners (e.g. programmatically constructed)
+bus.subscribe(new SpecialEventListener());
+
+// Both auto‑discovered and manually registered listeners will receive events
+    bus.post(new Event()).now();
+```
+
+This is useful when you want a convention‑based baseline (auto‑scanned listeners), plus a few explicit registrations for application‑specific or dynamically created handlers.
+
+#### 4. MethodHandle‑based handler invocation
+
+By default, MBassador now uses a MethodHandle‑based handler invocation implementation:
+
+
+```java
+@Handler(invocation = MethodHandleInvocation.class)
+public void handle(MyEvent event) {
+  // ...
+}
+```
+
+If no invocation is specified on @Handler, the default is MethodHandleInvocation, which internally uses java.lang.invoke.MethodHandle instead of reflective Method.invoke(...). This:
+- Performs access checks once at handle creation time.
+- Reduces invocation overhead versus traditional reflection.
+- Preserves existing error‑handling semantics:
+  - Any exception thrown by a handler is wrapped in a PublicationError.
+  - All configured IPublicationErrorHandlers are invoked, exactly as before.
+
+You can still plug in a custom invocation strategy by providing your own HandlerInvocation subclass and referencing it via the invocation attribute on @Handler.
+
+---
 
 ## Features
 
@@ -220,6 +331,8 @@ Errors during message delivery are sent to all registered error handlers which c
 MBassador is designed to be extensible with custom implementations of various components like message dispatchers and handler invocations (using the decorator pattern), metadata reader (you can add your own annotations) and factories for different kinds of objects. A configuration object is used to customize the different configurable parts, see [Features](https://github.com/bennidi/mbassador/wiki/Components#Feature)
 
 ## Installation
+Requirements: MBassador now utilizes modern Java features (Class-File API) and requires Java 24 (or a compatible newer release).
+
 MBassador is available from the Maven Central Repository using the following coordinates:
 
 ```xml
